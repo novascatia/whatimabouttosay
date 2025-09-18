@@ -6,7 +6,6 @@
     <title>Script Uploader</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Optional: You can add custom styles here if needed */
       body {
         font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
       }
@@ -17,6 +16,13 @@
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 class="text-2xl font-bold mb-6 text-center">Upload Script</h2>
         <form id="uploadForm" class="space-y-4">
+            <div>
+                <label for="customUrl" class="block text-sm font-medium text-gray-700">Custom Link (optional)</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">novascatia.my.id/</span>
+                    <input type="text" id="customUrl" name="customUrl" class="flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
             <textarea id="scriptContent" placeholder="Paste your script here..." class="w-full h-48 p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
                 Upload Script
@@ -31,6 +37,7 @@
         const form = document.getElementById('uploadForm');
         const scriptContent = document.getElementById('scriptContent');
         const messageDiv = document.getElementById('message');
+        const customUrlInput = document.getElementById('customUrl');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -42,6 +49,8 @@
                 return;
             }
 
+            const customUrl = customUrlInput.value.trim();
+
             messageDiv.textContent = 'Uploading... Please wait.';
             messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
 
@@ -49,7 +58,7 @@
                 const response = await fetch('/.netlify/functions/save-script', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content })
+                    body: JSON.stringify({ content, customUrl })
                 });
 
                 const result = await response.json();
@@ -59,6 +68,7 @@
                     messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
                     messageDiv.className = 'mt-4 text-center text-sm text-green-500';
                     scriptContent.value = '';
+                    customUrlInput.value = '';
                 } else {
                     messageDiv.textContent = `Error: ${result.message || 'An unknown error occurred.'}`;
                     messageDiv.className = 'mt-4 text-center text-sm text-red-500';

@@ -1,21 +1,18 @@
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
-// Dapatkan kunci Supabase dari Environment Variable Netlify
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
-
-// Buat instance Supabase client
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Fungsi untuk membuat ID unik
 function generateUniqueId() {
   return crypto.randomBytes(3).toString('hex');
 }
 
 exports.handler = async (event) => {
     try {
-        const { content } = JSON.parse(event.body);
+        const { content, customUrl } = JSON.parse(event.body);
+
         if (!content) {
             return {
                 statusCode: 400,
@@ -23,11 +20,29 @@ exports.handler = async (event) => {
             };
         }
 
-        const uniqueId = generateUniqueId();
+        let finalId;
+
+        if (customUrl) {
+            const { data } = await supabase
+                .from('scripts')
+                .select('id')
+                .eq('id', customUrl)
+                .single();
+            
+            if (data) {
+                return {
+                    statusCode: 409,
+                    body: JSON.stringify({ message: `The link "${customUrl}" is already taken. Please choose another.` }),
+                };
+            }
+            finalId = customUrl;
+        } else {
+            finalId = generateUniqueId();
+        }
 
         const { error } = await supabase
             .from('scripts')
-            .insert({ id: uniqueId, content: content });
+            .insert({ id: finalId, content: content });
 
         if (error) {
             console.error('Supabase insert error:', error);
@@ -39,7 +54,7 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ id: uniqueId }),
+            body: JSON.stringify({ id: finalId }),
         };
     } catch (error) {
         console.error('Function error:', error);
