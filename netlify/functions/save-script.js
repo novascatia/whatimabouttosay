@@ -11,7 +11,7 @@ function generateUniqueId() {
 
 exports.handler = async (event) => {
     try {
-        const { content, customUrl } = JSON.parse(event.body);
+        const { content, customUrl, overwrite } = JSON.parse(event.body);
 
         if (!content) {
             return {
@@ -29,27 +29,54 @@ exports.handler = async (event) => {
                 .eq('id', customUrl)
                 .single();
             
-            if (data) {
+            if (data && !overwrite) {
                 return {
-                    statusCode: 409,
+                    statusCode: 409, // Conflict
                     body: JSON.stringify({ message: `The link "${customUrl}" is already taken. Please choose another.` }),
                 };
             }
-            finalId = customUrl;
+            
+            if (data && overwrite) {
+                const { error: updateError } = await supabase
+                    .from('scripts')
+                    .update({ content: content })
+                    .eq('id', customUrl);
+                
+                if (updateError) {
+                    console.error('Supabase update error:', updateError);
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({ message: "Failed to overwrite script." }),
+                    };
+                }
+                finalId = customUrl;
+            } else {
+                finalId = customUrl;
+                const { error: insertError } = await supabase
+                    .from('scripts')
+                    .insert({ id: finalId, content: content });
+                
+                if (insertError) {
+                    console.error('Supabase insert error:', insertError);
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({ message: "Failed to save script to database." }),
+                    };
+                }
+            }
         } else {
             finalId = generateUniqueId();
-        }
-
-        const { error } = await supabase
-            .from('scripts')
-            .insert({ id: finalId, content: content });
-
-        if (error) {
-            console.error('Supabase insert error:', error);
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ message: "Failed to save script to database." }),
-            };
+            const { error: insertError } = await supabase
+                .from('scripts')
+                .insert({ id: finalId, content: content });
+            
+            if (insertError) {
+                console.error('Supabase insert error:', insertError);
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({ message: "Failed to save script to database." }),
+                };
+            }
         }
 
         return {

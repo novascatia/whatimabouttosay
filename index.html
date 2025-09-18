@@ -54,31 +54,60 @@
             messageDiv.textContent = 'Uploading... Please wait.';
             messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
 
+            const response = await sendRequest(content, customUrl, false);
+            if (!response) return;
+
+            const result = await response.json();
+
+            if (response.ok) {
+                const scriptUrl = `${window.location.origin}/${result.id}`;
+                messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
+                messageDiv.className = 'mt-4 text-center text-sm text-green-500';
+                scriptContent.value = '';
+                customUrlInput.value = '';
+            } else if (response.status === 409) {
+                // Link already exists, ask for overwrite
+                const confirmOverwrite = window.confirm(`Link "${customUrl}" is already in use. Are you sure you want to overwrite it?`);
+                if (confirmOverwrite) {
+                    messageDiv.textContent = 'Overwriting... Please wait.';
+                    const overwriteResponse = await sendRequest(content, customUrl, true);
+                    const overwriteResult = await overwriteResponse.json();
+                    if (overwriteResponse.ok) {
+                        const scriptUrl = `${window.location.origin}/${overwriteResult.id}`;
+                        messageDiv.innerHTML = `Success! Script has been overwritten at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
+                        messageDiv.className = 'mt-4 text-center text-sm text-green-500';
+                        scriptContent.value = '';
+                        customUrlInput.value = '';
+                    } else {
+                        messageDiv.textContent = `Error overwriting: ${overwriteResult.message}`;
+                        messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                    }
+                } else {
+                    messageDiv.textContent = 'Overwrite cancelled.';
+                    messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
+                }
+            } else {
+                messageDiv.textContent = `Error: ${result.message || 'An unknown error occurred.'}`;
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+            }
+        });
+
+        async function sendRequest(content, customUrl, overwrite) {
             try {
+                const body = overwrite ? { content, customUrl, overwrite } : { content, customUrl };
                 const response = await fetch('/.netlify/functions/save-script', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content, customUrl })
+                    body: JSON.stringify(body)
                 });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    const scriptUrl = `${window.location.origin}/${result.id}`;
-                    messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
-                    messageDiv.className = 'mt-4 text-center text-sm text-green-500';
-                    scriptContent.value = '';
-                    customUrlInput.value = '';
-                } else {
-                    messageDiv.textContent = `Error: ${result.message || 'An unknown error occurred.'}`;
-                    messageDiv.className = 'mt-4 text-center text-sm text-red-500';
-                }
+                return response;
             } catch (error) {
                 console.error('Fetch error:', error);
                 messageDiv.textContent = 'An unexpected error occurred.';
                 messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                return null;
             }
-        });
+        }
     </script>
 </body>
 </html>
