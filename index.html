@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Uploader</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+        textarea { width: 100%; height: 200px; margin-bottom: 10px; }
+        button { padding: 10px 20px; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        #message { margin-top: 20px; color: green; }
+    </style>
+</head>
+<body>
+
+    <h2>Upload Script</h2>
+    <form id="uploadForm">
+        <textarea id="scriptContent" placeholder="Paste your script here..."></textarea>
+        <button type="submit">Upload Script</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const scriptContent = document.getElementById('scriptContent');
+        const messageDiv = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const content = scriptContent.value;
+            if (content.trim() === '') {
+                alert('Script content cannot be empty!');
+                return;
+            }
+
+            messageDiv.textContent = 'Uploading... Please wait.';
+
+            try {
+                // Mengirim data ke Netlify Function
+                const response = await fetch('/.netlify/functions/save-script', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    messageDiv.innerHTML = `Success! Your script is available at: <a href="${result.url}" target="_blank">${result.url}</a>`;
+                    scriptContent.value = ''; // Mengosongkan textarea
+                } else {
+                    messageDiv.textContent = `Error: ${result.message}`;
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                messageDiv.textContent = 'An unexpected error occurred.';
+            }
+        });
+    </script>
+</body>
+</html>
