@@ -32,14 +32,13 @@
             
             const content = scriptContent.value;
             if (content.trim() === '') {
-                alert('Script content cannot be empty!');
+                messageDiv.textContent = 'Script content cannot be empty!';
                 return;
             }
 
             messageDiv.textContent = 'Uploading... Please wait.';
 
             try {
-                // Mengirim data ke Netlify Function
                 const response = await fetch('/.netlify/functions/save-script', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -49,10 +48,12 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    messageDiv.innerHTML = `Success! Your script is available at: <a href="${result.url}" target="_blank">${result.url}</a>`;
-                    scriptContent.value = ''; // Mengosongkan textarea
+                    // Membuat URL di frontend menggunakan ID yang dikembalikan oleh fungsi
+                    const scriptUrl = `${window.location.origin}/${result.id}`;
+                    messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank">${scriptUrl}</a>`;
+                    scriptContent.value = '';
                 } else {
-                    messageDiv.textContent = `Error: ${result.message}`;
+                    messageDiv.textContent = `Error: ${result.message || 'An unknown error occurred.'}`;
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
