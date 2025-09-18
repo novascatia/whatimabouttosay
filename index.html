@@ -4,23 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Script Uploader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-        textarea { width: 100%; height: 200px; margin-bottom: 10px; }
-        button { padding: 10px 20px; }
-        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        #message { margin-top: 20px; color: green; }
+      /* Optional: You can add custom styles here if needed */
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <h2>Upload Script</h2>
-    <form id="uploadForm">
-        <textarea id="scriptContent" placeholder="Paste your script here..."></textarea>
-        <button type="submit">Upload Script</button>
-    </form>
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center">Upload Script</h2>
+        <form id="uploadForm" class="space-y-4">
+            <textarea id="scriptContent" placeholder="Paste your script here..." class="w-full h-48 p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                Upload Script
+            </button>
+        </form>
 
-    <div id="message"></div>
+        <div id="message" class="mt-4 text-center text-sm"></div>
+
+    </div>
 
     <script>
         const form = document.getElementById('uploadForm');
@@ -29,14 +34,16 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
+            
             const content = scriptContent.value;
             if (content.trim() === '') {
                 messageDiv.textContent = 'Script content cannot be empty!';
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
                 return;
             }
 
             messageDiv.textContent = 'Uploading... Please wait.';
+            messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
 
             try {
                 const response = await fetch('/.netlify/functions/save-script', {
@@ -49,14 +56,17 @@
 
                 if (response.ok) {
                     const scriptUrl = `${window.location.origin}/${result.id}`;
-                    messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank">${scriptUrl}</a>`;
+                    messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
+                    messageDiv.className = 'mt-4 text-center text-sm text-green-500';
                     scriptContent.value = '';
                 } else {
                     messageDiv.textContent = `Error: ${result.message || 'An unknown error occurred.'}`;
+                    messageDiv.className = 'mt-4 text-center text-sm text-red-500';
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
                 messageDiv.textContent = 'An unexpected error occurred.';
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
             }
         });
     </script>
