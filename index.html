@@ -29,7 +29,7 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const content = scriptContent.value;
             if (content.trim() === '') {
                 messageDiv.textContent = 'Script content cannot be empty!';
@@ -48,7 +48,6 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Membuat URL di frontend menggunakan ID yang dikembalikan oleh fungsi
                     const scriptUrl = `${window.location.origin}/${result.id}`;
                     messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank">${scriptUrl}</a>`;
                     scriptContent.value = '';

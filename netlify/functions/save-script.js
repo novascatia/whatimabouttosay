@@ -10,7 +10,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Fungsi untuk membuat ID unik
 function generateUniqueId() {
-  return crypto.randomBytes(3).toString('hex'); // Menghasilkan ID 6 karakter
+  return crypto.randomBytes(3).toString('hex');
 }
 
 exports.handler = async (event) => {
@@ -25,7 +25,6 @@ exports.handler = async (event) => {
 
         const uniqueId = generateUniqueId();
 
-        // Menyimpan data ke tabel 'scripts' di Supabase
         const { error } = await supabase
             .from('scripts')
             .insert({ id: uniqueId, content: content });
@@ -40,10 +39,7 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ 
-                message: "Script saved successfully.",
-                url: `${process.env.URL}/${uniqueId}` // URL baru
-            }),
+            body: JSON.stringify({ id: uniqueId }),
         };
     } catch (error) {
         console.error('Function error:', error);
