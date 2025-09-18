@@ -1,13 +1,21 @@
-const { Octokit } = require("@octokit/core");
+const { createClient } = require('@supabase/supabase-js');
+const crypto = require('crypto');
 
-// Gunakan token GitHub dari Environment Variable Netlify
-// PENTING: Jangan masukkan token langsung di kode!
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+// Dapatkan kunci Supabase dari Environment Variable Netlify
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+// Buat instance Supabase client
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Fungsi untuk membuat ID unik
+function generateUniqueId() {
+  return crypto.randomBytes(3).toString('hex'); // Menghasilkan ID 6 karakter
+}
 
 exports.handler = async (event) => {
     try {
         const { content } = JSON.parse(event.body);
-
         if (!content) {
             return {
                 statusCode: 400,
@@ -15,25 +23,33 @@ exports.handler = async (event) => {
             };
         }
 
-        const gistResponse = await octokit.request('POST /gists', {
-            description: `Script uploaded via novascatia.my.id`,
-            public: true, // Ubah ke false jika ingin Gist pribadi
-            files: {
-                'script.txt': {
-                    content: content,
-                },
-            },
-        });
+        const uniqueId = generateUniqueId();
+
+        // Menyimpan data ke tabel 'scripts' di Supabase
+        const { error } = await supabase
+            .from('scripts')
+            .insert({ id: uniqueId, content: content });
+
+        if (error) {
+            console.error('Supabase insert error:', error);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ message: "Failed to save script to database." }),
+            };
+        }
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ url: gistResponse.data.html_url }),
+            body: JSON.stringify({ 
+                message: "Script saved successfully.",
+                url: `${process.env.URL}/${uniqueId}` // URL baru
+            }),
         };
     } catch (error) {
-        console.error('Error creating Gist:', error);
+        console.error('Function error:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ message: "Failed to create Gist." }),
+            body: JSON.stringify({ message: "An unexpected error occurred." }),
         };
     }
 };
