@@ -28,6 +28,16 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         text-align: center;
       }
+      /* Custom fade-in for the message */
+      .fade-in {
+        animation: fadeIn ease 0.5s;
+        animation-fill-mode: forwards;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -43,7 +53,7 @@
                 </div>
             </div>
             <textarea id="scriptContent" placeholder="Paste your script here..." class="w-full h-48 p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+            <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200 hover:scale-105 transform">
                 Upload Script
             </button>
         </form>
@@ -55,7 +65,7 @@
         <div class="popup-content">
             <p id="popupMessage" class="text-lg mb-4"></p>
             <div class="flex justify-center space-x-4">
-                <button id="yesBtn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">Yes</button>
+                <button id="yesBtn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200 hover:scale-105 transform">Yes</button>
                 <button id="noBtn" class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors duration-200">No</button>
             </div>
         </div>
@@ -78,14 +88,14 @@
             const content = scriptContent.value;
             if (content.trim() === '') {
                 messageDiv.textContent = 'Script content cannot be empty!';
-                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500 fade-in';
                 return;
             }
 
             const customUrl = customUrlInput.value.trim();
 
             messageDiv.textContent = 'Uploading... Please wait.';
-            messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
+            messageDiv.className = 'mt-4 text-center text-sm text-gray-500 fade-in';
 
             const response = await sendRequest(content, customUrl, false);
             if (!response) return;
@@ -95,7 +105,7 @@
             if (response.ok) {
                 const scriptUrl = `${window.location.origin}/${result.id}`;
                 messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
-                messageDiv.className = 'mt-4 text-center text-sm text-green-500';
+                messageDiv.className = 'mt-4 text-center text-sm text-green-500 fade-in';
                 scriptContent.value = '';
                 customUrlInput.value = '';
             } else if (response.status === 409) {
@@ -107,21 +117,22 @@
                     confirmPopup.classList.add('hidden');
                     if (isConfirmed) {
                         messageDiv.textContent = 'Overwriting... Please wait.';
+                        messageDiv.className = 'mt-4 text-center text-sm text-gray-500 fade-in';
                         const overwriteResponse = await sendRequest(content, customUrl, true);
                         const overwriteResult = await overwriteResponse.json();
                         if (overwriteResponse.ok) {
                             const scriptUrl = `${window.location.origin}/${overwriteResult.id}`;
                             messageDiv.innerHTML = `Success! Script has been overwritten at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
-                            messageDiv.className = 'mt-4 text-center text-sm text-green-500';
+                            messageDiv.className = 'mt-4 text-center text-sm text-green-500 fade-in';
                             scriptContent.value = '';
                             customUrlInput.value = '';
                         } else {
                             messageDiv.textContent = `Error overwriting: ${overwriteResult.message}`;
-                            messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                            messageDiv.className = 'mt-4 text-center text-sm text-red-500 fade-in';
                         }
                     } else {
                         messageDiv.textContent = 'Overwrite cancelled.';
-                        messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
+                        messageDiv.className = 'mt-4 text-center text-sm text-gray-500 fade-in';
                     }
                     yesBtn.removeEventListener('click', yesHandler);
                     noBtn.removeEventListener('click', noHandler);
@@ -134,7 +145,7 @@
                 noBtn.addEventListener('click', noHandler);
             } else {
                 messageDiv.textContent = `Error: ${result.message || 'An unknown error occurred.'}`;
-                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500 fade-in';
             }
         });
 
@@ -150,7 +161,7 @@
             } catch (error) {
                 console.error('Fetch error:', error);
                 messageDiv.textContent = 'An unexpected error occurred.';
-                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500 fade-in';
                 return null;
             }
         }
