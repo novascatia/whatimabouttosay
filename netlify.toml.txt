@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/display-script"
+  status = 200
+  force = true
