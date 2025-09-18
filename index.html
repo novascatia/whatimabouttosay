@@ -9,6 +9,25 @@
       body {
         font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
       }
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 50;
+      }
+      .popup-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -30,7 +49,16 @@
         </form>
 
         <div id="message" class="mt-4 text-center text-sm"></div>
+    </div>
 
+    <div id="confirmPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <p id="popupMessage" class="text-lg mb-4"></p>
+            <div class="flex justify-center space-x-4">
+                <button id="yesBtn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">Yes</button>
+                <button id="noBtn" class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors duration-200">No</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -38,6 +66,11 @@
         const scriptContent = document.getElementById('scriptContent');
         const messageDiv = document.getElementById('message');
         const customUrlInput = document.getElementById('customUrl');
+        
+        const confirmPopup = document.getElementById('confirmPopup');
+        const popupMessage = document.getElementById('popupMessage');
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -66,26 +99,39 @@
                 scriptContent.value = '';
                 customUrlInput.value = '';
             } else if (response.status === 409) {
-                // Link already exists, ask for overwrite
-                const confirmOverwrite = window.confirm(`Link "${customUrl}" is already in use. Are you sure you want to overwrite it?`);
-                if (confirmOverwrite) {
-                    messageDiv.textContent = 'Overwriting... Please wait.';
-                    const overwriteResponse = await sendRequest(content, customUrl, true);
-                    const overwriteResult = await overwriteResponse.json();
-                    if (overwriteResponse.ok) {
-                        const scriptUrl = `${window.location.origin}/${overwriteResult.id}`;
-                        messageDiv.innerHTML = `Success! Script has been overwritten at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
-                        messageDiv.className = 'mt-4 text-center text-sm text-green-500';
-                        scriptContent.value = '';
-                        customUrlInput.value = '';
+                // Show custom popup for confirmation
+                popupMessage.textContent = `Link "${customUrl}" is already in use. Are you sure you want to overwrite it?`;
+                confirmPopup.classList.remove('hidden');
+
+                const handleConfirmation = async (isConfirmed) => {
+                    confirmPopup.classList.add('hidden');
+                    if (isConfirmed) {
+                        messageDiv.textContent = 'Overwriting... Please wait.';
+                        const overwriteResponse = await sendRequest(content, customUrl, true);
+                        const overwriteResult = await overwriteResponse.json();
+                        if (overwriteResponse.ok) {
+                            const scriptUrl = `${window.location.origin}/${overwriteResult.id}`;
+                            messageDiv.innerHTML = `Success! Script has been overwritten at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
+                            messageDiv.className = 'mt-4 text-center text-sm text-green-500';
+                            scriptContent.value = '';
+                            customUrlInput.value = '';
+                        } else {
+                            messageDiv.textContent = `Error overwriting: ${overwriteResult.message}`;
+                            messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                        }
                     } else {
-                        messageDiv.textContent = `Error overwriting: ${overwriteResult.message}`;
-                        messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                        messageDiv.textContent = 'Overwrite cancelled.';
+                        messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
                     }
-                } else {
-                    messageDiv.textContent = 'Overwrite cancelled.';
-                    messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
-                }
+                    yesBtn.removeEventListener('click', yesHandler);
+                    noBtn.removeEventListener('click', noHandler);
+                };
+
+                const yesHandler = () => handleConfirmation(true);
+                const noHandler = () => handleConfirmation(false);
+                
+                yesBtn.addEventListener('click', yesHandler);
+                noBtn.addEventListener('click', noHandler);
             } else {
                 messageDiv.textContent = `Error: ${result.message || 'An unknown error occurred.'}`;
                 messageDiv.className = 'mt-4 text-center text-sm text-red-500';
