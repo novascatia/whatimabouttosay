@@ -1,7 +1,11 @@
 exports.handler = async (event) => {
     const secretPin = process.env.SCRIPT_PIN;
     const { pin } = JSON.parse(event.body);
-
+    
+    // Ini adalah baris debugging baru
+    console.log('Secret PIN from env:', secretPin);
+    console.log('PIN from user input:', pin);
+    
     if (pin === secretPin) {
         return {
             statusCode: 200,
