@@ -92,7 +92,6 @@
             }
         });
 
-        // The rest of your existing JavaScript for the uploader...
         const form = document.getElementById('uploadForm');
         const scriptContent = document.getElementById('scriptContent');
         const messageDiv = document.getElementById('message');
@@ -124,13 +123,12 @@
             const result = await response.json();
 
             if (response.ok) {
-                const scriptUrl = `${window.location.origin}/script/${result.id}`; // Updated URL
+                const scriptUrl = `${window.location.origin}/script/${result.id}`;
                 messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
                 messageDiv.className = 'mt-4 text-center text-sm text-green-500';
                 scriptContent.value = '';
                 customUrlInput.value = '';
             } else if (response.status === 409) {
-                // Show custom popup for confirmation
                 popupMessage.textContent = `Link "${customUrl}" is already in use. Are you sure you want to overwrite it?`;
                 confirmPopup.classList.remove('hidden');
 
@@ -141,7 +139,7 @@
                         const overwriteResponse = await sendRequest(content, customUrl, true);
                         const overwriteResult = await overwriteResponse.json();
                         if (overwriteResponse.ok) {
-                            const scriptUrl = `${window.location.origin}/script/${overwriteResult.id}`; // Updated URL
+                            const scriptUrl = `${window.location.origin}/script/${overwriteResult.id}`;
                             messageDiv.innerHTML = `Success! Script has been overwritten at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
                             messageDiv.className = 'mt-4 text-center text-sm text-green-500';
                             scriptContent.value = '';

@@ -1,25 +1,22 @@
 const { createClient } = require('@supabase/supabase-js');
 
-// Dapatkan kunci Supabase dari Environment Variable Netlify
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
-// Buat instance Supabase client
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 exports.handler = async (event) => {
     try {
         const pathSegments = event.path.split('/');
-        const id = pathSegments[pathSegments.length - 1]; // Mengambil ID dari URL
-        
+        const id = pathSegments[pathSegments.length - 1];
+
         if (!id) {
             return {
                 statusCode: 400,
                 body: "Invalid request. Please provide a script ID.",
             };
         }
-        
-        // Mengambil script dari database berdasarkan ID
+
         const { data, error } = await supabase
             .from('scripts')
             .select('content')
@@ -37,7 +34,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             headers: {
-                "Content-Type": "text/plain" // Mengirim sebagai raw text
+                "Content-Type": "text/plain"
             },
             body: data.content,
         };

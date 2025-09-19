@@ -1,5 +1,5 @@
 [[redirects]]
-  from = "/:id"
+  from = "/script/:id"
   to = "/.netlify/functions/display-script"
   status = 200
   force = true
