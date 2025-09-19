@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page</title>
+    <title>Script Uploader</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
@@ -31,55 +31,145 @@
       .hidden {
         display: none !important;
       }
+      .fade-in {
+        animation: fadeIn ease 0.5s;
+        animation-fill-mode: forwards;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-center relative">
-        <h1 class="text-3xl font-bold mb-4">Welcome to Nova Scotia Scripts</h1>
-        <p class="mb-6 text-gray-600">This is the main page.</p>
-        <button id="scriptAreaBtn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200 absolute bottom-4 left-4">
-            Script Area
-        </button>
+
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center">Upload Script</h2>
+        <form id="uploadForm" class="space-y-4">
+            <div>
+                <label for="customUrl" class="block text-sm font-medium text-gray-700">Custom Link (optional)</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">novascatia.my.id/</span>
+                    <input type="text" id="customUrl" name="customUrl" class="flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <textarea id="scriptContent" placeholder="Paste your script here..." class="w-full h-48 p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200 hover:scale-105 transform">
+                Upload Script
+            </button>
+        </form>
+
+        <div id="message" class="mt-4 text-center text-sm"></div>
     </div>
 
-    <div id="pinPopup" class="popup-overlay hidden">
+    <div id="confirmPopup" class="popup-overlay hidden">
         <div class="popup-content">
-            <h2 class="text-2xl font-bold mb-4">Enter PIN</h2>
-            <input type="password" id="pinInput" class="w-full max-w-xs p-2 text-center border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button id="submitPinBtn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
-                Submit
-            </button>
-            <p id="pinMessage" class="mt-4 text-sm text-red-500 hidden">Incorrect PIN.</p>
+            <p id="popupMessage" class="text-lg mb-4"></p>
+            <div class="flex justify-center space-x-4">
+                <button id="yesBtn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200 hover:scale-105 transform">Yes</button>
+                <button id="noBtn" class="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors duration-200">No</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const scriptAreaBtn = document.getElementById('scriptAreaBtn');
-        const pinPopup = document.getElementById('pinPopup');
-        const pinInput = document.getElementById('pinInput');
-        const submitPinBtn = document.getElementById('submitPinBtn');
-        const pinMessage = document.getElementById('pinMessage');
+        const form = document.getElementById('uploadForm');
+        const scriptContent = document.getElementById('scriptContent');
+        const messageDiv = document.getElementById('message');
+        const customUrlInput = document.getElementById('customUrl');
+        
+        const confirmPopup = document.getElementById('confirmPopup');
+        const popupMessage = document.getElementById('popupMessage');
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
 
-        scriptAreaBtn.addEventListener('click', () => {
-            pinPopup.classList.remove('hidden');
-        });
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const content = scriptContent.value;
+            if (content.trim() === '') {
+                messageDiv.textContent = 'Script content cannot be empty!';
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                return;
+            }
 
-        submitPinBtn.addEventListener('click', async () => {
-            const pin = pinInput.value;
-            pinMessage.classList.add('hidden');
+            const customUrl = customUrlInput.value.trim();
 
-            const response = await fetch('/.netlify/functions/check-pin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pin })
-            });
+            messageDiv.textContent = 'Uploading... Please wait.';
+            messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
+
+            const response = await sendRequest(content, customUrl, false);
+            if (!response) return;
+
+            const result = await response.json();
 
             if (response.ok) {
-                window.location.href = '/script/'; // Arahkan ke halaman uploader
+                const scriptUrl = `${window.location.origin}/${result.id}`;
+                messageDiv.innerHTML = `Success! Your script is available at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
+                messageDiv.className = 'mt-4 text-center text-sm text-green-500';
+                scriptContent.value = '';
+                customUrlInput.value = '';
+                console.log('Script uploaded successfully. URL:', scriptUrl);
+            } else if (response.status === 409) {
+                // Show custom popup for confirmation
+                popupMessage.textContent = `Link "${customUrl}" is already in use. Are you sure you want to overwrite it?`;
+                confirmPopup.classList.remove('hidden');
+
+                const handleConfirmation = async (isConfirmed) => {
+                    confirmPopup.classList.add('hidden');
+                    if (isConfirmed) {
+                        messageDiv.textContent = 'Overwriting... Please wait.';
+                        const overwriteResponse = await sendRequest(content, customUrl, true);
+                        const overwriteResult = await overwriteResponse.json();
+                        if (overwriteResponse.ok) {
+                            const scriptUrl = `${window.location.origin}/${overwriteResult.id}`;
+                            messageDiv.innerHTML = `Success! Script has been overwritten at: <a href="${scriptUrl}" target="_blank" class="text-blue-500 hover:underline font-medium">${scriptUrl}</a>`;
+                            messageDiv.className = 'mt-4 text-center text-sm text-green-500';
+                            scriptContent.value = '';
+                            customUrlInput.value = '';
+                            console.log('Script overwritten successfully. URL:', scriptUrl);
+                        } else {
+                            messageDiv.textContent = `Error overwriting: ${overwriteResult.message}`;
+                            messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                            console.error('Error overwriting:', overwriteResult.message);
+                        }
+                    } else {
+                        messageDiv.textContent = 'Overwrite cancelled.';
+                        messageDiv.className = 'mt-4 text-center text-sm text-gray-500';
+                        console.log('Overwrite cancelled by user.');
+                    }
+                    yesBtn.removeEventListener('click', yesHandler);
+                    noBtn.removeEventListener('click', noHandler);
+                };
+
+                const yesHandler = () => handleConfirmation(true);
+                const noHandler = () => handleConfirmation(false);
+                
+                yesBtn.addEventListener('click', yesHandler);
+                noBtn.addEventListener('click', noHandler);
             } else {
-                pinMessage.classList.remove('hidden');
+                messageDiv.textContent = `Error: ${result.message || 'An unknown error occurred.'}`;
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                console.error('Error:', result.message || 'An unknown error occurred.');
             }
         });
+
+        async function sendRequest(content, customUrl, overwrite) {
+            try {
+                const body = overwrite ? { content, customUrl, overwrite } : { content, customUrl };
+                const response = await fetch('/.netlify/functions/save-script', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                return response;
+            } catch (error) {
+                console.error('Fetch error:', error);
+                messageDiv.textContent = 'An unexpected error occurred.';
+                messageDiv.className = 'mt-4 text-center text-sm text-red-500';
+                return null;
+            }
+        }
     </script>
 </body>
 </html>
