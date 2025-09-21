@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { font-family: ui-sans-serif, system-ui; }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <header class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">My Blog</h1>
+        <a href="/login" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+            Log In
+        </a>
+    </header>
+    <div id="postsList" class="space-y-6">
+        <p>Loading posts...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+    <script>
+        const postsList = document.getElementById('postsList');
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_KEY;
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function fetchPosts() {
+            const { data: posts, error } = await supabase.from('posts').select('*');
+
+            if (error) {
+                postsList.innerHTML = `<p class="text-red-500">Error loading posts: ${error.message}</p>`;
+                return;
+            }
+
+            if (posts.length === 0) {
+                postsList.innerHTML = `<p class="text-gray-500">No blog posts yet.</p>`;
+                return;
+            }
+
+            postsList.innerHTML = posts.map(post => `
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-2">${post.title}</h2>
+                    <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()}</p>
+                    <p class="text-gray-800">${post.content}</p>
+                </div>
+            `).join('');
+        }
+
+        fetchPosts();
+    </script>
+</body>
+</html>

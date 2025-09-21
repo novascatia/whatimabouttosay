@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { font-family: ui-sans-serif, system-ui; }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Create New Post</h2>
+            <button id="logoutBtn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-200">
+                Log Out
+            </button>
+        </div>
+        <form id="postForm" class="space-y-4">
+            <div>
+                <label for="postTitle" class="block text-sm font-medium text-gray-700">Post Title</label>
+                <input type="text" id="postTitle" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div>
+                <label for="postContent" class="block text-sm font-medium text-gray-700">Post Content</label>
+                <textarea id="postContent" rows="10" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                Submit Post
+            </button>
+        </form>
+        <p id="message" class="mt-4 text-center text-sm"></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+    <script>
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_KEY;
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        const postForm = document.getElementById('postForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const message = document.getElementById('message');
+
+        async function checkAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = '/login';
+            }
+        }
+
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const { data: { user } } = await supabase.auth.getUser();
+
+            message.textContent = 'Submitting post...';
+
+            const { error } = await supabase
+                .from('posts')
+                .insert({
+                    title: title,
+                    content: content,
+                    author: user.email // Menggunakan email pengguna sebagai penulis
+                });
+            
+            if (error) {
+                message.textContent = `Error: ${error.message}`;
+                message.className = 'mt-4 text-center text-sm text-red-500';
+            } else {
+                message.textContent = 'Post submitted successfully!';
+                message.className = 'mt-4 text-center text-sm text-green-500';
+                document.getElementById('postTitle').value = '';
+                document.getElementById('postContent').value = '';
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/login';
+        });
+
+        checkAuth();
+    </script>
+</body>
+</html>
