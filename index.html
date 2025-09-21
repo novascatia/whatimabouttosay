@@ -7,6 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body { font-family: ui-sans-serif, system-ui; }
+      body.dark {
+          background-color: #1a202c;
+          color: #e2e8f0;
+      }
+      body.dark .bg-white {
+          background-color: #2d3748;
+          color: #e2e8f0;
+      }
+      body.dark .text-gray-600 { color: #cbd5e0; }
+      body.dark .text-gray-800 { color: #e2e8f0; }
     </style>
 </head>
 <body class="bg-gray-100 p-8">
@@ -28,16 +38,17 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
         const postsList = document.getElementById('postsList');
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_KEY';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         async function fetchPosts() {
-            const response = await fetch('/.netlify/functions/fetch-posts');
+            const { data: posts, error } = await supabase.from('posts').select('*');
 
-            if (!response.ok) {
+            if (error) {
                 postsList.innerHTML = `<p class="text-red-500">Error loading posts.</p>`;
                 return;
             }
-
-            const posts = await response.json();
 
             if (posts.length === 0) {
                 postsList.innerHTML = `<p class="text-gray-500">No blog posts yet.</p>`;
@@ -69,14 +80,14 @@
         }
 
         darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark');
-            sunIcon.classList.toggle('hidden');
-            moonIcon.classList.toggle('hidden');
-            if (body.classList.contains('dark')) {
+            const isDark = body.classList.toggle('dark');
+            if (isDark) {
                 localStorage.setItem('theme', 'dark');
             } else {
                 localStorage.setItem('theme', 'light');
             }
+            sunIcon.classList.toggle('hidden', isDark);
+            moonIcon.classList.toggle('hidden', !isDark);
         });
     </script>
 </body>
