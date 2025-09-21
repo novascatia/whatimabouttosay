@@ -55,18 +55,24 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        const supabaseUrl = 'YOUR_SUPABASE_URL';
-        const supabaseKey = 'YOUR_SUPABASE_KEY';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        let supabase;
 
-        async function checkAuth() {
+        async function initAndAuth() {
+            const response = await fetch('/.netlify/functions/get-config');
+            if (!response.ok) {
+                message.textContent = 'Error: Could not get Supabase keys.';
+                return;
+            }
+            const keys = await response.json();
+            supabase = window.supabase.createClient(keys.supabaseUrl, keys.supabaseKey);
+
             const loggedIn = document.cookie.includes("loggedIn=true");
             if (!loggedIn) {
                 window.location.href = '/login.html';
                 return;
             }
         }
-
+        
         const postForm = document.getElementById('postForm');
         const logoutBtn = document.getElementById('logoutBtn');
         const message = document.getElementById('message');
@@ -122,7 +128,7 @@
             window.location.href = '/login.html';
         });
 
-        checkAuth();
+        initAndAuth();
     </script>
 </body>
 </html>
