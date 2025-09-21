@@ -5,7 +5,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 exports.handler = async (event) => {
     try {
-        const { id } = event.queryStringParameters;
+        const pathSegments = event.path.split('/');
+        const id = pathSegments[pathSegments.length - 1]; // Mengambil ID dari URL
         
         if (!id) {
             return {

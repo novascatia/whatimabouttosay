@@ -13,6 +13,6 @@
 
 [[redirects]]
   from = "/posts/:id"
-  to = "/post.html"
+  to = "/.netlify/functions/get-post"
   status = 200
   force = true
