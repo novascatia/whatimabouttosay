@@ -31,8 +31,9 @@
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const postContentDiv = document.getElementById('postContent');
-        const urlParams = new URLSearchParams(window.location.search);
-        const postId = urlParams.get('id');
+
+        // Ambil ID dari pathname, bukan query string
+        const postId = window.location.pathname.split('/posts/').pop();
 
         async function fetchPost() {
             if (!postId) {
