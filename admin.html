@@ -24,6 +24,10 @@
                 <input type="text" id="postTitle" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
             </div>
             <div>
+                <label for="postDescription" class="block text-sm font-medium text-gray-700">Post Description</label>
+                <input type="text" id="postDescription" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div>
                 <label for="postContent" class="block text-sm font-medium text-gray-700">Post Content</label>
                 <textarea id="postContent" rows="10" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
@@ -34,51 +38,59 @@
         <p id="message" class="mt-4 text-center text-sm"></p>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        async function checkAuth() {
-            const loggedIn = document.cookie.includes("loggedIn=true");
-            if (!loggedIn) {
-                window.location.href = '/login.html';
-                return;
-            }
-        }
-        
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_KEY';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
         const postForm = document.getElementById('postForm');
         const logoutBtn = document.getElementById('logoutBtn');
         const message = document.getElementById('message');
 
+        async function checkAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = '/login';
+            }
+        }
+
         postForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const title = document.getElementById('postTitle').value;
+            const description = document.getElementById('postDescription').value;
             const content = document.getElementById('postContent').value;
-            
+            const { data: { user } } = await supabase.auth.getUser();
+
             message.textContent = 'Submitting post...';
 
-            const response = await fetch('/.netlify/functions/create-post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, content, author: 'rama' })
-            });
+            const { error } = await supabase
+                .from('posts')
+                .insert({
+                    title: title,
+                    description: description,
+                    content: content,
+                    author: user.email
+                });
             
-            const result = await response.json();
-
-            if (response.ok) {
+            if (error) {
+                message.textContent = `Error: ${error.message}`;
+                message.className = 'mt-4 text-center text-sm text-red-500';
+            } else {
                 message.textContent = 'Post submitted successfully!';
                 message.className = 'mt-4 text-center text-sm text-green-500';
                 document.getElementById('postTitle').value = '';
+                document.getElementById('postDescription').value = '';
                 document.getElementById('postContent').value = '';
-            } else {
-                message.textContent = `Error: ${result.error}`;
-                message.className = 'mt-4 text-center text-sm text-red-500';
             }
         });
 
-        logoutBtn.addEventListener('click', () => {
-            document.cookie = "loggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.location.href = '/login.html';
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/login';
         });
 
         checkAuth();
     </script>
 </body>
-</html>	
+</html>

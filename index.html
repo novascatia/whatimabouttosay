@@ -12,9 +12,14 @@
 <body class="bg-gray-100 p-8">
     <header class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold">My Blog</h1>
-        <a href="/login" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
-            Log In
-        </a>
+        <div id="darkModeToggle" class="cursor-pointer">
+            <svg id="sunIcon" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm0 13a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm7.07-8.07a1 1 0 01-.707 1.707l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM3.66 16.34a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm12.356 0a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm-7.07-8.07a1 1 0 01-.707 1.707l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM3.66 3.66a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm12.356-1.414a1 1 0 01-1.414 1.414l-.707.707a1 1 0 011.414-1.414l.707-.707z"></path>
+            </svg>
+            <svg id="moonIcon" class="w-6 h-6 text-gray-800 hidden" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+            </svg>
+        </div>
     </header>
     <div id="postsList" class="space-y-6">
         <p>Loading posts...</p>
@@ -40,14 +45,38 @@
 
             postsList.innerHTML = posts.map(post => `
                 <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <a href="/posts/${post.id}" class="text-2xl font-semibold mb-2 hover:underline cursor-pointer">${post.title}</a>
+                    <a href="/posts/${post.id}" class="text-2xl font-semibold mb-2 hover:underline">${post.title}</a>
                     <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()}</p>
-                    <p class="text-gray-800">${post.content.substring(0, 150)}...</p>
+                    <p class="text-gray-800">${post.description}</p>
                 </div>
             `).join('');
         }
 
         fetchPosts();
+
+        // Dark Mode Logic
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const body = document.body;
+
+        const isDarkMode = localStorage.getItem('theme') === 'dark';
+        if (isDarkMode) {
+            body.classList.add('dark');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+            if (body.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
     </script>
 </body>
 </html>

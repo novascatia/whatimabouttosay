@@ -14,23 +14,37 @@
         <p>Loading post...</p>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        const postId = window.location.pathname.split('/').pop();
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_KEY';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
         const postContentDiv = document.getElementById('postContent');
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
 
         async function fetchPost() {
-            const response = await fetch(`/.netlify/functions/get-post?id=${postId}`);
-            const post = await response.json();
+            if (!postId) {
+                postContentDiv.innerHTML = `<p class="text-red-500">Post ID is missing.</p>`;
+                return;
+            }
 
-            if (post.error) {
-                postContentDiv.innerHTML = `<p class="text-red-500">Error: ${post.error}</p>`;
+            const { data, error } = await supabase
+                .from('posts')
+                .select('*')
+                .eq('id', postId)
+                .single();
+
+            if (error || !data) {
+                postContentDiv.innerHTML = `<p class="text-red-500">Error: Post not found.</p>`;
                 return;
             }
 
             postContentDiv.innerHTML = `
-                <h2 class="text-2xl font-semibold mb-2">${post.title}</h2>
-                <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()}</p>
-                <p class="text-gray-800">${post.content}</p>
+                <h2 class="text-2xl font-semibold mb-2">${data.title}</h2>
+                <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(data.created_at).toLocaleDateString()} by ${data.author}</p>
+                <p class="text-gray-800">${data.content}</p>
             `;
         }
         fetchPost();

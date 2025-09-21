@@ -11,12 +11,12 @@ function generateUniqueId() {
 
 exports.handler = async (event) => {
     try {
-        const { title, content, author } = JSON.parse(event.body);
-        const uniqueId = generateUniqueId(); // Membuat ID unik di sini
+        const { title, description, content, author } = JSON.parse(event.body);
+        const uniqueId = generateUniqueId();
 
         const { error } = await supabase
             .from('posts')
-            .insert({ id: uniqueId, title, content, author });
+            .insert({ id: uniqueId, title, description, content, author });
 
         if (error) {
             return {
