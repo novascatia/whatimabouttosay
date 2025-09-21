@@ -69,6 +69,7 @@ exports.handler = async (event) => {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${post.title}</title>
+                <link rel="icon" type="image/png" href="/logo.png">
                 <script src="https://cdn.tailwindcss.com"></script>
                 <style>
                   body { font-family: ui-sans-serif, system-ui; }
