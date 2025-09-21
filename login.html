@@ -47,7 +47,7 @@
             if (response.ok) {
                 document.cookie = "loggedIn=true; path=/";
                 messageDiv.textContent = 'Login successful! Redirecting...';
-                window.location.href = '/admin';
+window.location.href = '/admin.html';
             } else {
                 const result = await response.json();
                 messageDiv.textContent = `Error: ${result.message}`;
