@@ -42,6 +42,10 @@
                 <label for="postContent" class="block text-sm font-medium text-gray-700">Post Content</label>
                 <textarea id="postContent" rows="10" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="pinPost" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="pinPost" class="ml-2 block text-sm text-gray-900">Pin this post</label>
+            </div>
             <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
                 Submit Post
             </button>
@@ -49,11 +53,12 @@
         <p id="message" class="mt-4 text-center text-sm"></p>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        const supabaseUrl = process.env.SUPABASE_URL;
-        const supabaseKey = process.env.SUPABASE_KEY;
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_KEY';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        
+
         async function checkAuth() {
             const loggedIn = document.cookie.includes("loggedIn=true");
             if (!loggedIn) {
@@ -61,7 +66,7 @@
                 return;
             }
         }
-        
+
         const postForm = document.getElementById('postForm');
         const logoutBtn = document.getElementById('logoutBtn');
         const message = document.getElementById('message');
@@ -71,13 +76,30 @@
             const title = document.getElementById('postTitle').value;
             const description = document.getElementById('postDescription').value;
             const content = document.getElementById('postContent').value;
+            const is_pinned = document.getElementById('pinPost').checked;
             
             message.textContent = 'Submitting post...';
+
+            if (is_pinned) {
+                const { data: pinnedPost, error } = await supabase
+                    .from('posts')
+                    .select('id, title')
+                    .eq('is_pinned', true)
+                    .single();
+
+                if (pinnedPost) {
+                    const confirmReplace = confirm(`You already have a post pinned: "${pinnedPost.title}". Do you want to replace it?`);
+                    if (!confirmReplace) {
+                        message.textContent = 'Post submission cancelled.';
+                        return;
+                    }
+                }
+            }
 
             const response = await fetch('/.netlify/functions/create-post', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description, content, author: 'rama' })
+                body: JSON.stringify({ title, description, content, is_pinned, author: 'rama' })
             });
             
             const result = await response.json();
@@ -88,6 +110,7 @@
                 document.getElementById('postTitle').value = '';
                 document.getElementById('postDescription').value = '';
                 document.getElementById('postContent').value = '';
+                document.getElementById('pinPost').checked = false;
             } else {
                 message.textContent = `Error: ${result.error}`;
                 message.className = 'mt-4 text-center text-sm text-red-500';

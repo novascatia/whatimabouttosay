@@ -11,12 +11,26 @@ function generateUniqueId() {
 
 exports.handler = async (event) => {
     try {
-        const { title, description, content, author } = JSON.parse(event.body);
+        const { title, description, content, author, is_pinned } = JSON.parse(event.body);
         const uniqueId = generateUniqueId();
+
+        if (is_pinned) {
+            const { error: unpinError } = await supabase
+                .from('posts')
+                .update({ is_pinned: false })
+                .eq('is_pinned', true);
+
+            if (unpinError) {
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({ error: unpinError.message }),
+                };
+            }
+        }
 
         const { error } = await supabase
             .from('posts')
-            .insert({ id: uniqueId, title, description, content, author });
+            .insert({ id: uniqueId, title, description, content, author, is_pinned });
 
         if (error) {
             return {
