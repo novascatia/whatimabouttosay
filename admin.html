@@ -99,7 +99,7 @@
             const response = await fetch('/.netlify/functions/create-post', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description, content, is_pinned, author: 'rama' })
+                body: JSON.stringify({ title, description, content, is_pinned, author: 'novascatia' })
             });
             
             const result = await response.json();
