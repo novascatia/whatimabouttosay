@@ -5,13 +5,18 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+function generateUniqueId() {
+    return crypto.randomBytes(6).toString('hex');
+}
+
 exports.handler = async (event) => {
     try {
         const { title, content, author } = JSON.parse(event.body);
+        const uniqueId = generateUniqueId(); // Membuat ID unik di sini
 
         const { error } = await supabase
             .from('posts')
-            .insert({ title, content, author });
+            .insert({ id: uniqueId, title, content, author });
 
         if (error) {
             return {
