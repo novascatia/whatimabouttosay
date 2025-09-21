@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Blog</title>
-    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body { font-family: ui-sans-serif, system-ui; }
@@ -18,18 +18,58 @@
       }
       body.dark .text-gray-600 { color: #cbd5e0; }
       body.dark .text-gray-800 { color: #e2e8f0; }
+      .tooltip {
+          position: relative;
+          display: inline-block;
+      }
+      .tooltip .tooltip-bubble {
+          visibility: hidden;
+          background-color: #333;
+          color: #fff;
+          text-align: center;
+          border-radius: 6px;
+          padding: 5px 8px;
+          position: absolute;
+          z-index: 1;
+          top: 50%;
+          right: 120%;
+          transform: translateY(-50%);
+          opacity: 0;
+          transition: opacity 0.3s;
+          white-space: nowrap;
+      }
+      .tooltip .tooltip-bubble::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 100%;
+          margin-top: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: transparent transparent transparent #333;
+      }
+      .tooltip:hover .tooltip-bubble {
+          visibility: visible;
+          opacity: 1;
+      }
     </style>
 </head>
 <body class="bg-gray-100 p-8">
     <header class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold">My Blog</h1>
-        <div id="darkModeToggle" class="cursor-pointer">
-            <svg id="sunIcon" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm0 13a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm7.07-8.07a1 1 0 01-.707 1.707l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM3.66 16.34a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm12.356 0a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm-7.07-8.07a1 1 0 01-.707 1.707l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM3.66 3.66a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm12.356-1.414a1 1 0 01-1.414 1.414l-.707.707a1 1 0 011.414-1.414l.707-.707z"></path>
-            </svg>
-            <svg id="moonIcon" class="w-6 h-6 text-gray-800 hidden" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-            </svg>
+        <div class="flex items-center space-x-4">
+            <div id="darkModeToggle" class="cursor-pointer relative tooltip">
+                <svg id="sunIcon" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm0 13a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm7.07-8.07a1 1 0 01-.707 1.707l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM3.66 16.34a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm12.356 0a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm-7.07-8.07a1 1 0 01-.707 1.707l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM3.66 3.66a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm12.356-1.414a1 1 0 01-1.414 1.414l-.707.707a1 1 0 011.414-1.414l.707-.707z"></path>
+                </svg>
+                <svg id="moonIcon" class="w-6 h-6 text-gray-800 hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                </svg>
+                <span class="tooltip-bubble w-28">Afraid of light? Click me!</span>
+            </div>
+            <a href="/login.html" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                Log In
+            </a>
         </div>
     </header>
     <div id="postsList" class="space-y-6">
@@ -60,7 +100,7 @@
                 const pinIndicator = post.is_pinned ? `<span class="bg-yellow-200 text-yellow-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">PINNED</span>` : '';
                 return `
                     <div class="bg-white p-6 rounded-lg shadow-lg">
-                        <a href="/posts/${post.id}" class="text-2xl font-semibold mb-2 hover:underline flex items-center">${pinIndicator}${post.title}</a>
+                        <a href="/posts/${post.id}" class="text-2xl font-semibold mb-2 hover:underline">${pinIndicator}${post.title}</a>
                         <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()}</p>
                         <p class="text-gray-800">${post.description}</p>
                     </div>
