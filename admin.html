@@ -36,8 +36,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        const supabaseUrl = 'YOUR_SUPABASE_URL'; // Ganti dengan URL Supabase-mu
-        const supabaseKey = 'YOUR_SUPABASE_KEY'; // Ganti dengan anon key Supabase-mu
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const postForm = document.getElementById('postForm');
