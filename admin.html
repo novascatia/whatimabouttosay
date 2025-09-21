@@ -36,8 +36,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
+        const supabaseUrl = 'https://fuhobsopkwzwejamwyqz.supabase.co'; // Ganti dengan URL Supabase-mu
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1aG9ic29wa3d6d2VqYW13eXF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxODE0OTAsImV4cCI6MjA3Mzc1NzQ5MH0.mO6wt0tzLA5chtBLgaPENEEY7lPe75SQVeE6jOBHH38'; // Ganti dengan anon key Supabase-mu
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const postForm = document.getElementById('postForm');
@@ -45,11 +45,9 @@ const supabaseKey = process.env.SUPABASE_KEY;
         const message = document.getElementById('message');
 
         async function checkAuth() {
-            // Cek apakah cookie login ada
-            const loggedIn = document.cookie.includes("loggedIn=true");
-            if (!loggedIn) {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
                 window.location.href = '/login.html';
-                return;
             }
         }
 
@@ -57,31 +55,31 @@ const supabaseKey = process.env.SUPABASE_KEY;
             e.preventDefault();
             const title = document.getElementById('postTitle').value;
             const content = document.getElementById('postContent').value;
-            
-            message.textContent = 'Submitting post...';
-            // Panggil Netlify Function untuk membuat post
-            const response = await fetch('/.netlify/functions/create-post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, content, author: 'rama' }) // Gunakan 'rama' sebagai author
-            });
-            
-            const result = await response.json();
+            const { data: { user } } = await supabase.auth.getUser();
 
-            if (response.ok) {
+            message.textContent = 'Submitting post...';
+
+            const { error } = await supabase
+                .from('posts')
+                .insert({
+                    title: title,
+                    content: content,
+                    author: user.email
+                });
+            
+            if (error) {
+                message.textContent = `Error: ${error.message}`;
+                message.className = 'mt-4 text-center text-sm text-red-500';
+            } else {
                 message.textContent = 'Post submitted successfully!';
                 message.className = 'mt-4 text-center text-sm text-green-500';
                 document.getElementById('postTitle').value = '';
                 document.getElementById('postContent').value = '';
-            } else {
-                message.textContent = `Error: ${result.error}`;
-                message.className = 'mt-4 text-center text-sm text-red-500';
             }
         });
 
-        logoutBtn.addEventListener('click', () => {
-            // Hapus cookie login
-            document.cookie = "loggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
             window.location.href = '/login.html';
         });
 
