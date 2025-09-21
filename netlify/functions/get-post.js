@@ -6,39 +6,95 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 exports.handler = async (event) => {
     try {
         const pathSegments = event.path.split('/');
-        const id = pathSegments[pathSegments.length - 1]; // Mengambil ID dari URL
+        const id = pathSegments[pathSegments.length - 1];
         
         if (!id) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ error: "Post ID is required." }),
+                body: "Post ID is required.",
             };
         }
         
-        const { data, error } = await supabase
+        const { data: post, error } = await supabase
             .from('posts')
             .select('*')
             .eq('id', id)
             .single();
 
-        if (error || !data) {
+        if (error || !post) {
+            const htmlError = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Post Not Found</title>
+                    <script src="https://cdn.tailwindcss.com"></script>
+                </head>
+                <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+                    <div class="text-center p-8 bg-white rounded-lg shadow-lg">
+                        <h1 class="text-3xl font-bold mb-4">Post Not Found</h1>
+                        <p class="text-gray-600">${error.message || 'The post you are looking for does not exist.'}</p>
+                        <a href="/" class="mt-4 inline-block text-blue-500 hover:underline">Go back to main page</a>
+                    </div>
+                </body>
+                </html>
+            `;
             return {
                 statusCode: 404,
-                body: JSON.stringify({ error: "Post not found." }),
+                headers: { 'Content-Type': 'text/html' },
+                body: htmlError,
             };
         }
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${post.title}</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+                <style>
+                  body { font-family: ui-sans-serif, system-ui; }
+                </style>
+            </head>
+            <body class="bg-gray-100 p-8">
+                <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
+                    <a href="/" class="text-blue-500 hover:underline mb-4 inline-block">← Back to blog</a>
+                    <h1 class="text-3xl font-bold mt-4 mb-2">${post.title}</h1>
+                    <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()} by ${post.author}</p>
+                    <p class="text-gray-800">${post.content}</p>
+                </div>
+            </body>
+            </html>
+        `;
 
         return {
             statusCode: 200,
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/html',
             },
-            body: JSON.stringify(data),
+            body: htmlContent,
         };
     } catch (error) {
+        const htmlError = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Error</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+            </head>
+            <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+                <div class="text-center p-8 bg-white rounded-lg shadow-lg">
+                    <h1 class="text-3xl font-bold mb-4">An Error Occurred</h1>
+                    <p class="text-red-500">${error.message}</p>
+                </div>
+            </body>
+            </html>
+        `;
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.message }),
+            headers: { 'Content-Type': 'text/html' },
+            body: htmlError,
         };
     }
 };
