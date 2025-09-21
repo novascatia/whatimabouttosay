@@ -1,5 +1,4 @@
 const { createClient } = require('@supabase/supabase-js');
-const crypto = require('crypto');
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -7,11 +6,10 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 exports.handler = async (event) => {
     try {
-        const { title, content, author } = JSON.parse(event.body);
-
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('posts')
-            .insert({ title, content, author });
+            .select('*')
+            .order('created_at', { ascending: false });
 
         if (error) {
             return {
@@ -22,7 +20,10 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ message: 'Post created successfully.' }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
         };
     } catch (error) {
         return {

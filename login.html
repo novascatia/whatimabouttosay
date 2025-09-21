@@ -45,10 +45,9 @@
             });
 
             if (response.ok) {
-                // Set cookie untuk menandakan sesi login
                 document.cookie = "loggedIn=true; path=/";
                 messageDiv.textContent = 'Login successful! Redirecting...';
-                window.location.href = '/admin.html';
+                window.location.href = '/admin';
             } else {
                 const result = await response.json();
                 messageDiv.textContent = `Error: ${result.message}`;
