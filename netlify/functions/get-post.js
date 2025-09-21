@@ -24,6 +24,10 @@ exports.handler = async (event) => {
                     <script src="https://cdn.tailwindcss.com"></script>
                     <style>
                       body { font-family: ui-sans-serif, system-ui; }
+                      body.dark { background-color: #1a202c; color: #e2e8f0; }
+                      body.dark .bg-white { background-color: #2d3748; color: #e2e8f0; }
+                      body.dark .text-gray-600 { color: #cbd5e0; }
+                      body.dark .text-gray-800 { color: #e2e8f0; }
                     </style>
                 </head>
                 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -58,6 +62,10 @@ exports.handler = async (event) => {
                     <script src="https://cdn.tailwindcss.com"></script>
                     <style>
                       body { font-family: ui-sans-serif, system-ui; }
+                      body.dark { background-color: #1a202c; color: #e2e8f0; }
+                      body.dark .bg-white { background-color: #2d3748; color: #e2e8f0; }
+                      body.dark .text-gray-600 { color: #cbd5e0; }
+                      body.dark .text-gray-800 { color: #e2e8f0; }
                     </style>
                 </head>
                 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -108,6 +116,12 @@ exports.handler = async (event) => {
                     <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()} by ${post.author}</p>
                     <p class="text-gray-800">${formattedContent}</p>
                 </div>
+                <script>
+                    const isDarkMode = localStorage.getItem('theme') === 'dark';
+                    if (isDarkMode) {
+                        document.body.classList.add('dark');
+                    }
+                </script>
             </body>
             </html>
         `;
@@ -129,14 +143,8 @@ exports.handler = async (event) => {
                 <script src="https://cdn.tailwindcss.com"></script>
                 <style>
                   body { font-family: ui-sans-serif, system-ui; }
-                  body.dark {
-                      background-color: #1a202c;
-                      color: #e2e8f0;
-                  }
-                  body.dark .bg-white {
-                      background-color: #2d3748;
-                      color: #e2e8f0;
-                  }
+                  body.dark { background-color: #1a202c; color: #e2e8f0; }
+                  body.dark .bg-white { background-color: #2d3748; color: #e2e8f0; }
                   body.dark .text-gray-600 { color: #cbd5e0; }
                   body.dark .text-gray-800 { color: #e2e8f0; }
                 </style>

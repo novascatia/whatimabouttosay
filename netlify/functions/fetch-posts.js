@@ -7,13 +7,13 @@ exports.handler = async () => {
     try {
         const { data: pinnedPost, error: pinnedError } = await supabase
             .from('posts')
-            .select('id, title, description, created_at')
+            .select('id, title, description, created_at, is_pinned')
             .eq('is_pinned', true)
             .single();
 
         const { data: regularPosts, error: regularError } = await supabase
             .from('posts')
-            .select('id, title, description, created_at')
+            .select('id, title, description, created_at, is_pinned')
             .eq('is_pinned', false)
             .order('created_at', { ascending: false });
 
