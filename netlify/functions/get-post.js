@@ -3,6 +3,12 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Fungsi untuk mengonversi markdown link menjadi tag HTML
+function convertLinksToHtml(content) {
+  const linkRegex = /\[(.*?)\]\((.*?)\)/g;
+  return content.replace(linkRegex, '<a href="$2" class="text-blue-500 hover:underline" target="_blank">$1</a>');
+}
+
 exports.handler = async (event) => {
     try {
         const pathSegments = event.path.split('/');
@@ -14,7 +20,11 @@ exports.handler = async (event) => {
                 <html>
                 <head>
                     <title>Post Not Found</title>
+                    <link rel="icon" type="image/png" href="/logo.png">
                     <script src="https://cdn.tailwindcss.com"></script>
+                    <style>
+                      body { font-family: ui-sans-serif, system-ui; }
+                    </style>
                 </head>
                 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
                     <div class="text-center p-8 bg-white rounded-lg shadow-lg">
@@ -44,7 +54,11 @@ exports.handler = async (event) => {
                 <html>
                 <head>
                     <title>Post Not Found</title>
+                    <link rel="icon" type="image/x-icon" href="/favicon.ico">
                     <script src="https://cdn.tailwindcss.com"></script>
+                    <style>
+                      body { font-family: ui-sans-serif, system-ui; }
+                    </style>
                 </head>
                 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
                     <div class="text-center p-8 bg-white rounded-lg shadow-lg">
@@ -62,6 +76,8 @@ exports.handler = async (event) => {
             };
         }
 
+        const formattedContent = convertLinksToHtml(post.content);
+
         const htmlContent = `
             <!DOCTYPE html>
             <html lang="en">
@@ -69,7 +85,7 @@ exports.handler = async (event) => {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${post.title}</title>
-                <link rel="icon" type="image/png" href="/logo.png">
+                <link rel="icon" type="image/x-icon" href="/favicon.ico">
                 <script src="https://cdn.tailwindcss.com"></script>
                 <style>
                   body { font-family: ui-sans-serif, system-ui; }
@@ -80,7 +96,7 @@ exports.handler = async (event) => {
                     <a href="/" class="text-blue-500 hover:underline mb-4 inline-block">← Back to blog</a>
                     <h1 class="text-3xl font-bold mt-4 mb-2">${post.title}</h1>
                     <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()} by ${post.author}</p>
-                    <p class="text-gray-800">${post.content}</p>
+                    <p class="text-gray-800">${formattedContent}</p>
                 </div>
             </body>
             </html>
@@ -99,7 +115,11 @@ exports.handler = async (event) => {
             <html>
             <head>
                 <title>Error</title>
+                <link rel="icon" type="image/x-icon" href="/favicon.ico">
                 <script src="https://cdn.tailwindcss.com"></script>
+                <style>
+                  body { font-family: ui-sans-serif, system-ui; }
+                </style>
             </head>
             <body class="bg-gray-100 flex items-center justify-center min-h-screen">
                 <div class="text-center p-8 bg-white rounded-lg shadow-lg">
