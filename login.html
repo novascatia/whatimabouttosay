@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
+    <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -30,11 +31,28 @@
     <script>
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('message');
+        let supabase;
+
+        async function initSupabase() {
+            messageDiv.textContent = 'Initializing...';
+            const response = await fetch('/.netlify/functions/get-config');
+            if (!response.ok) {
+                messageDiv.textContent = 'Error: Could not get Supabase keys.';
+                return;
+            }
+            const keys = await response.json();
+            supabase = window.supabase.createClient(keys.supabaseUrl, keys.supabaseKey);
+            messageDiv.textContent = '';
+        }
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+
+            if (!supabase) {
+                await initSupabase();
+            }
 
             messageDiv.textContent = 'Logging in...';
 
@@ -47,12 +65,14 @@
             if (response.ok) {
                 document.cookie = "loggedIn=true; path=/";
                 messageDiv.textContent = 'Login successful! Redirecting...';
-window.location.href = '/admin.html';
+                window.location.href = '/admin.html';
             } else {
                 const result = await response.json();
                 messageDiv.textContent = `Error: ${result.message}`;
             }
         });
+
+        initSupabase();
     </script>
 </body>
 </html>
