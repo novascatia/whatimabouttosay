@@ -17,7 +17,7 @@ exports.handler = async () => {
             .eq('is_pinned', false)
             .order('created_at', { ascending: false });
 
-        if (pinnedError && pinnedError.code !== 'PGRST116') { // PGRST116 is "No rows found"
+        if (pinnedError && pinnedError.code !== 'PGRST116') {
             console.error('Error fetching pinned post:', pinnedError.message);
         }
 
