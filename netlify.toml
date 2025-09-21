@@ -3,21 +3,16 @@
   to = "/admin.html"
   status = 200
   force = true
+  conditions = {Role = ["authenticated"]}
 
 [[redirects]]
-  from = "/login"
-  to = "/login.html"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/posts"
-  to = "/.netlify/functions/fetch-posts"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/admin/*"
+  from = "/admin"
   to = "/login.html"
   status = 302
+  force = true
+
+[[redirects]]
+  from = "/posts/:id"
+  to = "/.netlify/functions/get-post"
+  status = 200
   force = true

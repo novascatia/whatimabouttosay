@@ -40,9 +40,9 @@
 
             postsList.innerHTML = posts.map(post => `
                 <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <h2 class="text-2xl font-semibold mb-2">${post.title}</h2>
+                    <a href="/posts/${post.id}" class="text-2xl font-semibold mb-2 hover:underline cursor-pointer">${post.title}</a>
                     <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()}</p>
-                    <p class="text-gray-800">${post.content}</p>
+                    <p class="text-gray-800">${post.content.substring(0, 150)}...</p>
                 </div>
             `).join('');
         }
