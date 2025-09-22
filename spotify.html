@@ -3,121 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Now Playing - Rama</title>
+    <title>My Blog</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: ui-sans-serif, system-ui; background-color: #000; color: #fff; }
-        .player-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: auto;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            box-sizing: border-box;
-        }
-        .album-art {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        .progress-bar-container {
-            width: 100%;
-            height: 4px;
-            background-color: #535353;
-            border-radius: 2px;
-            margin-top: 1rem;
-        }
-        .progress-bar {
-            height: 100%;
-            background-color: #1ed760;
-            width: 0;
-            transition: width 0.5s ease-out;
-        }
-        .time-display {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            font-size: 0.875rem;
-            color: #b3b3b3;
-            margin-top: 0.5rem;
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            margin-top: 1.5rem;
-        }
-        .controls svg {
-            width: 2.5rem;
-            height: 2.5rem;
-            fill: #fff;
-            cursor: pointer;
-        }
-        .controls .play-btn {
-            width: 4rem;
-            height: 4rem;
-        }
+      body { font-family: ui-sans-serif, system-ui; }
+      body.dark {
+          background-color: #1a202c;
+          color: #e2e8f0;
+      }
+      body.dark .bg-white {
+          background-color: #2d3748;
+          color: #e2e8f0;
+      }
+      body.dark .text-gray-600 { color: #cbd5e0; }
+      body.dark .text-gray-800 { color: #e2e8f0; }
+      
+      .spotify-player {
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          width: 320px;
+          background-color: #282828;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          color: #fff;
+          padding: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          z-index: 100;
+          flex-direction: column;
+      }
+      .spotify-player-main {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          width: 100%;
+      }
+      .spotify-player img {
+          width: 64px;
+          height: 64px;
+          border-radius: 4px;
+      }
+      .spotify-player-text {
+          flex-grow: 1;
+      }
+      .spotify-player-text h3 {
+          font-weight: bold;
+      }
+      .spotify-player-text p {
+          font-size: 0.875rem;
+          color: #b3b3b3;
+      }
+      .progress-bar-container {
+          width: 100%;
+          height: 4px;
+          background-color: #535353;
+          border-radius: 2px;
+          margin-top: 0.5rem;
+      }
+      .progress-bar {
+          height: 100%;
+          background-color: #1ed760;
+          width: 0;
+          transition: width 0.5s ease-out;
+      }
+      .time-display {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+          font-size: 0.75rem;
+          color: #b3b3b3;
+          margin-top: 0.25rem;
+      }
+      .running-text-bar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          background-color: #1ed760;
+          color: #fff;
+          padding: 0.5rem 0;
+          z-index: 100;
+          display: none;
+          overflow: hidden;
+      }
+      .running-text-content {
+          display: inline-block;
+          white-space: nowrap;
+          animation: marquee 15s linear infinite;
+      }
+      @keyframes marquee {
+          0%   { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+      }
     </style>
 </head>
-<body>
-
-    <div id="playerContainer" class="player-container">
-        <h1 id="listeningText" class="text-lg text-green-500 mb-4 text-center">Loading...</h1>
-        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden">
-        <div class="w-full">
-            <h2 id="songTitle" class="text-2xl font-bold text-center mt-4 hidden"></h2>
-            <p id="artistName" class="text-lg text-gray-400 text-center hidden"></p>
+<body class="bg-gray-100 p-8">
+    <header class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">My Blog</h1>
+        <div class="flex items-center space-x-4">
+            <div id="darkModeToggle" class="cursor-pointer">
+                <svg id="sunIcon" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm0 13a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm7.07-8.07a1 1 0 01-.707 1.707l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM3.66 16.34a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm12.356 0a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm-7.07-8.07a1 1 0 01-.707 1.707l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM3.66 3.66a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zm12.356-1.414a1 1 0 01-1.414 1.414l-.707.707a1 1 0 011.414-1.414l.707-.707z"></path>
+                </svg>
+                <svg id="moonIcon" class="w-6 h-6 text-gray-800 hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                </svg>
+            </div>
+            <a href="/login.html" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                Log In
+            </a>
         </div>
-        <div id="progressBarContainer" class="progress-bar-container hidden">
+    </header>
+    <div id="postsList" class="space-y-6">
+        <p>Loading posts...</p>
+    </div>
+
+    <div id="runningTextBar" class="running-text-bar">
+        <div id="runningTextContent" class="running-text-content"></div>
+    </div>
+    
+    <div id="spotifyPlayer" class="spotify-player" style="display: none;">
+        <p id="listeningText" class="text-sm text-left text-green-500 mb-2 w-full">Rama is listening to a song right now:</p>
+        <div class="spotify-player-main">
+            <img id="albumArt" src="" alt="Album Art">
+            <div class="spotify-player-text">
+                <a id="songTitleLink" href="#" target="_blank" class="block">
+                    <h3 id="songTitle" class="text-white"></h3>
+                </a>
+                <p id="artistName"></p>
+            </div>
+        </div>
+        <div class="progress-bar-container">
             <div id="progressBar" class="progress-bar"></div>
         </div>
-        <div id="timeDisplay" class="time-display hidden">
+        <div class="time-display">
             <span id="currentTime">0:00</span>
             <span id="totalTime">0:00</span>
         </div>
-        
-        <div class="controls">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M4 4h2v12H4zM16 4l-8 6 8 6z"></path>
-            </svg>
-            <svg class="play-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M5 4h3v12H5zM12 4h3v12h-3z"></path>
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M16 4h-2v12h2zM4 4l8 6-8 6z"></path>
-            </svg>
-        </div>
-        
-        <div id="connectButton" class="mt-8 hidden">
-            <a href="/.netlify/functions/login-spotify" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
-                Connect to Spotify
-            </a>
-        </div>
+        <button id="closePlayerBtn" class="absolute top-2 right-2 text-gray-400 hover:text-white">Close</button>
     </div>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        const playerContainer = document.getElementById('playerContainer');
-        const listeningText = document.getElementById('listeningText');
-        const albumArt = document.getElementById('albumArt');
+        const postsList = document.getElementById('postsList');
+
+        async function fetchPosts() {
+            const response = await fetch('/.netlify/functions/fetch-posts');
+            if (!response.ok) {
+                postsList.innerHTML = `<p class="text-red-500">Error loading posts.</p>`;
+                return;
+            }
+
+            const posts = await response.json();
+            if (posts.length === 0) {
+                postsList.innerHTML = `<p class="text-gray-500">No blog posts yet.</p>`;
+                return;
+            }
+
+            postsList.innerHTML = posts.map(post => {
+                const pinIndicator = post.is_pinned ? `<span class="bg-yellow-200 text-yellow-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">PINNED</span>` : '';
+                return `
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <a href="/posts/${post.id}" class="text-2xl font-semibold mb-2 hover:underline flex items-center">${pinIndicator}${post.title}</a>
+                        <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()}</p>
+                        <p class="text-gray-800">${post.description}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        fetchPosts();
+
+        // Dark Mode Logic
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const body = document.body;
+
+        function applyTheme(isDark) {
+            body.classList.toggle('dark', isDark);
+            sunIcon.classList.toggle('hidden', isDark);
+            moonIcon.classList.toggle('hidden', !isDark);
+        }
+
+        const isDarkMode = localStorage.getItem('theme') === 'dark';
+        applyTheme(isDarkMode);
+
+        darkModeToggle.addEventListener('click', () => {
+            const isDark = !body.classList.contains('dark');
+            applyTheme(isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Spotify Logic
+        const spotifyPlayer = document.getElementById('spotifyPlayer');
         const songTitle = document.getElementById('songTitle');
         const artistName = document.getElementById('artistName');
+        const albumArt = document.getElementById('albumArt');
         const progressBar = document.getElementById('progressBar');
-        const progressBarContainer = document.getElementById('progressBarContainer');
-        const timeDisplay = document.getElementById('timeDisplay');
         const currentTime = document.getElementById('currentTime');
         const totalTime = document.getElementById('totalTime');
-        const connectButton = document.getElementById('connectButton');
-        const songTitleEl = document.getElementById('songTitle');
+        const songTitleLink = document.getElementById('songTitleLink');
+        const listeningText = document.getElementById('listeningText');
+        const closePlayerBtn = document.getElementById('closePlayerBtn');
+        const runningTextBar = document.getElementById('runningTextBar');
+        const runningTextContent = document.getElementById('runningTextContent');
+
+        let playerVisible = true;
 
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
@@ -125,42 +220,46 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
+        function togglePlayer(showPlayer, songInfo) {
+            if (showPlayer) {
+                spotifyPlayer.style.display = 'flex';
+                runningTextBar.style.display = 'none';
+            } else {
+                spotifyPlayer.style.display = 'none';
+                runningTextBar.style.display = 'block';
+            }
+            if (songInfo) {
+                runningTextContent.textContent = songInfo;
+            }
+        }
+        
         async function fetchNowPlaying() {
             const response = await fetch('/.netlify/functions/now-playing');
             const data = await response.json();
 
-            if (data.error) {
-                listeningText.textContent = 'Error: ' + data.error;
-                connectButton.classList.remove('hidden');
-                return;
-            }
-
             if (data.isPlaying) {
-                listeningText.textContent = `Rama is listening to a song right now:`;
-                albumArt.src = data.albumArt;
+                const songInfo = `Rama is listening to "${data.title}" by ${data.artist}`;
+                togglePlayer(playerVisible, songInfo);
+                
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
-
-                albumArt.classList.remove('hidden');
-                songTitleEl.classList.remove('hidden');
-                artistName.classList.remove('hidden');
-                progressBarContainer.classList.remove('hidden');
-                timeDisplay.classList.remove('hidden');
-
+                albumArt.src = data.albumArt;
+                songTitleLink.href = data.songUrl;
+                
                 const progressPercent = (data.progress / data.duration) * 100;
                 progressBar.style.width = `${progressPercent}%`;
                 currentTime.textContent = formatTime(data.progress);
                 totalTime.textContent = formatTime(data.duration);
             } else {
-                listeningText.textContent = 'Rama is not listening to a song right now.';
-                albumArt.classList.add('hidden');
-                songTitleEl.classList.add('hidden');
-                artistName.classList.add('hidden');
-                progressBarContainer.classList.add('hidden');
-                timeDisplay.classList.add('hidden');
+                togglePlayer(false, null);
             }
         }
-        
+
+        closePlayerBtn.addEventListener('click', () => {
+            playerVisible = false;
+            fetchNowPlaying();
+        });
+
         fetchNowPlaying();
         setInterval(fetchNowPlaying, 10000);
     </script>
