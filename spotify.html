@@ -6,6 +6,7 @@
     <title>Now Playing - Rama</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/colorthief@2.3.2/dist/color-thief.umd.js"></script>
     <style>
         body { font-family: ui-sans-serif, system-ui; background-color: #000; color: #fff; }
         .player-container {
@@ -20,6 +21,7 @@
             align-items: center;
             padding: 2rem;
             box-sizing: border-box;
+            transition: background-color 0.5s ease;
         }
         .album-art {
             width: 100%;
