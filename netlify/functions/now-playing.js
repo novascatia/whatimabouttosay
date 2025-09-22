@@ -1,5 +1,7 @@
-const fetch = require('node-fetch');
 const { createClient } = require('@supabase/supabase-js');
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 exports.handler = async () => {
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -22,6 +24,9 @@ exports.handler = async () => {
     const { refresh_token } = data;
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+    // Impor node-fetch secara dinamis
+    const fetch = (await import('node-fetch')).default;
 
     const refreshResponse = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
@@ -57,7 +62,7 @@ exports.handler = async () => {
             title: track.name,
             artist: track.artists.map(artist => artist.name).join(', '),
             albumArt: track.album.images[0].url,
-            songUrl: track.external_urls.spotify, // Tambahkan ini
+            songUrl: track.external_urls.spotify,
             progress: nowPlayingData.progress_ms,
             duration: track.duration_ms
         }),
