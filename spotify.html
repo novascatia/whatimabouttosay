@@ -68,20 +68,6 @@
             width: 4rem;
             height: 4rem;
         }
-        .logo {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            font-weight: bold;
-            color: #1ed760;
-        }
-        .user-text {
-            position: absolute;
-            bottom: 2rem;
-            text-align: center;
-            font-size: 1rem;
-            color: #b3b3b3;
-        }
     </style>
 </head>
 <body>
@@ -100,6 +86,19 @@
             <span id="currentTime">0:00</span>
             <span id="totalTime">0:00</span>
         </div>
+        
+        <div class="controls">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M4 4h2v12H4zM16 4l-8 6 8 6z"></path>
+            </svg>
+            <svg class="play-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M5 4h3v12H5zM12 4h3v12h-3z"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M16 4h-2v12h2zM4 4l8 6-8 6z"></path>
+            </svg>
+        </div>
+        
         <div id="connectButton" class="mt-8 hidden">
             <a href="/.netlify/functions/login-spotify" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
                 Connect to Spotify
@@ -128,6 +127,12 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
+        function getDominantColor(img) {
+            const colorThief = new ColorThief();
+            const color = colorThief.getColor(img);
+            return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+        }
+
         async function fetchNowPlaying() {
             const response = await fetch('/.netlify/functions/now-playing');
             const data = await response.json();
@@ -140,7 +145,15 @@
 
             if (data.isPlaying) {
                 listeningText.textContent = `Rama is listening to a song right now:`;
-                albumArt.src = data.albumArt;
+                
+                const albumArtData = await fetch(`/.netlify/functions/get-album-art?url=${encodeURIComponent(data.albumArt)}`);
+                const base64Image = await albumArtData.text();
+                albumArt.src = base64Image;
+
+                albumArt.onload = () => {
+                    const dominantColor = getDominantColor(albumArt);
+                    playerContainer.style.backgroundColor = dominantColor;
+                };
 
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
