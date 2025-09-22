@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>hey its me ! :D</title>
     <link rel="icon" type="image/png" href="/logo.png">
@@ -102,7 +102,7 @@
         <div id="controls" class="controls hidden">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6l-8.5 6z"></path></svg>
             <svg class="play-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m16 6-8.5 6 8.5 6V6zm-8.5 12H6V6h1.5v12z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.5 12 8.5-6v12l-8.5-6zm-9 6h2V6H3.5v12z"></path></svg>
         </div>
         
         <div id="connectButton" class="mt-8 hidden">
@@ -125,7 +125,7 @@
         const currentTime = document.getElementById('currentTime');
         const totalTime = document.getElementById('totalTime');
         const connectButton = document.getElementById('connectButton');
-        const controls = document.getElementById('controls'); // Ambil elemen controls
+        const controls = document.getElementById('controls');
 
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
@@ -154,7 +154,7 @@
                 artistName.classList.remove('hidden');
                 progressBarContainer.classList.remove('hidden');
                 timeDisplay.classList.remove('hidden');
-                controls.classList.remove('hidden'); // Tampilkan controls
+                controls.classList.remove('hidden');
 
                 const progressPercent = (data.progress / data.duration) * 100;
                 progressBar.style.width = `${progressPercent}%`;
@@ -167,7 +167,7 @@
                 artistName.classList.add('hidden');
                 progressBarContainer.classList.add('hidden');
                 timeDisplay.classList.add('hidden');
-                controls.classList.add('hidden'); // Sembunyikan controls
+                controls.classList.add('hidden');
             }
         }
         
