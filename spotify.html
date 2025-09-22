@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Now Playing - Rama</title>
+    <title>hey its me ! :D</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/colorthief@2.3.2/dist/color-thief.umd.js"></script>
     <style>
         body { font-family: ui-sans-serif, system-ui; background-color: #000; color: #fff; }
         .player-container {
@@ -21,7 +20,6 @@
             align-items: center;
             padding: 2rem;
             box-sizing: border-box;
-            transition: background-color 0.5s ease;
         }
         .album-art {
             width: 100%;
@@ -68,13 +66,27 @@
             width: 4rem;
             height: 4rem;
         }
+        .logo {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-weight: bold;
+            color: #1ed760;
+        }
+        .user-text {
+            position: absolute;
+            bottom: 2rem;
+            text-align: center;
+            font-size: 1rem;
+            color: #b3b3b3;
+        }
     </style>
 </head>
 <body>
 
     <div id="playerContainer" class="player-container">
         <h1 id="listeningText" class="text-lg text-green-500 mb-4 text-center">Loading...</h1>
-        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden" crossorigin="anonymous">
+        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden">
         <div class="w-full">
             <h2 id="songTitle" class="text-2xl font-bold text-center mt-4 hidden"></h2>
             <p id="artistName" class="text-lg text-gray-400 text-center hidden"></p>
@@ -114,12 +126,6 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        function getDominantColor(img) {
-            const colorThief = new ColorThief();
-            const color = colorThief.getColor(img);
-            return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-        }
-
         async function fetchNowPlaying() {
             const response = await fetch('/.netlify/functions/now-playing');
             const data = await response.json();
@@ -132,16 +138,7 @@
 
             if (data.isPlaying) {
                 listeningText.textContent = `Rama is listening to a song right now:`;
-                
-                const albumArtData = await fetch(`/.netlify/functions/get-album-art?url=${encodeURIComponent(data.albumArt)}`);
-                const base64Image = await albumArtData.text();
-                albumArt.src = base64Image;
-
-                albumArt.onload = () => {
-                    const dominantColor = getDominantColor(albumArt);
-                    playerContainer.style.backgroundColor = dominantColor;
-                };
-
+                albumArt.src = data.albumArt;
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
 
