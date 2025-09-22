@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const { createClient } = require('@supabase/supabase-js');
 
 exports.handler = async () => {
@@ -14,7 +13,7 @@ exports.handler = async () => {
 
     if (error || !data) {
         return {
-            statusCode: 200, // Return 200 to not crash the frontend
+            statusCode: 200,
             body: JSON.stringify({ isPlaying: false, error: 'Refresh token not found.' }),
         };
     }
@@ -22,6 +21,9 @@ exports.handler = async () => {
     const { refresh_token } = data;
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+    // Impor node-fetch secara dinamis
+    const fetch = (await import('node-fetch')).default;
 
     const refreshResponse = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
