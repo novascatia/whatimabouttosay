@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF--8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>hey its me ! :D</title>
     <link rel="icon" type="image/png" href="/logo.png">
@@ -57,14 +57,14 @@
             margin-top: 1.5rem;
         }
         .controls svg {
-            width: 2.5rem;
-            height: 2.5rem;
+            width: 2rem; /* Ukuran ikon back dan next */
+            height: 2rem;
             fill: #fff;
-            cursor: pointer;
+            cursor: default; /* Ganti cursor agar tidak terlihat bisa diklik */
         }
         .controls .play-btn {
-            width: 4rem;
-            height: 4rem;
+            width: 3.5rem; /* Ukuran ikon pause/play */
+            height: 3.5rem;
         }
         .logo {
             position: absolute;
@@ -98,6 +98,13 @@
             <span id="currentTime">0:00</span>
             <span id="totalTime">0:00</span>
         </div>
+
+        <div id="controls" class="controls hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6l-8.5 6z"></path></svg>
+            <svg class="play-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m16 6-8.5 6 8.5 6V6zm-8.5 12H6V6h1.5v12z"></path></svg>
+        </div>
+        
         <div id="connectButton" class="mt-8 hidden">
             <a href="/.netlify/functions/login-spotify" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
                 Connect to Spotify
@@ -118,7 +125,7 @@
         const currentTime = document.getElementById('currentTime');
         const totalTime = document.getElementById('totalTime');
         const connectButton = document.getElementById('connectButton');
-        const songTitleEl = document.getElementById('songTitle');
+        const controls = document.getElementById('controls'); // Ambil elemen controls
 
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
@@ -143,10 +150,11 @@
                 artistName.textContent = data.artist;
 
                 albumArt.classList.remove('hidden');
-                songTitleEl.classList.remove('hidden');
+                songTitle.classList.remove('hidden');
                 artistName.classList.remove('hidden');
                 progressBarContainer.classList.remove('hidden');
                 timeDisplay.classList.remove('hidden');
+                controls.classList.remove('hidden'); // Tampilkan controls
 
                 const progressPercent = (data.progress / data.duration) * 100;
                 progressBar.style.width = `${progressPercent}%`;
@@ -155,10 +163,11 @@
             } else {
                 listeningText.textContent = 'Rama is not listening to a song right now.';
                 albumArt.classList.add('hidden');
-                songTitleEl.classList.add('hidden');
+                songTitle.classList.add('hidden');
                 artistName.classList.add('hidden');
                 progressBarContainer.classList.add('hidden');
                 timeDisplay.classList.add('hidden');
+                controls.classList.add('hidden'); // Sembunyikan controls
             }
         }
         
