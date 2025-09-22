@@ -123,7 +123,7 @@
     </div>
     
     <div id="spotifyPlayer" class="spotify-player" style="display: none;">
-        <p id="listeningText" class="text-sm text-center text-green-500 mb-2 w-full text-left">Rama is listening to a song right now:</p>
+        <p id="listeningText" class="text-sm text-left text-green-500 mb-2 w-full">Rama is listening to a song right now:</p>
         <div class="spotify-player-main">
             <img id="albumArt" src="" alt="Album Art">
             <div class="spotify-player-text">
@@ -218,15 +218,29 @@
         }
 
         function togglePlayer(showPlayer, songInfo) {
-            if (showPlayer) {
-                spotifyPlayer.style.display = 'flex';
-                runningTextBar.style.display = 'none';
-            } else {
+            if (window.innerWidth <= 768) {
+                // Mobile view
+                if (showPlayer) {
+                    runningTextBar.style.display = 'block';
+                    runningTextContent.textContent = songInfo;
+                    document.body.style.paddingTop = '3.5rem';
+                } else {
+                    runningTextBar.style.display = 'none';
+                    document.body.style.paddingTop = '0';
+                }
                 spotifyPlayer.style.display = 'none';
-                runningTextBar.style.display = 'block';
-            }
-            if (songInfo) {
-                runningTextContent.textContent = songInfo;
+            } else {
+                // Desktop view
+                if (showPlayer) {
+                    spotifyPlayer.style.display = 'flex';
+                    runningTextBar.style.display = 'none';
+                    document.body.style.paddingTop = '0';
+                } else {
+                    spotifyPlayer.style.display = 'none';
+                    runningTextBar.style.display = 'block';
+                    runningTextContent.textContent = songInfo;
+                    document.body.style.paddingTop = '3.5rem';
+                }
             }
         }
         
@@ -236,7 +250,12 @@
 
             if (data.isPlaying) {
                 const songInfo = `Rama is listening to "${data.title}" by ${data.artist}`;
-                togglePlayer(playerVisible, songInfo);
+                
+                if (window.innerWidth > 768) {
+                    togglePlayer(playerVisible, songInfo);
+                } else {
+                    togglePlayer(!playerVisible, songInfo);
+                }
                 
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
@@ -248,8 +267,7 @@
                 currentTime.textContent = formatTime(data.progress);
                 totalTime.textContent = formatTime(data.duration);
             } else {
-                spotifyPlayer.style.display = 'none';
-                runningTextBar.style.display = 'none';
+                togglePlayer(false, null);
             }
         }
 
