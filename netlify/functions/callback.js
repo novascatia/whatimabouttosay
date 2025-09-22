@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const { createClient } = require('@supabase/supabase-js');
 
 exports.handler = async (event) => {
@@ -6,6 +5,9 @@ exports.handler = async (event) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
     const redirectUri = 'https://novascatia.my.id/.netlify/functions/callback';
+
+    // Impor node-fetch secara dinamis
+    const fetch = (await import('node-fetch')).default;
 
     const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
