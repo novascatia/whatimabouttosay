@@ -128,6 +128,12 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
+        function getDominantColor(img) {
+            const colorThief = new ColorThief();
+            const color = colorThief.getColor(img);
+            return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+        }
+
         async function fetchNowPlaying() {
             const response = await fetch('/.netlify/functions/now-playing');
             const data = await response.json();
@@ -141,6 +147,12 @@
             if (data.isPlaying) {
                 listeningText.textContent = `Rama is listening to a song right now:`;
                 albumArt.src = data.albumArt;
+
+                albumArt.onload = () => {
+                    const dominantColor = getDominantColor(albumArt);
+                    playerContainer.style.backgroundColor = dominantColor;
+                };
+
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
 
