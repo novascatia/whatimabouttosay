@@ -68,27 +68,13 @@
             width: 4rem;
             height: 4rem;
         }
-        .logo {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            font-weight: bold;
-            color: #1ed760;
-        }
-        .user-text {
-            position: absolute;
-            bottom: 2rem;
-            text-align: center;
-            font-size: 1rem;
-            color: #b3b3b3;
-        }
     </style>
 </head>
 <body>
 
     <div id="playerContainer" class="player-container">
         <h1 id="listeningText" class="text-lg text-green-500 mb-4 text-center">Loading...</h1>
-        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden">
+        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden" crossorigin="anonymous">
         <div class="w-full">
             <h2 id="songTitle" class="text-2xl font-bold text-center mt-4 hidden"></h2>
             <p id="artistName" class="text-lg text-gray-400 text-center hidden"></p>
@@ -100,6 +86,19 @@
             <span id="currentTime">0:00</span>
             <span id="totalTime">0:00</span>
         </div>
+        
+        <div class="controls">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M4 4h2v12H4zM16 4l-8 6 8 6z"></path>
+            </svg>
+            <svg class="play-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M5 4h3v12H5zM12 4h3v12h-3z"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M16 4h-2v12h2zM4 4l8 6-8 6z"></path>
+            </svg>
+        </div>
+        
         <div id="connectButton" class="mt-8 hidden">
             <a href="/.netlify/functions/login-spotify" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
                 Connect to Spotify
@@ -146,7 +145,10 @@
 
             if (data.isPlaying) {
                 listeningText.textContent = `Rama is listening to a song right now:`;
-                albumArt.src = data.albumArt;
+                
+                const albumArtData = await fetch(`/.netlify/functions/get-album-art?url=${encodeURIComponent(data.albumArt)}`);
+                const base64Image = await albumArtData.text();
+                albumArt.src = base64Image;
 
                 albumArt.onload = () => {
                     const dominantColor = getDominantColor(albumArt);
