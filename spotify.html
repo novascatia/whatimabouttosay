@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Now Playing - Rama</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: ui-sans-serif, system-ui; background-color: #000; color: #fff; }
+        .player-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        .album-art {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 4px;
+            background-color: #535353;
+            border-radius: 2px;
+            margin-top: 1rem;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #1ed760;
+            width: 0;
+            transition: width 0.5s ease-out;
+        }
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.875rem;
+            color: #b3b3b3;
+            margin-top: 0.5rem;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        .controls svg {
+            width: 2.5rem;
+            height: 2.5rem;
+            fill: #fff;
+            cursor: pointer;
+        }
+        .controls .play-btn {
+            width: 4rem;
+            height: 4rem;
+        }
+        .logo {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-weight: bold;
+            color: #1ed760;
+        }
+        .user-text {
+            position: absolute;
+            bottom: 2rem;
+            text-align: center;
+            font-size: 1rem;
+            color: #b3b3b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="playerContainer" class="player-container">
+        <h1 id="listeningText" class="text-lg text-green-500 mb-4 text-center">Loading...</h1>
+        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden">
+        <div class="w-full">
+            <h2 id="songTitle" class="text-2xl font-bold text-center mt-4 hidden"></h2>
+            <p id="artistName" class="text-lg text-gray-400 text-center hidden"></p>
+        </div>
+        <div id="progressBarContainer" class="progress-bar-container hidden">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="timeDisplay" class="time-display hidden">
+            <span id="currentTime">0:00</span>
+            <span id="totalTime">0:00</span>
+        </div>
+        <div id="connectButton" class="mt-8 hidden">
+            <a href="/.netlify/functions/login-spotify" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
+                Connect to Spotify
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+    <script>
+        const playerContainer = document.getElementById('playerContainer');
+        const listeningText = document.getElementById('listeningText');
+        const albumArt = document.getElementById('albumArt');
+        const songTitle = document.getElementById('songTitle');
+        const artistName = document.getElementById('artistName');
+        const progressBar = document.getElementById('progressBar');
+        const progressBarContainer = document.getElementById('progressBarContainer');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const currentTime = document.getElementById('currentTime');
+        const totalTime = document.getElementById('totalTime');
+        const connectButton = document.getElementById('connectButton');
+        const songTitleEl = document.getElementById('songTitle');
+
+        function formatTime(ms) {
+            const seconds = Math.floor((ms / 1000) % 60);
+            const minutes = Math.floor((ms / 1000 / 60) % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        async function fetchNowPlaying() {
+            const response = await fetch('/.netlify/functions/now-playing');
+            const data = await response.json();
+
+            if (data.error) {
+                listeningText.textContent = 'Error: ' + data.error;
+                connectButton.classList.remove('hidden');
+                return;
+            }
+
+            if (data.isPlaying) {
+                listeningText.textContent = `Rama is listening to a song right now:`;
+                albumArt.src = data.albumArt;
+                songTitle.textContent = data.title;
+                artistName.textContent = data.artist;
+
+                albumArt.classList.remove('hidden');
+                songTitleEl.classList.remove('hidden');
+                artistName.classList.remove('hidden');
+                progressBarContainer.classList.remove('hidden');
+                timeDisplay.classList.remove('hidden');
+
+                const progressPercent = (data.progress / data.duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                currentTime.textContent = formatTime(data.progress);
+                totalTime.textContent = formatTime(data.duration);
+            } else {
+                listeningText.textContent = 'Rama is not listening to a song right now.';
+                albumArt.classList.add('hidden');
+                songTitleEl.classList.add('hidden');
+                artistName.classList.add('hidden');
+                progressBarContainer.classList.add('hidden');
+                timeDisplay.classList.add('hidden');
+            }
+        }
+        
+        fetchNowPlaying();
+        setInterval(fetchNowPlaying, 10000);
+    </script>
+</body>
+</html>
