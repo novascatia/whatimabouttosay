@@ -144,7 +144,7 @@
             }
 
             if (data.isPlaying) {
-                listeningText.textContent = `Rama is listening to a song right now:`;
+                listeningText.textContent = `Hey! you scanned my QR ! Im listening to this :`;
                 albumArt.src = data.albumArt;
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
@@ -161,7 +161,7 @@
                 currentTime.textContent = formatTime(data.progress);
                 totalTime.textContent = formatTime(data.duration);
             } else {
-                listeningText.textContent = 'Rama is not listening to a song right now.';
+                listeningText.textContent = 'Welp, im not listening to anything rn :d @yaelahramalagi';
                 albumArt.classList.add('hidden');
                 songTitle.classList.add('hidden');
                 artistName.classList.add('hidden');
