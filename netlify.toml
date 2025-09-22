@@ -1,3 +1,6 @@
+[functions]
+  directory = "netlify/functions"
+
 [[redirects]]
   from = "/admin"
   to = "/admin.html"
@@ -16,3 +19,14 @@
   to = "/.netlify/functions/get-post"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/spotify-login"
+  to = "/.netlify/functions/login-spotify"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/.netlify/functions/callback"
+  to = "/.netlify/functions/callback"
+  status = 200
