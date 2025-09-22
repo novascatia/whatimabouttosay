@@ -80,7 +80,7 @@
 </head>
 <body class="bg-gray-100 p-8">
     <header class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold">virtual notebook</h1>
+        <h1 class="text-3xl font-bold">rama's</h1>
         <div class="flex items-center space-x-4">
             <div id="darkModeToggle" class="cursor-pointer">
                 <svg id="sunIcon" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
@@ -98,10 +98,13 @@
     </div>
 
     <div id="spotifyPlayer" class="spotify-player" style="display: none;">
+        <p id="listeningText" class="text-sm text-center text-green-500 mb-2">Rama is listening to a song right now:</p>
         <div class="spotify-player-main">
             <img id="albumArt" src="" alt="Album Art">
             <div class="spotify-player-text">
-                <h3 id="songTitle"></h3>
+                <a id="songTitleLink" href="#" target="_blank" class="block">
+                    <h3 id="songTitle" class="text-white"></h3>
+                </a>
                 <p id="artistName"></p>
             </div>
         </div>
@@ -174,6 +177,8 @@
         const progressBar = document.getElementById('progressBar');
         const currentTime = document.getElementById('currentTime');
         const totalTime = document.getElementById('totalTime');
+        const songTitleLink = document.getElementById('songTitleLink');
+        const listeningText = document.getElementById('listeningText');
         
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
@@ -190,6 +195,7 @@
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
                 albumArt.src = data.albumArt;
+                songTitleLink.href = data.songUrl;
                 
                 const progressPercent = (data.progress / data.duration) * 100;
                 progressBar.style.width = `${progressPercent}%`;
