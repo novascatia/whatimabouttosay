@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@faithidc</title>
+    <title>My Blog</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -18,6 +18,7 @@
       }
       body.dark .text-gray-600 { color: #cbd5e0; }
       body.dark .text-gray-800 { color: #e2e8f0; }
+      
       .spotify-player {
           position: fixed;
           bottom: 2rem;
@@ -76,6 +77,8 @@
           color: #b3b3b3;
           margin-top: 0.25rem;
       }
+
+      /* Running Text Bar */
       .running-text-bar {
           position: fixed;
           top: 0;
@@ -83,15 +86,15 @@
           width: 100%;
           background-color: #1ed760;
           color: #fff;
-          padding: 0.5rem;
+          padding: 0.5rem 0;
           z-index: 100;
           display: none;
           overflow: hidden;
-          white-space: nowrap;
       }
       .running-text-content {
           display: inline-block;
-          animation: marquee 10s linear infinite; /* Kecepatan lebih cepat */
+          white-space: nowrap;
+          animation: marquee 15s linear infinite;
       }
       @keyframes marquee {
           0%   { transform: translateX(100%); }
@@ -101,7 +104,7 @@
 </head>
 <body class="bg-gray-100 p-8">
     <header class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold">rama's</h1>
+        <h1 class="text-3xl font-bold">My Blog</h1>
         <div class="flex items-center space-x-4">
             <div id="darkModeToggle" class="cursor-pointer">
                 <svg id="sunIcon" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
@@ -111,15 +114,13 @@
                     <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
                 </svg>
             </div>
+            <a href="/login.html" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                Log In
             </a>
         </div>
     </header>
     <div id="postsList" class="space-y-6">
         <p>Loading posts...</p>
-    </div>
-
-    <div id="runningTextBar" class="running-text-bar">
-        <div id="runningTextContent" class="running-text-content"></div>
     </div>
     
     <div id="spotifyPlayer" class="spotify-player" style="display: none;">
