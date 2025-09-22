@@ -88,7 +88,7 @@
 
     <div id="playerContainer" class="player-container">
         <h1 id="listeningText" class="text-lg text-green-500 mb-4 text-center">Loading...</h1>
-        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden">
+        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden" crossorigin="anonymous">
         <div class="w-full">
             <h2 id="songTitle" class="text-2xl font-bold text-center mt-4 hidden"></h2>
             <p id="artistName" class="text-lg text-gray-400 text-center hidden"></p>
@@ -127,7 +127,7 @@
             const minutes = Math.floor((ms / 1000 / 60) % 60);
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
-
+        
         function getDominantColor(img) {
             const colorThief = new ColorThief();
             const color = colorThief.getColor(img);
@@ -146,7 +146,10 @@
 
             if (data.isPlaying) {
                 listeningText.textContent = `Rama is listening to a song right now:`;
-                albumArt.src = data.albumArt;
+                
+                const albumArtData = await fetch(`/.netlify/functions/get-album-art?url=${encodeURIComponent(data.albumArt)}`);
+                const base64Image = await albumArtData.text();
+                albumArt.src = base64Image;
 
                 albumArt.onload = () => {
                     const dominantColor = getDominantColor(albumArt);
