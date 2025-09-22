@@ -1,12 +1,13 @@
 {
-  "name": "simple-blog",
+  "name": "script-uploader",
   "version": "1.0.0",
-  "description": "A simple blog project with Netlify and Supabase.",
+  "description": "A simple script uploader using Netlify Functions and Supabase.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.38.4"
+    "@supabase/supabase-js": "^2.38.4",
+    "node-fetch": "^3.3.2"
   }
 }
