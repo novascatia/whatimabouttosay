@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hey its me ! :D</title>
+    <title>hey its me Rama!</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -57,13 +57,13 @@
             margin-top: 1.5rem;
         }
         .controls svg {
-            width: 2rem; /* Ukuran ikon back dan next */
+            width: 2rem;
             height: 2rem;
             fill: #fff;
-            cursor: default; /* Ganti cursor agar tidak terlihat bisa diklik */
+            cursor: default;
         }
         .controls .play-btn {
-            width: 3.5rem; /* Ukuran ikon pause/play */
+            width: 3.5rem;
             height: 3.5rem;
         }
         .logo {
@@ -99,12 +99,21 @@
             <span id="totalTime">0:00</span>
         </div>
 
-<div id="controls" class="controls hidden">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6l-8.5 6z"></path></svg>
-    <svg class="play-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-3.5 6-8.5 6V6l8.5 6z"></path></svg>
-</div>
+        <div id="controls" class="controls hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6l-8.5 6z"></path></svg>
+            <svg class="play-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-3.5 6-8.5 6V6l8.5 6z"></path></svg>
+        </div>
 
+        <a id="instagramLink" href="https://instagram.com/yaelahramalagi" target="_blank" rel="noopener noreferrer" 
+           class="mt-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-200 hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+            </svg>
+            <span>hit me up on instagram!</span>
+        </a>
+        
         <div id="connectButton" class="mt-8 hidden">
             <a href="/.netlify/functions/login-spotify" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
                 Connect to Spotify
@@ -126,6 +135,7 @@
         const totalTime = document.getElementById('totalTime');
         const connectButton = document.getElementById('connectButton');
         const controls = document.getElementById('controls');
+        const instagramLink = document.getElementById('instagramLink'); // Ambil elemen link Instagram
 
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
@@ -144,7 +154,7 @@
             }
 
             if (data.isPlaying) {
-                listeningText.textContent = `Hey! you scanned my QR ! Im listening to this :`;
+                listeningText.textContent = `Rama is listening to a song right now:`;
                 albumArt.src = data.albumArt;
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
@@ -155,19 +165,21 @@
                 progressBarContainer.classList.remove('hidden');
                 timeDisplay.classList.remove('hidden');
                 controls.classList.remove('hidden');
+                instagramLink.classList.remove('hidden'); // Tampilkan link Instagram
 
                 const progressPercent = (data.progress / data.duration) * 100;
                 progressBar.style.width = `${progressPercent}%`;
                 currentTime.textContent = formatTime(data.progress);
                 totalTime.textContent = formatTime(data.duration);
             } else {
-                listeningText.textContent = 'Welp, im not listening to anything rn :d @yaelahramalagi';
+                listeningText.textContent = 'Rama is not listening to a song right now.';
                 albumArt.classList.add('hidden');
                 songTitle.classList.add('hidden');
                 artistName.classList.add('hidden');
                 progressBarContainer.classList.add('hidden');
                 timeDisplay.classList.add('hidden');
                 controls.classList.add('hidden');
+                instagramLink.classList.add('hidden'); // Sembunyikan link Instagram
             }
         }
         
