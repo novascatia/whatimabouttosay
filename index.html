@@ -122,9 +122,13 @@
     <div id="postsList" class="space-y-6">
         <p>Loading posts...</p>
     </div>
+
+    <div id="runningTextBar" class="running-text-bar">
+        <div id="runningTextContent" class="running-text-content"></div>
+    </div>
     
     <div id="spotifyPlayer" class="spotify-player" style="display: none;">
-        <p id="listeningText" class="text-sm text-center text-green-500 mb-2 w-full text-left">Rama is listening to a song right now:</p>
+        <p id="listeningText" class="text-sm text-left text-green-500 mb-2 w-full">Rama is listening to a song right now:</p>
         <div class="spotify-player-main">
             <img id="albumArt" src="" alt="Album Art">
             <div class="spotify-player-text">
@@ -217,6 +221,19 @@
             const minutes = Math.floor((ms / 1000 / 60) % 60);
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
+
+        function togglePlayer(showPlayer, songInfo) {
+            if (showPlayer) {
+                spotifyPlayer.style.display = 'flex';
+                runningTextBar.style.display = 'none';
+            } else {
+                spotifyPlayer.style.display = 'none';
+                runningTextBar.style.display = 'block';
+            }
+            if (songInfo) {
+                runningTextContent.textContent = songInfo;
+            }
+        }
         
         async function fetchNowPlaying() {
             const response = await fetch('/.netlify/functions/now-playing');
@@ -224,25 +241,17 @@
 
             if (data.isPlaying) {
                 const songInfo = `Rama is listening to "${data.title}" by ${data.artist}`;
-                runningTextContent.textContent = songInfo;
-
-                if (playerVisible) {
-                    spotifyPlayer.style.display = 'flex';
-                    runningTextBar.style.display = 'none';
-                    songTitle.textContent = data.title;
-                    artistName.textContent = data.artist;
-                    albumArt.src = data.albumArt;
-                    songTitleLink.href = data.songUrl;
-                    
-                    const progressPercent = (data.progress / data.duration) * 100;
-                    progressBar.style.width = `${progressPercent}%`;
-                    currentTime.textContent = formatTime(data.progress);
-                    totalTime.textContent = formatTime(data.duration);
-                } else {
-                    spotifyPlayer.style.display = 'none';
-                    runningTextBar.style.display = 'block';
-                }
-
+                togglePlayer(playerVisible, songInfo);
+                
+                songTitle.textContent = data.title;
+                artistName.textContent = data.artist;
+                albumArt.src = data.albumArt;
+                songTitleLink.href = data.songUrl;
+                
+                const progressPercent = (data.progress / data.duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                currentTime.textContent = formatTime(data.progress);
+                totalTime.textContent = formatTime(data.duration);
             } else {
                 spotifyPlayer.style.display = 'none';
                 runningTextBar.style.display = 'none';
