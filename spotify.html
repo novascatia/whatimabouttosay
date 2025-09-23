@@ -105,7 +105,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-3.5 6-8.5 6V6l8.5 6z"></path></svg>
         </div>
 
-        <a id="instagramLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" 
+        <a id="spotifyLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" 
            class="mt-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-200 hidden">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
@@ -145,6 +145,7 @@
         const totalTime = document.getElementById('totalTime');
         const connectButton = document.getElementById('connectButton');
         const controls = document.getElementById('controls');
+        const spotifyLink = document.getElementById('spotifyLink'); // Ambil elemen link Instagram
         const instagramLink = document.getElementById('instagramLink'); // Ambil elemen link Instagram
 
         function formatTime(ms) {
@@ -175,6 +176,7 @@
                 progressBarContainer.classList.remove('hidden');
                 timeDisplay.classList.remove('hidden');
                 controls.classList.remove('hidden');
+                spotifyLink.classList.remove('hidden'); // Tampilkan link Instagram
                 instagramLink.classList.remove('hidden'); // Tampilkan link Instagram
 
                 const progressPercent = (data.progress / data.duration) * 100;
@@ -189,6 +191,7 @@
                 progressBarContainer.classList.add('hidden');
                 timeDisplay.classList.add('hidden');
                 controls.classList.add('hidden');
+                spotifyLink.classList.add('hidden'); // Sembunyikan link Instagram
                 instagramLink.classList.add('hidden'); // Sembunyikan link Instagram
             }
         }
