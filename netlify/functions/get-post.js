@@ -84,7 +84,7 @@ exports.handler = async (event) => {
             };
         }
 
-        const formattedContent = convertLinksToHtml(post.content);
+        const formattedContent = convertLinksToHtml(post.content).replace(/\n/g, '<br>');
 
         const htmlContent = `
             <!DOCTYPE html>
@@ -114,7 +114,7 @@ exports.handler = async (event) => {
                     <a href="/" class="text-blue-500 hover:underline mb-4 inline-block">← Back to blog</a>
                     <h1 class="text-3xl font-bold mt-4 mb-2">${post.title}</h1>
                     <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()} by ${post.author}</p>
-                    <p class="text-gray-800">${formattedContent}</p>
+                    <div class="text-gray-800">${formattedContent}</div>
                 </div>
                 <script>
                     const isDarkMode = localStorage.getItem('theme') === 'dark';

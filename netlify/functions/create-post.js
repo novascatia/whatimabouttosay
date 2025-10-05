@@ -11,8 +11,8 @@ function generateUniqueId() {
 
 exports.handler = async (event) => {
     try {
-        const { title, description, content, author, is_pinned } = JSON.parse(event.body);
-        const uniqueId = generateUniqueId();
+        const { title, description, content, author, slug, is_pinned } = JSON.parse(event.body);
+        const uniqueId = slug || generateUniqueId();
 
         if (is_pinned) {
             const { error: unpinError } = await supabase

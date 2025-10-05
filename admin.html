@@ -42,6 +42,10 @@
                 <label for="postContent" class="block text-sm font-medium text-gray-700">Post Content</label>
                 <textarea id="postContent" rows="10" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
+            <div>
+                <label for="postSlug" class="block text-sm font-medium text-gray-700">Custom Post Link (optional)</label>
+                <input type="text" id="postSlug" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
             <div class="flex items-center">
                 <input type="checkbox" id="pinPost" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                 <label for="pinPost" class="ml-2 block text-sm text-gray-900">Pin this post</label>
@@ -82,6 +86,7 @@
             const title = document.getElementById('postTitle').value;
             const description = document.getElementById('postDescription').value;
             const content = document.getElementById('postContent').value;
+            const slug = document.getElementById('postSlug').value;
             const is_pinned = document.getElementById('pinPost').checked;
             
             message.textContent = 'Submitting post...';
@@ -105,7 +110,7 @@
             const response = await fetch('/.netlify/functions/create-post', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description, content, is_pinned, author: 'novascatia' })
+                body: JSON.stringify({ title, description, content, slug, is_pinned, author: 'novascatia' })
             });
             
             const result = await response.json();
@@ -116,6 +121,7 @@
                 document.getElementById('postTitle').value = '';
                 document.getElementById('postDescription').value = '';
                 document.getElementById('postContent').value = '';
+                document.getElementById('postSlug').value = '';
                 document.getElementById('pinPost').checked = false;
             } else {
                 message.textContent = `Error: ${result.error}`;
