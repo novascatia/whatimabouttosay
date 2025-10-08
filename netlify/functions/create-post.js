@@ -11,7 +11,7 @@ function generateUniqueId() {
 
 exports.handler = async (event) => {
     try {
-        const { title, description, content, author, slug, is_pinned } = JSON.parse(event.body);
+        const { title, description, content, author, slug, is_pinned, is_hidden } = JSON.parse(event.body);
         const uniqueId = slug || generateUniqueId();
 
         if (is_pinned) {
@@ -30,7 +30,15 @@ exports.handler = async (event) => {
 
         const { error } = await supabase
             .from('posts')
-            .insert({ id: uniqueId, title, description, content, author, is_pinned });
+            .insert({ 
+                id: uniqueId, 
+                title, 
+                description, 
+                content, 
+                author, 
+                is_pinned,
+                is_hidden: is_hidden || false 
+            });
 
         if (error) {
             return {

@@ -9,12 +9,14 @@ exports.handler = async () => {
             .from('posts')
             .select('id, title, description, created_at, is_pinned')
             .eq('is_pinned', true)
+            .eq('is_hidden', false)
             .single();
 
         const { data: regularPosts, error: regularError } = await supabase
             .from('posts')
             .select('id, title, description, created_at, is_pinned')
             .eq('is_pinned', false)
+            .eq('is_hidden', false)
             .order('created_at', { ascending: false });
 
         if (pinnedError && pinnedError.code !== 'PGRST116') {
