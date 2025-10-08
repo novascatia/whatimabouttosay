@@ -27,6 +27,12 @@
   force = true
 
 [[redirects]]
+  from = "/.netlify/functions/delete-post"
+  to = "/.netlify/functions/delete-post"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/spotify-login"
   to = "/.netlify/functions/login-spotify"
   status = 302
@@ -41,3 +47,4 @@
   from = "/spotify"
   to = "/spotify.html"
   status = 200
+
