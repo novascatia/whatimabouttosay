@@ -21,6 +21,12 @@
   force = true
 
 [[redirects]]
+  from = "/post/raw/:id"
+  to = "/.netlify/functions/get-raw-post"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/spotify-login"
   to = "/.netlify/functions/login-spotify"
   status = 302

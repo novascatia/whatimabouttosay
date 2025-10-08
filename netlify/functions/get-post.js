@@ -111,7 +111,10 @@ exports.handler = async (event) => {
             </head>
             <body class="bg-gray-100 p-8">
                 <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
-                    <a href="/" class="text-blue-500 hover:underline mb-4 inline-block">← Back to blog</a>
+                    <div class="flex justify-between items-center mb-4">
+                        <a href="/" class="text-blue-500 hover:underline">← Back to blog</a>
+                        <a href="/post/raw/${post.id}" class="text-gray-500 hover:underline">Raw</a>
+                    </div>
                     <h1 class="text-3xl font-bold mt-4 mb-2">${post.title}</h1>
                     <p class="text-gray-600 text-sm mb-4">Posted on ${new Date(post.created_at).toLocaleDateString()} by ${post.author}</p>
                     <div class="text-gray-800">${formattedContent}</div>
