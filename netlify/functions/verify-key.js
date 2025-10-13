@@ -1,7 +1,7 @@
 // netlify/functions/verify-key.js
 const { createClient } = require('@supabase/supabase-js');
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY; // Gunakan Service Key untuk melewati RLS
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 exports.handler = async (event) => {
@@ -11,7 +11,6 @@ exports.handler = async (event) => {
 
     try {
         const { key } = JSON.parse(event.body);
-
         if (!key) {
             return { statusCode: 400, body: 'INVALID' };
         }
@@ -22,6 +21,7 @@ exports.handler = async (event) => {
             .eq('key_value', key)
             .single();
 
+        // **THIS IS THE FIX**: If the key is not found (error or no data), it's invalid.
         if (error || !data) {
             return { statusCode: 404, body: 'INVALID' };
         }
@@ -30,20 +30,14 @@ exports.handler = async (event) => {
             return { statusCode: 403, body: 'INVALID' };
         }
 
-        // Jika kunci memiliki durasi (bukan unlimited)
         if (data.duration > 0) {
-            const createdAt = new Date(data.created_at);
-            const expiresAt = new Date(createdAt.getTime() + data.duration * 1000);
-            const now = new Date();
-
-            if (now > expiresAt) {
-                // Kunci kedaluwarsa, hapus dari database
+            const expiresAt = new Date(new Date(data.created_at).getTime() + data.duration * 1000);
+            if (new Date() > expiresAt) {
                 await supabase.from('script_keys').delete().eq('id', data.id);
-                return { statusCode: 403, body: 'INVALID' }; // Kirim INVALID setelah dihapus
+                return { statusCode: 403, body: 'INVALID' };
             }
         }
 
-        // Jika semua pengecekan lolos (termasuk kunci unlimited), kunci valid
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'text/plain' },

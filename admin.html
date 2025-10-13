@@ -19,6 +19,8 @@
       body.dark .text-gray-600 { color: #cbd5e0; }
       body.dark .text-gray-700, body.dark .text-gray-900 { color: #e2e8f0; }
       body.dark .bg-gray-50 { background-color: #4a5568; }
+      body.dark .border-gray-300 { border-color: #4a5568; }
+      body.dark code { background-color: #1a202c; }
     </style>
 </head>
 <body class="bg-gray-100 p-8">
@@ -77,6 +79,10 @@
         <h2 class="text-2xl font-bold">Generate Script Key</h2>
         <form id="keyForm" class="space-y-4 mt-6">
             <div>
+                <label for="customKey" class="block text-sm font-medium text-gray-700">Custom Key (Optional)</label>
+                <input type="text" id="customKey" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Leave blank to generate a random key">
+            </div>
+            <div>
                 <label for="keyDuration" class="block text-sm font-medium text-gray-700">Duration (in seconds)</label>
                 <input type="number" id="keyDuration" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="e.g., 86400 for 1 day. Use 0 for unlimited." required>
             </div>
@@ -106,15 +112,11 @@
     <script>
         let supabase;
 
-        // --- General Elements ---
+        // --- Elements ---
         const logoutBtn = document.getElementById('logoutBtn');
-        const mainMessage = document.getElementById('postMessage'); // Generic message element
-
-        // --- Post Elements ---
         const postForm = document.getElementById('postForm');
         const adminPostsList = document.getElementById('adminPostsList');
-
-        // --- Key Elements ---
+        const postMessage = document.getElementById('postMessage');
         const keyForm = document.getElementById('keyForm');
         const keyMessage = document.getElementById('keyMessage');
         const adminKeysList = document.getElementById('adminKeysList');
@@ -122,7 +124,7 @@
         async function initAndAuth() {
             const response = await fetch('/.netlify/functions/get-config');
             if (!response.ok) {
-                mainMessage.textContent = 'Error: Could not get Supabase keys.';
+                alert('Error: Could not get Supabase keys.');
                 return;
             }
             const keys = await response.json();
@@ -134,23 +136,17 @@
                 return;
             }
             
-            // Fetch both posts and keys on load
             fetchAdminPosts();
             fetchAdminKeys();
         }
 
         // --- POST MANAGEMENT ---
         async function fetchAdminPosts() {
-            const { data: posts, error } = await supabase
-                .from('posts')
-                .select('id, title, created_at, is_hidden')
-                .order('created_at', { ascending: false });
-
+            const { data: posts, error } = await supabase.from('posts').select('id, title, created_at, is_hidden').order('created_at', { ascending: false });
             if (error) {
                 adminPostsList.innerHTML = `<p class="text-red-500">Error fetching posts.</p>`;
                 return;
             }
-
             adminPostsList.innerHTML = posts.length === 0 
                 ? `<p class="text-gray-500">No posts to manage yet.</p>`
                 : posts.map(post => `
@@ -160,46 +156,23 @@
                             <p class="text-sm text-gray-500">ID: ${post.id} | Status: <span class="${post.is_hidden ? 'text-yellow-600' : 'text-green-600'}">${post.is_hidden ? 'Hidden' : 'Visible'}</span></p>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="toggleHiddenStatus('${post.id}', ${post.is_hidden})" class="bg-gray-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-gray-600">
-                                ${post.is_hidden ? 'Show' : 'Hide'}
-                            </button>
-                            <button onclick="deletePost('${post.id}')" class="bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600">
-                                Delete
-                            </button>
+                            <button onclick="toggleHiddenStatus('${post.id}', ${post.is_hidden})" class="bg-gray-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-gray-600">${post.is_hidden ? 'Show' : 'Hide'}</button>
+                            <button onclick="deletePost('${post.id}')" class="bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600">Delete</button>
                         </div>
                     </div>`).join('');
         }
         
-        async function toggleHiddenStatus(id, isHidden) {
-            const newHiddenStatus = !isHidden;
-            const response = await fetch('/.netlify/functions/update-post-status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, is_hidden: newHiddenStatus })
-            });
-            const result = await response.json();
-            if (response.ok) fetchAdminPosts();
-            else alert(`Error: ${result.error}`);
-        }
-
         async function deletePost(id) {
             if (!confirm('Are you sure you want to delete this post?')) return;
-            const response = await fetch('/.netlify/functions/delete-post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-            const result = await response.json();
-            if (response.ok) fetchAdminPosts();
-            else alert(`Error: ${result.error}`);
+            const { error } = await supabase.from('posts').delete().eq('id', id);
+            if (error) alert(`Error deleting post: ${error.message}`);
+            else fetchAdminPosts();
         }
 
         postForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const messageEl = document.getElementById('postMessage');
-            messageEl.textContent = 'Submitting post...';
-            
-            const body = {
+            postMessage.textContent = 'Submitting post...';
+            const { error } = await supabase.from('posts').insert({
                 title: document.getElementById('postTitle').value,
                 description: document.getElementById('postDescription').value,
                 content: document.getElementById('postContent').value,
@@ -207,41 +180,25 @@
                 is_pinned: document.getElementById('pinPost').checked,
                 is_hidden: document.getElementById('hidePost').checked,
                 author: 'novascatia'
-            };
-
-            const response = await fetch('/.netlify/functions/create-post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
             });
-            const result = await response.json();
-
-            if (response.ok) {
-                messageEl.textContent = 'Post submitted successfully!';
-                messageEl.className = 'mt-4 text-center text-sm text-green-500';
+            if (error) {
+                postMessage.textContent = `Error: ${error.message}`;
+                postMessage.className = 'mt-4 text-center text-sm text-red-500';
+            } else {
+                postMessage.textContent = 'Post submitted successfully!';
+                postMessage.className = 'mt-4 text-center text-sm text-green-500';
                 postForm.reset();
                 fetchAdminPosts();
-            } else {
-                messageEl.textContent = `Error: ${result.error}`;
-                messageEl.className = 'mt-4 text-center text-sm text-red-500';
             }
         });
 
-
         // --- KEY MANAGEMENT ---
         async function fetchAdminKeys() {
-            // This function needs a new Netlify function: `admin-fetch-keys`
-            // For now, let's assume it exists and handles the logic.
-            const { data: keys, error } = await supabase
-                .from('script_keys')
-                .select('*')
-                .order('created_at', { ascending: false });
-
+            const { data: keys, error } = await supabase.from('script_keys').select('*').order('created_at', { ascending: false });
             if (error) {
                 adminKeysList.innerHTML = `<p class="text-red-500">Error fetching keys: ${error.message}</p>`;
                 return;
             }
-
             adminKeysList.innerHTML = keys.length === 0
                 ? `<p class="text-gray-500">No keys generated yet.</p>`
                 : keys.map(key => {
@@ -260,12 +217,8 @@
                             <p class="text-sm text-gray-500">${expiresText}</p>
                         </div>
                         <div class="flex space-x-2">
-                             <button onclick="toggleKeyStatus('${key.id}', ${key.is_active})" class="bg-gray-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-gray-600">
-                                ${key.is_active ? 'Deactivate' : 'Activate'}
-                            </button>
-                            <button onclick="deleteKey('${key.id}')" class="bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600">
-                                Delete
-                            </button>
+                             <button onclick="toggleKeyStatus('${key.id}', ${key.is_active})" class="bg-gray-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-gray-600">${key.is_active ? 'Deactivate' : 'Activate'}</button>
+                            <button onclick="deleteKey('${key.id}')" class="bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-600">Delete</button>
                         </div>
                     </div>`
                 }).join('');
@@ -274,17 +227,16 @@
         keyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             keyMessage.textContent = 'Generating key...';
-            
             const response = await fetch('/.netlify/functions/admin-generate-key', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    customKey: document.getElementById('customKey').value,
                     duration: parseInt(document.getElementById('keyDuration').value, 10),
                     note: document.getElementById('keyNote').value
                 })
             });
             const result = await response.json();
-
             if (response.ok) {
                 keyMessage.textContent = `Key generated: ${result.key}`;
                 keyMessage.className = 'mt-4 text-center text-sm text-green-500';
@@ -298,15 +250,12 @@
         
         async function deleteKey(id) {
             if (!confirm('Are you sure you want to permanently delete this key?')) return;
-            // You'll need a new Netlify function for this. e.g., 'admin-delete-key'
-            // For now, it will directly use supabase client-side for simplicity.
             const { error } = await supabase.from('script_keys').delete().eq('id', id);
             if (error) alert(`Error deleting key: ${error.message}`);
             else fetchAdminKeys();
         }
 
         async function toggleKeyStatus(id, isActive) {
-            // You'll need a new Netlify function for this. e.g., 'admin-toggle-key'
             const newStatus = !isActive;
             const { error } = await supabase.from('script_keys').update({ is_active: newStatus }).eq('id', id);
             if (error) alert(`Error updating key: ${error.message}`);
