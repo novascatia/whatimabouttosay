@@ -3,19 +3,16 @@ const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 exports.handler = async (event) => {
-    // Di sini Anda harus menambahkan verifikasi admin (misalnya, memeriksa cookie)
-    // Untuk saat ini, kita anggap sudah terotentikasi
-
     if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+        return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
     }
 
     try {
-        const { duration, note } = JSON.parse(event.body);
+        const { duration, note, customKey } = JSON.parse(event.body);
 
         if (typeof duration !== 'number') {
             return {
@@ -24,23 +21,33 @@ exports.handler = async (event) => {
             };
         }
 
-        const newKey = `growpai-${crypto.randomBytes(8).toString('hex')}`;
+        // Logika yang disederhanakan dan diperbaiki:
+        let keyToInsert = customKey;
+        if (!keyToInsert || keyToInsert.trim() === '') {
+            keyToInsert = `Nova-${crypto.randomBytes(8).toString('hex')}`;
+        }
 
         const { error } = await supabase
             .from('script_keys')
             .insert({ 
-                key_value: newKey, 
+                key_value: keyToInsert, 
                 duration: duration,
                 note: note 
             });
 
         if (error) {
+            if (error.code === '23505') {
+                 return {
+                    statusCode: 409, // Conflict
+                    body: JSON.stringify({ error: `Key "${keyToInsert}" already exists.` }),
+                };
+            }
             throw error;
         }
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ message: 'Key generated successfully.', key: newKey }),
+            body: JSON.stringify({ message: 'Key generated successfully.', key: keyToInsert }),
         };
     } catch (error) {
         return {

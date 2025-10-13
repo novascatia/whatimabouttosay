@@ -172,23 +172,29 @@
         postForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             postMessage.textContent = 'Submitting post...';
-            const { error } = await supabase.from('posts').insert({
-                title: document.getElementById('postTitle').value,
-                description: document.getElementById('postDescription').value,
-                content: document.getElementById('postContent').value,
-                slug: document.getElementById('postSlug').value,
-                is_pinned: document.getElementById('pinPost').checked,
-                is_hidden: document.getElementById('hidePost').checked,
-                author: 'novascatia'
+            // This now requires a backend function for security
+            const response = await fetch('/.netlify/functions/create-post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: document.getElementById('postTitle').value,
+                    description: document.getElementById('postDescription').value,
+                    content: document.getElementById('postContent').value,
+                    slug: document.getElementById('postSlug').value,
+                    is_pinned: document.getElementById('pinPost').checked,
+                    is_hidden: document.getElementById('hidePost').checked,
+                    author: 'novascatia'
+                })
             });
-            if (error) {
-                postMessage.textContent = `Error: ${error.message}`;
-                postMessage.className = 'mt-4 text-center text-sm text-red-500';
-            } else {
+            const result = await response.json();
+            if (response.ok) {
                 postMessage.textContent = 'Post submitted successfully!';
                 postMessage.className = 'mt-4 text-center text-sm text-green-500';
                 postForm.reset();
                 fetchAdminPosts();
+            } else {
+                postMessage.textContent = `Error: ${result.error || 'Failed to create post.'}`;
+                postMessage.className = 'mt-4 text-center text-sm text-red-500';
             }
         });
 
