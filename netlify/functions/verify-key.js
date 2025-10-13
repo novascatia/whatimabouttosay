@@ -8,15 +8,15 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 exports.handler = async (event) => {
     // Hanya izinkan metode POST
     if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID_METHOD' };
+        return { statusCode: 405, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
     }
 
     try {
-        // Langsung coba parsing body, jika gagal, berarti formatnya salah
-        const { key } = JSON.parse(event.body);
+        // PERUBAHAN UTAMA: Ambil kunci dari query string parameter di URL
+        const key = event.queryStringParameters.key;
 
         if (!key) {
-            return { statusCode: 400, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID_NO_KEY' };
+            return { statusCode: 400, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
         }
 
         const { data, error } = await supabase
@@ -25,14 +25,14 @@ exports.handler = async (event) => {
             .eq('key_value', key)
             .single();
 
-        // Jika kunci tidak ditemukan di database
+        // Jika kunci tidak ditemukan
         if (error || !data) {
-            return { statusCode: 404, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID_NOT_FOUND' };
+            return { statusCode: 404, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
         }
 
         // Jika kunci dinonaktifkan
         if (!data.is_active) {
-            return { statusCode: 403, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID_DEACTIVATED' };
+            return { statusCode: 403, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
         }
 
         // Cek kedaluwarsa
@@ -41,7 +41,7 @@ exports.handler = async (event) => {
             if (new Date() > expiresAt) {
                 // Hapus kunci yang sudah kedaluwarsa
                 await supabase.from('script_keys').delete().eq('id', data.id);
-                return { statusCode: 403, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID_EXPIRED' };
+                return { statusCode: 403, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
             }
         }
 
@@ -53,7 +53,6 @@ exports.handler = async (event) => {
         };
 
     } catch (err) {
-        // Jika ada error lain (misal: JSON tidak valid)
-        return { statusCode: 500, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID_SERVER_ERROR' };
+        return { statusCode: 500, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
     }
 };
