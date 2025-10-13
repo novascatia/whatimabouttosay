@@ -39,20 +39,22 @@ exports.handler = async (event) => {
             };
         }
 
-        // Jika kunci memiliki durasi
+        // [[ ===== PERUBAHAN UTAMA DI SINI ===== ]]
+        // Server sekarang yang menghitung sisa detik.
         const expiresAt = new Date(new Date(data.created_at).getTime() + data.duration * 1000);
         const now = new Date();
+        const seconds_left = Math.floor((expiresAt - now) / 1000);
 
-        if (now > expiresAt) {
+        if (seconds_left <= 0) {
             await supabase.from('script_keys').delete().eq('id', data.id);
             return { statusCode: 403, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
         }
 
-        // Jika valid, kirim kembali waktu kedaluwarsa dalam format ISO
+        // Kirim kembali sisa detik sebagai teks
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'text/plain' },
-            body: `VALID|${expiresAt.toISOString()}`,
+            body: `VALID|${seconds_left}`,
         };
 
     } catch (err) {
