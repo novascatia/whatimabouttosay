@@ -6,15 +6,12 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 exports.handler = async (event) => {
-    // Hanya izinkan metode POST
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
     }
 
     try {
-        // PERUBAHAN UTAMA: Ambil kunci dari query string parameter di URL
         const key = event.queryStringParameters.key;
-
         if (!key) {
             return { statusCode: 400, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
         }
@@ -25,31 +22,37 @@ exports.handler = async (event) => {
             .eq('key_value', key)
             .single();
 
-        // Jika kunci tidak ditemukan
         if (error || !data) {
             return { statusCode: 404, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
         }
 
-        // Jika kunci dinonaktifkan
         if (!data.is_active) {
             return { statusCode: 403, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
         }
 
-        // Cek kedaluwarsa
-        if (data.duration > 0) {
-            const expiresAt = new Date(new Date(data.created_at).getTime() + data.duration * 1000);
-            if (new Date() > expiresAt) {
-                // Hapus kunci yang sudah kedaluwarsa
-                await supabase.from('script_keys').delete().eq('id', data.id);
-                return { statusCode: 403, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
-            }
+        // Jika kunci unlimited
+        if (data.duration === 0) {
+            return {
+                statusCode: 200,
+                headers: { 'Content-Type': 'text/plain' },
+                body: 'VALID|UNLIMITED',
+            };
         }
 
-        // Jika semua lolos, kunci valid
+        // Jika kunci memiliki durasi
+        const expiresAt = new Date(new Date(data.created_at).getTime() + data.duration * 1000);
+        const now = new Date();
+
+        if (now > expiresAt) {
+            await supabase.from('script_keys').delete().eq('id', data.id);
+            return { statusCode: 403, headers: { 'Content-Type': 'text/plain' }, body: 'INVALID' };
+        }
+
+        // Jika valid, kirim kembali waktu kedaluwarsa dalam format ISO
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'text/plain' },
-            body: 'VALID',
+            body: `VALID|${expiresAt.toISOString()}`,
         };
 
     } catch (err) {
