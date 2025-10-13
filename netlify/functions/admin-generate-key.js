@@ -21,7 +21,6 @@ exports.handler = async (event) => {
             };
         }
 
-        // Logika yang disederhanakan dan diperbaiki:
         let keyToInsert = customKey;
         if (!keyToInsert || keyToInsert.trim() === '') {
             keyToInsert = `Nova-${crypto.randomBytes(8).toString('hex')}`;
@@ -32,13 +31,14 @@ exports.handler = async (event) => {
             .insert({ 
                 key_value: keyToInsert, 
                 duration: duration,
-                note: note 
+                note: note,
+                is_active: true // <-- PERBAIKAN: Kunci sekarang akan selalu aktif saat dibuat
             });
 
         if (error) {
             if (error.code === '23505') {
                  return {
-                    statusCode: 409, // Conflict
+                    statusCode: 409,
                     body: JSON.stringify({ error: `Key "${keyToInsert}" already exists.` }),
                 };
             }
