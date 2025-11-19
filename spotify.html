@@ -192,7 +192,9 @@
 
     <div id="playerContainer" class="player-container">
         
-        <h1 id="listeningText" style="font-size:1.1em; color:var(--spotify-green); margin-bottom: 2rem;">Rama is listening to: </h1>
+        <p id="staticListeningHeader" style="font-size:1.1em; color:var(--spotify-green); margin-bottom: 0.5rem;" class="hidden">Rama is listening to:</p>
+        
+        <h1 id="listeningText" style="font-size:1.1em; color:var(--spotify-green); margin-bottom: 2rem;">Loading...</h1>
         
         <img id="albumArt" src="" alt="Album Art" class="album-art hidden">
         
@@ -215,19 +217,19 @@
                 <i id="playPauseIcon" class="fas fa-pause"></i>
             </span>
             <i class="fas fa-forward"></i>
-            </div>
+        </div>
 
-        <div class="social-links-container">
+        <div id="socialLinksContainer" class="social-links-container">
             <a id="spotifyLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" 
                class="social-link hidden">
                 <i class="fab fa-spotify"></i>
-                <span>Follow my Spotify!</span>
+                <span id="spotifyLinkText">Follow my Spotify!</span>
             </a>
             
             <a id="instagramLink" href="https://instagram.com/grayalldayog" target="_blank" rel="noopener noreferrer" 
                class="social-link hidden">
                 <i class="fab fa-instagram"></i>
-                <span>Hit me up on Instagram!</span>
+                <span id="instagramLinkText">Hit me up on Instagram!</span>
             </a>
 
             <div id="connectButton" class="connect-button hidden">
@@ -241,6 +243,7 @@
 
     <script>
         const listeningText = document.getElementById('listeningText');
+        const staticListeningHeader = document.getElementById('staticListeningHeader');
         const albumArt = document.getElementById('albumArt');
         const albumArtBackground = document.getElementById('albumArtBackground');
         const songTitle = document.getElementById('songTitle');
@@ -249,8 +252,12 @@
         const currentTimeElement = document.getElementById('currentTime');
         const totalTimeElement = document.getElementById('totalTime');
         const playPauseIcon = document.getElementById('playPauseIcon');
-
-        // Menghilangkan variabel lirik
+        const socialLinksContainer = document.getElementById('socialLinksContainer');
+        const spotifyLink = document.getElementById('spotifyLink');
+        const instagramLink = document.getElementById('instagramLink');
+        const spotifyLinkText = document.getElementById('spotifyLinkText');
+        const instagramLinkText = document.getElementById('instagramLinkText');
+        const connectButton = document.getElementById('connectButton');
         
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
@@ -258,13 +265,18 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
         
-        function showElements(show) {
-            // Logika tampilan player utama
-            const elementsToToggle = [
-                albumArt, songTitle, artistName, progressBarContainer, timeDisplay, 
-                controls, spotifyLink, instagramLink
+        function showPlayingElements(show) {
+            // Kontrol UI saat lagu sedang diputar
+            const playingElements = [
+                albumArt, songTitle, artistName, progressBarContainer, timeDisplay, controls
             ];
-            elementsToToggle.forEach(el => el.classList.toggle('hidden', !show));
+            
+            playingElements.forEach(el => el.classList.toggle('hidden', !show));
+            staticListeningHeader.classList.toggle('hidden', !show);
+            listeningText.classList.toggle('hidden', show);
+            
+            // Link sosial selalu ditampilkan, tetapi kontennya berubah di JS
+            socialLinksContainer.classList.remove('hidden');
         }
 
         async function fetchNowPlaying() {
@@ -272,13 +284,24 @@
             const data = await response.json();
 
             if (data.error) {
-                // ... Error handling
+                // Handle Error / Token not set
+                listeningText.classList.remove('hidden');
+                listeningText.textContent = 'ERROR: Admin connection required.';
+                listeningText.style.color = '#ff0000';
+                connectButton.classList.remove('hidden');
+                albumArtBackground.style.backgroundImage = 'none';
+                showPlayingElements(false);
                 return;
             }
             
+            connectButton.classList.add('hidden');
+            listeningText.style.color = 'var(--spotify-green)';
+
             if (data.isPlaying) {
-                // Data lirik tidak lagi disimpan
-                
+                // ===================================
+                // 1. STATE: LAGU SEDANG DIPUTAR
+                // ===================================
+
                 // Update UI elements
                 albumArt.src = data.albumArt;
                 albumArtBackground.style.backgroundImage = `url('${data.albumArt}')`;
@@ -288,24 +311,42 @@
                 // Progress Bar Update
                 const currentProgressMs = data.progress;
                 const durationMs = data.duration;
-
                 totalTimeElement.textContent = formatTime(durationMs);
                 currentTimeElement.textContent = formatTime(currentProgressMs);
-                
                 const progressPercent = (currentProgressMs / durationMs) * 100;
                 progressBar.style.width = `${progressPercent}%`;
 
-                // Update Link Judul Lagu
-                songTitle.onclick = () => window.open(data.songUrl, '_blank');
+                // Update Link Texts ke default/minimal
+                spotifyLinkText.textContent = 'Follow my Spotify!';
+                instagramLinkText.textContent = 'Hit me up on Instagram!';
                 
-                // Tampilkan ikon Play/Pause yang benar
-                playPauseIcon.className = data.is_playing ? 'fas fa-pause' : 'fas fa-play';
+                // Show playing elements
+                showPlayingElements(true);
+                spotifyLink.classList.remove('hidden');
+                instagramLink.classList.remove('hidden');
 
-                showElements(true);
-                
             } else {
-                // Lagu tidak diputar
-                showElements(false);
+                // ===================================
+                // 2. STATE: LAGU TIDAK DIPUTAR (DOING SOMETHING ELSE)
+                // ===================================
+                
+                // Set Pesan Utama
+                listeningText.textContent = 'Rama is doing something else..';
+                listeningText.style.fontSize = '1.8em';
+                listeningText.style.fontWeight = '700';
+                listeningText.style.color = 'var(--text-color)';
+                
+                // Update Link Texts Sesuai Permintaan
+                spotifyLinkText.textContent = 'But still you can stalk my spotify!';
+                instagramLinkText.textContent = 'Maybe im active here? idk';
+
+                // Ensure links are visible
+                spotifyLink.classList.remove('hidden');
+                instagramLink.classList.remove('hidden');
+
+                // Hide playing elements
+                albumArtBackground.style.backgroundImage = 'none';
+                showPlayingElements(false);
             }
         }
         
