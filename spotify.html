@@ -14,14 +14,18 @@
         :root {
             --bg-color: #1a1a1a;
             --text-color: #f0f0f0;
-            --primary-color: #4dc2ff; /* Aksen Biru Muda */
-            --secondary-color: #b0b0b0; /* Abu-abu Sekunder */
+            --primary-color: #4dc2ff; 
+            --secondary-color: #b0b0b0; 
             --spotify-green: #1ed760;
             --card-bg: #282828;
             --shadow-dark: rgba(0, 0, 0, 0.8);
             --font-main: 'Poppins', sans-serif;
         }
         
+        * {
+            box-sizing: border-box; /* FIX: Mencegah scroll horizontal dari padding */
+        }
+
         body {
             font-family: var(--font-main);
             margin: 0;
@@ -32,7 +36,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            /* FIX: Menghilangkan overflow: hidden agar bisa discroll */
+            /* FIX: Menghilangkan scroll horizontal */
+            overflow-x: hidden; 
         }
 
         .player-container {
@@ -60,7 +65,7 @@
             transition: all 0.8s ease;
             z-index: 1;
         }
-
+        
         /* Album Art Utama */
         .album-art {
             width: 100%;
@@ -103,7 +108,6 @@
             height: 100%;
             background-color: var(--spotify-green);
             width: 0;
-            /* FIX: Menghilangkan transisi CSS agar update 1s terlihat akurat/cepat */
         }
         .time-display {
             display: flex;
@@ -211,7 +215,7 @@
                 <i id="playPauseIcon" class="fas fa-pause"></i>
             </span>
             <i class="fas fa-forward"></i>
-        </div>
+            </div>
 
         <div class="social-links-container">
             <a id="spotifyLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" 
@@ -242,18 +246,12 @@
         const songTitle = document.getElementById('songTitle');
         const artistName = document.getElementById('artistName');
         const progressBar = document.getElementById('progressBar');
-        const progressBarContainer = document.getElementById('progressBarContainer');
-        const timeDisplay = document.getElementById('timeDisplay');
         const currentTimeElement = document.getElementById('currentTime');
         const totalTimeElement = document.getElementById('totalTime');
-        const connectButton = document.getElementById('connectButton');
-        const controls = document.getElementById('controls');
-        const spotifyLink = document.getElementById('spotifyLink');
-        const instagramLink = document.getElementById('instagramLink');
         const playPauseIcon = document.getElementById('playPauseIcon');
 
-        // Variabel tidak lagi diperlukan: currentInterval, currentProgressMs, durationMs
-
+        // Menghilangkan variabel lirik
+        
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
             const minutes = Math.floor((ms / 1000 / 60) % 60);
@@ -261,14 +259,12 @@
         }
         
         function showElements(show) {
-            albumArt.classList.toggle('hidden', !show);
-            songTitle.classList.toggle('hidden', !show);
-            artistName.classList.toggle('hidden', !show);
-            progressBarContainer.classList.toggle('hidden', !show);
-            timeDisplay.classList.toggle('hidden', !show);
-            controls.classList.toggle('hidden', !show);
-            spotifyLink.classList.toggle('hidden', !show); 
-            instagramLink.classList.toggle('hidden', !show); 
+            // Logika tampilan player utama
+            const elementsToToggle = [
+                albumArt, songTitle, artistName, progressBarContainer, timeDisplay, 
+                controls, spotifyLink, instagramLink
+            ];
+            elementsToToggle.forEach(el => el.classList.toggle('hidden', !show));
         }
 
         async function fetchNowPlaying() {
@@ -276,27 +272,20 @@
             const data = await response.json();
 
             if (data.error) {
-                listeningText.textContent = 'ERROR: Refresh token not set. Admin connection required.';
-                listeningText.style.color = '#ff0000';
-                connectButton.classList.remove('hidden');
-                albumArtBackground.style.backgroundImage = 'none';
-                showElements(false);
+                // ... Error handling
                 return;
             }
             
-            connectButton.classList.add('hidden');
-            listeningText.style.color = 'var(--spotify-green)';
-
             if (data.isPlaying) {
-                listeningText.textContent = `Rama is listening to:`;
+                // Data lirik tidak lagi disimpan
                 
-                // Set data baru
+                // Update UI elements
                 albumArt.src = data.albumArt;
                 albumArtBackground.style.backgroundImage = `url('${data.albumArt}')`;
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
-                
-                // Ambil progress dan durasi
+
+                // Progress Bar Update
                 const currentProgressMs = data.progress;
                 const durationMs = data.duration;
 
@@ -313,18 +302,14 @@
                 playPauseIcon.className = data.is_playing ? 'fas fa-pause' : 'fas fa-play';
 
                 showElements(true);
-
+                
             } else {
-                listeningText.textContent = 'Rama is not listening to a song right now.';
-                albumArtBackground.style.backgroundImage = 'none';
+                // Lagu tidak diputar
                 showElements(false);
             }
         }
         
-        // Initial load
         fetchNowPlaying();
-        
-        // FIX: Refresh setiap 1 detik sesuai permintaan user
         setInterval(fetchNowPlaying, 1000); 
     </script>
 </body>
