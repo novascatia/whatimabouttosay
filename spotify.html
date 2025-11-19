@@ -32,13 +32,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden; /* Penting untuk efek latar belakang */
+            overflow: hidden;
         }
 
         .player-container {
             position: relative;
             width: 100%;
-            max-width: 450px; /* Lebih lebar dari sebelumnya */
+            max-width: 450px; 
             padding: 2rem;
             box-sizing: border-box;
             text-align: center;
@@ -54,7 +54,7 @@
             height: 100%;
             background-size: cover;
             background-position: center;
-            filter: blur(80px) brightness(0.7); /* Efek blur yang kuat */
+            filter: blur(80px) brightness(0.7);
             transform: scale(1.1);
             opacity: 0.4;
             transition: all 0.8s ease;
@@ -94,7 +94,7 @@
         /* Progress Bar */
         .progress-bar-container {
             width: 100%;
-            height: 6px; /* Lebih tebal */
+            height: 6px;
             background-color: #404040;
             border-radius: 3px;
             margin-top: 2rem;
@@ -103,8 +103,7 @@
             height: 100%;
             background-color: var(--spotify-green);
             width: 0;
-            border-radius: 3px;
-            transition: width 0.5s linear;
+            /* Transisi dihapus agar progress terlihat linear (per detik) */
         }
         .time-display {
             display: flex;
@@ -138,7 +137,7 @@
             color: var(--spotify-green);
         }
         .controls .play-btn i:hover {
-            color: #1aae55; /* Hijau gelap */
+            color: #1aae55;
         }
         
         /* Link Sosial & Koneksi */
@@ -209,7 +208,8 @@
         <div id="controls" class="controls hidden">
             <i class="fas fa-backward"></i>
             <span class="play-btn">
-                <i class="fas fa-pause"></i> </span>
+                <i id="playPauseIcon" class="fas fa-pause"></i>
+            </span>
             <i class="fas fa-forward"></i>
         </div>
 
@@ -235,9 +235,7 @@
         
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        const playerContainer = document.getElementById('playerContainer');
         const listeningText = document.getElementById('listeningText');
         const albumArt = document.getElementById('albumArt');
         const albumArtBackground = document.getElementById('albumArtBackground');
@@ -246,18 +244,36 @@
         const progressBar = document.getElementById('progressBar');
         const progressBarContainer = document.getElementById('progressBarContainer');
         const timeDisplay = document.getElementById('timeDisplay');
-        const currentTime = document.getElementById('currentTime');
-        const totalTime = document.getElementById('totalTime');
+        const currentTimeElement = document.getElementById('currentTime');
+        const totalTimeElement = document.getElementById('totalTime');
         const connectButton = document.getElementById('connectButton');
         const controls = document.getElementById('controls');
         const spotifyLink = document.getElementById('spotifyLink');
         const instagramLink = document.getElementById('instagramLink');
-        const songTitleLink = document.getElementById('songTitle'); // Judul lagu yang diklik
+        const playPauseIcon = document.getElementById('playPauseIcon');
+
+        let currentInterval = null;
+        let currentProgressMs = 0;
+        let durationMs = 0;
 
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
             const minutes = Math.floor((ms / 1000 / 60) % 60);
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Fungsi untuk mengupdate progress bar setiap detik
+        function updateProgress() {
+            if (currentProgressMs < durationMs) {
+                currentProgressMs += 1000; // Tambah 1 detik
+                const progressPercent = (currentProgressMs / durationMs) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                currentTimeElement.textContent = formatTime(currentProgressMs);
+            } else {
+                clearInterval(currentInterval);
+                // Waktu habis, fetch ulang untuk mendapatkan lagu berikutnya
+                fetchNowPlaying(); 
+            }
         }
 
         function showElements(show) {
@@ -272,6 +288,11 @@
         }
 
         async function fetchNowPlaying() {
+            // Hentikan interval lama saat fetching data baru
+            if (currentInterval) {
+                clearInterval(currentInterval);
+            }
+            
             const response = await fetch('/.netlify/functions/now-playing');
             const data = await response.json();
 
@@ -279,36 +300,42 @@
                 listeningText.textContent = 'ERROR: Refresh token not set. Admin connection required.';
                 listeningText.style.color = '#ff0000';
                 connectButton.classList.remove('hidden');
+                albumArtBackground.style.backgroundImage = 'none';
                 showElements(false);
-                albumArtBackground.style.backgroundImage = 'none'; // Hapus background jika error
                 return;
             }
             
             connectButton.classList.add('hidden');
-            listeningText.style.color = var(--spotify-green);
+            listeningText.style.color = 'var(--spotify-green)';
 
             if (data.isPlaying) {
                 listeningText.textContent = `Rama is listening now:`;
                 
-                // Update Album Art & Background
+                // Set data baru
                 albumArt.src = data.albumArt;
                 albumArtBackground.style.backgroundImage = `url('${data.albumArt}')`;
-                
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
+                
+                // Set durasi & progress awal
+                currentProgressMs = data.progress;
+                durationMs = data.duration;
+
+                totalTimeElement.textContent = formatTime(durationMs);
                 
                 // Update Link Judul Lagu
                 songTitle.onclick = () => window.open(data.songUrl, '_blank');
                 
-                const progressPercent = (data.progress / data.duration) * 100;
-                progressBar.style.width = `${progressPercent}%`;
-                currentTime.textContent = formatTime(data.progress);
-                totalTime.textContent = formatTime(data.duration);
-
-                // Kontrol: Karena kita tidak punya fungsionalitas Spotify API, ikon Play/Pause akan statis
-                controls.querySelector('.play-btn i').className = data.is_playing ? 'fas fa-pause' : 'fas fa-play';
+                // Tampilkan ikon Play/Pause yang benar
+                playPauseIcon.className = data.is_playing ? 'fas fa-pause' : 'fas fa-play';
 
                 showElements(true);
+                
+                // MULAI UPDATE PER DETIK
+                if (data.is_playing) {
+                    currentInterval = setInterval(updateProgress, 1000);
+                }
+
             } else {
                 listeningText.textContent = 'Rama is not listening to a song right now.';
                 albumArtBackground.style.backgroundImage = 'none';
@@ -316,8 +343,9 @@
             }
         }
         
+        // Initial load dan refresh setiap 10 detik untuk sinkronisasi data
         fetchNowPlaying();
-        setInterval(fetchNowPlaying, 10000);
+        setInterval(fetchNowPlaying, 10000); 
     </script>
 </body>
 </html>
