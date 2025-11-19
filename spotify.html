@@ -32,7 +32,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            /* FIX: Menghilangkan overflow: hidden agar bisa discroll */
         }
 
         .player-container {
@@ -103,7 +103,7 @@
             height: 100%;
             background-color: var(--spotify-green);
             width: 0;
-            /* Transisi dihapus agar progress terlihat linear (per detik) */
+            /* FIX: Menghilangkan transisi CSS agar update 1s terlihat akurat/cepat */
         }
         .time-display {
             display: flex;
@@ -252,9 +252,7 @@
         const instagramLink = document.getElementById('instagramLink');
         const playPauseIcon = document.getElementById('playPauseIcon');
 
-        let currentInterval = null;
-        let currentProgressMs = 0;
-        let durationMs = 0;
+        // Variabel tidak lagi diperlukan: currentInterval, currentProgressMs, durationMs
 
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
@@ -262,20 +260,6 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
         
-        // Fungsi untuk mengupdate progress bar setiap detik
-        function updateProgress() {
-            if (currentProgressMs < durationMs) {
-                currentProgressMs += 1000; // Tambah 1 detik
-                const progressPercent = (currentProgressMs / durationMs) * 100;
-                progressBar.style.width = `${progressPercent}%`;
-                currentTimeElement.textContent = formatTime(currentProgressMs);
-            } else {
-                clearInterval(currentInterval);
-                // Waktu habis, fetch ulang untuk mendapatkan lagu berikutnya
-                fetchNowPlaying(); 
-            }
-        }
-
         function showElements(show) {
             albumArt.classList.toggle('hidden', !show);
             songTitle.classList.toggle('hidden', !show);
@@ -288,11 +272,6 @@
         }
 
         async function fetchNowPlaying() {
-            // Hentikan interval lama saat fetching data baru
-            if (currentInterval) {
-                clearInterval(currentInterval);
-            }
-            
             const response = await fetch('/.netlify/functions/now-playing');
             const data = await response.json();
 
@@ -317,12 +296,16 @@
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
                 
-                // Set durasi & progress awal
-                currentProgressMs = data.progress;
-                durationMs = data.duration;
+                // Ambil progress dan durasi
+                const currentProgressMs = data.progress;
+                const durationMs = data.duration;
 
                 totalTimeElement.textContent = formatTime(durationMs);
+                currentTimeElement.textContent = formatTime(currentProgressMs);
                 
+                const progressPercent = (currentProgressMs / durationMs) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+
                 // Update Link Judul Lagu
                 songTitle.onclick = () => window.open(data.songUrl, '_blank');
                 
@@ -330,11 +313,6 @@
                 playPauseIcon.className = data.is_playing ? 'fas fa-pause' : 'fas fa-play';
 
                 showElements(true);
-                
-                // MULAI UPDATE PER DETIK
-                if (data.is_playing) {
-                    currentInterval = setInterval(updateProgress, 1000);
-                }
 
             } else {
                 listeningText.textContent = 'Rama is not listening to a song right now.';
@@ -343,9 +321,11 @@
             }
         }
         
-        // Initial load dan refresh setiap 10 detik untuk sinkronisasi data
+        // Initial load
         fetchNowPlaying();
-        setInterval(fetchNowPlaying, 10000); 
+        
+        // FIX: Refresh setiap 1 detik sesuai permintaan user
+        setInterval(fetchNowPlaying, 1000); 
     </script>
 </body>
 </html>
