@@ -8,34 +8,35 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <style>
-        /* Gaya Latar Belakang Telegram */
-        body { 
+        /* FULL SCREEN OPTIMIZATION */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Mencegah scroll pada body */
             font-family: ui-sans-serif, system-ui; 
             background-color: #21252b; 
-            /* Menghilangkan background SVG agar lebih robust */
             color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0; /* Pastikan tidak ada margin default */
-            padding: 0; /* Pastikan tidak ada padding default */
+            display: flex; /* Memastikan body adalah flex container */
+            align-items: stretch; /* Membentang ke seluruh tinggi */
+            justify-content: stretch; /* Membentang ke seluruh lebar */
         }
 
         .main-container {
-            width: 90%;
-            max-width: 1200px;
-            height: 95vh;
+            width: 100%; /* Menggunakan seluruh lebar */
+            height: 100vh; /* Menggunakan seluruh tinggi */
+            max-width: none; /* Hapus batasan lebar */
             background-color: #2f353a; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border-radius: 12px;
-            overflow: hidden;
+            box-shadow: none; /* Hapus bayangan karena sudah full screen */
+            border-radius: 0; /* Hapus border radius */
             display: flex;
         }
 
         /* KOLOM KIRI: DAFTAR OBLROLAN */
         .sidebar {
-            width: 300px; 
+            width: 350px; /* Diperlebar sedikit agar nama User ID panjang muat */
+            min-width: 300px;
             background-color: #2a2e34;
             border-right: 1px solid #25282d;
             overflow-y: hidden;
@@ -61,20 +62,50 @@
             font-weight: bold;
         }
 
-        /* KOLOM KANAN: JENDELA CHAT (GAYA PESAN) */
+        /* KOLOM KANAN: JENDELA CHAT */
         .chat-window { flex-grow: 1; display: flex; flex-direction: column; }
         .chat-header { background-color: #2f353a; color: #fff; padding: 1rem; border-bottom: 1px solid #25282d; font-weight: bold; }
+        
+        /* CONTAINER PESAN (PENTING UNTUK KANAN/KIRI) */
         .messages-container {
-            flex: 1; overflow-y: auto; padding: 10px 15px; display: flex; flex-direction: column; gap: 1px;
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 10px 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 1px;
             background-color: #21252b;
-            /* Tambahkan background image hanya dengan warna dasar */
-            background-image: none; 
+            /* Tambahkan padding horizontal besar untuk estetika Telegram full screen */
+            padding-left: 10%;
+            padding-right: 10%;
         }
+        
+        /* GAYA BALON PESAN */
         .chat-bubble {
-            max-width: 80%; padding: 8px 10px; box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.2); position: relative; font-size: 0.95rem; color: white; margin: 4px 0; word-wrap: break-word; white-space: pre-wrap;
+            max-width: 80%; 
+            padding: 8px 10px; 
+            box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.2); 
+            position: relative; 
+            font-size: 0.95rem; 
+            color: white; 
+            margin: 4px 0; 
+            word-wrap: break-word; 
+            white-space: pre-wrap;
         }
-        .message-right { align-self: flex-end; background-color: #4f80c6; border-radius: 10px 10px 0 10px; }
-        .message-left { align-self: flex-start; background-color: #38404a; border-radius: 10px 10px 10px 0; color: #e2e8f0; }
+        
+        /* FIX: IMPLEMENTASI KANAN/KIRI YANG LEBIH KUAT */
+        .message-right { 
+            align-self: flex-end; /* Memindahkan pesan ke kanan */
+            background-color: #4f80c6; /* Biru/Ungu Staff */
+            border-radius: 10px 10px 0 10px; 
+        }
+        .message-left { 
+            align-self: flex-start; /* Memindahkan pesan ke kiri */
+            background-color: #38404a; /* Abu-abu User */
+            border-radius: 10px 10px 10px 0; 
+            color: #e2e8f0;
+        }
+        
         .message-center { align-self: center; background-color: rgba(46, 51, 58, 0.5); color: #b0b0b0; padding: 5px 10px; border-radius: 10px; font-size: 0.8rem; text-align: center; margin: 10px 0; }
         .message-time { position: absolute; bottom: 3px; right: 8px; font-size: 0.7rem; color: rgba(255, 255, 255, 0.7); }
     </style>
@@ -155,6 +186,9 @@
                 messageDiv.className = `message-center`;
                 messageDiv.innerHTML = message;
             } else {
+                // LOGIKA KANAN/KIRI FINAL:
+                // Sender 'bot' (Staff/Admin) = Kanan (message-right)
+                // Sender 'user-A' (User Biasa) = Kiri (message-left)
                 const useRightSide = sender === 'bot'; 
                 
                 messageDiv.className = `chat-bubble ${useRightSide ? 'message-right' : 'message-left'}`;
@@ -169,7 +203,6 @@
         }
         
         async function fetchRoomList() {
-            // Cek apakah Supabase sudah diinisialisasi sebelum melakukan fetch
             if (!supabase) return; 
 
             try {
@@ -195,9 +228,8 @@
                 }
                 
             } catch (error) {
-                // Tampilkan error jika gagal fetch
                 if (chatListDiv.innerHTML.includes('Initializing') || chatListDiv.innerHTML.includes('Loading')) {
-                    chatListDiv.innerHTML = `<p class="p-4 text-red-500 text-sm">Error fetching rooms. Check network console.</p>`;
+                    chatListDiv.innerHTML = `<p class="p-4 text-red-500 text-sm">Error fetching rooms: ${error.message}</p>`;
                 }
             }
         }
@@ -210,7 +242,7 @@
             const filteredRooms = allRoomsData.filter(room => {
                 const label = getLabelFromRoomId(room.room_id).toLowerCase();
                 return label.includes(term) || room.room_id.includes(term);
-            });
+            }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort by most recent
 
             if (filteredRooms.length === 0) {
                 chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Tidak ada obrolan yang cocok.</p>';
@@ -293,7 +325,6 @@
         }
         
         async function initSupabase() {
-            // Pastikan pesan "Initializing" terlihat sebelum fetch
             chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Initializing...</p>';
             
             const response = await fetch('/.netlify/functions/get-config');
@@ -305,7 +336,6 @@
             
             supabase = window.supabase.createClient(keys.supabaseUrl, keys.supabaseKey);
             
-            // Panggil fetchRoomList dan atur interval
             fetchRoomList();
             setInterval(fetchRoomList, 5000); 
         }
