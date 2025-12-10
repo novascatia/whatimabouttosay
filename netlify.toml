@@ -45,19 +45,19 @@
   force = true
 
 [[redirects]]
-  from = "/.netlify/functions/send-notification"
+  from = "/posts/:id"
   to = "/.netlify/functions/send-notification"
   status = 200
   force = true
 
 [[redirects]]
-  from = "/.netlify/functions/fetch-chat-rooms"
+  from = "/posts/:id"
   to = "/.netlify/functions/fetch-chat-rooms"
   status = 200
   force = true
 
 [[redirects]]
-  from = "/.netlify/functions/callback"
+  from = "/posts/:id"
   to = "/.netlify/functions/callback"
   status = 200
 
