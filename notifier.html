@@ -41,14 +41,13 @@
             border-right: 1px solid #25282d;
             overflow-y: hidden;
             flex-shrink: 0;
-            padding: 0; /* Hapus padding yang mungkin menyebabkan gutter */
+            padding: 0;
         }
         
         .sidebar h2 {
             padding: 1rem;
         }
 
-        /* Kotak Pencarian agar mentok ke kiri sidebar */
         .sidebar > div:nth-child(2) { 
             padding: 1rem;
             padding-top: 0;
@@ -57,7 +56,6 @@
         
         .chat-list-container {
             overflow-y: auto;
-            /* Kalkulasi tinggi disesuaikan */
             height: calc(100% - 130px); 
         }
         
@@ -79,12 +77,12 @@
         .chat-window { flex-grow: 1; display: flex; flex-direction: column; }
         .chat-header { background-color: #2f353a; color: #fff; padding: 1rem; border-bottom: 1px solid #25282d; font-weight: bold; }
         
-        /* CONTAINER PESAN (PENTING UNTUK KANAN/KIRI) */
+        /* CONTAINER PESAN (PRASYARAT KANAN/KIRI) */
         .messages-container {
             flex: 1; 
             overflow-y: auto; 
-            /* Padding horizontal dikurangi, atau diatur ulang untuk estetika */
             padding: 10px 40px; 
+            /* PENTING: display: flex dan flex-direction: column harus ada di sini */
             display: flex; 
             flex-direction: column; 
             gap: 1px;
@@ -93,7 +91,11 @@
         
         /* GAYA BALON PESAN */
         .chat-bubble {
-            max-width: 80%; 
+            /* FIX 2: Max width dikurangi agar gelembung lebih kecil. */
+            max-width: 450px; /* Lebar default yang lebih kecil */
+            min-width: 100px; /* Pastikan minimal lebar agar timestamp muat */
+            width: fit-content; /* Biarkan lebar mengikuti konten jika pendek */
+            
             padding: 8px 10px; 
             box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.2); 
             position: relative; 
@@ -104,20 +106,32 @@
             white-space: pre-wrap;
         }
         
-        /* FIX KANAN/KIRI: Pastikan flex-end memindahkan elemen dengan benar */
+        /* FIX 1: Memaksa pesan kanan ke ujung kanan */
         .message-right { 
-            align-self: flex-end; 
+            margin-left: auto; /* PENTING: Mendorong ke kanan */
+            align-self: flex-end; /* Memastikan pesan menempel ke kanan */
             background-color: #4f80c6; 
             border-radius: 10px 10px 0 10px; 
         }
         .message-left { 
+            margin-right: auto; /* PENTING: Mendorong ke kiri */
             align-self: flex-start; 
             background-color: #38404a; 
             border-radius: 10px 10px 10px 0; 
             color: #e2e8f0;
         }
         
-        .message-center { align-self: center; background-color: rgba(46, 51, 58, 0.5); color: #b0b0b0; padding: 5px 10px; border-radius: 10px; font-size: 0.8rem; text-align: center; margin: 10px 0; }
+        .message-center { 
+            align-self: center; 
+            max-width: 60%; /* Biarkan pesan sistem tidak terlalu lebar */
+            background-color: rgba(46, 51, 58, 0.5); 
+            color: #b0b0b0; 
+            padding: 5px 10px; 
+            border-radius: 10px; 
+            font-size: 0.8rem; 
+            text-align: center; 
+            margin: 10px 0; 
+        }
         .message-time { position: absolute; bottom: 3px; right: 8px; font-size: 0.7rem; color: rgba(255, 255, 255, 0.7); }
     </style>
 </head>
