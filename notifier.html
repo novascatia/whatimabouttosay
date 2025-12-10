@@ -1,265 +1,320 @@
-<script>
-    let supabase;
-    let currentRoom = null;
-    let currentSubscription = null;
-    let allRoomsData = []; 
-    let currentActiveIds = { left: null, right: null }; // BARU: Menyimpan ID Kiri/Kanan dari room aktif
-
-    const chatListDiv = document.getElementById('chatList');
-    const chatHeader = document.getElementById('chatHeader');
-    const messagesContainer = document.getElementById('messagesContainer');
-    const loadingMessage = document.getElementById('loadingMessage');
-    const searchInput = document.getElementById('searchInput'); 
-
-    // ... (formatTime & getLabelFromRoomId tetap sama) ...
-    function formatTime(timestamp) {
-        const date = new Date(timestamp);
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
-    }
-    
-    function getLabelFromRoomId(roomId) {
-        const parts = roomId.split('-');
-        if (parts.length === 2) {
-             return `User ${parts[0]} with ${parts[1]}`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Room Chat Monitor</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+    <style>
+        /* Gaya Latar Belakang Telegram */
+        body { 
+            font-family: ui-sans-serif, system-ui; 
+            background-color: #21252b; 
+            /* Menghilangkan background SVG agar lebih robust */
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0; /* Pastikan tidak ada margin default */
+            padding: 0; /* Pastikan tidak ada padding default */
         }
-        return `Room ID: ${roomId}`;
-    }
 
-    // FUNGSI UTAMA BARU: Mengurai ID Kiri/Kanan
-    function parseRoomIds(roomId) {
-        const parts = roomId.split('-');
-        if (parts.length !== 2) return { left: null, right: null };
+        .main-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 95vh;
+            background-color: #2f353a; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+        }
 
-        // Karena generate_room_id di bot mengurutkan ID, maka:
-        // parts[0] = ID yang Lebih Kecil (Left Side default)
-        // parts[1] = ID yang Lebih Besar (Right Side default)
-        return { 
-            left: parts[0], 
-            right: parts[1] 
-        };
-    }
-    
-    function renderMessage(message, sender, created_at) {
-        const messageDiv = document.createElement('div');
+        /* KOLOM KIRI: DAFTAR OBLROLAN */
+        .sidebar {
+            width: 300px; 
+            background-color: #2a2e34;
+            border-right: 1px solid #25282d;
+            overflow-y: hidden;
+            flex-shrink: 0;
+        }
         
-        // Cek apakah room aktif
-        if (!currentActiveIds.left) {
-            // Ini seharusnya tidak terjadi jika switchRoom berhasil
-            return;
+        .chat-list-container {
+            overflow-y: auto;
+            height: calc(100% - 112px); 
+        }
+        
+        .chat-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #25282d;
+            transition: background-color 0.2s;
+            font-size: 0.95rem;
+        }
+        .chat-item:hover { background-color: #38404a; }
+        .chat-item.active {
+            background-color: #4f80c6; 
+            color: white;
+            font-weight: bold;
         }
 
-        if (sender === 'system') {
-            messageDiv.className = `message-center`;
-            messageDiv.innerHTML = message;
-        } else {
-            // LOGIKA BARU UNTUK MENENTUKAN KANAN/KIRI BERDASARKAN ID
+        /* KOLOM KANAN: JENDELA CHAT (GAYA PESAN) */
+        .chat-window { flex-grow: 1; display: flex; flex-direction: column; }
+        .chat-header { background-color: #2f353a; color: #fff; padding: 1rem; border-bottom: 1px solid #25282d; font-weight: bold; }
+        .messages-container {
+            flex: 1; overflow-y: auto; padding: 10px 15px; display: flex; flex-direction: column; gap: 1px;
+            background-color: #21252b;
+            /* Tambahkan background image hanya dengan warna dasar */
+            background-image: none; 
+        }
+        .chat-bubble {
+            max-width: 80%; padding: 8px 10px; box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.2); position: relative; font-size: 0.95rem; color: white; margin: 4px 0; word-wrap: break-word; white-space: pre-wrap;
+        }
+        .message-right { align-self: flex-end; background-color: #4f80c6; border-radius: 10px 10px 0 10px; }
+        .message-left { align-self: flex-start; background-color: #38404a; border-radius: 10px 10px 10px 0; color: #e2e8f0; }
+        .message-center { align-self: center; background-color: rgba(46, 51, 58, 0.5); color: #b0b0b0; padding: 5px 10px; border-radius: 10px; font-size: 0.8rem; text-align: center; margin: 10px 0; }
+        .message-time { position: absolute; bottom: 3px; right: 8px; font-size: 0.7rem; color: rgba(255, 255, 255, 0.7); }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="sidebar">
+            <h2 class="p-4 text-lg font-bold border-b border-[#25282d]">Monitoring Rooms</h2>
             
-            // 1. Tentukan ID pengirim yang sebenarnya
-            let sender_id;
-            if (sender === 'bot') {
-                 // Di kode bot, sender 'bot' adalah ID STAFF/OWNER. 
-                 // Kita asumsikan Bot ID (OWNER_ID) adalah salah satu dari dua ID di room.
-                 sender_id = currentActiveIds.right; 
+            <div class="p-4 border-b border-[#25282d]">
+                <input type="text" id="searchInput" placeholder="Cari User ID..." 
+                       class="w-full p-2 rounded bg-[#38404a] text-white border border-[#2f353a] focus:outline-none focus:ring-1 focus:ring-blue-500">
+            </div>
+            
+            <div id="chatListContainer" class="chat-list-container">
+                <div id="chatList">
+                    <p class="p-4 text-gray-400 text-sm">Initializing...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-window">
+            <header id="chatHeader" class="chat-header">
+                Pilih Obrolan di Kiri
+            </header>
+            
+            <div id="messagesContainer" class="messages-container">
+                <p class="message-center" id="loadingMessage">Pilih obrolan untuk memulai monitoring.</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        let supabase;
+        let currentRoom = null;
+        let currentSubscription = null;
+        let allRoomsData = []; 
+        let currentActiveIds = { left: null, right: null };
+
+        const chatListDiv = document.getElementById('chatList');
+        const chatHeader = document.getElementById('chatHeader');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const searchInput = document.getElementById('searchInput'); 
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+        
+        function getLabelFromRoomId(roomId) {
+            const parts = roomId.split('-');
+            if (parts.length === 2) {
+                 return `User ${parts[0]} with ${parts[1]}`;
+            }
+            return `Room ID: ${roomId}`;
+        }
+        
+        function parseRoomIds(roomId) {
+            const parts = roomId.split('-');
+            if (parts.length !== 2) return { left: null, right: null };
+
+            return { 
+                left: parts[0], 
+                right: parts[1] 
+            };
+        }
+        
+        function renderMessage(message, sender, created_at) {
+            const messageDiv = document.createElement('div');
+            
+            if (sender === 'system') {
+                messageDiv.className = `message-center`;
+                messageDiv.innerHTML = message;
             } else {
-                 // Jika 'user-A', asumsikan itu ID user yang bukan bot
-                 // Kita harus mencari tahu apakah sender adalah ID KECIL atau ID BESAR
-                 sender_id = sender; // Biarkan kode bot yang menentukan sender (saat ini bot menggunakan 'user-A' atau 'bot')
+                const useRightSide = sender === 'bot'; 
+                
+                messageDiv.className = `chat-bubble ${useRightSide ? 'message-right' : 'message-left'}`;
+                messageDiv.innerHTML = `
+                    <div class="message-text">${message}</div>
+                    <span class="message-time">${formatTime(created_at)}</span>
+                `;
             }
             
-            // 2. Tentukan sisi
-            // Di sini kita ubah logika: jika sender adalah ID Kiri, dia di kiri.
-            // Jika sender adalah ID Kanan, dia di kanan.
-            // *Karena kita tidak tahu ID mana yang mengirim pesan jika sender='user-A', kita gunakan asumsi yang lebih kuat:
-            //   - 'bot' (Admin/Staff) selalu di Kanan (default)
-            //   - 'user-A' (User biasa) selalu di Kiri (default)
-            //   Ini lebih mudah dan sesuai dengan logika "monitor bot vs user" yang biasa dipakai.
-            
-            // Coba perbaiki agar 1234 selalu KIRI dan 5678 selalu KANAN
-            const isRightSide = (sender === 'bot' || sender === currentActiveIds.right); 
-            const isLeftSide = (sender === 'user-A' || sender === currentActiveIds.left);
-
-            // Karena sender bot Anda hanya mengirim 'bot' atau 'user-A', kita harus berpegangan pada label itu.
-            // Jika Anda ingin 1234 kiri dan 5678 kanan, Anda harus pastikan di Python:
-            // - Pesan dari 1234 di-log dengan sender="id:1234"
-            // - Pesan dari 5678 di-log dengan sender="id:5678"
-            
-            // Karena bot Anda hanya mengirim 'bot' atau 'user-A', kita kembali ke logika:
-            // 'bot' (Staff/Admin) = Kanan, 'user-A' (User Biasa) = Kiri.
-            
-            const useRightSide = sender === 'bot'; // Bot (Staff/Admin) di Kanan
-            
-            messageDiv.className = `chat-bubble ${useRightSide ? 'message-right' : 'message-left'}`;
-            messageDiv.innerHTML = `
-                <div class="message-text">${message}</div>
-                <span class="message-time">${formatTime(created_at)}</span>
-            `;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; 
         }
         
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight; 
-    }
-    
-    // FUNGSI BARU: HANYA UPDATE DATA, JANGAN RE-RENDER DOM SIDEBAR SECARA TOTAL
-    async function fetchRoomList() {
-        try {
-            const response = await fetch('/.netlify/functions/fetch-chat-rooms');
-            if (!response.ok) throw new Error('Failed to fetch rooms from API.');
-            
-            const newRoomsData = await response.json();
-            
-            // Cek apakah ada perubahan struktural (search aktif atau room baru)
-            const isSearchActive = searchInput.value.trim().length > 0;
-            const hasStructuralChange = newRoomsData.length !== allRoomsData.length || isSearchActive;
+        async function fetchRoomList() {
+            // Cek apakah Supabase sudah diinisialisasi sebelum melakukan fetch
+            if (!supabase) return; 
 
-            allRoomsData = newRoomsData;
+            try {
+                const response = await fetch('/.netlify/functions/fetch-chat-rooms');
+                if (!response.ok) throw new Error('Failed to fetch rooms from API.');
+                
+                const newRoomsData = await response.json();
+                
+                const isSearchActive = searchInput.value.trim().length > 0;
+                const hasStructuralChange = newRoomsData.length !== allRoomsData.length || isSearchActive;
 
-            if (hasStructuralChange) {
-                 // Jika ada search atau jumlah room berubah, regenerasi sidebar
-                 displayChatList(searchInput.value);
-            } else {
-                 // Jika struktur sama, cukup update konten/urutan tanpa flashing
-                 updateChatListContent();
-            }
-            
-            // Pilih room pertama otomatis jika belum ada yang aktif
-            if (!currentRoom && allRoomsData.length > 0) {
-                const firstRoom = allRoomsData[0];
-                switchRoom(firstRoom.room_id, getLabelFromRoomId(firstRoom.room_id));
-            }
-            
-        } catch (error) {
-            // Tampilkan error jika gagal fetch
-            if (chatListDiv.innerHTML.includes('Loading')) {
-                chatListDiv.innerHTML = `<p class="p-4 text-red-500 text-sm">Error: ${error.message}</p>`;
-            }
-        }
-    }
-    
-    // BARU: Fungsi untuk update DOM list secara efisien
-    function updateChatListContent() {
-        const term = searchInput.value.toLowerCase().trim();
-        const container = document.getElementById('chatListContainer');
-        
-        // 1. Buat elemen baru berdasarkan urutan terbaru
-        const fragment = document.createDocumentFragment();
-        
-        const filteredRooms = allRoomsData.filter(room => {
-            const label = getLabelFromRoomId(room.room_id).toLowerCase();
-            return label.includes(term) || room.room_id.includes(term);
-        });
+                allRoomsData = newRoomsData;
 
-        if (filteredRooms.length === 0) {
-            chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Tidak ada obrolan yang cocok.</p>';
-            return;
-        }
-
-        filteredRooms.forEach(room => {
-            const room_id = room.room_id;
-            const label = getLabelFromRoomId(room_id);
-            
-            const itemDiv = document.createElement('div');
-            itemDiv.className = `chat-item ${room_id === currentRoom ? 'active' : ''}`;
-            itemDiv.innerHTML = `
-                <div class="font-bold">${label}</div>
-                <div class="text-xs text-gray-400">${room.last_message.substring(0, 30)}...</div>
-            `;
-            itemDiv.setAttribute('data-room-id', room_id);
-            itemDiv.setAttribute('data-label', label);
-            itemDiv.addEventListener('click', () => switchRoom(room_id, label));
-            
-            fragment.appendChild(itemDiv);
-        });
-
-        // 2. Ganti seluruh konten chatList dengan fragment baru
-        chatListDiv.innerHTML = '';
-        chatListDiv.appendChild(fragment);
-    }
-
-
-    function displayChatList(searchTerm = '') {
-        // Logika displayChatList sekarang memanggil updateChatListContent
-        updateChatListContent();
-    }
-    
-    async function switchRoom(newRoomId, newLabel) {
-        if (newRoomId === currentRoom) return;
-
-        // 1. Bersihkan langganan lama
-        if (currentSubscription) {
-            supabase.removeChannel(currentSubscription);
-            currentSubscription = null;
-        }
-        
-        // BARU: Set ID Kiri/Kanan
-        currentActiveIds = parseRoomIds(newRoomId); 
-
-        // 2. Perbarui state UI
-        currentRoom = newRoomId;
-        chatHeader.textContent = newLabel;
-        messagesContainer.innerHTML = ''; 
-        loadingMessage.classList.remove('hidden');
-        loadingMessage.textContent = `Loading history for ${newLabel}...`;
-        
-        // Tandai item di sidebar
-        displayChatList(searchInput.value);
-
-        // 3. Ambil 50 pesan terakhir (riwayat)
-        const { data: initialMessages, error: fetchError } = await supabase
-            .from('chat_messages')
-            .select('*')
-            .eq('room_id', currentRoom)
-            .order('created_at', { ascending: true })
-            .limit(50);
-
-        if (fetchError) {
-            loadingMessage.textContent = `Error loading history: ${fetchError.message}`;
-            return;
-        }
-        
-        loadingMessage.classList.add('hidden');
-        initialMessages.forEach(msg => renderMessage(msg.message, msg.sender, msg.created_at));
-
-        // 4. Berlangganan (Subscribe) ke Realtime
-        currentSubscription = supabase
-            .channel(`room:${currentRoom}`) 
-            .on(
-                'postgres_changes',
-                { 
-                    event: 'INSERT', schema: 'public', table: 'chat_messages', 
-                    filter: `room_id=eq.${currentRoom}`
-                },
-                (payload) => {
-                    const newMsg = payload.new;
-                    renderMessage(newMsg.message, newMsg.sender, newMsg.created_at);
-                    // Panggil fetchRoomList untuk memperbarui urutan/last_message (tanpa flashing)
-                    fetchRoomList(); 
+                if (hasStructuralChange) {
+                     displayChatList(searchInput.value);
+                } else {
+                     updateChatListContent();
                 }
-            )
-            .subscribe();
-    }
-    
-    async function initSupabase() {
-        chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Initializing...</p>';
-        
-        const response = await fetch('/.netlify/functions/get-config');
-        if (!response.ok) {
-            chatListDiv.innerHTML = '<p class="p-4 text-red-500 text-sm">Error: Could not get Supabase keys.</p>';
-            return;
+                
+                if (!currentRoom && allRoomsData.length > 0) {
+                    const firstRoom = allRoomsData[0];
+                    switchRoom(firstRoom.room_id, getLabelFromRoomId(firstRoom.room_id));
+                }
+                
+            } catch (error) {
+                // Tampilkan error jika gagal fetch
+                if (chatListDiv.innerHTML.includes('Initializing') || chatListDiv.innerHTML.includes('Loading')) {
+                    chatListDiv.innerHTML = `<p class="p-4 text-red-500 text-sm">Error fetching rooms. Check network console.</p>`;
+                }
+            }
         }
-        const keys = await response.json();
         
-        supabase = window.supabase.createClient(keys.supabaseUrl, keys.supabaseKey);
-        // Atur interval polling untuk daftar room (untuk refresh list jika ada pesan baru)
-        fetchRoomList();
-        setInterval(fetchRoomList, 5000); // Poll setiap 5 detik untuk memastikan daftar room up-to-date
-    }
-    
-    // Event Listener untuk Pencarian
-    searchInput.addEventListener('input', () => {
-        displayChatList(searchInput.value);
-    });
+        function updateChatListContent() {
+            const term = searchInput.value.toLowerCase().trim();
+            
+            const fragment = document.createDocumentFragment();
+            
+            const filteredRooms = allRoomsData.filter(room => {
+                const label = getLabelFromRoomId(room.room_id).toLowerCase();
+                return label.includes(term) || room.room_id.includes(term);
+            });
 
-    initSupabase();
-</script>
+            if (filteredRooms.length === 0) {
+                chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Tidak ada obrolan yang cocok.</p>';
+                return;
+            }
+
+            filteredRooms.forEach(room => {
+                const room_id = room.room_id;
+                const label = getLabelFromRoomId(room_id);
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `chat-item ${room_id === currentRoom ? 'active' : ''}`;
+                itemDiv.innerHTML = `
+                    <div class="font-bold">${label}</div>
+                    <div class="text-xs text-gray-400">${room.last_message.substring(0, 30)}...</div>
+                `;
+                itemDiv.setAttribute('data-room-id', room_id);
+                itemDiv.setAttribute('data-label', label);
+                itemDiv.addEventListener('click', () => switchRoom(room_id, label));
+                
+                fragment.appendChild(itemDiv);
+            });
+
+            chatListDiv.innerHTML = '';
+            chatListDiv.appendChild(fragment);
+        }
+
+        function displayChatList(searchTerm = '') {
+            updateChatListContent();
+        }
+        
+        async function switchRoom(newRoomId, newLabel) {
+            if (newRoomId === currentRoom) return;
+
+            if (currentSubscription) {
+                supabase.removeChannel(currentSubscription);
+                currentSubscription = null;
+            }
+            
+            currentActiveIds = parseRoomIds(newRoomId); 
+
+            currentRoom = newRoomId;
+            chatHeader.textContent = newLabel;
+            messagesContainer.innerHTML = ''; 
+            loadingMessage.classList.remove('hidden');
+            loadingMessage.textContent = `Loading history for ${newLabel}...`;
+            
+            displayChatList(searchInput.value);
+
+            const { data: initialMessages, error: fetchError } = await supabase
+                .from('chat_messages')
+                .select('*')
+                .eq('room_id', currentRoom)
+                .order('created_at', { ascending: true })
+                .limit(50);
+
+            if (fetchError) {
+                loadingMessage.textContent = `Error loading history: ${fetchError.message}`;
+                return;
+            }
+            
+            loadingMessage.classList.add('hidden');
+            initialMessages.forEach(msg => renderMessage(msg.message, msg.sender, msg.created_at));
+
+            currentSubscription = supabase
+                .channel(`room:${currentRoom}`) 
+                .on(
+                    'postgres_changes',
+                    { 
+                        event: 'INSERT', schema: 'public', table: 'chat_messages', 
+                        filter: `room_id=eq.${currentRoom}`
+                    },
+                    (payload) => {
+                        const newMsg = payload.new;
+                        renderMessage(newMsg.message, newMsg.sender, newMsg.created_at);
+                        fetchRoomList(); 
+                    }
+                )
+                .subscribe();
+        }
+        
+        async function initSupabase() {
+            // Pastikan pesan "Initializing" terlihat sebelum fetch
+            chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Initializing...</p>';
+            
+            const response = await fetch('/.netlify/functions/get-config');
+            if (!response.ok) {
+                chatListDiv.innerHTML = '<p class="p-4 text-red-500 text-sm">Error: Could not get Supabase keys.</p>';
+                return;
+            }
+            const keys = await response.json();
+            
+            supabase = window.supabase.createClient(keys.supabaseUrl, keys.supabaseKey);
+            
+            // Panggil fetchRoomList dan atur interval
+            fetchRoomList();
+            setInterval(fetchRoomList, 5000); 
+        }
+        
+        searchInput.addEventListener('input', () => {
+            displayChatList(searchInput.value);
+        });
+
+        initSupabase();
+    </script>
+</body>
+</html>
