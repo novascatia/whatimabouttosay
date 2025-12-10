@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Room Chat Monitor</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+    <style>
+        /* Gaya Latar Belakang Telegram */
+        body { 
+            font-family: ui-sans-serif, system-ui; 
+            background-color: #21252b; 
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><circle fill="%232e333a" cx="1" cy="1" r="1"/><circle fill="%232e333a" cx="6" cy="6" r="1"/><circle fill="%232e333a" cx="1" cy="6" r="1"/><circle fill="%232e333a" cx="6" cy="1" r="1"/></svg>'); 
+            background-size: 10px 10px;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 95vh;
+            background-color: #2f353a; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* KOLOM KIRI: DAFTAR OBLROLAN */
+        .sidebar {
+            width: 300px; 
+            background-color: #2a2e34;
+            border-right: 1px solid #25282d;
+            overflow-y: hidden;
+            flex-shrink: 0;
+        }
+        
+        .chat-list-container {
+            overflow-y: auto;
+            height: calc(100% - 112px); 
+        }
+        
+        .chat-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #25282d;
+            transition: background-color 0.2s;
+            font-size: 0.95rem;
+        }
+        .chat-item:hover { background-color: #38404a; }
+        .chat-item.active {
+            background-color: #4f80c6; 
+            color: white;
+            font-weight: bold;
+        }
+
+        /* KOLOM KANAN: JENDELA CHAT (GAYA PESAN) */
+        .chat-window { flex-grow: 1; display: flex; flex-direction: column; }
+        .chat-header { background-color: #2f353a; color: #fff; padding: 1rem; border-bottom: 1px solid #25282d; font-weight: bold; }
+        .messages-container {
+            flex: 1; overflow-y: auto; padding: 10px 15px; display: flex; flex-direction: column; gap: 1px;
+            background-color: #21252b;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><circle fill="%232e333a" cx="1" cy="1" r="1"/><circle fill="%232e333a" cx="6" cy="6" r="1"/><circle fill="%232e333a" cx="1" cy="6" r="1"/><circle fill="%232e333a" cx="6" cy="1" r="1"/></svg>'); 
+            background-size: 10px 10px;
+        }
+        .chat-bubble {
+            max-width: 80%; padding: 8px 10px; box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.2); position: relative; font-size: 0.95rem; color: white; margin: 4px 0; word-wrap: break-word; white-space: pre-wrap;
+        }
+        .message-right { align-self: flex-end; background-color: #4f80c6; border-radius: 10px 10px 0 10px; }
+        .message-left { align-self: flex-start; background-color: #38404a; border-radius: 10px 10px 10px 0; color: #e2e8f0; }
+        .message-center { align-self: center; background-color: rgba(46, 51, 58, 0.5); color: #b0b0b0; padding: 5px 10px; border-radius: 10px; font-size: 0.8rem; text-align: center; margin: 10px 0; }
+        .message-time { position: absolute; bottom: 3px; right: 8px; font-size: 0.7rem; color: rgba(255, 255, 255, 0.7); }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="sidebar">
+            <h2 class="p-4 text-lg font-bold border-b border-[#25282d]">Monitoring Rooms</h2>
+            
+            <div class="p-4 border-b border-[#25282d]">
+                <input type="text" id="searchInput" placeholder="Cari User ID..." 
+                       class="w-full p-2 rounded bg-[#38404a] text-white border border-[#2f353a] focus:outline-none focus:ring-1 focus:ring-blue-500">
+            </div>
+            
+            <div id="chatListContainer" class="chat-list-container">
+                <div id="chatList">
+                    <p class="p-4 text-gray-400 text-sm">Loading chats...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-window">
+            <header id="chatHeader" class="chat-header">
+                Pilih Obrolan di Kiri
+            </header>
+            
+            <div id="messagesContainer" class="messages-container">
+                <p class="message-center" id="loadingMessage">Pilih obrolan untuk memulai monitoring.</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        let supabase;
+        let currentRoom = null;
+        let currentSubscription = null;
+        let allRoomsData = []; // Menyimpan semua data room dari API
+
+        const chatListDiv = document.getElementById('chatList');
+        const chatHeader = document.getElementById('chatHeader');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const searchInput = document.getElementById('searchInput'); 
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+        
+        function getLabelFromRoomId(roomId) {
+            const parts = roomId.split('-');
+            if (parts.length === 2) {
+                 return `User ${parts[0]} with ${parts[1]}`;
+            }
+            return `Room ID: ${roomId}`;
+        }
+        
+        function renderMessage(message, sender, created_at) {
+            const messageDiv = document.createElement('div');
+            
+            if (sender === 'system') {
+                messageDiv.className = `message-center`;
+                messageDiv.innerHTML = message;
+            } else {
+                const isRightSide = sender === 'bot'; 
+                
+                messageDiv.className = `chat-bubble ${isRightSide ? 'message-right' : 'message-left'}`;
+                messageDiv.innerHTML = `
+                    <div class="message-text">${message}</div>
+                    <span class="message-time">${formatTime(created_at)}</span>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; 
+        }
+        
+        async function fetchRoomList() {
+            chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Fetching active rooms...</p>';
+            try {
+                const response = await fetch('/.netlify/functions/fetch-chat-rooms');
+                if (!response.ok) throw new Error('Failed to fetch rooms from API.');
+                
+                allRoomsData = await response.json();
+                displayChatList(searchInput.value); // Tampilkan hasil filter
+                
+                // Pilih room pertama secara otomatis jika tidak ada yang aktif
+                if (!currentRoom && allRoomsData.length > 0) {
+                    const firstRoom = allRoomsData[0];
+                    switchRoom(firstRoom.room_id, getLabelFromRoomId(firstRoom.room_id));
+                }
+                
+            } catch (error) {
+                chatListDiv.innerHTML = `<p class="p-4 text-red-500 text-sm">Error: ${error.message}</p>`;
+            }
+        }
+
+        function displayChatList(searchTerm = '') {
+            chatListDiv.innerHTML = '';
+            const term = searchTerm.toLowerCase().trim();
+            
+            const filteredRooms = allRoomsData.filter(room => {
+                const label = getLabelFromRoomId(room.room_id).toLowerCase();
+                return label.includes(term) || room.room_id.includes(term);
+            });
+
+            if (filteredRooms.length === 0) {
+                chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Tidak ada obrolan yang cocok.</p>';
+                return;
+            }
+            
+            filteredRooms.forEach(room => {
+                const room_id = room.room_id;
+                const label = getLabelFromRoomId(room_id);
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `chat-item ${room_id === currentRoom ? 'active' : ''}`;
+                itemDiv.innerHTML = `
+                    <div class="font-bold">${label}</div>
+                    <div class="text-xs text-gray-400">${room.last_message.substring(0, 30)}...</div>
+                `;
+                itemDiv.setAttribute('data-room-id', room_id);
+                itemDiv.setAttribute('data-label', label);
+                
+                itemDiv.addEventListener('click', () => switchRoom(room_id, label));
+                chatListDiv.appendChild(itemDiv);
+            });
+        }
+        
+        async function switchRoom(newRoomId, newLabel) {
+            if (newRoomId === currentRoom) return;
+
+            // Bersihkan langganan lama
+            if (currentSubscription) {
+                supabase.removeChannel(currentSubscription);
+                currentSubscription = null;
+            }
+
+            // Perbarui state UI
+            currentRoom = newRoomId;
+            chatHeader.textContent = newLabel;
+            messagesContainer.innerHTML = ''; 
+            loadingMessage.classList.remove('hidden');
+            loadingMessage.textContent = `Loading history for ${newLabel}...`;
+            
+            // Tandai item di sidebar
+            displayChatList(searchInput.value);
+
+            // Ambil 50 pesan terakhir (riwayat)
+            const { data: initialMessages, error: fetchError } = await supabase
+                .from('chat_messages')
+                .select('*')
+                .eq('room_id', currentRoom)
+                .order('created_at', { ascending: true })
+                .limit(50);
+
+            if (fetchError) {
+                loadingMessage.textContent = `Error loading history: ${fetchError.message}`;
+                return;
+            }
+            
+            loadingMessage.classList.add('hidden');
+            initialMessages.forEach(msg => renderMessage(msg.message, msg.sender, msg.created_at));
+
+            // Berlangganan (Subscribe) ke Realtime
+            currentSubscription = supabase
+                .channel(`room:${currentRoom}`) 
+                .on(
+                    'postgres_changes',
+                    { 
+                        event: 'INSERT', schema: 'public', table: 'chat_messages', 
+                        filter: `room_id=eq.${currentRoom}`
+                    },
+                    (payload) => {
+                        const newMsg = payload.new;
+                        renderMessage(newMsg.message, newMsg.sender, newMsg.created_at);
+                        // Perbarui daftar room setelah ada pesan baru
+                        fetchRoomList(); 
+                    }
+                )
+                .subscribe();
+        }
+        
+        async function initSupabase() {
+            chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Initializing...</p>';
+            
+            const response = await fetch('/.netlify/functions/get-config');
+            if (!response.ok) {
+                chatListDiv.innerHTML = '<p class="p-4 text-red-500 text-sm">Error: Could not get Supabase keys.</p>';
+                return;
+            }
+            const keys = await response.json();
+            
+            supabase = window.supabase.createClient(keys.supabaseUrl, keys.supabaseKey);
+            fetchRoomList();
+        }
+        
+        // Event Listener untuk Pencarian
+        searchInput.addEventListener('input', () => {
+            displayChatList(searchInput.value);
+        });
+
+        initSupabase();
+    </script>
+</body>
+</html>
