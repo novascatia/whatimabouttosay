@@ -3,94 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hey its me Rama!</title>
+    <title>Rama is Listening - Now Playing</title>
     <link rel="icon" type="image/png" href="/logo.png">
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: ui-sans-serif, system-ui; background-color: #000; color: #fff; }
+        /* Variabel CSS: DARK MODE 🌙 */
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --primary-color: #4dc2ff; 
+            --secondary-color: #b0b0b0; 
+            --spotify-green: #1ed760;
+            --card-bg: #282828;
+            --shadow-dark: rgba(0, 0, 0, 0.8);
+            --font-main: 'Poppins', sans-serif;
+        }
+        
+        * {
+            box-sizing: border-box; /* FIX: Mencegah scroll horizontal dari padding */
+        }
+
+        body {
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* FIX: Menghilangkan scroll horizontal */
+            overflow-x: hidden; 
+        }
+
         .player-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            margin: auto;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            max-width: 450px; 
             padding: 2rem;
             box-sizing: border-box;
+            text-align: center;
+            z-index: 10;
         }
+
+        /* Efek Latar Belakang (Blur effect) */
+        #albumArtBackground {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(80px) brightness(0.7);
+            transform: scale(1.1);
+            opacity: 0.4;
+            transition: all 0.8s ease;
+            z-index: 1;
+        }
+        
+        /* Album Art Utama */
         .album-art {
             width: 100%;
             height: auto;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 30px var(--shadow-dark);
+            transition: transform 0.3s ease;
+            max-width: 350px;
+            object-fit: cover;
         }
+        .album-art:hover {
+            transform: scale(1.02);
+        }
+
+        /* Judul Lagu dan Artis */
+        .song-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0 0 5px 0;
+            line-height: 1.2;
+        }
+        .artist-name {
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Progress Bar */
         .progress-bar-container {
             width: 100%;
-            height: 4px;
-            background-color: #535353;
-            border-radius: 2px;
-            margin-top: 1rem;
+            height: 6px;
+            background-color: #404040;
+            border-radius: 3px;
+            margin-top: 2rem;
         }
         .progress-bar {
             height: 100%;
-            background-color: #1ed760;
+            background-color: var(--spotify-green);
             width: 0;
-            transition: width 0.5s ease-out;
         }
         .time-display {
             display: flex;
             justify-content: space-between;
             width: 100%;
-            font-size: 0.875rem;
-            color: #b3b3b3;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
             margin-top: 0.5rem;
+            font-weight: 500;
         }
+
+        /* Kontrol */
         .controls {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 2rem;
-            margin-top: 1.5rem;
+            margin-top: 2.5rem;
         }
-        .controls svg {
-            width: 2rem;
-            height: 2rem;
-            fill: #fff;
-            cursor: default;
+        .controls i {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: color 0.2s ease;
         }
-        .controls .play-btn {
-            width: 3.5rem;
-            height: 3.5rem;
+        .controls i:hover {
+            color: var(--text-color);
         }
-        .logo {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            font-weight: bold;
-            color: #1ed760;
+        .controls .play-btn i {
+            font-size: 3rem;
+            color: var(--spotify-green);
         }
-        .user-text {
-            position: absolute;
-            bottom: 2rem;
-            text-align: center;
-            font-size: 1rem;
-            color: #b3b3b3;
+        .controls .play-btn i:hover {
+            color: #1aae55;
         }
+        
+        /* Link Sosial & Koneksi */
+        .social-links-container {
+            margin-top: 4rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+            width: 100%;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            transition: color 0.3s;
+        }
+
+        .social-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .connect-button a {
+            background-color: var(--spotify-green);
+            color: var(--card-bg);
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        .connect-button a:hover {
+            background-color: #1aae55;
+        }
+        
+        .hidden { display: none !important; }
+
     </style>
 </head>
 <body>
+    
+    <div id="albumArtBackground"></div>
 
     <div id="playerContainer" class="player-container">
-        <h1 id="listeningText" class="text-lg text-green-500 mb-4 text-center">Loading...</h1>
-        <img id="albumArt" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Album Art" class="album-art hidden">
+        
+        <p id="staticListeningHeader" style="font-size:1.1em; color:var(--spotify-green); margin-bottom: 0.5rem;" class="hidden">Rama is listening to:</p>
+        
+        <h1 id="listeningText" style="font-size:1.1em; color:var(--spotify-green); margin-bottom: 2rem;">Loading...</h1>
+        
+        <img id="albumArt" src="" alt="Album Art" class="album-art hidden">
+        
         <div class="w-full">
-            <h2 id="songTitle" class="text-2xl font-bold text-center mt-4 hidden"></h2>
-            <p id="artistName" class="text-lg text-gray-400 text-center hidden"></p>
+            <h2 id="songTitle" class="song-title hidden"></h2>
+            <p id="artistName" class="artist-name hidden"></p>
         </div>
+        
         <div id="progressBarContainer" class="progress-bar-container hidden">
             <div id="progressBar" class="progress-bar"></div>
         </div>
@@ -100,58 +212,71 @@
         </div>
 
         <div id="controls" class="controls hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6l-8.5 6z"></path></svg>
-            <svg class="play-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-3.5 6-8.5 6V6l8.5 6z"></path></svg>
+            <i class="fas fa-backward"></i>
+            <span class="play-btn">
+                <i id="playPauseIcon" class="fas fa-pause"></i>
+            </span>
+            <i class="fas fa-forward"></i>
         </div>
 
-        <a id="spotifyLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" 
-           class="mt-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-200 hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
-                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
-            </svg>
-            <span>follow my spotify!</span>
-        </a>
-        
-
-        <a id="instagramLink" href="https://instagram.com/grayalldayog" target="_blank" rel="noopener noreferrer" 
-           class="mt-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-200 hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
-                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
-            </svg>
-            <span>hit me up on instagram!</span>
-        </a>
-        
-        <div id="connectButton" class="mt-8 hidden">
-            <a href="/.netlify/functions/login-spotify" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
-                Connect to Spotify
+        <div id="socialLinksContainer" class="social-links-container">
+            <a id="spotifyLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" 
+               class="social-link hidden">
+                <i class="fab fa-spotify"></i>
+                <span id="spotifyLinkText">Follow my Spotify!</span>
             </a>
+            
+            <a id="instagramLink" href="https://instagram.com/grayalldayog" target="_blank" rel="noopener noreferrer" 
+               class="social-link hidden">
+                <i class="fab fa-instagram"></i>
+                <span id="instagramLinkText">Hit me up on Instagram!</span>
+            </a>
+
+            <div id="connectButton" class="connect-button hidden">
+                <a href="/.netlify/functions/login-spotify">
+                    Connect to Spotify
+                </a>
+            </div>
         </div>
+        
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        const playerContainer = document.getElementById('playerContainer');
         const listeningText = document.getElementById('listeningText');
+        const staticListeningHeader = document.getElementById('staticListeningHeader');
         const albumArt = document.getElementById('albumArt');
+        const albumArtBackground = document.getElementById('albumArtBackground');
         const songTitle = document.getElementById('songTitle');
         const artistName = document.getElementById('artistName');
         const progressBar = document.getElementById('progressBar');
-        const progressBarContainer = document.getElementById('progressBarContainer');
-        const timeDisplay = document.getElementById('timeDisplay');
-        const currentTime = document.getElementById('currentTime');
-        const totalTime = document.getElementById('totalTime');
+        const currentTimeElement = document.getElementById('currentTime');
+        const totalTimeElement = document.getElementById('totalTime');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        const socialLinksContainer = document.getElementById('socialLinksContainer');
+        const spotifyLink = document.getElementById('spotifyLink');
+        const instagramLink = document.getElementById('instagramLink');
+        const spotifyLinkText = document.getElementById('spotifyLinkText');
+        const instagramLinkText = document.getElementById('instagramLinkText');
         const connectButton = document.getElementById('connectButton');
-        const controls = document.getElementById('controls');
-        const spotifyLink = document.getElementById('spotifyLink'); // Ambil elemen link Instagram
-        const instagramLink = document.getElementById('instagramLink'); // Ambil elemen link Instagram
-
+        
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
             const minutes = Math.floor((ms / 1000 / 60) % 60);
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function showPlayingElements(show) {
+            // Kontrol UI saat lagu sedang diputar
+            const playingElements = [
+                albumArt, songTitle, artistName, progressBarContainer, timeDisplay, controls
+            ];
+            
+            playingElements.forEach(el => el.classList.toggle('hidden', !show));
+            staticListeningHeader.classList.toggle('hidden', !show);
+            listeningText.classList.toggle('hidden', show);
+            
+            // Link sosial selalu ditampilkan, tetapi kontennya berubah di JS
+            socialLinksContainer.classList.remove('hidden');
         }
 
         async function fetchNowPlaying() {
@@ -159,45 +284,74 @@
             const data = await response.json();
 
             if (data.error) {
-                listeningText.textContent = 'Error: ' + data.error;
+                // Handle Error / Token not set
+                listeningText.classList.remove('hidden');
+                listeningText.textContent = 'ERROR: Admin connection required.';
+                listeningText.style.color = '#ff0000';
                 connectButton.classList.remove('hidden');
+                albumArtBackground.style.backgroundImage = 'none';
+                showPlayingElements(false);
                 return;
             }
+            
+            connectButton.classList.add('hidden');
+            listeningText.style.color = 'var(--spotify-green)';
 
             if (data.isPlaying) {
-                listeningText.textContent = `Rama is listening to a song right now:`;
+                // ===================================
+                // 1. STATE: LAGU SEDANG DIPUTAR
+                // ===================================
+
+                // Update UI elements
                 albumArt.src = data.albumArt;
+                albumArtBackground.style.backgroundImage = `url('${data.albumArt}')`;
                 songTitle.textContent = data.title;
                 artistName.textContent = data.artist;
 
-                albumArt.classList.remove('hidden');
-                songTitle.classList.remove('hidden');
-                artistName.classList.remove('hidden');
-                progressBarContainer.classList.remove('hidden');
-                timeDisplay.classList.remove('hidden');
-                controls.classList.remove('hidden');
-                spotifyLink.classList.remove('hidden'); // Tampilkan link Instagram
-                instagramLink.classList.remove('hidden'); // Tampilkan link Instagram
-
-                const progressPercent = (data.progress / data.duration) * 100;
+                // Progress Bar Update
+                const currentProgressMs = data.progress;
+                const durationMs = data.duration;
+                totalTimeElement.textContent = formatTime(durationMs);
+                currentTimeElement.textContent = formatTime(currentProgressMs);
+                const progressPercent = (currentProgressMs / durationMs) * 100;
                 progressBar.style.width = `${progressPercent}%`;
-                currentTime.textContent = formatTime(data.progress);
-                totalTime.textContent = formatTime(data.duration);
+
+                // Update Link Texts ke default/minimal
+                spotifyLinkText.textContent = 'Follow my Spotify!';
+                instagramLinkText.textContent = 'Hit me up on Instagram!';
+                
+                // Show playing elements
+                showPlayingElements(true);
+                spotifyLink.classList.remove('hidden');
+                instagramLink.classList.remove('hidden');
+
             } else {
-                listeningText.textContent = 'Rama is not listening to a song right now.';
-                albumArt.classList.add('hidden');
-                songTitle.classList.add('hidden');
-                artistName.classList.add('hidden');
-                progressBarContainer.classList.add('hidden');
-                timeDisplay.classList.add('hidden');
-                controls.classList.add('hidden');
-                spotifyLink.classList.add('hidden'); // Sembunyikan link Instagram
-                instagramLink.classList.add('hidden'); // Sembunyikan link Instagram
+                // ===================================
+                // 2. STATE: LAGU TIDAK DIPUTAR (DOING SOMETHING ELSE)
+                // ===================================
+                
+                // Set Pesan Utama
+                listeningText.textContent = 'Rama is doing something else..';
+                listeningText.style.fontSize = '1.8em';
+                listeningText.style.fontWeight = '700';
+                listeningText.style.color = 'var(--text-color)';
+                
+                // Update Link Texts Sesuai Permintaan
+                spotifyLinkText.textContent = 'But still you can stalk my spotify!';
+                instagramLinkText.textContent = 'Maybe im active here? idk';
+
+                // Ensure links are visible
+                spotifyLink.classList.remove('hidden');
+                instagramLink.classList.remove('hidden');
+
+                // Hide playing elements
+                albumArtBackground.style.backgroundImage = 'none';
+                showPlayingElements(false);
             }
         }
         
         fetchNowPlaying();
-        setInterval(fetchNowPlaying, 10000);
+        setInterval(fetchNowPlaying, 1000); 
     </script>
 </body>
 </html>
