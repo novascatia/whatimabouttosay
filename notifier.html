@@ -8,44 +8,57 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <style>
-        /* FULL SCREEN OPTIMIZATION */
+        /* FIX: Menghilangkan semua gutter, memastikan full screen dan mentok ke kiri/atas */
         html, body {
             height: 100%;
             width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Mencegah scroll pada body */
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
             font-family: ui-sans-serif, system-ui; 
             background-color: #21252b; 
             color: white;
-            display: flex; /* Memastikan body adalah flex container */
-            align-items: stretch; /* Membentang ke seluruh tinggi */
-            justify-content: stretch; /* Membentang ke seluruh lebar */
+            display: flex; 
+            align-items: stretch; 
+            justify-content: stretch; 
         }
 
         .main-container {
-            width: 100%; /* Menggunakan seluruh lebar */
-            height: 100vh; /* Menggunakan seluruh tinggi */
-            max-width: none; /* Hapus batasan lebar */
+            width: 100%; 
+            height: 100vh; 
+            max-width: none; 
             background-color: #2f353a; 
-            box-shadow: none; /* Hapus bayangan karena sudah full screen */
-            border-radius: 0; /* Hapus border radius */
+            box-shadow: none; 
+            border-radius: 0; 
             display: flex;
         }
 
         /* KOLOM KIRI: DAFTAR OBLROLAN */
         .sidebar {
-            width: 350px; /* Diperlebar sedikit agar nama User ID panjang muat */
+            width: 350px; 
             min-width: 300px;
             background-color: #2a2e34;
             border-right: 1px solid #25282d;
             overflow-y: hidden;
             flex-shrink: 0;
+            padding: 0; /* Hapus padding yang mungkin menyebabkan gutter */
+        }
+        
+        .sidebar h2 {
+            padding: 1rem;
+        }
+
+        /* Kotak Pencarian agar mentok ke kiri sidebar */
+        .sidebar > div:nth-child(2) { 
+            padding: 1rem;
+            padding-top: 0;
+            padding-bottom: 0.5rem;
         }
         
         .chat-list-container {
             overflow-y: auto;
-            height: calc(100% - 112px); 
+            /* Kalkulasi tinggi disesuaikan */
+            height: calc(100% - 130px); 
         }
         
         .chat-item {
@@ -70,14 +83,12 @@
         .messages-container {
             flex: 1; 
             overflow-y: auto; 
-            padding: 10px 15px; 
+            /* Padding horizontal dikurangi, atau diatur ulang untuk estetika */
+            padding: 10px 40px; 
             display: flex; 
             flex-direction: column; 
             gap: 1px;
             background-color: #21252b;
-            /* Tambahkan padding horizontal besar untuk estetika Telegram full screen */
-            padding-left: 10%;
-            padding-right: 10%;
         }
         
         /* GAYA BALON PESAN */
@@ -93,15 +104,15 @@
             white-space: pre-wrap;
         }
         
-        /* FIX: IMPLEMENTASI KANAN/KIRI YANG LEBIH KUAT */
+        /* FIX KANAN/KIRI: Pastikan flex-end memindahkan elemen dengan benar */
         .message-right { 
-            align-self: flex-end; /* Memindahkan pesan ke kanan */
-            background-color: #4f80c6; /* Biru/Ungu Staff */
+            align-self: flex-end; 
+            background-color: #4f80c6; 
             border-radius: 10px 10px 0 10px; 
         }
         .message-left { 
-            align-self: flex-start; /* Memindahkan pesan ke kiri */
-            background-color: #38404a; /* Abu-abu User */
+            align-self: flex-start; 
+            background-color: #38404a; 
             border-radius: 10px 10px 10px 0; 
             color: #e2e8f0;
         }
@@ -115,9 +126,9 @@
     <div class="main-container">
         
         <div class="sidebar">
-            <h2 class="p-4 text-lg font-bold border-b border-[#25282d]">Monitoring Rooms</h2>
+            <h2 class="text-lg font-bold border-b border-[#25282d]">Monitoring Rooms</h2>
             
-            <div class="p-4 border-b border-[#25282d]">
+            <div>
                 <input type="text" id="searchInput" placeholder="Cari User ID..." 
                        class="w-full p-2 rounded bg-[#38404a] text-white border border-[#2f353a] focus:outline-none focus:ring-1 focus:ring-blue-500">
             </div>
@@ -142,6 +153,7 @@
     </div>
 
     <script>
+        // --- JAVASCRIPT: LOGIKA TETAP SAMA ---
         let supabase;
         let currentRoom = null;
         let currentSubscription = null;
@@ -186,9 +198,7 @@
                 messageDiv.className = `message-center`;
                 messageDiv.innerHTML = message;
             } else {
-                // LOGIKA KANAN/KIRI FINAL:
-                // Sender 'bot' (Staff/Admin) = Kanan (message-right)
-                // Sender 'user-A' (User Biasa) = Kiri (message-left)
+                // LOGIKA KANAN/KIRI: 'bot' ke Kanan, 'user-A' ke Kiri
                 const useRightSide = sender === 'bot'; 
                 
                 messageDiv.className = `chat-bubble ${useRightSide ? 'message-right' : 'message-left'}`;
@@ -242,7 +252,7 @@
             const filteredRooms = allRoomsData.filter(room => {
                 const label = getLabelFromRoomId(room.room_id).toLowerCase();
                 return label.includes(term) || room.room_id.includes(term);
-            }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort by most recent
+            }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
             if (filteredRooms.length === 0) {
                 chatListDiv.innerHTML = '<p class="p-4 text-gray-400 text-sm">Tidak ada obrolan yang cocok.</p>';
@@ -275,8 +285,6 @@
         }
         
         async function switchRoom(newRoomId, newLabel) {
-            if (newRoomId === currentRoom) return;
-
             if (currentSubscription) {
                 supabase.removeChannel(currentSubscription);
                 currentSubscription = null;
