@@ -477,7 +477,7 @@
     function shareResult() {
         const score = document.getElementById('final-score').innerText;
         const wrong = stats.totalWrongClicks;
-        const text = `🚀 *Latihan UTS Psikologi Pendidikan* 🚀\n\nSkor Akhir: ${score}/100\nTotal Salah Klik: ${wrong}x\n\nSiap hadapi UTS! 💪`;
+        const text = `*Quiz Psikologi Pendidikan*\n\nSkor Akhir: ${score}/100\nTotal Salah: ${wrong}x\n`;
         
         navigator.clipboard.writeText(text).then(() => {
             const toast = document.getElementById('toast');
