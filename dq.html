@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Quiz</title>
+    <style>
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --accent: #3b82f6; /* Blue Professional */
+            --correct: #10b981; /* Green */
+            --wrong: #ef4444;   /* Red */
+            --border: #333333;
+        }
+
+        * { box-sizing: border-box; user-select: none; /* Mencegah blok teks */ }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- INTRO ANIMATION --- */
+        #intro-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #000;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease;
+        }
+        
+        .intro-text {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .rolling-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-align: center;
+            min-height: 60px;
+        }
+
+        .topic-highlight {
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        /* --- MAIN GAME UI --- */
+        .game-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            display: none; /* Hidden by default until intro done */
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .topic-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-indicator {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 16px 20px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #262626;
+            border-color: var(--text-muted);
+        }
+
+        .option-btn.correct {
+            border-color: var(--correct);
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--correct);
+        }
+
+        .option-btn.wrong {
+            border-color: var(--wrong);
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--wrong);
+        }
+
+        .feedback-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #222;
+            border-left: 3px solid var(--text-muted);
+            display: none;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .feedback-box.show { display: block; animation: fadeIn 0.3s; }
+        .feedback-box.correct { border-left-color: var(--correct); }
+        .feedback-box.wrong { border-left-color: var(--wrong); }
+
+        .btn-next, .btn-reset {
+            margin-top: 25px;
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+        }
+        .btn-next:hover { background-color: #2563eb; }
+
+        .btn-reset { 
+            background-color: #333; 
+            margin-top: 15px;
+            display: block; /* Always visible in result */
+        }
+        .btn-reset:hover { background-color: #444; }
+
+        /* RESULT SCREEN */
+        .result-container {
+            text-align: center;
+            display: none;
+        }
+        .score-big {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 20px 0;
+            color: var(--text-main);
+        }
+        .score-label { color: var(--text-muted); font-size: 1rem; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body oncontextmenu="return false"> <div id="intro-overlay">
+    <div class="intro-text">Quiz Harian</div>
+    <div class="rolling-text" id="rolling-text">...</div>
+</div>
+
+<div class="container">
+    <div id="game-ui" class="game-card">
+        <div class="header-bar">
+            <span class="topic-label">Psikologi Pendidikan</span>
+            <span class="progress-indicator" id="progress-text">0 / 30</span>
+        </div>
+
+        <div id="question-text" class="question-text">Loading...</div>
+        <div id="options-area" class="options-grid"></div>
+        
+        <div id="feedback-area" class="feedback-box"></div>
+        <button id="btn-next" class="btn-next" onclick="game.next()">Soal Selanjutnya</button>
+    </div>
+
+    <div id="result-ui" class="game-card result-container">
+        <h2>Sesi Selesai</h2>
+        <p class="score-label">Skor Akhir Anda</p>
+        <div class="score-big" id="final-score">0</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; text-align: left;">
+            <div style="background:#222; padding:15px; border-radius:8px;">
+                <div style="color:#888; font-size:0.8rem;">Benar (Murni)</div>
+                <div id="res-correct" style="font-size:1.2rem; font-weight:bold; color:var(--correct)">0</div>
+            </div>
+            <div style="background:#222; padding:15px; border-radius:8px;">
+                <div style="color:#888; font-size:0.8rem;">Pengulangan Salah</div>
+                <div id="res-wrong" style="font-size:1.2rem; font-weight:bold; color:var(--wrong)">0</div>
+            </div>
+        </div>
+        <button class="btn-reset" onclick="game.resetData()">Reset Progress & Mulai Ulang</button>
+    </div>
+</div>
+
+<script>
+    // === SECURITY: DISABLE INSPECT ELEMENT SHORTCUTS ===
+    document.onkeydown = function(e) {
+        if(event.keyCode == 123) { return false; } // F12
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
+        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Ctrl+U
+    }
+
+    // === MODULE PATTERN (Encapsulation) ===
+    const game = (function() {
+        const STORAGE_KEY = 'daily_quiz_psikologi_v1';
+        
+        // Data Soal (Hardcoded)
+        const rawData = [
+            { q: "Apa makna dari istilah 'Paedagogie'?", o: ["Ilmu menuntun anak", "Pengajaran orang dewasa", "Pelatihan keterampilan", "Sekolah formal"], a: 0, e: "Paedagogie berasal dari bahasa Yunani 'pais' (anak) dan 'agogos' (membimbing)." },
+            { q: "Kursus menjahit dan bimbel termasuk jenis pendidikan...", o: ["Formal", "Informal", "Non-formal", "Insidental"], a: 2, e: "Pendidikan Non-formal terstruktur namun di luar sistem persekolahan formal." },
+            { q: "Pendidikan dalam keluarga disebut pendidikan...", o: ["Formal", "Informal", "Non-formal", "Vokasi"], a: 1, e: "Informal adalah pendidikan yang terjadi secara alami di lingkungan keluarga." },
+            { q: "Fokus utama Pendidikan Transformasional adalah...", o: ["Transfer pengetahuan", "Perubahan cara pandang & perilaku", "Menghafal fakta", "Nilai akademik"], a: 1, e: "Transformasional bertujuan mengubah individu secara fundamental." },
+            { q: "Kesadaran tentang proses berpikir diri sendiri disebut...", o: ["Intelegensi", "Kognisi", "Metakognisi", "Afeksi"], a: 2, e: "Metakognisi adalah 'thinking about thinking'." },
+            { q: "Intelegensi umumnya merujuk pada...", o: ["Proses mental", "Potensi bawaan memecahkan masalah", "Kesadaran diri", "Hasil belajar"], a: 1, e: "Intelegensi adalah kapasitas/potensi umum." },
+            { q: "Manakah yang BUKAN ciri ilmu pengetahuan?", o: ["Sistematis", "Empiris", "Objektif", "Subjektif"], a: 3, e: "Ilmu pengetahuan harus objektif, bukan subjektif (berdasarkan perasaan)." },
+            { q: "Pencetus teori 'Multiple Intelligences' adalah...", o: ["Jean Piaget", "Alfred Binet", "Howard Gardner", "Sigmund Freud"], a: 2, e: "Howard Gardner mencetuskan kecerdasan majemuk." },
+            { q: "Tingkatan kognitif tertinggi dalam Taksonomi Bloom (Revisi) adalah...", o: ["Mengingat", "Menganalisis", "Mengevaluasi", "Mencipta"], a: 3, e: "C6 (Creating/Mencipta) adalah level tertinggi." },
+            { q: "Memori dengan durasi sangat singkat (< 1 detik) disebut...", o: ["Sensory Memory", "Short-Term Memory", "Long-Term Memory", "Working Memory"], a: 0, e: "Sensory memory merekam input indra sesaat." },
+            { q: "Pendekatan 4P kreativitas: Person, Process, Product, dan...", o: ["Price", "Press", "Place", "Plan"], a: 1, e: "Press (Pendorong/Lingkungan)." },
+            { q: "Inti dari Self Regulated Learning (SRL) adalah...", o: ["Belajar jika disuruh", "Kemandirian merencanakan & evaluasi", "Guru mengatur jadwal", "Belajar tanpa buku"], a: 1, e: "SRL menekankan pada kemandirian siswa mengatur belajarnya." },
+            { q: "Ciri utama Student Centered Learning (SCL) adalah...", o: ["Guru sumber utama", "Siswa pasif", "Siswa aktif membangun pengetahuan", "Pembelajaran satu arah"], a: 2, e: "SCL menempatkan siswa sebagai subjek aktif." },
+            { q: "Tokoh yang mengembangkan tes IQ pertama kali adalah...", o: ["Alfred Binet", "Skinner", "Pavlov", "Watson"], a: 0, e: "Alfred Binet mengembangkan tes untuk mendeteksi kesulitan belajar anak." },
+            { q: "Tahap operasional konkret menurut Piaget terjadi pada usia...", o: ["0-2 tahun", "2-7 tahun", "7-11 tahun", "11 tahun ke atas"], a: 2, e: "Usia SD (7-11 tahun) biasanya masuk tahap operasional konkret." },
+            { q: "Short Term Memory sering disebut juga sebagai...", o: ["Working Memory", "Long Term Memory", "Echoic Memory", "Iconic Memory"], a: 0, e: "Sering dipertukarkan dengan Working Memory (memori kerja)." },
+            { q: "Kapasitas 'Chunking' dalam memori jangka pendek adalah...", o: ["5-9 item", "10-20 item", "Tak terbatas", "1-2 item"], a: 0, e: "Teori Miller: 7 plus minus 2." },
+            { q: "Dalam Bloom, 'Menjelaskan' termasuk kategori...", o: ["C1 Mengingat", "C2 Memahami", "C3 Menerapkan", "C4 Menganalisis"], a: 1, e: "Menjelaskan adalah indikator pemahaman." },
+            { q: "Pendidikan seumur hidup (Long Life Education) bermakna...", o: ["Belajar hanya di sekolah", "Belajar sampai dapat gelar", "Belajar sejak lahir sampai akhir hayat", "Belajar saat bekerja saja"], a: 2, e: "Pendidikan tidak dibatasi usia atau institusi." },
+            { q: "Istilah 'Scaffolding' dalam pembelajaran diperkenalkan oleh...", o: ["Piaget", "Vygotsky", "Bruner", "Bandura"], a: 2, e: "Jerome Bruner (berdasar teori Vygotsky) memperkenalkan istilah Scaffolding." },
+            { q: "Motivasi yang berasal dari dalam diri disebut...", o: ["Ekstrinsik", "Intrinsik", "Behavioristik", "Sosial"], a: 1, e: "Intrinsik: dorongan dari dalam diri sendiri." },
+            { q: "Teori belajar yang menekankan perubahan perilaku yang dapat diamati adalah...", o: ["Kognitivisme", "Konstruktivisme", "Behaviorisme", "Humanisme"], a: 2, e: "Behaviorisme fokus pada stimulus-respon yang tampak." },
+            { q: "Zone of Proximal Development (ZPD) adalah konsep dari...", o: ["Vygotsky", "Piaget", "Freud", "Erikson"], a: 0, e: "Vygotsky menekankan belajar sosial dalam area ZPD." },
+            { q: "Guru memberikan 'reward' bintang adalah contoh...", o: ["Penguatan negatif", "Penguatan positif", "Hukuman", "Pembiaran"], a: 1, e: "Memberi sesuatu yang menyenangkan untuk meningkatkan perilaku adalah Positive Reinforcement." },
+            { q: "Gaya belajar yang dominan menggunakan gambar/visual disebut...", o: ["Auditori", "Kinestetik", "Visual", "Verbal"], a: 2, e: "Visual learner belajar lewat penglihatan." },
+            { q: "Evaluasi formatif dilakukan pada saat...", o: ["Akhir semester", "Proses pembelajaran berlangsung", "Awal tahun ajaran", "Setelah lulus"], a: 1, e: "Formatif bertujuan memperbaiki proses saat sedang berjalan." },
+            { q: "Disleksia adalah kesulitan dalam...", o: ["Berhitung", "Membaca", "Menulis", "Berbicara"], a: 1, e: "Disleksia berkaitan dengan kesulitan memproses bahasa tulisan (membaca)." },
+            { q: "Karakteristik anak Gifted (Cerdas Istimewa) adalah...", o: ["IQ rata-rata", "Cepat bosan dengan materi mudah", "Lambat belajar", "Pasif"], a: 1, e: "Anak Gifted sering bosan jika tidak ada tantangan." },
+            { q: "Hierarki kebutuhan Maslow yang paling dasar adalah...", o: ["Aktualisasi diri", "Harga diri", "Fisiologis", "Rasa aman"], a: 2, e: "Kebutuhan fisik (makan, minum, tidur) adalah yang paling dasar." },
+            { q: "Empati adalah kemampuan untuk...", o: ["Merasakan apa yang dirasakan orang lain", "Menilai orang lain", "Mengasihani orang lain", "Meniru orang lain"], a: 0, e: "Empati adalah 'standing in someone else's shoes'." }
+        ];
+
+        // State Management
+        let state = {
+            queue: [], // Antrean soal
+            finished: false,
+            cleanCorrect: 0, // Benar percobaan pertama
+            wrongCount: 0,
+            totalInitial: 0
+        };
+
+        // --- CORE FUNCTIONS ---
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                state = JSON.parse(saved);
+                return true;
+            }
+            return false;
+        }
+
+        function init() {
+            const hasSave = loadData();
+
+            if (hasSave && state.finished) {
+                // Jika sudah selesai sebelumnya
+                document.getElementById('intro-overlay').style.display = 'none';
+                showResult();
+            } else if (hasSave && state.queue.length > 0) {
+                // Jika ada progress di tengah jalan
+                document.getElementById('intro-overlay').style.display = 'none';
+                renderQuestion();
+                document.getElementById('game-ui').style.display = 'block';
+            } else {
+                // New Game: Jalankan Intro
+                runIntro().then(() => {
+                    setupNewGame();
+                });
+            }
+        }
+
+        function setupNewGame() {
+            // Setup Queue
+            const qWithFlag = rawData.map(item => ({...item, firstTry: true}));
+            // Shuffle
+            state.queue = qWithFlag.sort(() => Math.random() - 0.5);
+            state.totalInitial = rawData.length;
+            state.cleanCorrect = 0;
+            state.wrongCount = 0;
+            state.finished = false;
+            
+            saveData();
+            
+            document.getElementById('game-ui').style.display = 'block';
+            renderQuestion();
+        }
+
+        function runIntro() {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('intro-overlay');
+                const textEl = document.getElementById('rolling-text');
+                const topics = ["STATISTIKA", "FILSAFAT", "SOSIOLOGI", "BIOLOGI", "SEJARAH", "PSIKOLOGI PENDIDIKAN"];
+                let count = 0;
+                let speed = 50;
+                let maxCount = 20; // Berapa kali ganti kata
+
+                function roll() {
+                    if (count >= maxCount) {
+                        // Final Text
+                        textEl.innerHTML = "<span class='topic-highlight'>PSIKOLOGI PENDIDIKAN</span>";
+                        setTimeout(() => {
+                            overlay.style.opacity = '0';
+                            setTimeout(() => {
+                                overlay.style.display = 'none';
+                                resolve();
+                            }, 1000);
+                        }, 1500); // Lama nahan di judul akhir
+                        return;
+                    }
+
+                    // Random text effect
+                    textEl.innerText = topics[Math.floor(Math.random() * (topics.length - 1))];
+                    count++;
+                    
+                    // Makin lama makin pelan (dramatic)
+                    if(count > 15) speed += 30;
+                    
+                    setTimeout(roll, speed);
+                }
+                roll();
+            });
+        }
+
+        function renderQuestion() {
+            if (state.queue.length === 0) {
+                finishGame();
+                return;
+            }
+
+            const current = state.queue[0];
+            
+            // Update UI Labels
+            document.getElementById('question-text').innerText = current.q;
+            document.getElementById('progress-text').innerText = `Sisa: ${state.queue.length}`;
+            
+            const optArea = document.getElementById('options-area');
+            optArea.innerHTML = '';
+
+            // Reset Feedback UI
+            document.getElementById('feedback-area').style.display = 'none';
+            document.getElementById('feedback-area').className = 'feedback-box';
+            document.getElementById('btn-next').style.display = 'none';
+
+            current.o.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(idx, btn);
+                optArea.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnEl) {
+            const current = state.queue[0];
+            const allBtns = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback-area');
+            
+            // Disable click
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selectedIndex === current.a) {
+                // BENAR
+                btnEl.classList.add('correct');
+                feedback.innerHTML = `<strong>Tepat.</strong><br>${current.e}`;
+                feedback.classList.add('correct');
+                
+                if (current.firstTry) state.cleanCorrect++;
+                
+                // Remove from queue
+                state.queue.shift();
+            } else {
+                // SALAH
+                btnEl.classList.add('wrong');
+                // Highlight yg benar
+                allBtns[current.a].classList.add('correct');
+                
+                feedback.innerHTML = `<strong>Kurang tepat.</strong><br>Jawaban: ${current.o[current.a]}<br><br>${current.e}`;
+                feedback.classList.add('wrong');
+                
+                state.wrongCount++;
+                current.firstTry = false;
+                
+                // Reroll logic: pindah ke belakang
+                const wrongQ = state.queue.shift();
+                state.queue.push(wrongQ);
+            }
+
+            feedback.classList.add('show');
+            document.getElementById('btn-next').style.display = 'block';
+            
+            saveData(); // Auto save setiap aksi
+        }
+
+        function finishGame() {
+            state.finished = true;
+            saveData();
+            
+            document.getElementById('game-ui').style.display = 'none';
+            showResult();
+        }
+
+        function showResult() {
+            const container = document.getElementById('result-ui');
+            container.style.display = 'block';
+            
+            const score = Math.round((state.cleanCorrect / state.totalInitial) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-score').style.color = score >= 70 ? 'var(--correct)' : 'var(--wrong)';
+            
+            document.getElementById('res-correct').innerText = `${state.cleanCorrect} / ${state.totalInitial}`;
+            document.getElementById('res-wrong').innerText = state.wrongCount + "x";
+        }
+
+        return {
+            init: init,
+            next: renderQuestion,
+            resetData: function() {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        };
+
+    })();
+
+    // Start
+    window.onload = game.init;
+
+</script>
+
+</body>
+</html>
