@@ -3,494 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Quiz</title>
+    <title>Daily Evaluation</title>
     <style>
         :root {
-            --bg-color: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --text-main: #ffffff;
-            --text-muted: #888888;
-            --accent: #3b82f6; /* Blue Professional */
-            --correct: #10b981; /* Green */
-            --wrong: #ef4444;   /* Red */
-            --border: #333333;
+            --bg: #0a0a0a;
+            --surface: #171717;
+            --primary: #2563eb;
+            --text: #e5e5e5;
+            --muted: #525252;
+            --success: #10b981;
+            --error: #ef4444;
         }
 
-        * { box-sizing: border-box; user-select: none; /* Mencegah blok teks */ }
-
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden;
+            margin: 0;
+            user-select: none; /* Anti-blok teks */
+            -webkit-user-select: none;
         }
 
         .container {
             width: 100%;
-            max-width: 700px;
+            max-width: 650px;
             padding: 20px;
-            position: relative;
-            z-index: 1;
         }
 
-        /* --- INTRO ANIMATION --- */
-        #intro-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #000;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 1s ease;
+        /* INTRO */
+        #intro-layer {
+            position: fixed; inset: 0;
+            background: black; z-index: 999;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
         }
-        
-        .intro-text {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+        .roll-text { font-size: 2.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        .highlight { color: var(--primary); text-shadow: 0 0 30px rgba(37, 99, 235, 0.6); }
 
-        .rolling-text {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--text-main);
-            text-align: center;
-            min-height: 60px;
-        }
-
-        .topic-highlight {
-            color: var(--accent);
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-        }
-
-        /* --- MAIN GAME UI --- */
-        .game-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
+        /* CARD */
+        .card {
+            background: var(--surface);
+            border: 1px solid #333;
             border-radius: 12px;
             padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            display: none; /* Hidden by default until intro done */
-            animation: slideUp 0.8s ease forwards;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-        }
-
-        .topic-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .progress-indicator {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .question-text {
-            font-size: 1.3rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .option-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 16px 20px;
-            border-radius: 8px;
-            text-align: left;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-
-        .option-btn:hover:not(:disabled) {
-            background-color: #262626;
-            border-color: var(--text-muted);
-        }
-
-        .option-btn.correct {
-            border-color: var(--correct);
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--correct);
-        }
-
-        .option-btn.wrong {
-            border-color: var(--wrong);
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--wrong);
-        }
-
-        .feedback-box {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #222;
-            border-left: 3px solid var(--text-muted);
             display: none;
-            font-size: 0.95rem;
-            line-height: 1.5;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
-        .feedback-box.show { display: block; animation: fadeIn 0.3s; }
-        .feedback-box.correct { border-left-color: var(--correct); }
-        .feedback-box.wrong { border-left-color: var(--wrong); }
 
-        .btn-next, .btn-reset {
-            margin-top: 25px;
-            width: 100%;
-            padding: 14px;
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: none;
+        .header {
+            display: flex; justify-content: space-between;
+            border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px;
+            color: var(--muted); font-size: 0.9rem; font-weight: 600;
         }
-        .btn-next:hover { background-color: #2563eb; }
 
-        .btn-reset { 
-            background-color: #333; 
-            margin-top: 15px;
-            display: block; /* Always visible in result */
-        }
-        .btn-reset:hover { background-color: #444; }
+        .question { font-size: 1.25rem; line-height: 1.6; margin-bottom: 30px; }
 
-        /* RESULT SCREEN */
-        .result-container {
-            text-align: center;
-            display: none;
+        .btn-opt {
+            display: block; width: 100%; text-align: left;
+            padding: 18px; margin-bottom: 10px;
+            background: transparent; border: 1px solid #333;
+            color: var(--text); border-radius: 8px; cursor: pointer;
+            transition: 0.2s; font-size: 1rem;
         }
-        .score-big {
-            font-size: 4rem;
-            font-weight: 700;
-            margin: 20px 0;
-            color: var(--text-main);
+        .btn-opt:hover:not(:disabled) { background: #222; border-color: #666; }
+        
+        .correct { border-color: var(--success); background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .wrong { border-color: var(--error); background: rgba(239, 68, 68, 0.1); color: var(--error); }
+
+        .feedback {
+            margin-top: 20px; padding: 15px; background: #222;
+            border-left: 3px solid var(--muted); border-radius: 6px;
+            font-size: 0.95rem; line-height: 1.5; display: none;
         }
-        .score-label { color: var(--text-muted); font-size: 1rem; }
+        .feedback.show { display: block; animation: fadeIn 0.3s; }
+
+        .btn-action {
+            width: 100%; padding: 15px; margin-top: 20px;
+            background: var(--primary); color: white; border: none;
+            border-radius: 6px; font-weight: bold; cursor: pointer;
+            font-size: 1rem; display: none;
+        }
+        .btn-action:hover { opacity: 0.9; }
+
+        /* RESULT */
+        .score-box { text-align: center; font-size: 4rem; font-weight: 800; margin: 20px 0; }
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-item { background: #222; padding: 15px; border-radius: 8px; text-align: center; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
     </style>
 </head>
-<body oncontextmenu="return false"> <div id="intro-overlay">
-    <div class="intro-text">Quiz Harian</div>
-    <div class="rolling-text" id="rolling-text">...</div>
+<body oncontextmenu="return false">
+
+<div id="intro-layer">
+    <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">DAILY QUIZ</div>
+    <div class="roll-text" id="roller">...</div>
 </div>
 
 <div class="container">
-    <div id="game-ui" class="game-card">
-        <div class="header-bar">
-            <span class="topic-label">Psikologi Pendidikan</span>
-            <span class="progress-indicator" id="progress-text">0 / 30</span>
+    <div id="quiz-ui" class="card">
+        <div class="header">
+            <span>PSIKOLOGI PENDIDIKAN</span>
+            <span id="counter">0 / 30</span>
         </div>
-
-        <div id="question-text" class="question-text">Loading...</div>
-        <div id="options-area" class="options-grid"></div>
-        
-        <div id="feedback-area" class="feedback-box"></div>
-        <button id="btn-next" class="btn-next" onclick="game.next()">Soal Selanjutnya</button>
+        <div id="q-text" class="question">Decrypting data...</div>
+        <div id="opts"></div>
+        <div id="feedback" class="feedback"></div>
+        <button id="next-btn" class="btn-action" onclick="Quiz.next()">LANJUT</button>
     </div>
 
-    <div id="result-ui" class="game-card result-container">
-        <h2>Sesi Selesai</h2>
-        <p class="score-label">Skor Akhir Anda</p>
-        <div class="score-big" id="final-score">0</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; text-align: left;">
-            <div style="background:#222; padding:15px; border-radius:8px;">
-                <div style="color:#888; font-size:0.8rem;">Benar (Murni)</div>
-                <div id="res-correct" style="font-size:1.2rem; font-weight:bold; color:var(--correct)">0</div>
+    <div id="result-ui" class="card" style="text-align: center;">
+        <h2>SESI SELESAI</h2>
+        <div class="score-box" id="final-score">0</div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div style="font-size:0.8rem; color:#888">Murni Benar</div>
+                <div id="stat-correct" style="font-size:1.5rem; color:var(--success)">0</div>
             </div>
-            <div style="background:#222; padding:15px; border-radius:8px;">
-                <div style="color:#888; font-size:0.8rem;">Pengulangan Salah</div>
-                <div id="res-wrong" style="font-size:1.2rem; font-weight:bold; color:var(--wrong)">0</div>
+            <div class="stat-item">
+                <div style="font-size:0.8rem; color:#888">Salah Klik</div>
+                <div id="stat-wrong" style="font-size:1.5rem; color:var(--error)">0</div>
             </div>
         </div>
-        <button class="btn-reset" onclick="game.resetData()">Reset Progress & Mulai Ulang</button>
+        <button class="btn-action" style="display:block; background:#333;" onclick="Quiz.reset()">RESET PROGRESS</button>
     </div>
 </div>
 
 <script>
-    // === SECURITY: DISABLE INSPECT ELEMENT SHORTCUTS ===
-    document.onkeydown = function(e) {
-        if(event.keyCode == 123) { return false; } // F12
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
-        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Ctrl+U
-    }
+    // === 1. ANTI-DEVTOOLS & SECURITY ===
+    // Memblokir shortcut F12, Ctrl+Shift+I, dll
+    document.addEventListener('keydown', function(e) {
+        if(e.keyCode == 123) { e.preventDefault(); return false; }
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { e.preventDefault(); return false; }
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { e.preventDefault(); return false; }
+        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { e.preventDefault(); return false; }
+    });
 
-    // === MODULE PATTERN (Encapsulation) ===
-    const game = (function() {
-        const STORAGE_KEY = 'daily_quiz_psikologi_v1';
+    // "Jebakan" Debugger: Jika DevTools dibuka, browser akan dipaksa berhenti (breakpoint loop)
+    // Ini membuat orang sulit meng-inspect element secara real-time.
+    setInterval(function(){
+        const startTime = performance.now();
+        debugger; // <--- INI AKAN FREEZE BROWSER JIKA DEVTOOLS BUKA
+        if (performance.now() - startTime > 100) {
+            // Deteksi jika debugger aktif
+            console.clear(); 
+        }
+    }, 1000);
+
+    // === 2. DATA TERENKRIPSI (BASE64) ===
+    // Isinya adalah array 30 soal tadi, tapi diubah jadi huruf acak supaya tidak terbaca di View Source.
+    const SECRET_DATA = "W3sicSI6IkFwYSBtYWtuYSBkYXJpIGlzdGlsYWggJ1BhZWRhZ29naWUnPyIsIm8iOlsiSWxtdSBtZW51bnR1biBhbmFrIiwiUGVuZ2FqYXJhbiBvcmFuZyBkZXdhc2EiLCJQZWxhdGloYW4ga2V0ZXJhbXBpbGFuIiwiU2Vrb2xhaCBmb3JtYWwiXSwiYSI6MCwiZSI6IlBhZWRhZ29naWUgYmVyYXNhbCBkYXJpIGJhaGFzYSBZdW5hbmkgJ3BhaXMnIChhbmFrKSBkYW4gJ2Fnb2dvcycgKG1lbWJpbWJpbmcpLiJ9LHsicSI6Ikt1cnN1cyBtZW5qYWhpdCBkYW4gYmltYmVsIHRlcm1hc3VrIGplbmlzIHBlbmRpZGlrYW4uLi4iLCJvIjpbIkZvcm1hbCIsIkluZm9ybWFsIiwiTm9uLWZvcm1hbCIsIkluc2lkZW50YWwiXSwiYSI6MiwiZSI6IlBlbmRpZGlrYW4gTm9uLWZvcm1hbCB0ZXJzdHJ1a3R1ciBuYW11biBkaSBsdWFyIHNpc3RlbSBwZXJzZWtvbGFoYW4gZm9ybWFsLiJ9LHsicSI6IlBlbmRpZGlrYW4gZGFsYW0ga2VsdWFyZ2EgZGlzZWJ1dCBwZW5kaWRpa2FuLi4uIiwibyI6WyJGb3JtYWwiLCJJbmZvcm1hbCIsIk5vbi1mb3JtYWwiLCJWb2thc2kiXSwiYSI6MSwiZSI6IkluZm9ybWFsIGFkYWxhaCBwZW5kaWRpa2FuIHlhbmcgdGVyamFkaSBzZWNhcmEgYWxhbWkgZGkgbGluZ2t1bmdhbiBrZWx1YXJnYS4ifSx7InEiOiJGb2t1cyB1dGFtYSBQZW5kaWRpa2FuIFRyYW5zZm9ybWFzaW9uYWwgYWRhbGFoLi4uIiwibyI6WyJUcmFuc2ZlciBwZW5nZXRhaHVhbiIsIlBlcnViYWhhbiBjYXJhIHBhbmRhbmcgJiBwZXJpbGFrdSIsIk1lbmdoYWZhbCBmYWt0YSIsIk5pbGFpIGFrYWRlbWlrIl0sImEiOjEsImUiOiJUcmFuc2Zvcm1hc2lvbmFsIGJlcnR1anVhbiBtZW5ndWJhaCBpbmRpdmlkdSBzZWNhcmEgZnVuZGFtZW50YWwuIn0seyJxIjoiS2VzYWRhcmFuIHRlbnRhbmcgcHJvc2VzIGJlcnBpa2lyIGRpcmkgc2VuZGlyaSBkaXNlYnV0Li4uIiwibyI6WyJJbnRlbGVnZW5zaSIsIktvZ25pc2kiLCJNZXRha29nbmlzaSIsIkFmZWtzaSJdLCJhIjoyLCJlIjoiTWV0YWtvZ25pc2kgYWRhbGFoICd0aGlua2luZyBhYm91dCB0aGlua2luZycuIn0seyJxIjoiSW50ZWxlZ2Vuc2kgdW11bW55YSBtZXJ1anVrIHBhZGEuLi4iLCJvIjpbIlByb3NlcyBtZW50YWwiLCJQb3RlbnNpIGJhd2FhbiBtZW1lY2Foa2FuIG1hc2FsYWgiLCJLZXNhZGFyYW4gZGlyaSIsIkhhc2lsIGJlbGFqYXIiXSwiYSI6MSwiZSI6IkludGVsZWdlbnNpIGFkYWxhaCBrYXBhc2l0YXMvdG90ZW5zaSB1bXVtLiJ9LHsicSI6Ik1hbmFrYWggeWFuZyBCVUtBTiBjaXJpIGlsbXUgcGVuZ2V0YWh1YW4/IiwibyI6WyJTaXN0ZW1hdGlzIiwiRW1waXJpcyIsIk9iamVrdGlmIiwiU3ViamVrdGlmIl0sImEiOjMsImUiOiJJbG11IHBlbmdldGFodWFuIGhhcnVzIG9iamVrdGlmLCBidWthbiBzdWJamVrdGlmIChiZXJkYXNhcmthbiBwZXJhc2FhbikuIn0seyJxIjoiUGVuY2V0dXMgdGVvcmkgJ011bHRpcGxlIEludGVsbGlnZW5jZXMnIGFkYWxhaC4uLiIsIm8iOlsiSmVhbiBQaWFnZXQiLCJBbGZyZWQgQmluZXQiLCJIb3dhcmQgR2FyZG5lciIsIlNpZ211bmQgRnJldWQiXSwiYSI6MiwiZSI6Ikhvd2FyZCBHYXJkbmVyIG1lbmNldHVza2FuIGtlY2VyZGFzYW4gbWFqZW11ay4ifSx7InEiOiJUaW5na2F0YW4ga29nbml0aWYgdGVydGluZ2dpIGRhbGFtIFRha3Nvbm9taSBCbG9vbSAoUmV2aXNpKSBhZGFsYWguLi4iLCJvIjpbIk1lbmdpbmdhdCIsIk1lbmdhbmFsaXNpcyIsIk1lbmdldmFsdWFzaSIsIk1lbmNpcHRhIl0sImEiOjMsImUiOiJDNiAoQ3JlYXRpbmcvTWVuY2lwdGEpIGFkYWxhaCBsZXZlbCB0ZXJ0aW5nZ2kuIn0seyJxIjoiTWVtb3JpIGRlbmdhbiBkdXJhc2kgc2FuZ2F0IHNpbmdrYXQgKCAxIGRldGlrKSBkaXNlYnV0Li4uIiwibyI6WyJTZW5zb3J5IE1lbW9yeSIsIlNob3J0LVRlcm0gTWVtb3J5IiwiTG9uZy1UZXJtIE1lbW9yeSIsIldvcmtpbmcgTWVtb3J5Il0sImEiOjAsImUiOiJTZW5zb3J5IG1lbW9yeSBtZXJla2FtIGlucHV0IGluZHJhIHNlc2FhdC4ifSx7InEiOiJQZW5kZWthdGFuIDRQIGtyZWF0aXZpdGFzOiBQZXJzb24sIFByb2Nlc3MsIFByb2R1Y3QsIGRhbi4uLiIsIm8iOlsiUHJpY2UiLCJQcmVzcyIsIlBsYWNlIiwiUGxhbiJdLCJhIjoxLCJlIjoiUHJlc3MgKFBlbmRvcm9uZy9MaW5na3VuZ2FuKS4ifSx7InEiOiJJbnRpIGRhcmkgU2VsZiBSZWd1bGF0ZWQgTGVhcm5pbmcgKFNSTCkgYWRhbGFoLi4uIiwibyI6WyJCZWxhamFyIGppa2EgZGlzdXJ1aCIsIktlbWFuZGlyaWFuIG1lcmVuY2FuYWthbiAmIGV2YWx1YXNpIiwiR3VydSBtZW5nYXR1ciBqYWR3YWwiLCJCZWxhamFyIHRhbnBhIGJ1a3UiXSwiYSI6MSwiZSI6IlNSTCBtZW5la2Fua2FuIHBhZGEga2VtYW5kaXJpYW4gc2lzd2EgbWVuZ2F0dXIgYmVsYWphcm55YS4ifSx7InEiOiJDaXJpIHV0YW1hIFN0dWRlbnQgQ2VudGVyZWQgTGVhcm5pbmcgKFNDTCkgYWRhbGFoLi4uIiwibyI6WyJHdXJ1IHN1bWJlciB1dGFtYSIsIlNpc3dhIHBhc2lmIiwiU2lzd2EgYWt0aWYgbWVtYmFuZ3VuIHBlbmdldGFodWFuIiwiUGVtYmVsYWphcmFuIHNhdHUgYXJhaCJdLCJhIjoyLCJlIjoiU0NMIG1lbmVtcGF0a2FuIHNpc3dhIHNlYmFnYWkgc3ViamVrIGFrdGlmLiJ9LHsicSI6IlRva29oIHlhbmcgbWVuZ2VtYmFuZ2thbiB0ZXMgSVEgcGVydGFtYSBrYWxpIGFkYWxhaC4uLiIsIm8iOlsiQWxmcmVkIEJpbmV0IiwiU2tpbm5lciIsIlBhdmxvdiIsIldhdHNvbiJdLCJhIjowLCJlIjoiQWxmcmVkIEJpbmV0IG1lbmdlbWJhbmdrYW4gdGVzIHVudHVrIG1lbmRldGVrc2kga2VzdWxpdGFuIGJlbGFqYXIgYW5hay4ifSx7InEiOiJUYWhhcCBvcGVyYXNpb25hbCBrb25rcmV0IG1lbnVydXQgUGlhZ2V0IHRlcmphZGkgcGFkYSB1c2lhLi4uIiwibyI6WyIwLTIgdGFodW4iLCIyLTcgdGFodW4iLCI3LTExIHRhaHVuIiwiMTEgdGFodW4ga2UgYXRhcyJdLCJhIjoyLCJlIjoiVXNpYSBTRCAoNy0xMSB0YWh1bikgYmlhc2FueWEgbWFzdWsgdGFoYXAgb3BlcmFzaW9uYWwga29ua3JldC4ifSx7InEiOiJTaG9ydCBUZXJtIE1lbW9yeSBzZXJpbmcgZGlzZWJ1dCBqdWdhIHNlYmFnYWkuLi4iLCJvIjpbIldvcmtpbmcgTWVtb3J5IiwiTG9uZyBUZXJtIE1lbW9yeSIsIkVjaG9pYyBNZW1vcnkiLCJJY29uaWMgTWVtb3J5Il0sImEiOjAsImUiOiJTZXJpbmcgZGlwZXJ0dWthcmthbiBkZW5nYW4gV29ya2luZyBNZW1vcnkgKG1lbW9yaSBrZXJqYSkuIn0seyJxIjoiS2FwYXNpdGFzICdDaHVua2luZycgZGFsYW0gbWVtb3JpIGphbmdrYSBwZW5kZWsgYWRhbGFoLi4uIiwibyI6WyI1LTkgaXRlbSIsIjEwLTIwIGl0ZW0iLCJUYWsgdGVyYmF0YXMiLCIxLTIgaXRlbSJdLCJhIjowLCJlIjoiVGVvcmkgTWlsbGVyOiA3IHBsdXMgbWludXMgMi4ifSx7InEiOiJEYWxhbSBCbG9vbSwgJ01lbmplbGFza2FuJyB0ZXJtYXN1ayBrYXRlZ29yaS4uLiIsIm8iOlsiQzEgTWVuZ2luZ2F0IiwiQzIgTWVtYWhhbWkiLCJDMyBNZW5lcmFwa2FuIiwiQzQgTWVuZ2FuYWxpc2lzIl0sImEiOjEsImUiOiJNZW5qZWxhc2thbiBhZGFsYWggaW5kaWthdG9yIHBlbWFoYW1hbi4ifSx7InEiOiJQZW5kaWRpa2FuIHNldW11ciBoaWR1cCAoTG9uZyBMaWZlIEVkdWNhdGlvbikgYmVybWFrbmEuLi4iLCJvIjpbIkJlbGFqYXIgaGFueWEgZGkgc2Vrb2xhaCIsIkJlbGFqYXIgc2FtcGFpIGRhcGF0IGdlbGFyIiwiQmVsYWphciBzZWphayBsYWhpciBzYW1wYWkgYWtoaXIgaGF5YXQiLCJCZWxhamFyIHNhYXQgYmVrZXJqYSBzYWphIl0sImEiOjIsImUiOiJQZW5kaWRpa2FuIHRpZGFrIGRpYmF0YXNpIHVzaWEgYXRhdSBpbnN0aXR1c2kuIn0seyJxIjoiSXN0aWxhaCAnU2NhZmZvbGRpbmcnIGRhbGFtIHBlbWJlbGFqYXJhbiBkaXBlcmtlbmFsa2FuIG9sZWguLi4iLCJvIjpbIlBpYWdldCIsIlZ5Z290c2t5IiwiQnJ1bmVyIiwiQmFuZHVyYSJdLCJhIjoyLCJlIjoiSmVyb21lIEJydW5lciAoYmVyZGFzYXIgdGVvcmkgVnlnb3Rza3kpIG1lbXBlcmtlbmFsa2FuIGlzdGlsYWggU2NhZmZvbGRpbmcuIn0seyJxIjoiTW90aXZhc2kgeWFuZyBiZXJhc2FsIGRhcmkgZGFsYW0gZGlyaSBkaXNlYnV0Li4uIiwibyI6WyJFa3N0cmluc2lrIiwiSW50cmluc2lrIiwiQmVoYXZpb3Jpc3RpayIsIlNvc2lhbCJdLCJhIjoxLCJlIjoiSW50cmluc2lrOiBkb3JvbmdhbiBkYXJpIGRhbGFtIGRpcmkgc2VuZGlyaS4ifSx7InEiOiJUZW9yaSBiZWxhamFyIHlhbmcgbWVuZWthbmthbiBwZXJ1YmFoYW4gcGVyaWxha3UgeWFuZyBkYXBhdCBkaWFtYXRpIGFkYWxhaC4uLiIsIm8iOlsiS29nbml0aXZpc21lIiwiS29uc3RydWt0aXZpc21lIiwiQmVoYXZpb3Jpc21lIiwiSHVtYW5pc21lIl0sImEiOjIsImUiOiJCZWhhdmlvcmlzbWUgZm9rdXMgcGFkYSBzdGltdWx1cy1yZXNwb24geWFuZyB0YW1wYWsuIn0seyJxIjoiWm9uZSBvZiBQcm94aW1hbCBEZXZlbG9wbWVudCAoWlBEKSBhZGFsYWgga29uc2VwIGRhcmkuLi4iLCJvIjpbIlZ5Z290c2t5IiwiUGlhZ2V0IiwiRnJldWQiLCJFcmlrc29uIl0sImEiOjAsImUiOiJWeWdvdHNreSBtZW5la2Fua2FuIGJlbGFqYXIgc29zaWFsIGRhbGFtIGFyZWEgWlBELiJ9LHsicSI6Ikd1cnUgbWVtYmVyaWthbiAncmV3YXJkJyBiaW50YW5nIGFkYWxhaCBjb250b2guLi4iLCJvIjpbIlBlbmd1YXRhbiBuZWdhdGlmIiwiUGVuZ3VhdGFuIHBvc2l0aWYiLCJIdWt1bWFuIiwiUGVtYmlhcmFuIl0sImEiOjEsImUiOiJNZW1iZXJpIHNlc3VhdHUgeWFuZyBtZW55ZW5hbmdrYW4gdW50dWsgbWVuaW5na2F0a2FuIHBlcmlsYWt1IGFkYWxhaCBQb3NpdGl2ZSBSZWluZm9yY2VtZW50LiJ9LHsicSI6IkdheWEgYmVsYWphciB5YW5nIGRvbWluYW4gbWVuZ2d1bmFrYW4gZ2FtYmFyL3Zpc3VhbCBkaXNlYnV0Li4uIiwibyI6WyJBdWRpdG9yaSIsIktpbmVzdGV0aWsiLCJWaXN1YWwiLCJWZXJiYWwiXSwiYSI6MiwiZSI6IlZpc3VhbCBsZWFybmVyIGJlbGFqYXIgbGV3YXQgcGVuZ2xpaGF0YW4uIn0seyJxIjoiRXZhbHVhc2kgZm9ybWF0aWYgZmlsYWt1a2FuIHBhZGEgc2FhdC4uLiIsIm8iOlsiQWtoaXIgc2VtZXN0ZXIiLCJQcm9zZXMgcGVtYmVsYWphcmFuIGJlcmxhbmdzdW5nIiwiQXdhbCB0YWh1biBhamFyYW4iLCJTZXRlbGFoIGx1bHVzIl0sImEiOjEsImUiOiJGb3JtYXRpZiBiZXJ0dWp1YW4gbWVtcGVyYmFpa2kgcHJvc2VzIHNhYXQgc2VkYW5nIGJlcmphbGFuLiJ9LHsicSI6IkRpc2xla3NpYSBhZGFsYWgga2VzdWxpdGFuIGRhbGFtLi4uIiwibyI6WyJCZXJoaXR1bmciLCJNZW1iYWNhIiwiTWVudWxpcyIsIkJlcmJpY2FyYSJdLCJhIjoxLCJlIjoiRGlzbGVrc2lhIGJlcmthaXRhbiBkZW5nYW4ga2VzdWxpdGFuIG1lbXByb3NlcyBiYWhhc2EgdHVsaXNhbiAobWVtYmFjYSkuIn0seyJxIjoiS2FyYWt0ZXJpc3RpayBhbmFrIEdpZnRlZCAoQ2VyZGFzIElzdGltZXdhKSBhZGFsYWguLi4iLCJvIjpbIklRIHJhdGEtcmF0YSIsIkNlcGF0IGJvc2FuIGRlbmdhbiBtYXRlcmkgbXVkYWgiLCJMYW1iYXQgYmVsYWphciIsIlBhc2lmIl0sImEiOjEsImUiOiJBbmFrIEdpZnRlZCBzZXJpbmcgYm9zYW4gamlrYSB0aWRhayBhZGEgdGFudGFuZ2FuLiJ9LHsicSI6IkhpZXJhcmtpIGtlYnV0dWhhbiBNYXNsb3cgeWFuZyBwYWxpbmcgZGFzYXIgYWRhbGFoLi4uIiwibyI6WyJBa3R1YWxpc2FzaSBkaXJpIiwiSGFyZ2EgZGlyaSIsIkZpc2lvbG9naXMiLCJSYXNhIGFtYW4iXSwiYSI6MiwiZSI6IktlYnV0dWhhbiBmaXNpayAobWFrYW4sIG1pbnVtLCB0aWR1cikgYWRhbGFoIHlhbmcgcGFsaW5nIGRhc2FyLiJ9LHsicSI6IkVtcGF0aSBhZGFsYWgga2VtYW1wdWFuIHVudHVrLi4uIiwibyI6WyJNZXJhc2FrYW4gYXBhIHlhbmcgZGlyYXNha2FuIG9yYW5nIGxhaW4iLCJNZW5pbGFpIG9yYW5nIGxhaW4iLCJNZW5nYXNpaGFuaSBvcmFuZyBsYWluIiwiTWVuaXJ1IG9yYW5nIGxhaW4iXSwiYSI6MCwiZSI6IkVtcGF0aSBhZGFsYWggJ3N0YW5kaW5nIGluIHNvbWVvbmUgZWxzZSdzIHNob2VzJy4ifV0=";
+
+    const Quiz = (function() {
+        // Dekode data saat runtime
+        const rawQuestions = JSON.parse(atob(SECRET_DATA));
         
-        // Data Soal (Hardcoded)
-        const rawData = [
-            { q: "Apa makna dari istilah 'Paedagogie'?", o: ["Ilmu menuntun anak", "Pengajaran orang dewasa", "Pelatihan keterampilan", "Sekolah formal"], a: 0, e: "Paedagogie berasal dari bahasa Yunani 'pais' (anak) dan 'agogos' (membimbing)." },
-            { q: "Kursus menjahit dan bimbel termasuk jenis pendidikan...", o: ["Formal", "Informal", "Non-formal", "Insidental"], a: 2, e: "Pendidikan Non-formal terstruktur namun di luar sistem persekolahan formal." },
-            { q: "Pendidikan dalam keluarga disebut pendidikan...", o: ["Formal", "Informal", "Non-formal", "Vokasi"], a: 1, e: "Informal adalah pendidikan yang terjadi secara alami di lingkungan keluarga." },
-            { q: "Fokus utama Pendidikan Transformasional adalah...", o: ["Transfer pengetahuan", "Perubahan cara pandang & perilaku", "Menghafal fakta", "Nilai akademik"], a: 1, e: "Transformasional bertujuan mengubah individu secara fundamental." },
-            { q: "Kesadaran tentang proses berpikir diri sendiri disebut...", o: ["Intelegensi", "Kognisi", "Metakognisi", "Afeksi"], a: 2, e: "Metakognisi adalah 'thinking about thinking'." },
-            { q: "Intelegensi umumnya merujuk pada...", o: ["Proses mental", "Potensi bawaan memecahkan masalah", "Kesadaran diri", "Hasil belajar"], a: 1, e: "Intelegensi adalah kapasitas/potensi umum." },
-            { q: "Manakah yang BUKAN ciri ilmu pengetahuan?", o: ["Sistematis", "Empiris", "Objektif", "Subjektif"], a: 3, e: "Ilmu pengetahuan harus objektif, bukan subjektif (berdasarkan perasaan)." },
-            { q: "Pencetus teori 'Multiple Intelligences' adalah...", o: ["Jean Piaget", "Alfred Binet", "Howard Gardner", "Sigmund Freud"], a: 2, e: "Howard Gardner mencetuskan kecerdasan majemuk." },
-            { q: "Tingkatan kognitif tertinggi dalam Taksonomi Bloom (Revisi) adalah...", o: ["Mengingat", "Menganalisis", "Mengevaluasi", "Mencipta"], a: 3, e: "C6 (Creating/Mencipta) adalah level tertinggi." },
-            { q: "Memori dengan durasi sangat singkat (< 1 detik) disebut...", o: ["Sensory Memory", "Short-Term Memory", "Long-Term Memory", "Working Memory"], a: 0, e: "Sensory memory merekam input indra sesaat." },
-            { q: "Pendekatan 4P kreativitas: Person, Process, Product, dan...", o: ["Price", "Press", "Place", "Plan"], a: 1, e: "Press (Pendorong/Lingkungan)." },
-            { q: "Inti dari Self Regulated Learning (SRL) adalah...", o: ["Belajar jika disuruh", "Kemandirian merencanakan & evaluasi", "Guru mengatur jadwal", "Belajar tanpa buku"], a: 1, e: "SRL menekankan pada kemandirian siswa mengatur belajarnya." },
-            { q: "Ciri utama Student Centered Learning (SCL) adalah...", o: ["Guru sumber utama", "Siswa pasif", "Siswa aktif membangun pengetahuan", "Pembelajaran satu arah"], a: 2, e: "SCL menempatkan siswa sebagai subjek aktif." },
-            { q: "Tokoh yang mengembangkan tes IQ pertama kali adalah...", o: ["Alfred Binet", "Skinner", "Pavlov", "Watson"], a: 0, e: "Alfred Binet mengembangkan tes untuk mendeteksi kesulitan belajar anak." },
-            { q: "Tahap operasional konkret menurut Piaget terjadi pada usia...", o: ["0-2 tahun", "2-7 tahun", "7-11 tahun", "11 tahun ke atas"], a: 2, e: "Usia SD (7-11 tahun) biasanya masuk tahap operasional konkret." },
-            { q: "Short Term Memory sering disebut juga sebagai...", o: ["Working Memory", "Long Term Memory", "Echoic Memory", "Iconic Memory"], a: 0, e: "Sering dipertukarkan dengan Working Memory (memori kerja)." },
-            { q: "Kapasitas 'Chunking' dalam memori jangka pendek adalah...", o: ["5-9 item", "10-20 item", "Tak terbatas", "1-2 item"], a: 0, e: "Teori Miller: 7 plus minus 2." },
-            { q: "Dalam Bloom, 'Menjelaskan' termasuk kategori...", o: ["C1 Mengingat", "C2 Memahami", "C3 Menerapkan", "C4 Menganalisis"], a: 1, e: "Menjelaskan adalah indikator pemahaman." },
-            { q: "Pendidikan seumur hidup (Long Life Education) bermakna...", o: ["Belajar hanya di sekolah", "Belajar sampai dapat gelar", "Belajar sejak lahir sampai akhir hayat", "Belajar saat bekerja saja"], a: 2, e: "Pendidikan tidak dibatasi usia atau institusi." },
-            { q: "Istilah 'Scaffolding' dalam pembelajaran diperkenalkan oleh...", o: ["Piaget", "Vygotsky", "Bruner", "Bandura"], a: 2, e: "Jerome Bruner (berdasar teori Vygotsky) memperkenalkan istilah Scaffolding." },
-            { q: "Motivasi yang berasal dari dalam diri disebut...", o: ["Ekstrinsik", "Intrinsik", "Behavioristik", "Sosial"], a: 1, e: "Intrinsik: dorongan dari dalam diri sendiri." },
-            { q: "Teori belajar yang menekankan perubahan perilaku yang dapat diamati adalah...", o: ["Kognitivisme", "Konstruktivisme", "Behaviorisme", "Humanisme"], a: 2, e: "Behaviorisme fokus pada stimulus-respon yang tampak." },
-            { q: "Zone of Proximal Development (ZPD) adalah konsep dari...", o: ["Vygotsky", "Piaget", "Freud", "Erikson"], a: 0, e: "Vygotsky menekankan belajar sosial dalam area ZPD." },
-            { q: "Guru memberikan 'reward' bintang adalah contoh...", o: ["Penguatan negatif", "Penguatan positif", "Hukuman", "Pembiaran"], a: 1, e: "Memberi sesuatu yang menyenangkan untuk meningkatkan perilaku adalah Positive Reinforcement." },
-            { q: "Gaya belajar yang dominan menggunakan gambar/visual disebut...", o: ["Auditori", "Kinestetik", "Visual", "Verbal"], a: 2, e: "Visual learner belajar lewat penglihatan." },
-            { q: "Evaluasi formatif dilakukan pada saat...", o: ["Akhir semester", "Proses pembelajaran berlangsung", "Awal tahun ajaran", "Setelah lulus"], a: 1, e: "Formatif bertujuan memperbaiki proses saat sedang berjalan." },
-            { q: "Disleksia adalah kesulitan dalam...", o: ["Berhitung", "Membaca", "Menulis", "Berbicara"], a: 1, e: "Disleksia berkaitan dengan kesulitan memproses bahasa tulisan (membaca)." },
-            { q: "Karakteristik anak Gifted (Cerdas Istimewa) adalah...", o: ["IQ rata-rata", "Cepat bosan dengan materi mudah", "Lambat belajar", "Pasif"], a: 1, e: "Anak Gifted sering bosan jika tidak ada tantangan." },
-            { q: "Hierarki kebutuhan Maslow yang paling dasar adalah...", o: ["Aktualisasi diri", "Harga diri", "Fisiologis", "Rasa aman"], a: 2, e: "Kebutuhan fisik (makan, minum, tidur) adalah yang paling dasar." },
-            { q: "Empati adalah kemampuan untuk...", o: ["Merasakan apa yang dirasakan orang lain", "Menilai orang lain", "Mengasihani orang lain", "Meniru orang lain"], a: 0, e: "Empati adalah 'standing in someone else's shoes'." }
-        ];
-
-        // State Management
         let state = {
-            queue: [], // Antrean soal
-            finished: false,
-            cleanCorrect: 0, // Benar percobaan pertama
+            queue: [],
+            cleanCorrect: 0,
             wrongCount: 0,
-            totalInitial: 0
+            totalInit: rawQuestions.length,
+            isFinished: false
         };
 
-        // --- CORE FUNCTIONS ---
+        const els = {
+            intro: document.getElementById('intro-layer'),
+            roll: document.getElementById('roller'),
+            quizUi: document.getElementById('quiz-ui'),
+            resUi: document.getElementById('result-ui'),
+            qText: document.getElementById('q-text'),
+            opts: document.getElementById('opts'),
+            feedback: document.getElementById('feedback'),
+            counter: document.getElementById('counter'),
+            next: document.getElementById('next-btn')
+        };
 
-        function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                state = JSON.parse(saved);
-                return true;
-            }
-            return false;
+        function save() { localStorage.setItem('daily_psy_secure', JSON.stringify(state)); }
+        function load() { 
+            const s = localStorage.getItem('daily_psy_secure'); 
+            if(s) state = JSON.parse(s);
+            return !!s;
         }
 
         function init() {
-            const hasSave = loadData();
-
-            if (hasSave && state.finished) {
-                // Jika sudah selesai sebelumnya
-                document.getElementById('intro-overlay').style.display = 'none';
-                showResult();
-            } else if (hasSave && state.queue.length > 0) {
-                // Jika ada progress di tengah jalan
-                document.getElementById('intro-overlay').style.display = 'none';
-                renderQuestion();
-                document.getElementById('game-ui').style.display = 'block';
+            if(load()) {
+                els.intro.style.display = 'none';
+                if(state.isFinished) showResult();
+                else {
+                    els.quizUi.style.display = 'block';
+                    render();
+                }
             } else {
-                // New Game: Jalankan Intro
-                runIntro().then(() => {
-                    setupNewGame();
-                });
+                playIntro();
             }
         }
 
-        function setupNewGame() {
-            // Setup Queue
-            const qWithFlag = rawData.map(item => ({...item, firstTry: true}));
-            // Shuffle
-            state.queue = qWithFlag.sort(() => Math.random() - 0.5);
-            state.totalInitial = rawData.length;
+        function playIntro() {
+            const words = ["FILSAFAT", "S.O.P", "STATISTIKA", "PSIKOLOGI PENDIDIKAN"];
+            let idx = 0;
+            let count = 0;
+            
+            function loop() {
+                if(count > 15) {
+                    els.roll.innerHTML = "<span class='highlight'>PSIKOLOGI PENDIDIKAN</span>";
+                    setTimeout(() => {
+                        els.intro.style.opacity = 0;
+                        setTimeout(() => {
+                            els.intro.style.display = 'none';
+                            startNew();
+                        }, 1000);
+                    }, 1500);
+                    return;
+                }
+                els.roll.innerText = words[idx % words.length];
+                idx++; count++;
+                setTimeout(loop, 100 + (count * 20));
+            }
+            loop();
+        }
+
+        function startNew() {
+            // Mapping & Shuffling
+            const mapped = rawQuestions.map((q, i) => ({ ...q, firstTry: true, id: i }));
+            state.queue = mapped.sort(() => Math.random() - 0.5);
             state.cleanCorrect = 0;
             state.wrongCount = 0;
-            state.finished = false;
+            state.isFinished = false;
+            save();
             
-            saveData();
-            
-            document.getElementById('game-ui').style.display = 'block';
-            renderQuestion();
+            els.quizUi.style.display = 'block';
+            render();
         }
 
-        function runIntro() {
-            return new Promise((resolve) => {
-                const overlay = document.getElementById('intro-overlay');
-                const textEl = document.getElementById('rolling-text');
-                const topics = ["STATISTIKA", "FILSAFAT", "SOSIOLOGI", "BIOLOGI", "SEJARAH", "PSIKOLOGI PENDIDIKAN"];
-                let count = 0;
-                let speed = 50;
-                let maxCount = 20; // Berapa kali ganti kata
-
-                function roll() {
-                    if (count >= maxCount) {
-                        // Final Text
-                        textEl.innerHTML = "<span class='topic-highlight'>PSIKOLOGI PENDIDIKAN</span>";
-                        setTimeout(() => {
-                            overlay.style.opacity = '0';
-                            setTimeout(() => {
-                                overlay.style.display = 'none';
-                                resolve();
-                            }, 1000);
-                        }, 1500); // Lama nahan di judul akhir
-                        return;
-                    }
-
-                    // Random text effect
-                    textEl.innerText = topics[Math.floor(Math.random() * (topics.length - 1))];
-                    count++;
-                    
-                    // Makin lama makin pelan (dramatic)
-                    if(count > 15) speed += 30;
-                    
-                    setTimeout(roll, speed);
-                }
-                roll();
-            });
-        }
-
-        function renderQuestion() {
-            if (state.queue.length === 0) {
-                finishGame();
+        function render() {
+            if(state.queue.length === 0) {
+                finish();
                 return;
             }
 
-            const current = state.queue[0];
+            const curr = state.queue[0];
+            els.qText.innerText = curr.q;
+            els.counter.innerText = `Sisa: ${state.queue.length}`;
+            els.opts.innerHTML = '';
             
-            // Update UI Labels
-            document.getElementById('question-text').innerText = current.q;
-            document.getElementById('progress-text').innerText = `Sisa: ${state.queue.length}`;
-            
-            const optArea = document.getElementById('options-area');
-            optArea.innerHTML = '';
+            // Hide feedback
+            els.feedback.style.display = 'none';
+            els.feedback.className = 'feedback';
+            els.next.style.display = 'none';
 
-            // Reset Feedback UI
-            document.getElementById('feedback-area').style.display = 'none';
-            document.getElementById('feedback-area').className = 'feedback-box';
-            document.getElementById('btn-next').style.display = 'none';
-
-            current.o.forEach((opt, idx) => {
+            curr.o.forEach((optText, idx) => {
                 const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerText = opt;
-                btn.onclick = () => handleAnswer(idx, btn);
-                optArea.appendChild(btn);
+                btn.className = 'btn-opt';
+                btn.innerText = optText;
+                btn.onclick = () => check(idx, btn);
+                els.opts.appendChild(btn);
             });
         }
 
-        function handleAnswer(selectedIndex, btnEl) {
-            const current = state.queue[0];
-            const allBtns = document.querySelectorAll('.option-btn');
-            const feedback = document.getElementById('feedback-area');
-            
-            // Disable click
+        function check(idx, btn) {
+            const curr = state.queue[0];
+            const allBtns = document.querySelectorAll('.btn-opt');
             allBtns.forEach(b => b.disabled = true);
 
-            if (selectedIndex === current.a) {
+            if(idx === curr.a) {
                 // BENAR
-                btnEl.classList.add('correct');
-                feedback.innerHTML = `<strong>Tepat.</strong><br>${current.e}`;
-                feedback.classList.add('correct');
+                btn.classList.add('correct');
+                els.feedback.innerHTML = `<strong>Tepat!</strong><br>${curr.e}`;
+                els.feedback.classList.add('correct');
                 
-                if (current.firstTry) state.cleanCorrect++;
-                
-                // Remove from queue
-                state.queue.shift();
+                if(curr.firstTry) state.cleanCorrect++;
+                state.queue.shift(); // Hapus dr antrean
             } else {
                 // SALAH
-                btnEl.classList.add('wrong');
-                // Highlight yg benar
-                allBtns[current.a].classList.add('correct');
+                btn.classList.add('wrong');
+                allBtns[curr.a].classList.add('correct'); // Tunjuk yg benar
                 
-                feedback.innerHTML = `<strong>Kurang tepat.</strong><br>Jawaban: ${current.o[current.a]}<br><br>${current.e}`;
-                feedback.classList.add('wrong');
+                els.feedback.innerHTML = `<strong>Kurang tepat.</strong><br>Jawaban: ${curr.o[curr.a]}<br><br>${curr.e}`;
+                els.feedback.classList.add('wrong');
                 
                 state.wrongCount++;
-                current.firstTry = false;
+                curr.firstTry = false;
                 
-                // Reroll logic: pindah ke belakang
-                const wrongQ = state.queue.shift();
-                state.queue.push(wrongQ);
+                // Re-roll ke belakang
+                const temp = state.queue.shift();
+                state.queue.push(temp);
             }
 
-            feedback.classList.add('show');
-            document.getElementById('btn-next').style.display = 'block';
-            
-            saveData(); // Auto save setiap aksi
+            els.feedback.classList.add('show');
+            els.next.style.display = 'block';
+            save();
         }
 
-        function finishGame() {
-            state.finished = true;
-            saveData();
-            
-            document.getElementById('game-ui').style.display = 'none';
+        function finish() {
+            state.isFinished = true;
+            save();
+            els.quizUi.style.display = 'none';
             showResult();
         }
 
         function showResult() {
-            const container = document.getElementById('result-ui');
-            container.style.display = 'block';
-            
-            const score = Math.round((state.cleanCorrect / state.totalInitial) * 100);
+            els.resUi.style.display = 'block';
+            const score = Math.round((state.cleanCorrect / state.totalInit) * 100);
             
             document.getElementById('final-score').innerText = score;
-            document.getElementById('final-score').style.color = score >= 70 ? 'var(--correct)' : 'var(--wrong)';
+            document.getElementById('final-score').style.color = score >= 70 ? 'var(--success)' : 'var(--error)';
             
-            document.getElementById('res-correct').innerText = `${state.cleanCorrect} / ${state.totalInitial}`;
-            document.getElementById('res-wrong').innerText = state.wrongCount + "x";
+            document.getElementById('stat-correct').innerText = `${state.cleanCorrect}/${state.totalInit}`;
+            document.getElementById('stat-wrong').innerText = state.wrongCount;
         }
 
         return {
-            init: init,
-            next: renderQuestion,
-            resetData: function() {
-                localStorage.removeItem(STORAGE_KEY);
+            init, next: render,
+            reset: function() {
+                localStorage.removeItem('daily_psy_secure');
                 location.reload();
             }
         };
-
     })();
 
-    // Start
-    window.onload = game.init;
-
+    window.onload = Quiz.init;
 </script>
 
 </body>
