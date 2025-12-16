@@ -64,4 +64,8 @@
 [[redirects]]
   from = "/spotify"
   to = "/spotify.html"
+
+  [[redirects]]
+  from = "/pendidikan"
+  to = "/quiz.html"
   status = 200
