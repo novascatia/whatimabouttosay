@@ -66,6 +66,6 @@
   to = "/spotify.html"
 
   [[redirects]]
-  from = "/pendidikan"
-  to = "/psiko.html"
+  from = "/quiz"
+  to = "/dq.html"
   status = 200
