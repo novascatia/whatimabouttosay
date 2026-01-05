@@ -157,12 +157,10 @@
                 <p class="text-sm font-bold tracking-widest uppercase mb-2 text-gray-400">Profile</p>
                 <h1 class="text-5xl md:text-7xl font-bold mb-4">nova's space</h1>
                 <p class="text-gray-300 mt-2 text-sm md:text-base max-w-2xl">
-                    Tempat saya menulis apa saja yang ingin saya katakan. Scroll ke bawah untuk melihat postingan terbaru.
+                    nothing here, inactive.. maybe
                 </p>
             </div>
-                <i class="fas fa-user-circle text-2xl"></i>
-            </a>
-        </div>
+            </div>
     </header>
 
     <main class="max-w-5xl mx-auto px-5 mt-8">
@@ -216,7 +214,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        // === LOGIKA FETCH POSTS (Diadaptasi dari index.html asli) ===
+        // === LOGIKA FETCH POSTS ===
         const postsList = document.getElementById('postsList');
 
         async function fetchPosts() {
@@ -267,7 +265,7 @@
 
         fetchPosts();
 
-        // === LOGIKA SPOTIFY PLAYER (Diadaptasi dari index.html asli) ===
+        // === LOGIKA SPOTIFY PLAYER ===
         const spotifyPlayer = document.getElementById('spotifyPlayer');
         const songTitle = document.getElementById('songTitle');
         const artistName = document.getElementById('artistName');
@@ -333,9 +331,9 @@
             togglePlayer(false, "Player closed.");
         });
 
-        // Loop update
+        // Loop update setiap 1 detik
         fetchNowPlaying();
-        setInterval(fetchNowPlaying, 10000); // Cek setiap 10 detik
+        setInterval(fetchNowPlaying, 1000); 
     </script>
 </body>
 </html>
