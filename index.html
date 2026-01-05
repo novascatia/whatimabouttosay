@@ -12,10 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Mengadopsi Style dari spotify.html */
         :root {
-            --bg-color: #121212; /* Spotify Main Background */
-            --card-bg: #181818;  /* Spotify Card/Tile Background */
+            --bg-color: #121212;
+            --card-bg: #181818;
             --card-hover: #282828;
             --text-main: #ffffff;
             --text-sub: #b3b3b3;
@@ -23,21 +22,26 @@
             --font-main: 'Poppins', sans-serif;
         }
 
+        /* Animasi Halaman Smooth (Fade In) */
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         body {
             font-family: var(--font-main);
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding-bottom: 120px; /* Space untuk player di bawah */
+            padding-bottom: 120px;
+            animation: fadeInPage 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; /* Smooth entry */
         }
 
-        /* Header Gradient Effect */
         .header-gradient {
             background: linear-gradient(180deg, rgba(30,215,96,0.3) 0%, var(--bg-color) 100%);
             padding: 40px 20px 20px 20px;
         }
 
-        /* Post Card Styling */
         .post-card {
             background-color: var(--card-bg);
             transition: background-color 0.3s ease, transform 0.2s ease;
@@ -59,31 +63,7 @@
             margin-bottom: 8px;
         }
 
-        /* Running Text Bar */
-        .running-text-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--spotify-green);
-            color: #000;
-            font-weight: 600;
-            padding: 0.5rem 0;
-            z-index: 100;
-            display: none;
-            overflow: hidden;
-        }
-        .running-text-content {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 15s linear infinite;
-        }
-        @keyframes marquee {
-            0%   { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* Spotify Player Style (Fixed Bottom Bar) */
+        /* --- SPOTIFY PLAYER ANIMATION --- */
         .spotify-player-bar {
             position: fixed;
             bottom: 0;
@@ -96,49 +76,38 @@
             align-items: center;
             justify-content: space-between;
             z-index: 50;
+            
+            /* Logic Animasi Slide */
+            transform: translateY(120%); /* Sembunyi di bawah layar */
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* Efek smooth */
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+        }
+
+        /* Class ini ditambahkan via JS saat lagu main */
+        .spotify-player-bar.visible {
+            transform: translateY(0); /* Muncul ke atas */
         }
         
         .player-left {
-            display: flex;
-            align-items: center;
-            width: 30%;
-            min-width: 200px;
+            display: flex; align-items: center; width: 30%; min-width: 200px;
         }
         .player-left img {
-            width: 56px;
-            height: 56px;
-            border-radius: 4px;
-            margin-right: 1rem;
+            width: 56px; height: 56px; border-radius: 4px; margin-right: 1rem;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-
         .player-center {
-            width: 40%;
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            width: 40%; max-width: 600px; display: flex; flex-direction: column; align-items: center;
         }
-
         .progress-bar-bg {
-            width: 100%;
-            height: 4px;
-            background-color: #4f4f4f;
-            border-radius: 2px;
-            margin-top: 8px;
-            position: relative;
+            width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px;
+            margin-top: 8px; position: relative; overflow: hidden;
         }
         .progress-bar-fill {
-            height: 100%;
-            background-color: var(--text-main);
-            border-radius: 2px;
-            width: 0%;
+            height: 100%; background-color: var(--text-main); border-radius: 2px; width: 0%;
+            transition: width 1s linear; /* Smooth progress movement */
         }
-        .progress-bar-bg:hover .progress-bar-fill {
-            background-color: var(--spotify-green);
-        }
+        .progress-bar-bg:hover .progress-bar-fill { background-color: var(--spotify-green); }
 
-        /* Scrollbar custom */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
@@ -147,20 +116,16 @@
 </head>
 <body>
 
-    <div id="runningTextBar" class="running-text-bar">
-        <div id="runningTextContent" class="running-text-content"></div>
-    </div>
-
     <header class="header-gradient">
         <div class="max-w-5xl mx-auto flex justify-between items-end">
             <div>
                 <p class="text-sm font-bold tracking-widest uppercase mb-2 text-gray-400">Profile</p>
                 <h1 class="text-5xl md:text-7xl font-bold mb-4">nova's space</h1>
                 <p class="text-gray-300 mt-2 text-sm md:text-base max-w-2xl">
-                    nothing here, inactive.. maybe
+                    Tempat saya menulis apa saja yang ingin saya katakan. Scroll ke bawah untuk melihat postingan terbaru.
                 </p>
             </div>
-            </div>
+        </div>
     </header>
 
     <main class="max-w-5xl mx-auto px-5 mt-8">
@@ -174,13 +139,12 @@
         </div>
 
         <h2 class="text-xl font-bold mb-4">Recent Posts</h2>
-        
         <div id="postsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <p class="text-gray-500">Loading posts...</p>
         </div>
     </main>
 
-    <div id="spotifyPlayer" class="spotify-player-bar" style="display: none;">
+    <div id="spotifyPlayer" class="spotify-player-bar">
         <div class="player-left">
             <img id="albumArt" src="" alt="Album Art">
             <div class="flex flex-col justify-center overflow-hidden">
@@ -206,39 +170,26 @@
         <div class="w-[30%] flex justify-end items-center gap-4">
             <i class="fas fa-list text-gray-400 hover:text-white cursor-pointer"></i>
             <i class="fas fa-desktop text-gray-400 hover:text-white cursor-pointer"></i>
-            <button id="closePlayerBtn" class="text-gray-400 hover:text-white transition">
-                <i class="fas fa-times text-lg"></i>
-            </button>
-        </div>
+            </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
     <script>
-        // === LOGIKA FETCH POSTS ===
+        // === FETCH POSTS ===
         const postsList = document.getElementById('postsList');
 
         async function fetchPosts() {
             try {
                 const response = await fetch('/.netlify/functions/fetch-posts');
                 if (!response.ok) throw new Error('Network response was not ok');
-
                 const posts = await response.json();
                 if (posts.length === 0) {
                     postsList.innerHTML = `<p class="text-gray-500 col-span-3 text-center">No blog posts yet.</p>`;
                     return;
                 }
-
                 postsList.innerHTML = posts.map(post => {
-                    // Logic Pin
-                    const pinBadge = post.is_pinned 
-                        ? `<div class="pinned-badge"><i class="fas fa-thumbtack mr-1"></i> PINNED</div>` 
-                        : '';
-                    
-                    // Format Tanggal
-                    const dateObj = new Date(post.created_at);
-                    const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-
-                    // UI Kartu Baru
+                    const pinBadge = post.is_pinned ? `<div class="pinned-badge"><i class="fas fa-thumbtack mr-1"></i> PINNED</div>` : '';
+                    const dateStr = new Date(post.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                     return `
                         <div onclick="window.location.href='/posts/${post.id}'" class="post-card p-5 rounded-lg flex flex-col h-full group">
                             <div class="mb-4 relative">
@@ -249,11 +200,8 @@
                             </div>
                             <h3 class="text-white text-lg font-bold mb-2 line-clamp-1 group-hover:underline decoration-green-500 decoration-2 underline-offset-4">${post.title}</h3>
                             <p class="text-[#b3b3b3] text-sm mb-4 line-clamp-3 flex-grow">${post.description}</p>
-                            
                             <div class="mt-auto flex items-center text-xs text-[#b3b3b3] font-medium">
-                                <span class="uppercase tracking-wider">Blog</span>
-                                <span class="mx-2">•</span>
-                                <span>${dateStr}</span>
+                                <span class="uppercase tracking-wider">Blog</span><span class="mx-2">•</span><span>${dateStr}</span>
                             </div>
                         </div>
                     `;
@@ -262,10 +210,9 @@
                 postsList.innerHTML = `<p class="text-red-500">Error loading posts.</p>`;
             }
         }
-
         fetchPosts();
 
-        // === LOGIKA SPOTIFY PLAYER ===
+        // === SPOTIFY PLAYER LOGIC (UPDATED) ===
         const spotifyPlayer = document.getElementById('spotifyPlayer');
         const songTitle = document.getElementById('songTitle');
         const artistName = document.getElementById('artistName');
@@ -274,29 +221,11 @@
         const currentTime = document.getElementById('currentTime');
         const totalTime = document.getElementById('totalTime');
         const songTitleLink = document.getElementById('songTitleLink');
-        const closePlayerBtn = document.getElementById('closePlayerBtn');
-        const runningTextBar = document.getElementById('runningTextBar');
-        const runningTextContent = document.getElementById('runningTextContent');
-
-        let playerVisible = true;
 
         function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
             const minutes = Math.floor((ms / 1000 / 60) % 60);
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        function togglePlayer(showPlayer, songInfo) {
-            if (showPlayer) {
-                spotifyPlayer.style.display = 'flex';
-                runningTextBar.style.display = 'none';
-            } else {
-                spotifyPlayer.style.display = 'none';
-                if (songInfo) {
-                    runningTextBar.style.display = 'block';
-                    runningTextContent.textContent = songInfo;
-                }
-            }
         }
         
         async function fetchNowPlaying() {
@@ -304,10 +233,8 @@
                 const response = await fetch('/.netlify/functions/now-playing');
                 const data = await response.json();
 
-                if (data.isPlaying && playerVisible) {
-                    const songInfo = `Rama is listening to "${data.title}" by ${data.artist}`;
-                    togglePlayer(true, null);
-                    
+                if (data.isPlaying) {
+                    // Update Konten
                     songTitle.textContent = data.title;
                     artistName.textContent = data.artist;
                     albumArt.src = data.albumArt;
@@ -317,21 +244,23 @@
                     progressBar.style.width = `${progressPercent}%`;
                     currentTime.textContent = formatTime(data.progress);
                     totalTime.textContent = formatTime(data.duration);
+
+                    // Animasi Masuk: Tambah class 'visible' agar slide ke atas
+                    if (!spotifyPlayer.classList.contains('visible')) {
+                        spotifyPlayer.classList.add('visible');
+                    }
                 } else {
-                    // Jika tidak lagu main, atau user menutup player
-                    togglePlayer(false, "Rama is currently offline or doing something else.");
+                    // Animasi Keluar: Hapus class 'visible' agar slide ke bawah
+                    if (spotifyPlayer.classList.contains('visible')) {
+                        spotifyPlayer.classList.remove('visible');
+                    }
                 }
             } catch (e) {
                 console.error("Error fetching Spotify data", e);
             }
         }
 
-        closePlayerBtn.addEventListener('click', () => {
-            playerVisible = false;
-            togglePlayer(false, "Player closed.");
-        });
-
-        // Loop update setiap 1 detik
+        // Loop update 1 detik
         fetchNowPlaying();
         setInterval(fetchNowPlaying, 1000); 
     </script>
