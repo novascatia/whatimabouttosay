@@ -24,7 +24,7 @@
             --active-item-bg: #e0e0e0;
             --active-item-text: #000000;
             
-            /* Warna Accent (Default Merah) */
+            /* Warna Accent (Default Merah) - Nanti di-load dari storage */
             --accent-color: #ff4d4d; 
             
             --dot-empty: #1a1a1a;
@@ -189,39 +189,6 @@
             font-size: 13px; margin-top: 15px; border: 1px solid var(--border-color);
         }
 
-        /* --- COUNTDOWN FEATURE (New) --- */
-        .countdown-card {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            padding: 30px; border-radius: 16px;
-        }
-        
-        .input-group { margin-bottom: 20px; }
-        .input-label { display: block; margin-bottom: 8px; font-size: 12px; color: var(--text-muted); }
-        
-        input[type="text"], input[type="date"] {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);
-            color: #fff; padding: 12px; border-radius: 8px;
-            width: 100%; font-family: inherit; outline: none;
-        }
-        
-        input:focus { border-color: var(--accent-color); }
-
-        .btn-primary {
-            background: var(--accent-color); color: #000; font-weight: bold;
-            border: none; padding: 12px 20px; border-radius: 8px;
-            cursor: pointer; width: 100%; font-family: inherit;
-            transition: 0.2s;
-        }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
-
-        .countdown-result {
-            margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border-color);
-            text-align: center; display: none; /* Hidden by default */
-        }
-        
-        .countdown-number { font-size: 48px; font-weight: bold; color: var(--accent-color); display: block; }
-        .countdown-label { color: var(--text-muted); font-size: 14px; }
-
         /* --- SETTINGS (Appearance) --- */
         .settings-grid { display: grid; gap: 20px; }
         .setting-card {
@@ -229,6 +196,8 @@
             padding: 20px; border-radius: 12px;
         }
         
+        .input-label { display: block; margin-bottom: 8px; font-size: 12px; color: var(--text-muted); }
+
         .color-options { display: flex; gap: 10px; margin-top: 10px; }
         .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
         .color-btn.active { border-color: #fff; transform: scale(1.1); }
@@ -257,18 +226,13 @@
     <div class="app-container">
         <div class="sidebar">
             <div class="sidebar-header">
-                <div class="version-text">DASHBOARD v1.0</div>
+                <div class="version-text">DASHBOARD v1.1</div>
                 <div class="sidebar-title">overview</div>
             </div>
             
             <div class="menu-item active" data-target="year-progress">
                 <div class="menu-icon">::</div>
                 year progress
-            </div>
-            
-            <div class="menu-item" data-target="countdown">
-                <div class="menu-icon">⧗</div>
-                target countdown
             </div>
             
             <div class="menu-item" data-target="appearance">
@@ -291,27 +255,6 @@
                 </div>
             </div>
 
-            <div id="countdown" class="content-section">
-                <div class="section-header">event tracker</div>
-                <div class="countdown-card">
-                    <div class="input-group">
-                        <label class="input-label">EVENT NAME</label>
-                        <input type="text" id="eventName" placeholder="e.g. Graduation, Holiday, Launch">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">TARGET DATE</label>
-                        <input type="date" id="eventDate">
-                    </div>
-                    <button class="btn-primary" onclick="calculateCountdown()">START TRACKING</button>
-
-                    <div id="countdownResult" class="countdown-result">
-                        <span class="countdown-label">TIME REMAINING FOR <b id="resultName" style="color:#fff">EVENT</b></span>
-                        <span class="countdown-number" id="resultDays">0</span>
-                        <span class="countdown-label">DAYS LEFT</span>
-                    </div>
-                </div>
-            </div>
-
             <div id="appearance" class="content-section">
                 <div class="section-header">customization</div>
                 <div class="settings-grid">
@@ -319,18 +262,18 @@
                     <div class="setting-card">
                         <label class="input-label">BACKGROUND THEME</label>
                         <div class="theme-options">
-                            <button class="theme-btn active" onclick="setTheme('oled', this)">OLED BLACK</button>
-                            <button class="theme-btn" onclick="setTheme('soft', this)">SOFT DARK</button>
+                            <button id="theme-oled" class="theme-btn active" onclick="setTheme('oled', this)">OLED BLACK</button>
+                            <button id="theme-soft" class="theme-btn" onclick="setTheme('soft', this)">SOFT DARK</button>
                         </div>
                     </div>
 
                     <div class="setting-card">
                         <label class="input-label">SYSTEM ACCENT COLOR</label>
                         <div class="color-options">
-                            <div class="color-btn active" style="background: #ff4d4d;" onclick="changeAccent('#ff4d4d', this)"></div>
-                            <div class="color-btn" style="background: #00e5ff;" onclick="changeAccent('#00e5ff', this)"></div>
-                            <div class="color-btn" style="background: #00ff88;" onclick="changeAccent('#00ff88', this)"></div>
-                            <div class="color-btn" style="background: #b388ff;" onclick="changeAccent('#b388ff', this)"></div>
+                            <div class="color-btn active" data-color="#ff4d4d" style="background: #ff4d4d;" onclick="changeAccent('#ff4d4d', this)"></div>
+                            <div class="color-btn" data-color="#00e5ff" style="background: #00e5ff;" onclick="changeAccent('#00e5ff', this)"></div>
+                            <div class="color-btn" data-color="#00ff88" style="background: #00ff88;" onclick="changeAccent('#00ff88', this)"></div>
+                            <div class="color-btn" data-color="#b388ff" style="background: #b388ff;" onclick="changeAccent('#b388ff', this)"></div>
                         </div>
                     </div>
 
@@ -397,65 +340,73 @@
             }
         }
 
-        // --- 3. COUNTDOWN LOGIC (Fitur Baru) ---
-        function calculateCountdown() {
-            const nameInput = document.getElementById('eventName').value;
-            const dateInput = document.getElementById('eventDate').value;
-            const resultBox = document.getElementById('countdownResult');
-            const resultName = document.getElementById('resultName');
-            const resultDays = document.getElementById('resultDays');
-
-            if (!dateInput) {
-                alert("Please select a date first.");
-                return;
-            }
-
-            const targetDate = new Date(dateInput);
-            const today = new Date();
-            
-            // Set waktu ke 00:00 agar hitungan hari akurat
-            targetDate.setHours(0,0,0,0);
-            today.setHours(0,0,0,0);
-
-            const diffTime = targetDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            resultName.innerText = nameInput ? nameInput.toUpperCase() : "EVENT";
-            
-            if (diffDays < 0) {
-                resultDays.innerText = Math.abs(diffDays);
-                document.querySelector('.countdown-label:last-child').innerText = "DAYS AGO";
-            } else if (diffDays === 0) {
-                resultDays.innerText = "TODAY";
-                document.querySelector('.countdown-label:last-child').innerText = "IS THE DAY";
-            } else {
-                resultDays.innerText = diffDays;
-                document.querySelector('.countdown-label:last-child').innerText = "DAYS LEFT";
-            }
-
-            resultBox.style.display = "block";
-        }
-
-        // --- 4. SETTINGS LOGIC ---
+        // --- 3. SETTINGS LOGIC (With LocalStorage Persistence) ---
+        
         function changeAccent(color, btn) {
+            // 1. Ubah variabel CSS
             document.documentElement.style.setProperty('--accent-color', color);
+            
+            // 2. Update UI tombol (Hapus active lama, tambah active baru)
             document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if(btn) btn.classList.add('active');
+
+            // 3. SIMPAN KE BROWSER
+            localStorage.setItem('savedAccent', color);
         }
 
         function setTheme(theme, btn) {
+            // 1. Update UI tombol
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if(btn) btn.classList.add('active');
 
+            // 2. Logic Ubah Class Body
             if (theme === 'soft') {
                 document.body.classList.add('soft-theme');
             } else {
                 document.body.classList.remove('soft-theme');
             }
+
+            // 3. SIMPAN KE BROWSER
+            localStorage.setItem('savedTheme', theme);
         }
 
-        // Jalankan saat load
+        function loadSavedSettings() {
+            // A. Load Accent Color
+            const savedAccent = localStorage.getItem('savedAccent');
+            if (savedAccent) {
+                // Terapkan warna
+                document.documentElement.style.setProperty('--accent-color', savedAccent);
+                
+                // Cari tombol yang warnanya sama, lalu kasih class active
+                const allColorBtns = document.querySelectorAll('.color-btn');
+                allColorBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    if(btn.getAttribute('data-color') === savedAccent) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            // B. Load Theme
+            const savedTheme = localStorage.getItem('savedTheme');
+            if (savedTheme) {
+                // Reset tombol theme dulu
+                document.getElementById('theme-oled').classList.remove('active');
+                document.getElementById('theme-soft').classList.remove('active');
+
+                if (savedTheme === 'soft') {
+                    document.body.classList.add('soft-theme');
+                    document.getElementById('theme-soft').classList.add('active');
+                } else {
+                    document.body.classList.remove('soft-theme');
+                    document.getElementById('theme-oled').classList.add('active');
+                }
+            }
+        }
+
+        // Jalankan fungsi
         initCalendar();
+        loadSavedSettings(); // Load settingan terakhir user
     </script>
 </body>
 </html>
