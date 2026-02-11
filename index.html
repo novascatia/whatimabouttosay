@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novascatia Portfolio</title>
+    <title>novascatia.my.id</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -11,11 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f0f0f; color: #e5e5e5; overflow-x: hidden; }
-        .custom-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
-        .bento-card { background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 24px; transition: all 0.3s ease; }
-        .bento-card:hover { border-color: #4a4a4a; transform: translateY(-4px); }
         .reveal { opacity: 0; transform: translateY(20px); }
         
+        /* Post Styling */
+        .post-card { background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 20px; transition: all 0.3s ease; }
+        .post-card:hover { border-color: #4a4a4a; transform: translateY(-4px); }
+
         /* Spotify Player Bar */
         .spotify-player-bar {
             position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
@@ -28,64 +29,39 @@
         .progress-bar-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
     </style>
 </head>
-<body class="p-6 md:p-12 max-w-7xl mx-auto">
+<body class="p-6 md:p-12 max-w-5xl mx-auto">
 
     <nav class="reveal flex justify-between items-center mb-16">
         <div class="text-xl font-extrabold tracking-tighter">NOV4</div>
-        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
-            <a href="/quiz" class="hover:text-white transition">Quiz</a>
+        <div class="flex gap-8 text-sm font-medium text-gray-400">
             <a href="/spotify" class="hover:text-white transition">Listening</a>
-            <a href="https://instagram.com/grayalldayog" class="hover:text-white transition">Contact</a>
+            <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">Instagram</a>
         </div>
-        <button onclick="window.location.href='/date'" class="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition">
-            Year Progress
-        </button>
     </nav>
 
     <header class="max-w-4xl mb-20">
         <h1 class="reveal text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
-            Hello there! <span class="text-gray-500">Nova</span> here :3
+            Hello there! <span class="text-gray-500">Nova</span> di sini :3
         </h1>
         <p class="reveal text-gray-400 text-lg md:text-xl max-w-2xl leading-relaxed">
-            Building automation, scripts, and digital spaces. Will be back soon!
+            Membangun sistem otomasi dan ruang digital. Akan segera kembali!
         </p>
     </header>
 
-    <main class="custom-grid">
+    <main>
+        <div class="reveal flex items-center justify-between mb-8">
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Recent Logs</h2>
+            <div class="h-[1px] flex-grow ml-6 bg-zinc-800"></div>
+        </div>
         
-        <div class="reveal bento-card col-span-12 md:col-span-8 p-8 min-h-[300px] flex flex-col justify-end relative overflow-hidden group">
-            <span class="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-4">Current Project</span>
-            <h2 class="text-3xl font-bold mb-2">Talkify</h2>
-            <p class="text-gray-400">Anonymous matching engine for seamless conversations.</p>
-            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition"></div>
+        <div id="postsList" class="grid grid-cols-1 gap-6">
+            <p class="reveal text-gray-500 italic">Mengambil data dari server...</p>
         </div>
-
-        <div class="reveal bento-card col-span-12 md:col-span-4 p-8 bg-zinc-800 border-none flex flex-col items-center justify-center text-center">
-            <div class="w-16 h-16 bg-white rounded-full mb-4 flex items-center justify-center">
-                <div class="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <h3 class="font-bold text-black">Maintenance Mode</h3>
-        </div>
-
-        <div class="reveal bento-card col-span-12 md:col-span-4 p-8 flex flex-col justify-center">
-            <div class="text-5xl font-extrabold mb-2 italic text-white">800+</div>
-            <p class="text-gray-400 text-sm italic">Users joined Talkify this year.</p>
-        </div>
-
-        <div id="dynamicPosts" class="col-span-12 md:col-span-8 grid grid-cols-1 gap-6">
-            <div class="reveal bento-card p-8 flex items-center justify-center italic text-gray-500">
-                Loading recent logs...
-            </div>
-        </div>
-
     </main>
 
-    <footer class="reveal mt-24 mb-32 pt-12 border-t border-zinc-800 flex flex-col md:flex-row justify-between gap-8">
-        <div class="text-gray-500 text-sm">© 2026 Novascatia. Made with 💝</div>
-        <div class="flex gap-6 text-sm">
-            <a href="https://github.com/novascatia" class="text-gray-400 hover:text-white">Github</a>
-            <a href="/login" class="text-gray-400 hover:text-white">Admin</a>
-        </div>
+    <footer class="reveal mt-24 mb-32 pt-12 border-t border-zinc-800 flex justify-between items-center">
+        <div class="text-gray-500 text-xs uppercase tracking-widest">© 2026 Novascatia</div>
+        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
     </footer>
 
     <div id="spotifyPlayer" class="spotify-player-bar">
@@ -96,19 +72,25 @@
                 <p id="artistName" class="text-xs text-gray-400 truncate"></p>
             </div>
         </div>
+
         <div class="hidden md:flex flex-col items-center w-[40%]">
-            <div class="text-[10px] text-green-500 font-bold tracking-widest uppercase mb-1">Now Playing</div>
-            <div class="progress-bar-bg">
-                <div id="progressBar" class="progress-bar-fill"></div>
+            <div class="text-[10px] text-green-500 font-bold tracking-widest uppercase mb-1">Rama is listening now</div>
+            <div class="flex items-center w-full gap-3 text-[10px] text-gray-400 font-mono">
+                <span id="currentTime">0:00</span>
+                <div class="progress-bar-bg flex-grow">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+                <span id="totalTime">0:00</span>
             </div>
         </div>
+
         <div class="w-[30%] flex justify-end">
             <i class="fab fa-spotify text-green-500 text-xl"></i>
         </div>
     </div>
 
     <script>
-        // --- Animation Logic ---
+        // Animasi Pembuka
         function triggerReveal() {
             gsap.to(".reveal", {
                 opacity: 1,
@@ -119,34 +101,42 @@
             });
         }
 
-        // --- Fetch Posts from Supabase Logic ---
+        // Format Waktu ke Detik (Menit:Detik)
+        function formatTime(ms) {
+            const seconds = Math.floor((ms / 1000) % 60);
+            const minutes = Math.floor((ms / 1000 / 60) % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Fetch Postingan dari Supabase
         async function fetchPosts() {
-            const container = document.getElementById('dynamicPosts');
+            const container = document.getElementById('postsList');
             try {
                 const response = await fetch('/.netlify/functions/fetch-posts');
                 const posts = await response.json();
                 
                 if (posts.length > 0) {
-                    container.innerHTML = posts.slice(0, 2).map(post => `
-                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal bento-card p-8 flex flex-col md:flex-row gap-6 items-center cursor-pointer group">
+                    container.innerHTML = posts.map(post => `
+                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal post-card p-6 flex flex-col md:flex-row justify-between items-center group cursor-pointer">
                             <div class="flex-1">
-                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">${new Date(post.created_at).toLocaleDateString()}</span>
-                                <h3 class="text-2xl font-bold mb-2 group-hover:text-cyan-400 transition">${post.title}</h3>
-                                <p class="text-gray-400 text-sm line-clamp-1">${post.description}</p>
+                                <span class="text-[10px] text-zinc-600 uppercase tracking-[0.2em] mb-2 block">${new Date(post.created_at).toLocaleDateString('id-ID')}</span>
+                                <h3 class="text-xl font-bold group-hover:text-white transition italic">${post.title}</h3>
                             </div>
-                            <div class="w-full md:w-32 h-20 bg-gradient-to-br from-zinc-700 to-zinc-900 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-arrow-right text-zinc-500 group-hover:text-white transition"></i>
+                            <div class="text-zinc-700 group-hover:text-zinc-400 transition transform group-hover:translate-x-2">
+                                <i class="fas fa-chevron-right"></i>
                             </div>
                         </div>
                     `).join('');
+                } else {
+                    container.innerHTML = `<p class="text-gray-600 italic">Belum ada log yang tersedia.</p>`;
                 }
             } catch (e) {
-                console.error("Failed to fetch posts", e);
+                container.innerHTML = `<p class="text-red-500">Gagal memuat data.</p>`;
             }
-            triggerReveal(); // Jalankan animasi setelah konten dimuat
+            triggerReveal();
         }
 
-        // --- Spotify Now Playing Logic ---
+        // Spotify Listening Logic
         async function fetchNowPlaying() {
             try {
                 const response = await fetch('/.netlify/functions/now-playing');
@@ -158,6 +148,11 @@
                     document.getElementById('artistName').textContent = data.artist;
                     document.getElementById('albumArt').src = data.albumArt;
                     document.getElementById('progressBar').style.width = `${(data.progress / data.duration) * 100}%`;
+                    
+                    // Update Detik
+                    document.getElementById('currentTime').textContent = formatTime(data.progress);
+                    document.getElementById('totalTime').textContent = formatTime(data.duration);
+                    
                     player.classList.add('visible');
                 } else {
                     player.classList.remove('visible');
@@ -165,10 +160,9 @@
             } catch (e) {}
         }
 
-        // Initialize
         window.onload = () => {
             fetchPosts();
-            setInterval(fetchNowPlaying, 2000);
+            setInterval(fetchNowPlaying, 1000);
         };
     </script>
 </body>
