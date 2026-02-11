@@ -3,179 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>nova's space</title>
+    <title>Novascatia Portfolio</title>
     <link rel="icon" type="image/png" href="/logo.png">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #0b0b0b;
-            --card-bg: #141414;
-            --spotify-green: #1ed760;
-            --text-main: #efefef;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Initial state untuk animasi */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f0f0f; color: #e5e5e5; overflow-x: hidden; }
+        .custom-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
+        .bento-card { background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 24px; transition: all 0.3s ease; }
+        .bento-card:hover { border-color: #4a4a4a; transform: translateY(-4px); }
         .reveal { opacity: 0; transform: translateY(20px); }
-
-        .card-flat {
-            background-color: var(--card-bg);
-            border: 1px solid #222;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        .card-flat:hover {
-            border-color: #444;
-            background-color: #1a1a1a;
-        }
-
-        /* Spotify Player Bar Custom Style */
+        
+        /* Spotify Player Bar */
         .spotify-player-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #121212;
-            border-top: 1px solid #222;
-            padding: 1rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 999;
-            transform: translateY(100%);
-            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
+            border-top: 1px solid #282828; padding: 1rem 2rem; display: flex;
+            align-items: center; justify-content: space-between; z-index: 999;
+            transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .spotify-player-bar.visible { transform: translateY(0); }
-
-        .progress-bar-bg { width: 100%; height: 4px; background-color: #333; border-radius: 2px; }
-        .progress-bar-fill { height: 100%; background-color: var(--text-main); width: 0%; transition: width 1s linear; }
-
-        /* Toast Notification */
-        .toast-notification {
-            position: fixed; top: 20px; right: 20px;
-            background-color: #1a1a1a; border: 1px solid #333;
-            padding: 12px 20px; border-radius: 12px; z-index: 10000;
-            transform: translateX(150%); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            cursor: pointer;
-        }
-        .toast-notification.show { transform: translateX(0); }
+        .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
     </style>
 </head>
-<body class="max-w-5xl mx-auto px-6">
+<body class="p-6 md:p-12 max-w-7xl mx-auto">
 
-    <div id="redirectToast" class="toast-notification flex items-center gap-4">
-        <div class="text-spotify-green"><i class="fas fa-calendar-alt"></i></div>
-        <div class="text-xs font-semibold tracking-wider">YEAR PROGRESS</div>
-    </div>
-
-    <nav class="reveal flex justify-between items-center py-12">
-        <div class="font-bold text-xl tracking-tighter">NOVA_SPACE</div>
-        <div class="space-x-8 text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+    <nav class="reveal flex justify-between items-center mb-16">
+        <div class="text-xl font-extrabold tracking-tighter">NOV4</div>
+        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
             <a href="/quiz" class="hover:text-white transition">Quiz</a>
             <a href="/spotify" class="hover:text-white transition">Listening</a>
+            <a href="https://instagram.com/grayalldayog" class="hover:text-white transition">Contact</a>
         </div>
+        <button onclick="window.location.href='/date'" class="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition">
+            Year Progress
+        </button>
     </nav>
 
-    <header class="py-16 border-b border-zinc-900">
-        <h1 class="reveal text-4xl md:text-6xl font-bold leading-tight mb-8">
-            Building systems that <br> 
-            <span class="text-zinc-600 italic">actually work.</span>
+    <header class="max-w-4xl mb-20">
+        <h1 class="reveal text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
+            Hello there! <span class="text-gray-500">Nova</span> here :3
         </h1>
-        <div class="reveal flex gap-4">
-            <div class="px-4 py-1 rounded-full border border-zinc-800 text-[10px] text-zinc-500 uppercase tracking-widest">inactive.. i think..</div>
-            <div class="px-4 py-1 rounded-full border border-zinc-800 text-[10px] text-zinc-500 uppercase tracking-widest">2026 Edition</div>
-        </div>
+        <p class="reveal text-gray-400 text-lg md:text-xl max-w-2xl leading-relaxed">
+            Building automation, scripts, and digital spaces. Will be back soon!
+        </p>
     </header>
 
-    <main class="py-20">
-        <div class="reveal flex items-center justify-between mb-12">
-            <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-zinc-500">Recent Logs</h2>
-            <div class="h-[1px] flex-grow mx-8 bg-zinc-900"></div>
+    <main class="custom-grid">
+        
+        <div class="reveal bento-card col-span-12 md:col-span-8 p-8 min-h-[300px] flex flex-col justify-end relative overflow-hidden group">
+            <span class="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-4">Current Project</span>
+            <h2 class="text-3xl font-bold mb-2">Talkify</h2>
+            <p class="text-gray-400">Anonymous matching engine for seamless conversations.</p>
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition"></div>
         </div>
 
-        <div id="postsList" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <p class="text-zinc-600 text-sm italic">Initializing systems...</p>
+        <div class="reveal bento-card col-span-12 md:col-span-4 p-8 bg-zinc-800 border-none flex flex-col items-center justify-center text-center">
+            <div class="w-16 h-16 bg-white rounded-full mb-4 flex items-center justify-center">
+                <div class="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <h3 class="font-bold text-black">Maintenance Mode</h3>
         </div>
+
+        <div class="reveal bento-card col-span-12 md:col-span-4 p-8 flex flex-col justify-center">
+            <div class="text-5xl font-extrabold mb-2 italic text-white">800+</div>
+            <p class="text-gray-400 text-sm italic">Users joined Talkify this year.</p>
+        </div>
+
+        <div id="dynamicPosts" class="col-span-12 md:col-span-8 grid grid-cols-1 gap-6">
+            <div class="reveal bento-card p-8 flex items-center justify-center italic text-gray-500">
+                Loading recent logs...
+            </div>
+        </div>
+
     </main>
 
-    <footer class="reveal py-20 border-t border-zinc-900 flex flex-col md:flex-row justify-between gap-8 items-center">
-        <p class="text-[10px] text-zinc-700 uppercase tracking-[0.4em]">© 2026 Manual Craft</p>
-        <div class="flex gap-8 text-[10px] font-bold tracking-widest text-zinc-500">
-            <a href="#" class="hover:text-white transition">GITHUB</a>
-            <a href="https://instagram.com/grayalldayog" class="hover:text-white transition">INSTAGRAM</a>
+    <footer class="reveal mt-24 mb-32 pt-12 border-t border-zinc-800 flex flex-col md:flex-row justify-between gap-8">
+        <div class="text-gray-500 text-sm">© 2026 Novascatia. Made with 💝</div>
+        <div class="flex gap-6 text-sm">
+            <a href="https://github.com/novascatia" class="text-gray-400 hover:text-white">Github</a>
+            <a href="/login" class="text-gray-400 hover:text-white">Admin</a>
         </div>
     </footer>
 
     <div id="spotifyPlayer" class="spotify-player-bar">
-        <div class="flex items-center gap-4 w-[30%]">
-            <img id="albumArt" src="" class="w-12 h-12 rounded-lg shadow-2xl" alt="">
-            <div class="overflow-hidden">
-                <h3 id="songTitle" class="text-xs font-bold truncate">Loading...</h3>
-                <p id="artistName" class="text-[10px] text-zinc-500 truncate"></p>
+        <div class="flex items-center w-[30%] min-w-[200px]">
+            <img id="albumArt" src="" alt="" class="w-12 h-12 rounded-md mr-4 shadow-lg">
+            <div class="flex flex-col justify-center overflow-hidden">
+                <h3 id="songTitle" class="text-sm font-semibold text-white truncate"></h3>
+                <p id="artistName" class="text-xs text-gray-400 truncate"></p>
             </div>
         </div>
-        <div class="hidden md:flex flex-col items-center w-[40%] px-8">
-            <div class="text-[9px] uppercase tracking-widest text-spotify-green mb-2">Now Streaming</div>
+        <div class="hidden md:flex flex-col items-center w-[40%]">
+            <div class="text-[10px] text-green-500 font-bold tracking-widest uppercase mb-1">Now Playing</div>
             <div class="progress-bar-bg">
                 <div id="progressBar" class="progress-bar-fill"></div>
             </div>
         </div>
         <div class="w-[30%] flex justify-end">
-            <i class="fas fa-play text-xs text-zinc-500"></i>
+            <i class="fab fa-spotify text-green-500 text-xl"></i>
         </div>
     </div>
 
     <script>
-        function runEntranceAnimation() {
+        // --- Animation Logic ---
+        function triggerReveal() {
             gsap.to(".reveal", {
                 opacity: 1,
                 y: 0,
-                duration: 1,
-                stagger: 0.2,
-                ease: "power4.out"
+                duration: 0.8,
+                stagger: 0.15,
+                ease: "power2.out"
             });
         }
 
+        // --- Fetch Posts from Supabase Logic ---
         async function fetchPosts() {
-            const postsList = document.getElementById('postsList');
+            const container = document.getElementById('dynamicPosts');
             try {
                 const response = await fetch('/.netlify/functions/fetch-posts');
                 const posts = await response.json();
                 
-                if (posts.length === 0) {
-                    postsList.innerHTML = `<p class="text-zinc-600">No logs found.</p>`;
-                    return;
-                }
-
-                postsList.innerHTML = posts.map(post => `
-                    <div onclick="window.location.href='/posts/${post.id}'" class="reveal card-flat p-8 group cursor-pointer">
-                        <div class="flex justify-between items-start mb-6">
-                            <span class="text-[10px] text-zinc-600 uppercase tracking-widest">${new Date(post.created_at).toLocaleDateString('id-ID')}</span>
-                            ${post.is_pinned ? '<i class="fas fa-thumbtack text-[10px] text-spotify-green"></i>' : ''}
+                if (posts.length > 0) {
+                    container.innerHTML = posts.slice(0, 2).map(post => `
+                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal bento-card p-8 flex flex-col md:flex-row gap-6 items-center cursor-pointer group">
+                            <div class="flex-1">
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">${new Date(post.created_at).toLocaleDateString()}</span>
+                                <h3 class="text-2xl font-bold mb-2 group-hover:text-cyan-400 transition">${post.title}</h3>
+                                <p class="text-gray-400 text-sm line-clamp-1">${post.description}</p>
+                            </div>
+                            <div class="w-full md:w-32 h-20 bg-gradient-to-br from-zinc-700 to-zinc-900 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-arrow-right text-zinc-500 group-hover:text-white transition"></i>
+                            </div>
                         </div>
-                        <h3 class="text-xl font-bold mb-3 group-hover:text-spotify-green transition italic">${post.title}</h3>
-                        <p class="text-zinc-500 text-sm leading-relaxed line-clamp-2">${post.description}</p>
-                    </div>
-                `).join('');
-
-                runEntranceAnimation();
-            } catch (error) {
-                postsList.innerHTML = `<p class="text-red-500 text-xs">System Error.</p>`;
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Failed to fetch posts", e);
             }
+            triggerReveal(); // Jalankan animasi setelah konten dimuat
         }
 
+        // --- Spotify Now Playing Logic ---
         async function fetchNowPlaying() {
             try {
                 const response = await fetch('/.netlify/functions/now-playing');
@@ -191,18 +162,14 @@
                 } else {
                     player.classList.remove('visible');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {}
         }
 
-        window.addEventListener('load', () => {
+        // Initialize
+        window.onload = () => {
             fetchPosts();
             setInterval(fetchNowPlaying, 2000);
-            
-            // Toast Notification
-            const toast = document.getElementById('redirectToast');
-            setTimeout(() => toast.classList.add('show'), 3000);
-            toast.addEventListener('click', () => window.location.href = 'date');
-        });
+        };
     </script>
 </body>
 </html>
