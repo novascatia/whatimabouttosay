@@ -89,7 +89,7 @@ exports.handler = async (event) => {
                     </div>
 
                     <div class="hidden md:flex flex-col items-center w-[40%]">
-                        <div class="text-[10px] text-green-500 font-bold tracking-widest uppercase mb-1">Rama is listening now</div>
+                        <div class="text-[10px] text-green-500 font-bold tracking-widest mb-1">Rama is listening to</div>
                         <div class="flex items-center w-full gap-3 text-[10px] text-gray-400 font-mono">
                             <span id="currentTime">0:00</span>
                             <div class="progress-bar-bg flex-grow">
