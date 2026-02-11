@@ -4,7 +4,7 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function formatPostContent(content) {
-  let formatted = content.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+  let formatted = content.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-cyan-500 hover:underline">$1</a>');
   formatted = formatted.replace(/\n/g, '<br>');
   return formatted;
 }
@@ -20,9 +20,9 @@ exports.handler = async (event) => {
             <head>
                 <meta charset="UTF-8"><title>Error</title>
                 <script src="https://cdn.tailwindcss.com"></script>
-                <style>body{background:#121212;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;}</style>
+                <style>body{background:#0f0f0f;color:#e5e5e5;display:flex;justify-content:center;align-items:center;height:100vh;font-family:'Plus Jakarta Sans',sans-serif;}</style>
             </head>
-            <body><div><h1 class="text-2xl font-bold text-red-500">${msg}</h1></div></body></html>`;
+            <body><div><h1 class="text-xl font-bold text-red-500">${msg}</h1></div></body></html>`;
 
         if (!id) return { statusCode: 400, headers: { 'Content-Type': 'text/html' }, body: errorHtml("Post ID is required.") };
 
@@ -42,122 +42,90 @@ exports.handler = async (event) => {
                 <link rel="icon" type="image/png" href="/logo.png">
                 <script src="https://cdn.tailwindcss.com"></script>
                 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-                <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
                 <style>
-                    :root { --bg-color: #121212; --card-bg: #181818; --text-main: #ffffff; --text-sub: #b3b3b3; --spotify-green: #1ed760; --font-main: 'Poppins', sans-serif; }
+                    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f0f0f; color: #e5e5e5; margin: 0; }
+                    .content-container { line-height: 1.8; color: #a1a1aa; }
                     
-                    body { font-family: var(--font-main); background-color: var(--bg-color); color: var(--text-main); margin: 0; }
-
-                    /* Wrapper Konten */
-                    #content-wrapper {
-                        padding-bottom: 120px;
-                        animation: fadeInPage 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-                        opacity: 0;
-                    }
-                    @keyframes fadeInPage { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-                    .header-gradient { background: linear-gradient(180deg, rgba(30,215,96,0.2) 0%, var(--bg-color) 100%); padding: 60px 20px 40px 20px; }
-                    .content-container { background-color: var(--bg-color); color: #d1d5db; font-size: 1.05rem; line-height: 1.8; }
-                    .content-container a { color: var(--spotify-green); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
-                    .content-container a:hover { border-bottom-color: var(--spotify-green); }
-                    
-                    /* Player Tetap Fixed */
+                    /* Spotify Player Bar */
                     .spotify-player-bar {
-                        position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818; border-top: 1px solid #282828;
-                        padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; z-index: 999;
+                        position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
+                        border-top: 1px solid #282828; padding: 1rem 2rem; display: flex;
+                        align-items: center; justify-content: space-between; z-index: 999;
                         transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-                        box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
                     }
                     .spotify-player-bar.visible { transform: translateY(0); }
-
-                    .player-left { display: flex; align-items: center; width: 30%; min-width: 200px; }
-                    .player-left img { width: 56px; height: 56px; border-radius: 4px; margin-right: 1rem; }
-                    .player-center { width: 40%; max-width: 600px; display: flex; flex-direction: column; align-items: center; }
-                    .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 8px; position: relative; overflow: hidden; }
-                    .progress-bar-fill { height: 100%; background-color: var(--text-main); border-radius: 2px; width: 0%; transition: width 1s linear; }
-                    ::-webkit-scrollbar { width: 10px; }
-                    ::-webkit-scrollbar-track { background: var(--bg-color); }
-                    ::-webkit-scrollbar-thumb { background: #333; border-radius: 5px; }
+                    .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+                    .progress-bar-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
                 </style>
             </head>
-            <body>
-                <div id="content-wrapper">
-                    <header class="header-gradient">
-                        <div class="max-w-4xl mx-auto">
-                            <a href="/" class="group text-sm font-bold tracking-widest uppercase mb-6 text-gray-400 hover:text-white inline-flex items-center transition">
-                                <div class="w-8 h-8 rounded-full bg-[#181818] flex items-center justify-center mr-3 group-hover:bg-[#282828]"><i class="fas fa-chevron-left text-sm"></i></div>
-                                Back to Home
-                            </a>
-                            <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">${post.title}</h1>
-                            <div class="flex items-center text-sm text-gray-400 font-medium">
-                                <img src="/logo.png" class="w-6 h-6 rounded-full mr-2 grayscale opacity-70">
-                                <span class="text-white">${post.author}</span><span class="mx-2">•</span><span>${dateStr}</span>
-                            </div>
+            <body class="p-6 md:p-12">
+                <main class="max-w-3xl mx-auto mb-32">
+                    <a href="/" class="text-sm font-bold text-zinc-500 hover:text-white transition uppercase tracking-widest block mb-12">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Archive
+                    </a>
+
+                    <header class="mb-12">
+                        <span class="text-[10px] text-zinc-600 uppercase tracking-[0.3em] block mb-4">${dateStr}</span>
+                        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 text-white">${post.title}</h1>
+                        <div class="flex items-center gap-3">
+                            <img src="/logo.png" class="w-6 h-6 rounded-full grayscale opacity-50">
+                            <span class="text-sm text-zinc-500 font-medium">${post.author}</span>
                         </div>
                     </header>
-                    <main class="max-w-4xl mx-auto px-5 mb-10">
-                        <div class="flex items-center py-4 mb-6 border-b border-[#282828]">
-                            <div class="bg-green-500 w-12 h-12 rounded-full flex items-center justify-center text-black cursor-pointer hover:scale-105 transition mr-4"><i class="fas fa-book-open text-lg"></i></div>
-                            <i class="far fa-heart text-2xl text-gray-400 hover:text-white cursor-pointer mr-6"></i>
-                            <i class="fas fa-share-alt text-2xl text-gray-400 hover:text-white cursor-pointer"></i>
-                        </div>
-                        <div class="content-container">${formattedContent}</div>
-                        <div class="mt-12 pt-8 border-t border-[#282828] text-center">
-                            <a href="/" class="text-sm font-bold text-gray-500 hover:text-white uppercase tracking-widest">Read More Posts</a>
-                        </div>
-                    </main>
-                </div>
+
+                    <article class="content-container text-lg">
+                        ${formattedContent}
+                    </article>
+                </main>
 
                 <div id="spotifyPlayer" class="spotify-player-bar">
-                    <div class="player-left">
-                        <img id="albumArt" src="" alt="Album Art">
+                    <div class="flex items-center w-[30%] min-w-[200px]">
+                        <img id="albumArt" src="" alt="" class="w-12 h-12 rounded-md mr-4 shadow-lg">
                         <div class="flex flex-col justify-center overflow-hidden">
-                            <a id="songTitleLink" href="#" target="_blank" class="hover:underline"><h3 id="songTitle" class="text-sm font-semibold text-white truncate">Loading...</h3></a>
+                            <h3 id="songTitle" class="text-sm font-semibold text-white truncate"></h3>
                             <p id="artistName" class="text-xs text-gray-400 truncate"></p>
                         </div>
-                        <i class="far fa-heart text-gray-400 ml-4 hover:text-white cursor-pointer text-sm"></i>
                     </div>
-                    <div class="player-center hidden md:flex">
-                        <div class="text-xs text-green-500 mb-1">Rama is listening now</div>
-                        <div class="flex items-center w-full gap-2 text-xs text-gray-400">
+
+                    <div class="hidden md:flex flex-col items-center w-[40%]">
+                        <div class="text-[10px] text-green-500 font-bold tracking-widest uppercase mb-1">Rama is listening now</div>
+                        <div class="flex items-center w-full gap-3 text-[10px] text-gray-400 font-mono">
                             <span id="currentTime">0:00</span>
-                            <div class="progress-bar-bg"><div id="progressBar" class="progress-bar-fill"></div></div>
+                            <div class="progress-bar-bg flex-grow">
+                                <div id="progressBar" class="progress-bar-fill"></div>
+                            </div>
                             <span id="totalTime">0:00</span>
                         </div>
                     </div>
-                    <div class="w-[30%] flex justify-end items-center gap-4"></div>
+
+                    <div class="w-[30%] flex justify-end">
+                        <i class="fab fa-spotify text-green-500 text-xl"></i>
+                    </div>
                 </div>
+
                 <script>
-                    const spotifyPlayer = document.getElementById('spotifyPlayer');
-                    const songTitle = document.getElementById('songTitle');
-                    const artistName = document.getElementById('artistName');
-                    const albumArt = document.getElementById('albumArt');
-                    const progressBar = document.getElementById('progressBar');
-                    const currentTime = document.getElementById('currentTime');
-                    const totalTime = document.getElementById('totalTime');
-                    const songTitleLink = document.getElementById('songTitleLink');
-                    
                     function formatTime(ms) {
                         const seconds = Math.floor((ms / 1000) % 60);
                         const minutes = Math.floor((ms / 1000 / 60) % 60);
                         return minutes + ':' + seconds.toString().padStart(2, '0');
                     }
+
                     async function fetchNowPlaying() {
                         try {
                             const response = await fetch('/.netlify/functions/now-playing');
                             const data = await response.json();
+                            const player = document.getElementById('spotifyPlayer');
                             if (data.isPlaying) {
-                                spotifyPlayer.classList.add('visible'); 
-                                songTitle.textContent = data.title;
-                                artistName.textContent = data.artist;
-                                albumArt.src = data.albumArt;
-                                songTitleLink.href = data.songUrl;
-                                const pct = (data.progress / data.duration) * 100;
-                                progressBar.style.width = pct + '%';
-                                currentTime.textContent = formatTime(data.progress);
-                                totalTime.textContent = formatTime(data.duration);
+                                document.getElementById('songTitle').textContent = data.title;
+                                document.getElementById('artistName').textContent = data.artist;
+                                document.getElementById('albumArt').src = data.albumArt;
+                                document.getElementById('progressBar').style.width = (data.progress / data.duration) * 100 + '%';
+                                document.getElementById('currentTime').textContent = formatTime(data.progress);
+                                document.getElementById('totalTime').textContent = formatTime(data.duration);
+                                player.classList.add('visible'); 
                             } else {
-                                spotifyPlayer.classList.remove('visible');
+                                player.classList.remove('visible');
                             }
                         } catch(e) {}
                     }
