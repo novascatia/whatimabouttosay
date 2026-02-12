@@ -3,410 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Year Progress Dashboard</title>
+    <title>Year Progress - Nova</title>
     <link rel="icon" type="image/png" href="/logo.png">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            /* --- COLOR PALETTE DEFAULT (OLED BLACK) --- */
-            --bg-body: #000000;
-            --bg-card: #000000;
-            --border-color: #222;
-            
-            --text-main: #e0e0e0;
-            --text-muted: #666666;
-            
-            --sidebar-width: 260px;
-            --active-item-bg: #e0e0e0;
-            --active-item-text: #000000;
-            
-            /* Warna Accent (Default Merah) - Nanti di-load dari storage */
-            --accent-color: #ff4d4d; 
-            
-            --dot-empty: #1a1a1a;
-            --dot-passed: #333;
-            
-            --radius-btn: 12px;
-        }
-
-        /* Kelas khusus untuk Soft Dark Theme */
-        body.soft-theme {
-            --bg-body: #121212;
-            --bg-card: #1e1e1e;
-            --border-color: #333;
-            --dot-empty: #2a2a2a;
-            --dot-passed: #444;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            font-family: 'JetBrains Mono', monospace;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 40px;
-            transition: background-color 0.3s;
-        }
-
-        .app-container {
-            display: flex;
-            width: 100%;
-            max-width: 1100px;
-            gap: 50px;
-        }
-
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .sidebar-header { margin-bottom: 30px; }
-        .version-text { color: var(--text-muted); font-size: 11px; margin-bottom: 5px; }
-        .sidebar-title { font-size: 20px; font-weight: 700; color: #fff; }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 16px;
-            border-radius: var(--radius-btn);
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--text-muted);
-            font-size: 13px;
-            font-weight: 700;
-            user-select: none;
-        }
-
-        .menu-icon {
-            width: 24px; height: 24px; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
-            background: #111; color: #555;
-            transition: 0.2s;
-        }
-
-        /* State Active */
-        .menu-item.active {
-            background-color: var(--active-item-bg);
-            color: var(--active-item-text);
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f0f0f; color: #e5e5e5; }
+        .reveal { opacity: 0; transform: translateY(20px); }
         
-        /* Saat aktif, icon mengikuti warna accent tapi background transparan agar bersih */
-        .menu-item.active .menu-icon {
-            background: transparent; 
-            color: var(--active-item-text);
-            font-weight: bold;
+        .glass-card { 
+            background: #1a1a1a; 
+            border: 1px solid #2d2d2d; 
+            border-radius: 24px; 
         }
 
-        .menu-item:hover:not(.active) { background-color: rgba(255,255,255,0.05); color: #fff; }
+        .progress-container { width: 100%; height: 12px; background-color: #2d2d2d; border-radius: 6px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #06b6d4); width: 0%; transition: width 1s ease-out; }
 
-        /* --- MAIN CONTENT --- */
-        .main-content {
-            flex-grow: 1;
-            padding-top: 10px;
-            min-width: 0; /* Mencegah overflow flex */
+        /* Spotify Player Bar */
+        .spotify-player-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
+            border-top: 1px solid #282828; padding: 1rem 2rem; display: flex;
+            align-items: center; justify-content: space-between; z-index: 999;
+            transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
-
-        .content-section { display: none; animation: fadeIn 0.3s ease; }
-        .content-section.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section-header {
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 25px; font-size: 16px; font-weight: 700;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-        }
-
-        /* --- CALENDAR (Year Progress) --- */
-        .calendar-wrapper {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 25px;
-            border-radius: 16px;
-            width: fit-content;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(25, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .dot {
-            width: 8px; height: 8px;
-            background-color: var(--dot-empty);
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .dot:hover { transform: scale(1.6); background-color: #fff !important; z-index: 10; }
-        .dot.passed { background-color: var(--dot-passed); }
-        
-        .dot.current {
-            background-color: var(--accent-color);
-            box-shadow: 0 0 10px var(--accent-color);
-            animation: pulse 2s infinite;
-        }
-
-        /* Tooltip */
-        .dot::after {
-            content: attr(data-date);
-            position: absolute; bottom: 180%; left: 50%; transform: translateX(-50%);
-            background-color: #e0e0e0; color: #000;
-            padding: 5px 8px; border-radius: 4px; font-size: 11px;
-            white-space: nowrap; opacity: 0; pointer-events: none;
-            font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-        .dot:hover::after { opacity: 1; }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        .stats-bar {
-            background-color: rgba(255,255,255,0.03);
-            padding: 15px; border-radius: 8px;
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 13px; margin-top: 15px; border: 1px solid var(--border-color);
-        }
-
-        /* --- SETTINGS (Appearance) --- */
-        .settings-grid { display: grid; gap: 20px; }
-        .setting-card {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            padding: 20px; border-radius: 12px;
-        }
-        
-        .input-label { display: block; margin-bottom: 8px; font-size: 12px; color: var(--text-muted); }
-
-        .color-options { display: flex; gap: 10px; margin-top: 10px; }
-        .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
-        .color-btn.active { border-color: #fff; transform: scale(1.1); }
-
-        .theme-options { display: flex; gap: 10px; margin-top: 10px; }
-        .theme-btn {
-            flex: 1; padding: 10px; border: 1px solid var(--border-color);
-            background: transparent; color: var(--text-muted);
-            border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 12px;
-        }
-        .theme-btn.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(255,255,255,0.05); }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            .app-container { flex-direction: column; padding: 20px; }
-            .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding-bottom: 10px; gap: 10px; }
-            .sidebar-header { display: none; } /* Hide header on mobile to save space */
-            .menu-item { white-space: nowrap; padding: 8px 12px; }
-            .calendar-grid { gap: 6px; }
-            .dot { width: 6px; height: 6px; }
-        }
+        .spotify-player-bar.visible { transform: translateY(0); }
+        .spotify-progress-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .spotify-progress-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
     </style>
 </head>
-<body>
+<body class="p-6 md:p-12 max-w-4xl mx-auto">
 
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="version-text">DASHBOARD v1.1</div>
-                <div class="sidebar-title">overview</div>
+    <nav class="reveal mb-16">
+        <a href="/" class="text-sm font-bold text-zinc-500 hover:text-white transition uppercase tracking-widest flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back
+        </a>
+    </nav>
+
+    <header class="mb-12">
+        <h1 class="reveal text-4xl md:text-6xl font-extrabold tracking-tight mb-4 text-white italic">Year Progress</h1>
+        <p class="reveal text-zinc-500 text-lg">Melihat sejauh mana kita telah melangkah di tahun ini.</p>
+    </header>
+
+    <main class="grid grid-cols-1 gap-6">
+        <div class="reveal glass-card p-8">
+            <div class="flex justify-between items-end mb-4">
+                <span id="yearLabel" class="text-2xl font-bold text-white">2026</span>
+                <span id="percentageText" class="text-4xl font-black text-cyan-500 italic">0%</span>
             </div>
-            
-            <div class="menu-item active" data-target="year-progress">
-                <div class="menu-icon">::</div>
-                year progress
+            <div class="progress-container mb-6">
+                <div id="yearProgressFill" class="progress-fill"></div>
             </div>
-            
-            <div class="menu-item" data-target="appearance">
-                <div class="menu-icon">☀</div>
-                appearance
-            </div>
+            <p id="daysLeftText" class="text-sm text-zinc-500 uppercase tracking-widest font-semibold"></p>
         </div>
 
-        <div class="main-content">
-            
-            <div id="year-progress" class="content-section active">
-                <div class="section-header">visualization</div>
-                <div class="calendar-wrapper">
-                    <div class="calendar-grid" id="grid"></div>
-                </div>
-                
-                <div class="stats-bar">
-                    <div id="yearDisplay">Checking date...</div>
-                    <div style="color: var(--accent-color); font-weight:bold;" id="daysLeftDisplay">...</div>
-                </div>
+        <div class="grid grid-cols-2 gap-6">
+            <div class="reveal glass-card p-6 flex flex-col justify-center items-center text-center">
+                <span class="text-[10px] text-zinc-600 uppercase tracking-widest mb-2">Hari Berlalu</span>
+                <span id="daysPassed" class="text-3xl font-bold text-white">0</span>
             </div>
-
-            <div id="appearance" class="content-section">
-                <div class="section-header">customization</div>
-                <div class="settings-grid">
-                    
-                    <div class="setting-card">
-                        <label class="input-label">BACKGROUND THEME</label>
-                        <div class="theme-options">
-                            <button id="theme-oled" class="theme-btn active" onclick="setTheme('oled', this)">OLED BLACK</button>
-                            <button id="theme-soft" class="theme-btn" onclick="setTheme('soft', this)">SOFT DARK</button>
-                        </div>
-                    </div>
-
-                    <div class="setting-card">
-                        <label class="input-label">SYSTEM ACCENT COLOR</label>
-                        <div class="color-options">
-                            <div class="color-btn active" data-color="#ff4d4d" style="background: #ff4d4d;" onclick="changeAccent('#ff4d4d', this)"></div>
-                            <div class="color-btn" data-color="#00e5ff" style="background: #00e5ff;" onclick="changeAccent('#00e5ff', this)"></div>
-                            <div class="color-btn" data-color="#00ff88" style="background: #00ff88;" onclick="changeAccent('#00ff88', this)"></div>
-                            <div class="color-btn" data-color="#b388ff" style="background: #b388ff;" onclick="changeAccent('#b388ff', this)"></div>
-                        </div>
-                    </div>
-
-                </div>
+            <div class="reveal glass-card p-6 flex flex-col justify-center items-center text-center">
+                <span class="text-[10px] text-zinc-600 uppercase tracking-widest mb-2">Sisa Hari</span>
+                <span id="daysRemaining" class="text-3xl font-bold text-white">0</span>
             </div>
+        </div>
+    </main>
 
+    <div id="spotifyPlayer" class="spotify-player-bar">
+        <div class="flex items-center w-[30%] min-w-[200px]">
+            <img id="albumArt" src="" class="w-12 h-12 rounded-md mr-4">
+            <div class="overflow-hidden">
+                <h3 id="songTitle" class="text-sm font-semibold text-white truncate"></h3>
+                <p id="artistName" class="text-xs text-gray-400 truncate"></p>
+            </div>
+        </div>
+        <div class="hidden md:flex flex-col items-center w-[40%]">
+            <div class="text-[10px] text-green-500 font-bold tracking-widest uppercase mb-1">Listening Now</div>
+            <div class="flex items-center w-full gap-3 text-[10px] text-gray-400 font-mono">
+                <span id="currentTime">0:00</span>
+                <div class="spotify-progress-bg flex-grow">
+                    <div id="spotifyProgressBar" class="spotify-progress-fill"></div>
+                </div>
+                <span id="totalTime">0:00</span>
+            </div>
+        </div>
+        <div class="w-[30%] flex justify-end">
+            <i class="fab fa-spotify text-green-500 text-xl"></i>
         </div>
     </div>
 
     <script>
-        // --- 1. TAB SWITCHING LOGIC ---
-        const menuItems = document.querySelectorAll('.menu-item');
-        const sections = document.querySelectorAll('.content-section');
-
-        menuItems.forEach(item => {
-            item.addEventListener('click', () => {
-                menuItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                
-                sections.forEach(s => s.classList.remove('active'));
-                const targetId = item.getAttribute('data-target');
-                document.getElementById(targetId).classList.add('active');
+        // Animasi GSAP
+        function initAnimations() {
+            gsap.to(".reveal", {
+                opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out"
             });
-        });
+        }
 
-        // --- 2. YEAR PROGRESS LOGIC ---
-        function initCalendar() {
-            const grid = document.getElementById('grid');
-            const yearDisplay = document.getElementById('yearDisplay');
-            const daysLeftDisplay = document.getElementById('daysLeftDisplay');
-
+        // Logika Progress Tahun
+        function updateYearProgress() {
             const now = new Date();
-            const currentYear = now.getFullYear();
-            yearDisplay.innerText = `Current Cycle: ${currentYear}`;
+            const start = new Date(now.getFullYear(), 0, 1);
+            const end = new Date(now.getFullYear() + 1, 0, 1);
+            const total = end - start;
+            const elapsed = now - start;
+            const progress = (elapsed / total) * 100;
 
-            const isLeap = (currentYear % 4 === 0 && currentYear % 100 !== 0) || (currentYear % 400 === 0);
-            const totalDays = isLeap ? 366 : 365;
-            const startOfYear = new Date(currentYear, 0, 1);
-            const diff = now - startOfYear;
-            const oneDay = 1000 * 60 * 60 * 24;
-            const dayOfYear = Math.floor(diff / oneDay) + 1;
+            document.getElementById('yearLabel').textContent = now.getFullYear();
+            document.getElementById('percentageText').textContent = progress.toFixed(2) + '%';
+            document.getElementById('yearProgressFill').style.width = progress + '%';
 
-            daysLeftDisplay.innerText = `${totalDays - dayOfYear} days remaining`;
-            grid.innerHTML = ''; 
+            const diff = end - now;
+            const daysPassed = Math.floor(elapsed / (1000 * 60 * 60 * 24));
+            const daysRemaining = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-
-            for (let i = 1; i <= totalDays; i++) {
-                const dot = document.createElement('div');
-                dot.classList.add('dot');
-                const dateForDot = new Date(currentYear, 0, i);
-                const dayDate = dateForDot.getDate();
-                const monthName = monthNames[dateForDot.getMonth()];
-                
-                dot.setAttribute('data-date', `${dayDate} ${monthName}`);
-
-                if (i < dayOfYear) {
-                    dot.classList.add('passed');
-                } else if (i === dayOfYear) {
-                    dot.classList.add('current');
-                    dot.setAttribute('data-date', `TODAY: ${dayDate} ${monthName}`);
-                }
-                grid.appendChild(dot);
-            }
+            document.getElementById('daysPassed').textContent = daysPassed;
+            document.getElementById('daysRemaining').textContent = daysRemaining;
+            document.getElementById('daysLeftText').textContent = `${daysRemaining} Hari tersisa menuju tahun baru.`;
         }
 
-        // --- 3. SETTINGS LOGIC (With LocalStorage Persistence) ---
-        
-        function changeAccent(color, btn) {
-            // 1. Ubah variabel CSS
-            document.documentElement.style.setProperty('--accent-color', color);
-            
-            // 2. Update UI tombol (Hapus active lama, tambah active baru)
-            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-
-            // 3. SIMPAN KE BROWSER
-            localStorage.setItem('savedAccent', color);
+        // Spotify Logic
+        function formatTime(ms) {
+            const seconds = Math.floor((ms / 1000) % 60);
+            const minutes = Math.floor((ms / 1000 / 60) % 60);
+            return minutes + ':' + seconds.toString().padStart(2, '0');
         }
 
-        function setTheme(theme, btn) {
-            // 1. Update UI tombol
-            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-
-            // 2. Logic Ubah Class Body
-            if (theme === 'soft') {
-                document.body.classList.add('soft-theme');
-            } else {
-                document.body.classList.remove('soft-theme');
-            }
-
-            // 3. SIMPAN KE BROWSER
-            localStorage.setItem('savedTheme', theme);
-        }
-
-        function loadSavedSettings() {
-            // A. Load Accent Color
-            const savedAccent = localStorage.getItem('savedAccent');
-            if (savedAccent) {
-                // Terapkan warna
-                document.documentElement.style.setProperty('--accent-color', savedAccent);
-                
-                // Cari tombol yang warnanya sama, lalu kasih class active
-                const allColorBtns = document.querySelectorAll('.color-btn');
-                allColorBtns.forEach(btn => {
-                    btn.classList.remove('active');
-                    if(btn.getAttribute('data-color') === savedAccent) {
-                        btn.classList.add('active');
-                    }
-                });
-            }
-
-            // B. Load Theme
-            const savedTheme = localStorage.getItem('savedTheme');
-            if (savedTheme) {
-                // Reset tombol theme dulu
-                document.getElementById('theme-oled').classList.remove('active');
-                document.getElementById('theme-soft').classList.remove('active');
-
-                if (savedTheme === 'soft') {
-                    document.body.classList.add('soft-theme');
-                    document.getElementById('theme-soft').classList.add('active');
+        async function fetchNowPlaying() {
+            try {
+                const response = await fetch('/.netlify/functions/now-playing');
+                const data = await response.json();
+                const player = document.getElementById('spotifyPlayer');
+                if (data.isPlaying) {
+                    document.getElementById('songTitle').textContent = data.title;
+                    document.getElementById('artistName').textContent = data.artist;
+                    document.getElementById('albumArt').src = data.albumArt;
+                    document.getElementById('spotifyProgressBar').style.width = (data.progress / data.duration) * 100 + '%';
+                    document.getElementById('currentTime').textContent = formatTime(data.progress);
+                    document.getElementById('totalTime').textContent = formatTime(data.duration);
+                    player.classList.add('visible');
                 } else {
-                    document.body.classList.remove('soft-theme');
-                    document.getElementById('theme-oled').classList.add('active');
+                    player.classList.remove('visible');
                 }
-            }
+            } catch(e) {}
         }
 
-        // Jalankan fungsi
-        initCalendar();
-        loadSavedSettings(); // Load settingan terakhir user
+        window.onload = () => {
+            updateYearProgress();
+            initAnimations();
+            setInterval(fetchNowPlaying, 1000);
+        };
     </script>
 </body>
 </html>
