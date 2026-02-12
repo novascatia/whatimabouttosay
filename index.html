@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>novascatia.my.id</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -10,72 +10,114 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f0f0f; color: #e5e5e5; overflow-x: hidden; }
+        /* FIX: Mencegah overflow horizontal yang menyebabkan off-center di mobile */
+        html, body { 
+            overflow-x: hidden; 
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #0f0f0f; 
+            color: #e5e5e5; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+        }
+
         .reveal { opacity: 0; transform: translateY(20px); }
         
         /* Post Styling */
-        .post-card { background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 20px; transition: all 0.3s ease; }
+        .post-card { 
+            background: #1a1a1a; 
+            border: 1px solid #2d2d2d; 
+            border-radius: 20px; 
+            transition: all 0.3s ease; 
+            width: 100%;
+        }
         .post-card:hover { border-color: #4a4a4a; transform: translateY(-4px); }
 
-        /* Spotify Player Bar */
+        /* Spotify Player Bar - Responsive */
         .spotify-player-bar {
             position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
-            border-top: 1px solid #282828; padding: 1rem 2rem; display: flex;
+            border-top: 1px solid #282828; padding: 0.75rem 1.5rem; display: flex;
             align-items: center; justify-content: space-between; z-index: 999;
             transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .spotify-player-bar.visible { transform: translateY(0); }
-        .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        
+        .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 4px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed; top: 20px; right: 20px;
+            background-color: #1a1a1a; border: 1px solid #333;
+            padding: 12px 20px; border-radius: 12px; z-index: 10000;
+            transform: translateX(150%); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .toast-notification.show { transform: translateX(0); }
+
+        /* Container Custom untuk centering yang presisi */
+        .content-wrapper {
+            width: 100%;
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
     </style>
 </head>
-<body class="p-6 md:p-12 max-w-5xl mx-auto">
+<body class="py-8 md:py-12">
 
-    <nav class="reveal flex justify-between items-center mb-16">
-        <div class="text-xl font-extrabold tracking-tighter">nov4</div>
-        <div class="flex gap-8 text-sm font-medium text-gray-400">
-            <a href="/spotify" class="hover:text-white transition">Spotify</a>
-            <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">Instagram</a>
-        </div>
-    </nav>
+    <div id="redirectToast" class="toast-notification flex items-center gap-4">
+        <div class="text-[#1ed760]"><i class="fas fa-calendar-alt"></i></div>
+        <div class="text-[10px] font-bold tracking-widest uppercase">Check Year Progress</div>
+    </div>
 
-    <header class="max-w-4xl mb-20">
-        <h1 class="reveal text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
-            Hello there! <span class="text-gray-500">Nova</span> di sini :3
-        </h1>
-        <p class="reveal text-gray-400 text-lg md:text-xl max-w-2xl leading-relaxed">
-            digital notebook i created :D
-        </p>
-    </header>
+    <div class="content-wrapper">
+        <nav class="reveal flex justify-between items-center mb-16">
+            <div class="text-xl font-extrabold tracking-tighter text-white">nov4</div>
+            <div class="flex gap-6 md:gap-8 text-xs md:text-sm font-medium text-gray-400">
+                <a href="/spotify" class="hover:text-white transition">Spotify</a>
+                <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">Instagram</a>
+            </div>
+        </nav>
 
-    <main>
-        <div class="reveal flex items-center justify-between mb-8">
-            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Posts</h2>
-            <div class="h-[1px] flex-grow ml-6 bg-zinc-800"></div>
-        </div>
-        
-        <div id="postsList" class="grid grid-cols-1 gap-6">
-            <p class="reveal text-gray-500 italic">Mengambil data dari server...</p>
-        </div>
-    </main>
+        <header class="mb-20">
+            <h1 class="reveal text-4xl md:text-7xl font-extrabold tracking-tight leading-tight md:leading-[1.1] mb-6 text-white">
+                Hello there! <br class="md:hidden"> <span class="text-gray-500">Nova</span> di sini :3
+            </h1>
+            <p class="reveal text-gray-400 text-base md:text-xl max-w-2xl leading-relaxed">
+                digital notebook i created :D
+            </p>
+        </header>
 
-    <footer class="reveal mt-24 mb-32 pt-12 border-t border-zinc-800 flex justify-between items-center">
-        <div class="text-gray-500 text-xs uppercase tracking-widest">© 2026 Novascatia</div>
-        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-    </footer>
+        <main>
+            <div class="reveal flex items-center justify-between mb-8">
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Posts</h2>
+                <div class="h-[1px] flex-grow ml-6 bg-zinc-800"></div>
+            </div>
+            
+            <div id="postsList" class="grid grid-cols-1 gap-4 md:gap-6">
+                <p class="reveal text-gray-500 italic text-sm">Mengambil data dari server...</p>
+            </div>
+        </main>
+
+        <footer class="reveal mt-24 mb-32 pt-12 border-t border-zinc-800 flex justify-between items-center">
+            <div class="text-gray-500 text-[10px] uppercase tracking-widest font-bold">© 2026 Novascatia</div>
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]"></div>
+        </footer>
+    </div>
 
     <div id="spotifyPlayer" class="spotify-player-bar">
-        <div class="flex items-center w-[30%] min-w-[200px]">
-            <img id="albumArt" src="" alt="" class="w-12 h-12 rounded-md mr-4 shadow-lg">
+        <div class="flex items-center w-full md:w-[30%] overflow-hidden">
+            <img id="albumArt" src="" alt="" class="w-10 h-10 md:w-12 md:h-12 rounded-md mr-3 shadow-lg flex-shrink-0">
             <div class="flex flex-col justify-center overflow-hidden">
-                <h3 id="songTitle" class="text-sm font-semibold text-white truncate"></h3>
-                <p id="artistName" class="text-xs text-gray-400 truncate"></p>
+                <h3 id="songTitle" class="text-xs font-bold text-white truncate pr-2"></h3>
+                <p id="artistName" class="text-[10px] text-gray-400 truncate pr-2"></p>
             </div>
         </div>
 
-        <div class="hidden md:flex flex-col items-center w-[40%]">
-            <div class="text-[10px] text-green-500 font-bold tracking-widest uppercase mb-1">Rama is listening to</div>
-            <div class="flex items-center w-full gap-3 text-[10px] text-gray-400 font-mono">
+        <div class="hidden sm:flex flex-col items-center w-[40%] px-4">
+            <div class="text-[9px] text-[#1ed760] font-bold tracking-widest uppercase mb-1">Now Streaming</div>
+            <div class="flex items-center w-full gap-3 text-[9px] text-gray-400 font-mono">
                 <span id="currentTime">0:00</span>
                 <div class="progress-bar-bg flex-grow">
                     <div id="progressBar" class="progress-bar-fill"></div>
@@ -84,8 +126,8 @@
             </div>
         </div>
 
-        <div class="w-[30%] flex justify-end">
-            <i class="fab fa-spotify text-green-500 text-xl"></i>
+        <div class="flex items-center justify-end md:w-[30%] flex-shrink-0 ml-2">
+            <i class="fab fa-spotify text-[#1ed760] text-xl"></i>
         </div>
     </div>
 
@@ -96,7 +138,7 @@
                 opacity: 1,
                 y: 0,
                 duration: 0.8,
-                stagger: 0.15,
+                stagger: 0.1,
                 ease: "power2.out"
             });
         }
@@ -115,23 +157,27 @@
                 const response = await fetch('/.netlify/functions/fetch-posts');
                 const posts = await response.json();
                 
-                if (posts.length > 0) {
+                if (posts && posts.length > 0) {
                     container.innerHTML = posts.map(post => `
-                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal post-card p-6 flex flex-col md:flex-row justify-between items-center group cursor-pointer">
-                            <div class="flex-1">
-                                <span class="text-[10px] text-zinc-600 uppercase tracking-[0.2em] mb-2 block">${new Date(post.created_at).toLocaleDateString('id-ID')}</span>
-                                <h3 class="text-xl font-bold group-hover:text-white transition italic">${post.title}</h3>
+                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
+                            <div class="flex-1 overflow-hidden">
+                                <span class="text-[9px] md:text-[10px] text-zinc-600 uppercase tracking-[0.2em] mb-1 block">
+                                    ${new Date(post.created_at).toLocaleDateString('id-ID')}
+                                </span>
+                                <h3 class="text-lg md:text-xl font-bold group-hover:text-white transition italic truncate">
+                                    ${post.title}
+                                </h3>
                             </div>
-                            <div class="text-zinc-700 group-hover:text-zinc-400 transition transform group-hover:translate-x-2">
+                            <div class="text-zinc-700 group-hover:text-zinc-400 transition transform group-hover:translate-x-2 ml-4 flex-shrink-0">
                                 <i class="fas fa-chevron-right"></i>
                             </div>
                         </div>
                     `).join('');
                 } else {
-                    container.innerHTML = `<p class="text-gray-600 italic">Belum ada log yang tersedia.</p>`;
+                    container.innerHTML = `<p class="text-gray-600 italic text-sm">Belum ada log yang tersedia.</p>`;
                 }
             } catch (e) {
-                container.innerHTML = `<p class="text-red-500">Gagal memuat data.</p>`;
+                container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat data.</p>`;
             }
             triggerReveal();
         }
@@ -148,11 +194,8 @@
                     document.getElementById('artistName').textContent = data.artist;
                     document.getElementById('albumArt').src = data.albumArt;
                     document.getElementById('progressBar').style.width = `${(data.progress / data.duration) * 100}%`;
-                    
-                    // Update Detik
                     document.getElementById('currentTime').textContent = formatTime(data.progress);
                     document.getElementById('totalTime').textContent = formatTime(data.duration);
-                    
                     player.classList.add('visible');
                 } else {
                     player.classList.remove('visible');
@@ -160,9 +203,20 @@
             } catch (e) {}
         }
 
+        // Initialize
         window.onload = () => {
             fetchPosts();
             setInterval(fetchNowPlaying, 1000);
+
+            // Toast Notification Logic
+            const toast = document.getElementById('redirectToast');
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 2500);
+
+            toast.addEventListener('click', () => {
+                window.location.href = '/date';
+            });
         };
     </script>
 </body>
