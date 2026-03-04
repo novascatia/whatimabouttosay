@@ -82,42 +82,41 @@
             return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         }
 
-        async function loadMatches() {
-            const container = document.getElementById('matchList');
-            const logStatus = document.getElementById('logStatus');
-            logStatus.textContent = "Fetching matches...";
+async function loadMatches() {
+    const container = document.getElementById('matchList');
+    const logStatus = document.getElementById('logStatus');
+    logStatus.textContent = "Fetching Premier League...";
 
-            try {
-                const response = await fetch(`${API_BASE}?data=matches&category=football`);
-                const result = await response.json();
+    try {
+        // Menggunakan parameter league=PL sesuai dokumentasi untuk Premier League
+        const response = await fetch(`${API_BASE}?data=matches&category=football&league=PL`);
+        const result = await response.json();
 
-                // Kita akses result.data karena output curl menunjukkan datanya ada di sana
-                const matches = result.data || [];
+        const matches = result.data || [];
 
-                if (matches.length > 0) {
-                    logStatus.textContent = "Ready";
-                    container.innerHTML = matches.map(match => {
-                        const timeStr = formatMatchTime(match.date);
-                        return `
-                        <div onclick="playMatch('${match.id}', '${match.title}')" 
-                             id="card-${match.id}"
-                             class="match-card glass-card p-4 cursor-pointer">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">FOOTBALL</span>
-                                <span class="text-[9px] text-zinc-600 font-mono italic">${timeStr}</span>
-                            </div>
-                            <h3 class="text-sm font-bold text-zinc-300 transition italic truncate">${match.title}</h3>
-                        </div>
-                    `}).join('');
-                } else {
-                    logStatus.textContent = "No data found";
-                    container.innerHTML = `<p class="text-zinc-600 text-[10px] italic text-center p-4">No matches found.</p>`;
-                }
-            } catch (e) {
-                logStatus.textContent = "Connection Error";
-                container.innerHTML = `<p class="text-red-500 text-[10px] italic text-center p-4">API Error.</p>`;
-            }
+        if (matches.length > 0) {
+            logStatus.textContent = "Premier League Ready";
+            container.innerHTML = matches.map(match => {
+                const timeStr = formatMatchTime(match.date);
+                return `
+                <div onclick="playMatch('${match.id}', '${match.title}')" 
+                     id="card-${match.id}"
+                     class="match-card glass-card p-4 cursor-pointer">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">PREMIER LEAGUE</span>
+                        <span class="text-[9px] text-zinc-600 font-mono italic">${timeStr}</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-zinc-300 transition italic truncate">${match.title}</h3>
+                </div>
+            `}).join('');
+        } else {
+            logStatus.textContent = "No PL Matches Found";
+            container.innerHTML = `<p class="text-zinc-600 text-[10px] italic text-center p-4">No upcoming PL matches.</p>`;
         }
+    } catch (e) {
+        logStatus.textContent = "API Error";
+    }
+}
 
         async function playMatch(id, title) {
             const playerWrapper = document.getElementById('playerWrapper');
