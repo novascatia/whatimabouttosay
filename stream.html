@@ -131,7 +131,7 @@ header {
 </header>
 
 <div class="cat-bar" id="catBar">
-  <button class="cat-btn active" data-cat="football">Football</button>
+  
 </div>
 
 <div class="main">
@@ -174,7 +174,7 @@ header {
 
 <script>
 const API = '/.netlify/functions/sportsrc-proxy';
-let currentCategory = 'football';
+let currentCategory = '';
 let allMatches = [];
 
 // SEARCH
@@ -356,7 +356,72 @@ async function loadStream(cat, id, m) {
   }
 }
 
-loadMatches(currentCategory);
+
+async function loadLeagues() {
+  const bar = document.getElementById('catBar');
+  bar.innerHTML = '<div class="loader" style="padding:6px 0;gap:8px;flex-direction:row"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div></div>';
+
+  const res = await apiFetch({ data: 'results', category: 'leagues' });
+  const leagues = res?.data || [];
+
+  bar.innerHTML = '';
+  leagues.forEach((lg, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (i === 0 ? ' active' : '');
+    btn.dataset.lid = lg.id;
+    btn.textContent = lg.name;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = lg.id;
+      document.getElementById('searchInput').value = '';
+      // reset player
+      document.getElementById('placeholder').style.display = 'flex';
+      document.getElementById('playerBox').style.display = 'none';
+      loadMatchesByLeague(lg.id);
+    });
+    bar.appendChild(btn);
+  });
+
+  // Auto-load first league
+  if (leagues.length) {
+    currentCategory = leagues[0].id;
+    loadMatchesByLeague(leagues[0].id);
+  }
+}
+
+async function loadMatchesByLeague(leagueId) {
+  document.getElementById('matchList').innerHTML =
+    '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>';
+
+  // Matches API hanya support category=football, tidak per-liga
+  // Load semua football matches sekali, cache ke allFootballMatches
+  if (!window._footballCache) {
+    const res = await apiFetch({ data: 'matches', category: 'football' });
+    if (res.error || !res.success) {
+      document.getElementById('matchList').innerHTML = '<div class="error-box">Gagal memuat jadwal.</div>';
+      return;
+    }
+    window._footballCache = res.data || [];
+  }
+
+  const all = window._footballCache;
+
+  // Coba filter berdasarkan field league/competition di tiap match
+  const filtered = all.filter(m => {
+    const lg = (m.league || m.competition || m.leagueName || m.league_name || '').toUpperCase();
+    return lg === leagueId.toUpperCase() || lg.includes(leagueId.toUpperCase());
+  });
+
+  // Kalau tidak ada match yang cocok, tampilkan semua
+  allMatches = filtered.length > 0 ? filtered : all;
+
+  document.getElementById('matchCount').textContent = allMatches.length + ' match';
+  renderList(allMatches);
+}
+
+
+loadLeagues();
 </script>
 </body>
 </html>
