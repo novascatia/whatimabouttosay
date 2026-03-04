@@ -16,6 +16,10 @@ exports.handler = async (event) => {
 
     const text = await response.text();
 
+    // Log sample ke console Netlify untuk debug
+    console.log('URL fetched:', url);
+    console.log('Response sample:', text.substring(0, 500));
+
     return {
       statusCode: 200,
       headers: {
