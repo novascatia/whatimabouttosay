@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nova Stream - Live Sports</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #0f0f0f; 
+            color: #e5e5e5; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+        }
+        .glass-card { 
+            background: #1a1a1a; 
+            border: 1px solid #2d2d2d; 
+            border-radius: 20px; 
+            transition: all 0.3s ease; 
+        }
+        .glass-card:hover { 
+            border-color: #4a4a4a; 
+            transform: translateY(-4px); 
+        }
+        .category-btn {
+            background: #1a1a1a;
+            border: 1px solid #2d2d2d;
+            transition: all 0.2s;
+        }
+        .category-btn.active {
+            background: #2563eb; /* Primary Blue */
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        /* Modal Stream */
+        #streamModal {
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.85);
+        }
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="py-8 md:py-12 max-w-5xl mx-auto px-6">
+
+    <nav class="flex justify-between items-center mb-12">
+        <a href="/" class="text-sm font-bold text-zinc-500 hover:text-white transition uppercase tracking-widest flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Home
+        </a>
+        <div class="text-xl font-extrabold tracking-tighter text-white italic">novaStream</div>
+    </nav>
+
+    <header class="mb-10">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">Live Sports</h1>
+        <p class="text-gray-400 text-sm md:text-base">Watch your favorite matches seamlessly.</p>
+    </header>
+
+    <main>
+        <div class="mb-8">
+            <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4">Select Category</h2>
+            <div id="categoryContainer" class="flex gap-3 overflow-x-auto pb-4 hide-scrollbar">
+                <p class="text-gray-500 text-sm italic">Loading categories...</p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Upcoming Matches</h2>
+            <div class="h-[1px] flex-grow ml-6 bg-zinc-800"></div>
+        </div>
+        
+        <div id="matchesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <p class="text-gray-500 italic text-sm">Select a category to view matches.</p>
+        </div>
+    </main>
+
+    <div id="streamModal" class="fixed inset-0 z-50 hidden flex-col items-center justify-center p-4 md:p-12">
+        <div class="w-full max-w-4xl bg-[#171717] border border-[#2d2d2d] rounded-2xl p-4 md:p-6 relative">
+            <button onclick="closeStream()" class="absolute -top-4 -right-4 bg-red-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-500 transition shadow-lg">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 id="streamTitle" class="text-xl font-bold mb-4">Playing Stream...</h2>
+            
+            <div id="videoEmbed" class="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl flex items-center justify-center">
+                <i class="fas fa-spinner fa-spin text-3xl text-zinc-600"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://api.sportsrc.org/";
+        let currentCategory = "";
+
+        // 1. Fetch Categories
+        async function fetchCategories() {
+            const container = document.getElementById('categoryContainer');
+            try {
+                const response = await fetch(`${API_BASE}?data=sports`);
+                const categories = await response.json(); 
+                
+                // Menyesuaikan jika response berupa array string atau object
+                container.innerHTML = categories.map(cat => {
+                    // Asumsi response format: ["football", "basketball"] atau [{id: "football", name: "Football"}]
+                    const catId = typeof cat === 'string' ? cat : cat.id;
+                    const catName = typeof cat === 'string' ? cat.toUpperCase() : cat.name;
+
+                    return `<button onclick="selectCategory('${catId}')" id="btn-${catId}" class="category-btn px-5 py-2 rounded-full text-sm font-semibold text-gray-300 capitalize flex-shrink-0 whitespace-nowrap">
+                                ${catName}
+                            </button>`;
+                }).join('');
+
+                // Auto select kategori pertama jika ada
+                if(categories.length > 0) {
+                    const firstCat = typeof categories[0] === 'string' ? categories[0] : categories[0].id;
+                    selectCategory(firstCat);
+                }
+
+            } catch (error) {
+                container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat kategori.</p>`;
+            }
+        }
+
+        // 2. Fetch Matches based on Category
+        async function selectCategory(category) {
+            currentCategory = category;
+            
+            // Update UI Button
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${category}`).classList.add('active');
+
+            const container = document.getElementById('matchesContainer');
+            container.innerHTML = `<p class="text-zinc-500 text-sm animate-pulse">Fetching ${category} matches...</p>`;
+
+            try {
+                const response = await fetch(`${API_BASE}?data=matches&category=${category}`);
+                const matches = await response.json();
+
+                if (matches && matches.length > 0) {
+                    container.innerHTML = matches.map(match => `
+                        <div onclick="openStream('${match.id}', '${match.title || 'Live Match'}')" class="glass-card p-5 cursor-pointer group flex flex-col justify-between">
+                            <div>
+                                <span class="text-[9px] text-zinc-500 uppercase tracking-[0.2em] mb-2 block">
+                                    ${match.time || 'Upcoming'}
+                                </span>
+                                <h3 class="text-lg font-bold group-hover:text-blue-400 transition">
+                                    ${match.title || match.home_team + ' vs ' + match.away_team}
+                                </h3>
+                                <p class="text-sm text-zinc-500 mt-1">${match.league || 'General'}</p>
+                            </div>
+                            <div class="mt-4 flex items-center text-blue-500 text-sm font-semibold group-hover:translate-x-2 transition transform w-max">
+                                <i class="fas fa-play-circle mr-2"></i> Watch Stream
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<p class="text-zinc-600 italic text-sm">Tidak ada jadwal pertandingan saat ini.</p>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat pertandingan.</p>`;
+            }
+        }
+
+        // 3. Fetch Stream Detail and Open Modal
+        async function openStream(matchId, matchTitle) {
+            const modal = document.getElementById('streamModal');
+            const videoEmbed = document.getElementById('videoEmbed');
+            const titleEl = document.getElementById('streamTitle');
+            
+            titleEl.textContent = matchTitle;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            videoEmbed.innerHTML = `<i class="fas fa-spinner fa-spin text-3xl text-zinc-600"></i>`; // Loading state
+
+            try {
+                const response = await fetch(`${API_BASE}?data=detail&category=${currentCategory}&id=${matchId}`);
+                const detail = await response.json();
+
+                // Asumsi response mengembalikan property "embed_code" atau "stream_url"
+                if(detail.embed_code) {
+                    videoEmbed.innerHTML = `<div class="video-container w-full h-full">${detail.embed_code}</div>`;
+                } else if (detail.stream_url) {
+                    videoEmbed.innerHTML = `<iframe src="${detail.stream_url}" allowfullscreen></iframe>`;
+                } else {
+                    videoEmbed.innerHTML = `<p class="text-red-500">Stream tidak tersedia.</p>`;
+                }
+
+            } catch (error) {
+                videoEmbed.innerHTML = `<p class="text-red-500">Gagal memuat stream.</p>`;
+            }
+        }
+
+        function closeStream() {
+            const modal = document.getElementById('streamModal');
+            const videoEmbed = document.getElementById('videoEmbed');
+            
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            videoEmbed.innerHTML = ''; // Hentikan video saat modal ditutup
+        }
+
+        // Inisialisasi
+        window.onload = () => {
+            fetchCategories();
+        };
+    </script>
+</body>
+</html>
