@@ -319,7 +319,6 @@ async function loadStream(cat, id, m) {
     }
   }
 
-  }
 
   const res = await apiFetch({ data: 'detail', category: cat, id });
   if (res.error || !res.success) {
