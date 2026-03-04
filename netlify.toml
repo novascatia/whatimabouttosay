@@ -9,11 +9,6 @@
   conditions = {Role = ["authenticated"]}
 
 [[redirects]]
-  from = "/stream"
-  to = "/stream.html"
-  status = 200
-
-[[redirects]]
   from = "/admin"
   to = "/login.html"
   status = 302
