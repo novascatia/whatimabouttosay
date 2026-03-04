@@ -15,6 +15,10 @@
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 12px; overflow: hidden; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         .active-stream { border: 2px solid #06b6d4 !important; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0f0f0f; }
+        ::-webkit-scrollbar-thumb { background: #2d2d2d; border-radius: 10px; }
     </style>
 </head>
 <body class="p-6 md:p-12 max-w-6xl mx-auto">
@@ -29,41 +33,41 @@
         
         <div class="lg:col-span-2">
             <header class="mb-6">
-                <h1 id="streamTitle" class="text-3xl font-extrabold tracking-tight text-white italic">Select a Match</h1>
-                <p id="streamStatus" class="text-zinc-500 text-sm">Pick a match from the list to start streaming</p>
+                <h1 id="streamTitle" class="text-3xl font-extrabold tracking-tight text-white italic">Sports Hub</h1>
+                <p id="streamStatus" class="text-zinc-500 text-sm">Select a match to start streaming</p>
             </header>
 
             <div class="glass-card p-2 shadow-2xl">
                 <div id="playerWrapper" class="video-container">
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-zinc-600">
                         <i class="fas fa-play-circle text-6xl mb-4"></i>
-                        <p class="font-bold tracking-widest uppercase text-xs">Ready to Stream</p>
+                        <p class="font-bold tracking-widest uppercase text-[10px]">Ready to Stream</p>
                     </div>
                 </div>
             </div>
 
             <div class="mt-6 glass-card p-6">
                 <h3 class="text-white font-bold mb-2 flex items-center text-sm uppercase tracking-wider">
-                    <i class="fas fa-circle text-red-500 animate-pulse mr-2 text-[10px]"></i> System Log
+                    <i class="fas fa-circle text-cyan-500 animate-pulse mr-2 text-[10px]"></i> System Status
                 </h3>
-                <p class="text-xs text-zinc-400 leading-relaxed font-mono">
-                    > API Connection: Established<br>
-                    > Source: api.sportsrc.org<br>
-                    > Status: Waiting for user input...
+                <p class="text-[10px] text-zinc-400 leading-relaxed font-mono">
+                    > Connection: Online<br>
+                    > API Endpoint: api.sportsrc.org<br>
+                    > Status: <span id="logStatus">Idle</span>
                 </p>
             </div>
         </div>
 
         <div class="lg:col-span-1">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Live Matches</h2>
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Upcoming Matches</h2>
                 <button onclick="loadMatches()" class="text-zinc-500 hover:text-white transition text-xs">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
 
             <div id="matchList" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                <p class="text-zinc-600 italic text-sm">Fetching matches...</p>
+                <p class="text-zinc-600 italic text-[10px]">Initializing...</p>
             </div>
         </div>
 
@@ -72,65 +76,71 @@
     <script>
         const API_BASE = "https://api.sportsrc.org/";
 
-  async function loadMatches() {
-    const container = document.getElementById('matchList');
-    try {
-        // 1. Coba ambil pertandingan yang sedang Live dulu
-        let response = await fetch(`${API_BASE}?data=matches&category=football`);
-        let matches = await response.json();
-
-        // 2. Jika kosong, otomatis ambil jadwal mendatang (Upcoming)
-        if (!matches || matches.length === 0) {
-            console.log("No live matches, fetching schedules...");
-            // Anda bisa menambahkan parameter sesuai kebutuhan jika API mendukung filter status
-            // Namun berdasarkan docs, matches biasanya sudah mencakup list yang tersedia
-            response = await fetch(`${API_BASE}?data=matches&category=football`); 
-            matches = await response.json();
+        // Fungsi mengonversi timestamp ke waktu (HH:mm)
+        function formatMatchTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         }
 
-        if (matches && matches.length > 0) {
-            container.innerHTML = matches.map(match => `
-                <div onclick="playMatch('${match.id}', '${match.title}')" 
-                     id="card-${match.id}"
-                     class="match-card glass-card p-4 cursor-pointer">
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">${match.league || 'Football'}</span>
-                        <span class="text-[9px] ${match.is_live ? 'text-red-500' : 'text-zinc-600'} font-mono">
-                            ${match.is_live ? '● LIVE' : match.time}
-                        </span>
-                    </div>
-                    <h3 class="text-sm font-bold text-zinc-300 group-hover:text-white transition">${match.title}</h3>
-                </div>
-            `).join('');
-        } else {
-            container.innerHTML = `<p class="text-zinc-600 text-xs italic text-center p-4">Belum ada jadwal pertandingan tersedia.</p>`;
-        }
-    } catch (e) {
-        container.innerHTML = `<p class="text-red-500 text-xs italic text-center p-4">Gagal menyambung ke API.</p>`;
-    }
-}
+        async function loadMatches() {
+            const container = document.getElementById('matchList');
+            const logStatus = document.getElementById('logStatus');
+            logStatus.textContent = "Fetching matches...";
 
-        // 2. Ambil detail stream dan putar
+            try {
+                const response = await fetch(`${API_BASE}?data=matches&category=football`);
+                const result = await response.json();
+
+                // Kita akses result.data karena output curl menunjukkan datanya ada di sana
+                const matches = result.data || [];
+
+                if (matches.length > 0) {
+                    logStatus.textContent = "Ready";
+                    container.innerHTML = matches.map(match => {
+                        const timeStr = formatMatchTime(match.date);
+                        return `
+                        <div onclick="playMatch('${match.id}', '${match.title}')" 
+                             id="card-${match.id}"
+                             class="match-card glass-card p-4 cursor-pointer">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">FOOTBALL</span>
+                                <span class="text-[9px] text-zinc-600 font-mono italic">${timeStr}</span>
+                            </div>
+                            <h3 class="text-sm font-bold text-zinc-300 transition italic truncate">${match.title}</h3>
+                        </div>
+                    `}).join('');
+                } else {
+                    logStatus.textContent = "No data found";
+                    container.innerHTML = `<p class="text-zinc-600 text-[10px] italic text-center p-4">No matches found.</p>`;
+                }
+            } catch (e) {
+                logStatus.textContent = "Connection Error";
+                container.innerHTML = `<p class="text-red-500 text-[10px] italic text-center p-4">API Error.</p>`;
+            }
+        }
+
         async function playMatch(id, title) {
             const playerWrapper = document.getElementById('playerWrapper');
             const streamTitle = document.getElementById('streamTitle');
             const streamStatus = document.getElementById('streamStatus');
 
-            // Visual feedback
             document.querySelectorAll('.match-card').forEach(c => c.classList.remove('active-stream'));
-            document.getElementById(`card-${id}`).classList.add('active-stream');
+            const selectedCard = document.getElementById(`card-${id}`);
+            if (selectedCard) selectedCard.classList.add('active-stream');
 
-            streamTitle.textContent = "Loading Stream...";
+            streamTitle.textContent = "Fetching Link...";
             playerWrapper.innerHTML = `<div class="absolute inset-0 flex items-center justify-center"><i class="fas fa-spinner fa-spin text-3xl text-cyan-500"></i></div>`;
 
             try {
-                // Sesuai docs: curl "https://api.sportsrc.org/?data=detail&category=football&id=match-id"
                 const response = await fetch(`${API_BASE}?data=detail&category=football&id=${id}`);
-                const detail = await response.json();
+                const result = await response.json();
+                
+                // Biasanya detail juga dibungkus dalam result.data
+                const detail = result.data || result;
 
                 if (detail && detail.embed_url) {
                     streamTitle.textContent = title;
-                    streamStatus.textContent = `Streaming from official source`;
+                    streamStatus.textContent = `Live Stream Active`;
                     playerWrapper.innerHTML = `
                         <iframe 
                             src="${detail.embed_url}" 
@@ -139,14 +149,15 @@
                             allow="autoplay; encrypted-media">
                         </iframe>`;
                 } else {
-                    throw new Error("No stream URL");
+                    throw new Error();
                 }
             } catch (e) {
-                streamTitle.textContent = "Stream Unavailable";
+                streamTitle.textContent = "Stream Offline";
+                streamStatus.textContent = "Pertandingan belum dimulai atau link belum tersedia.";
                 playerWrapper.innerHTML = `
-                    <div class="absolute inset-0 flex flex-col items-center justify-center text-red-900/50">
-                        <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
-                        <p class="text-[10px] font-bold uppercase">Source Error</p>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-zinc-800">
+                        <i class="fas fa-clock text-4xl mb-2"></i>
+                        <p class="text-[10px] font-bold uppercase tracking-widest">Available Soon</p>
                     </div>`;
             }
         }
