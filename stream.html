@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premier League Live - Nova</title>
+    <title>Premier League Hub - Nova</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -34,7 +34,7 @@
         <div class="lg:col-span-2">
             <header class="mb-6">
                 <h1 id="streamTitle" class="text-3xl font-extrabold tracking-tight text-white italic">Premier League Hub</h1>
-                <p id="streamStatus" class="text-zinc-500 text-sm">Pilih pertandingan untuk memulai streaming</p>
+                <p id="streamStatus" class="text-zinc-500 text-sm">Pilih pertandingan liga Inggris untuk menonton</p>
             </header>
 
             <div class="glass-card p-2 shadow-2xl">
@@ -52,7 +52,7 @@
                 </h3>
                 <p class="text-[10px] text-zinc-400 leading-relaxed font-mono">
                     > Connection: Online<br>
-                    > Category: Football (PL Only)<br>
+                    > Active Filter: Premier League (PL)<br>
                     > Status: <span id="logStatus">Idle</span>
                 </p>
             </div>
@@ -60,14 +60,14 @@
 
         <div class="lg:col-span-1">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Upcoming PL Matches</h2>
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Matches List</h2>
                 <button onclick="loadMatches()" class="text-zinc-500 hover:text-white transition text-xs">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
 
             <div id="matchList" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                <p class="text-zinc-600 italic text-[10px]">Initializing Premier League data...</p>
+                <p class="text-zinc-600 italic text-[10px]">Filtering Premier League matches...</p>
             </div>
         </div>
 
@@ -76,7 +76,6 @@
     <script>
         const API_BASE = "https://api.sportsrc.org/";
 
-        // Konversi timestamp milidetik ke HH:mm
         function formatMatchTime(timestamp) {
             const date = new Date(timestamp);
             return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -85,41 +84,50 @@
         async function loadMatches() {
             const container = document.getElementById('matchList');
             const logStatus = document.getElementById('logStatus');
-            logStatus.textContent = "Fetching PL Matches...";
+            logStatus.textContent = "Fetching & Filtering...";
 
             try {
-                // Filter khusus Premier League (PL)
-                const response = await fetch(`${API_BASE}?data=matches&category=football&league=PL`);
+                // Ambil semua matches terlebih dahulu
+                const response = await fetch(`${API_BASE}?data=matches&category=football`);
                 const result = await response.json();
+                const allMatches = result.data || [];
 
-                // Akses array dari result.data
-                const matches = result.data || [];
+                // FILTERING MANUAL: Hanya ambil yang id/title mengandung kata kunci liga Inggris atau id PL jika ada di metadata
+                // Karena log curl kamu menunjukkan ID liga adalah "PL", kita coba filter berdasarkan league_id atau title
+                const plMatches = allMatches.filter(m => 
+                    (m.league_id === 'PL') || 
+                    (m.league && m.league.includes('Premier League')) ||
+                    (m.id && m.id.includes('premier-league'))
+                );
 
-                if (matches.length > 0) {
-                    logStatus.textContent = "Data Synced";
-                    container.innerHTML = matches.map(match => {
+                // Jika filter manual kosong, kita tampilkan semua agar halaman tidak kosong, tapi beri tanda
+                const displayData = plMatches.length > 0 ? plMatches : allMatches;
+
+                if (displayData.length > 0) {
+                    logStatus.textContent = plMatches.length > 0 ? "PL Data Loaded" : "Showing All (No PL Live)";
+                    container.innerHTML = displayData.map(match => {
                         const timeStr = formatMatchTime(match.date);
+                        const isPL = plMatches.includes(match);
                         return `
                         <div onclick="playMatch('${match.id}', '${match.title}')" 
                              id="card-${match.id}"
                              class="match-card glass-card p-4 cursor-pointer">
                             <div class="flex justify-between items-start mb-1">
-                                <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">PREMIER LEAGUE</span>
+                                <span class="text-[9px] ${isPL ? 'text-cyan-500' : 'text-zinc-500'} font-bold uppercase tracking-wider">
+                                    ${isPL ? 'Premier League' : (match.league || 'Football')}
+                                </span>
                                 <span class="text-[9px] text-zinc-600 font-mono italic">${timeStr}</span>
                             </div>
                             <h3 class="text-sm font-bold text-zinc-300 transition italic truncate">${match.title}</h3>
                         </div>
                     `}).join('');
                 } else {
-                    logStatus.textContent = "No PL Matches";
-                    container.innerHTML = `
-                        <div class="p-8 text-center glass-card">
-                            <p class="text-zinc-600 text-[10px] italic">Tidak ada jadwal Premier League saat ini.</p>
-                        </div>`;
+                    logStatus.textContent = "No Matches Found";
+                    container.innerHTML = `<p class="text-zinc-600 text-[10px] italic text-center p-4">No matches available.</p>`;
                 }
             } catch (e) {
-                logStatus.textContent = "API Offline";
-                container.innerHTML = `<p class="text-red-500 text-[10px] italic text-center p-4">Gagal memuat data liga.</p>`;
+                logStatus.textContent = "Connection Error";
+                container.innerHTML = `<p class="text-red-500 text-[10px] italic text-center p-4">Failed to fetch data.</p>`;
             }
         }
 
@@ -132,19 +140,17 @@
             const selectedCard = document.getElementById(`card-${id}`);
             if (selectedCard) selectedCard.classList.add('active-stream');
 
-            streamTitle.textContent = "Loading Stream...";
+            streamTitle.textContent = "Connecting Source...";
             playerWrapper.innerHTML = `<div class="absolute inset-0 flex items-center justify-center"><i class="fas fa-spinner fa-spin text-3xl text-cyan-500"></i></div>`;
 
             try {
                 const response = await fetch(`${API_BASE}?data=detail&category=football&id=${id}`);
                 const result = await response.json();
-                
-                // Akses detail dari result.data
                 const detail = result.data || result;
 
                 if (detail && detail.embed_url) {
                     streamTitle.textContent = title;
-                    streamStatus.textContent = `Live Streaming Premier League`;
+                    streamStatus.textContent = `Streaming Live`;
                     playerWrapper.innerHTML = `
                         <iframe 
                             src="${detail.embed_url}" 
@@ -156,12 +162,12 @@
                     throw new Error();
                 }
             } catch (e) {
-                streamTitle.textContent = "Stream Unavailable";
-                streamStatus.textContent = "Link belum tersedia untuk pertandingan ini.";
+                streamTitle.textContent = "Offline";
+                streamStatus.textContent = "Stream belum tersedia untuk jam ini.";
                 playerWrapper.innerHTML = `
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-zinc-800">
                         <i class="fas fa-clock text-4xl mb-2"></i>
-                        <p class="text-[10px] font-bold uppercase tracking-widest">Available Near Kick-off</p>
+                        <p class="text-[10px] font-bold uppercase tracking-widest">Kick-off Soon</p>
                     </div>`;
             }
         }
