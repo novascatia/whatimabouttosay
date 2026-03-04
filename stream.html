@@ -282,17 +282,43 @@ async function loadStream(cat, id, m) {
 
   // Cek waktu — blok jika > 10 menit sebelum kickoff
   if (m.date && !m.live) {
-    const diff = m.date - Date.now(); // ms until match
+    const diff = m.date - Date.now();
     if (diff > 10 * 60 * 1000) {
-      const minsLeft = Math.ceil(diff / 60000);
+      // Render countdown
+      const countdownId = 'cd_' + Date.now();
       ea.innerHTML = `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center">
         <div style="font-size:36px">⏱️</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent)">BELUM WAKTUNYA</div>
         <div style="font-size:13px;color:var(--text);line-height:1.7;max-width:280px">Kamu baru bisa mengakses streaming 10 menit sebelum pertandingan dimulai!</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Mulai dalam <span style="color:var(--accent);font-weight:700">${minsLeft} menit</span> lagi</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Mulai dalam <span id="${countdownId}" style="color:var(--accent);font-weight:700;font-size:13px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px"></span></div>
       </div>`;
+
+      function fmtCountdown() {
+        const rem = m.date - Date.now();
+        if (rem <= 0) return null;
+        const totalSec = Math.floor(rem / 1000);
+        const h = Math.floor(totalSec / 3600);
+        const min = Math.floor((totalSec % 3600) / 60);
+        const sec = totalSec % 60;
+        if (h > 0) return `${h} jam ${min} menit ${String(sec).padStart(2,'0')} detik`;
+        return `${min} menit ${String(sec).padStart(2,'0')} detik`;
+      }
+
+      const el = document.getElementById(countdownId);
+      if (el) el.textContent = fmtCountdown() || '';
+
+      const timer = setInterval(() => {
+        const el = document.getElementById(countdownId);
+        if (!el) { clearInterval(timer); return; }
+        const val = fmtCountdown();
+        if (!val) { clearInterval(timer); el.textContent = 'sekarang!'; return; }
+        el.textContent = val;
+      }, 1000);
+
       return;
     }
+  }
+
   }
 
   const res = await apiFetch({ data: 'detail', category: cat, id });
