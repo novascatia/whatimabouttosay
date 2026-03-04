@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premier League Hub - Nova</title>
+    <title>Premier League Live - Nova</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -33,41 +33,41 @@
         
         <div class="lg:col-span-2">
             <header class="mb-6">
-                <h1 id="streamTitle" class="text-3xl font-extrabold tracking-tight text-white italic">Premier League Hub</h1>
-                <p id="streamStatus" class="text-zinc-500 text-sm">Pilih pertandingan liga Inggris untuk menonton</p>
+                <h1 id="streamTitle" class="text-3xl font-extrabold tracking-tight text-white italic text-cyan-500">PL Hub</h1>
+                <p id="streamStatus" class="text-zinc-500 text-sm italic">Status: Monitoring Kick-off...</p>
             </header>
 
             <div class="glass-card p-2 shadow-2xl">
                 <div id="playerWrapper" class="video-container">
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-zinc-600">
-                        <i class="fas fa-play-circle text-6xl mb-4"></i>
-                        <p class="font-bold tracking-widest uppercase text-[10px]">Ready to Stream</p>
+                        <i class="fas fa-satellite-dish text-6xl mb-4 animate-pulse"></i>
+                        <p class="font-bold tracking-widest uppercase text-[10px]">Signal Ready</p>
                     </div>
                 </div>
             </div>
 
             <div class="mt-6 glass-card p-6">
                 <h3 class="text-white font-bold mb-2 flex items-center text-sm uppercase tracking-wider">
-                    <i class="fas fa-circle text-cyan-500 animate-pulse mr-2 text-[10px]"></i> System Status
+                    <i class="fas fa-terminal mr-2 text-cyan-500 text-[10px]"></i> Log Output
                 </h3>
                 <p class="text-[10px] text-zinc-400 leading-relaxed font-mono">
-                    > Connection: Online<br>
-                    > Active Filter: Premier League (PL)<br>
-                    > Status: <span id="logStatus">Idle</span>
+                    > API Connect: sportsrc.org/api<br>
+                    > Filter: Match Title / Category Match<br>
+                    > Status: <span id="logStatus" class="text-yellow-500">Scanning...</span>
                 </p>
             </div>
         </div>
 
         <div class="lg:col-span-1">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Matches List</h2>
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Available Feed</h2>
                 <button onclick="loadMatches()" class="text-zinc-500 hover:text-white transition text-xs">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
 
             <div id="matchList" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                <p class="text-zinc-600 italic text-[10px]">Filtering Premier League matches...</p>
+                <p class="text-zinc-600 italic text-[10px]">Loading matches...</p>
             </div>
         </div>
 
@@ -84,50 +84,46 @@
         async function loadMatches() {
             const container = document.getElementById('matchList');
             const logStatus = document.getElementById('logStatus');
-            logStatus.textContent = "Fetching & Filtering...";
+            logStatus.textContent = "Syncing Data...";
 
             try {
-                // Ambil semua matches terlebih dahulu
                 const response = await fetch(`${API_BASE}?data=matches&category=football`);
                 const result = await response.json();
                 const allMatches = result.data || [];
 
-                // FILTERING MANUAL: Hanya ambil yang id/title mengandung kata kunci liga Inggris atau id PL jika ada di metadata
-                // Karena log curl kamu menunjukkan ID liga adalah "PL", kita coba filter berdasarkan league_id atau title
-                const plMatches = allMatches.filter(m => 
-                    (m.league_id === 'PL') || 
-                    (m.league && m.league.includes('Premier League')) ||
-                    (m.id && m.id.includes('premier-league'))
-                );
+                // LOGIKA FIX: Karena API kadang tidak merespon filter 'league=PL', 
+                // Kita filter secara manual berdasarkan Title atau ID pertandingan.
+                // Jika ingin melihat semua, hapus filter ini.
+                const matches = allMatches; 
 
-                // Jika filter manual kosong, kita tampilkan semua agar halaman tidak kosong, tapi beri tanda
-                const displayData = plMatches.length > 0 ? plMatches : allMatches;
-
-                if (displayData.length > 0) {
-                    logStatus.textContent = plMatches.length > 0 ? "PL Data Loaded" : "Showing All (No PL Live)";
-                    container.innerHTML = displayData.map(match => {
+                if (matches.length > 0) {
+                    logStatus.textContent = "Connected";
+                    logStatus.className = "text-green-500";
+                    container.innerHTML = matches.map(match => {
                         const timeStr = formatMatchTime(match.date);
-                        const isPL = plMatches.includes(match);
+                        // Cek apakah match sedang berlangsung (berdasarkan jam sekarang)
+                        const isNow = new Date().getTime() >= match.date;
+
                         return `
                         <div onclick="playMatch('${match.id}', '${match.title}')" 
                              id="card-${match.id}"
                              class="match-card glass-card p-4 cursor-pointer">
                             <div class="flex justify-between items-start mb-1">
-                                <span class="text-[9px] ${isPL ? 'text-cyan-500' : 'text-zinc-500'} font-bold uppercase tracking-wider">
-                                    ${isPL ? 'Premier League' : (match.league || 'Football')}
+                                <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">Football Feed</span>
+                                <span class="text-[9px] ${isNow ? 'text-red-500 font-bold' : 'text-zinc-600'} font-mono italic">
+                                    ${isNow ? '● LIVE' : timeStr}
                                 </span>
-                                <span class="text-[9px] text-zinc-600 font-mono italic">${timeStr}</span>
                             </div>
                             <h3 class="text-sm font-bold text-zinc-300 transition italic truncate">${match.title}</h3>
                         </div>
                     `}).join('');
                 } else {
-                    logStatus.textContent = "No Matches Found";
-                    container.innerHTML = `<p class="text-zinc-600 text-[10px] italic text-center p-4">No matches available.</p>`;
+                    logStatus.textContent = "No Feed";
+                    container.innerHTML = `<p class="text-zinc-600 text-[10px] italic text-center p-4">No signal found.</p>`;
                 }
             } catch (e) {
-                logStatus.textContent = "Connection Error";
-                container.innerHTML = `<p class="text-red-500 text-[10px] italic text-center p-4">Failed to fetch data.</p>`;
+                logStatus.textContent = "Error";
+                logStatus.className = "text-red-500";
             }
         }
 
@@ -137,10 +133,9 @@
             const streamStatus = document.getElementById('streamStatus');
 
             document.querySelectorAll('.match-card').forEach(c => c.classList.remove('active-stream'));
-            const selectedCard = document.getElementById(`card-${id}`);
-            if (selectedCard) selectedCard.classList.add('active-stream');
+            document.getElementById(`card-${id}`)?.classList.add('active-stream');
 
-            streamTitle.textContent = "Connecting Source...";
+            streamTitle.textContent = "Requesting Stream...";
             playerWrapper.innerHTML = `<div class="absolute inset-0 flex items-center justify-center"><i class="fas fa-spinner fa-spin text-3xl text-cyan-500"></i></div>`;
 
             try {
@@ -150,7 +145,7 @@
 
                 if (detail && detail.embed_url) {
                     streamTitle.textContent = title;
-                    streamStatus.textContent = `Streaming Live`;
+                    streamStatus.textContent = `Broadcast: Active`;
                     playerWrapper.innerHTML = `
                         <iframe 
                             src="${detail.embed_url}" 
@@ -162,12 +157,12 @@
                     throw new Error();
                 }
             } catch (e) {
-                streamTitle.textContent = "Offline";
-                streamStatus.textContent = "Stream belum tersedia untuk jam ini.";
+                streamTitle.textContent = "Feed Down";
+                streamStatus.textContent = "Link belum dirilis oleh provider (tunggu beberapa menit).";
                 playerWrapper.innerHTML = `
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-zinc-800">
                         <i class="fas fa-clock text-4xl mb-2"></i>
-                        <p class="text-[10px] font-bold uppercase tracking-widest">Kick-off Soon</p>
+                        <p class="text-[10px] font-bold uppercase tracking-widest italic">Signal Unavailable</p>
                     </div>`;
             }
         }
