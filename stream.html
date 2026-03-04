@@ -44,10 +44,6 @@ header {
 
 /* PLAYER */
 .player-side { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); }
-.tabs { display:flex; border-bottom:1px solid var(--border); flex-shrink:0; }
-.tab { flex:1; padding:11px; text-align:center; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; }
-.tab:hover { color:var(--text); }
-.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
 
 .stream-area { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
 .placeholder { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:40px; text-align:center; }
@@ -71,12 +67,6 @@ header {
 .stream-btn { padding:5px 13px; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:5px; cursor:pointer; font-size:11px; font-family:'DM Sans',sans-serif; transition:all .15s; }
 .stream-btn.active, .stream-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-.standings-wrap { flex:1; overflow-y:auto; padding:16px; }
-.standings-title { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
-.standings-table { width:100%; border-collapse:collapse; font-size:12px; }
-.standings-table th { padding:6px 7px; color:var(--muted); font-weight:500; letter-spacing:1px; text-transform:uppercase; border-bottom:1px solid var(--border); text-align:left; }
-.standings-table td { padding:7px; border-bottom:1px solid rgba(28,34,51,.5); }
-.standings-table tr:hover td { background:var(--card); }
 
 /* SIDEBAR */
 .sidebar { display:flex; flex-direction:column; overflow:hidden; }
@@ -152,8 +142,8 @@ header {
 <body>
 
 <header>
-  <div class="logo">Nova<span>STREAM</span></div>
-  <div class="live-badge"><div class="live-dot"></div>#GloryGloryManUnited</div>
+  <div class="logo">NOVA<span>STREAM</span></div>
+  <div class="live-badge"><div class="live-dot"></div>LIVE STREAMING</div>
 </header>
 
 <div class="cat-bar" id="catBar">
@@ -164,9 +154,6 @@ header {
 
   <!-- PLAYER SIDE -->
   <div class="player-side">
-    <div class="tabs">
-      <div class="tab active" data-tab="stream">▶ Stream</div>
-      <div class="tab" data-tab="standings">📊 Klasemen</div>
     </div>
 
     <div class="stream-area" id="tabStream">
@@ -185,8 +172,6 @@ header {
       </div>
     </div>
 
-    <div class="standings-wrap" id="tabStandings" style="display:none">
-      <div id="standingsContent"><div class="empty">Memuat klasemen...</div></div>
     </div>
   </div>
 
@@ -211,18 +196,6 @@ header {
 const API = '/.netlify/functions/sportsrc-proxy';
 let currentCategory = 'football';
 let allMatches = [];
-
-// TABS
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const w = tab.dataset.tab;
-    document.getElementById('tabStream').style.display = w === 'stream' ? 'flex' : 'none';
-    document.getElementById('tabStandings').style.display = w === 'standings' ? 'block' : 'none';
-    if (w === 'standings') loadStandings();
-  });
-});
 
 // SEARCH
 document.getElementById('searchInput').addEventListener('input', e => {
@@ -321,10 +294,7 @@ function makeItem(m, pin) {
 async function loadStream(cat, id, m) {
   document.getElementById('placeholder').style.display = 'none';
   document.getElementById('playerBox').style.display = 'flex';
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelector('[data-tab="stream"]').classList.add('active');
   document.getElementById('tabStream').style.display = 'flex';
-  document.getElementById('tabStandings').style.display = 'none';
 
   const home = getHome(m), away = getAway(m);
   document.getElementById('matchBarTeams').innerHTML =
@@ -374,28 +344,6 @@ async function loadStream(cat, id, m) {
   }
 }
 
-// STANDINGS
-async function loadStandings() {
-  const panel = document.getElementById('standingsContent');
-  panel.innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>';
-  const lr = await apiFetch({ data: 'results', category: 'leagues' });
-  const lid = lr?.data?.[0]?.id || 'PL';
-  const res = await apiFetch({ data: 'results', category: 'tables', league: lid });
-  if (res.error||!res.success) { panel.innerHTML='<div class="error-box">Gagal memuat klasemen.</div>'; return; }
-  const rows = res.data||[];
-  if (!rows.length) { panel.innerHTML='<div class="empty">Tidak tersedia.</div>'; return; }
-  panel.innerHTML = `<div class="standings-title">KLASEMEN – ${lid.toUpperCase()}</div>
-    <table class="standings-table">
-      <thead><tr><th>#</th><th>Tim</th><th>M</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead>
-      <tbody>${rows.map((r,i)=>`<tr>
-        <td style="color:var(--muted)">${r.position||r.pos||i+1}</td>
-        <td>${r.team||r.name||'–'}</td><td>${r.played||r.p||'–'}</td>
-        <td>${r.won||r.w||'–'}</td><td>${r.drawn||r.d||'–'}</td>
-        <td>${r.lost||r.l||'–'}</td>
-        <td style="font-weight:700;color:var(--accent)">${r.points||r.pts||'–'}</td>
-      </tr>`).join('')}</tbody>
-    </table>`;
-}
 
 // INIT
 loadMatches(currentCategory);
