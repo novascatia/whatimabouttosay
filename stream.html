@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NovaStream</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -13,159 +13,115 @@
   --border: #1c2233;
   --accent: #d4f53c;
   --red: #ff3b3b;
+  --mu-red: #da291c;
   --text: #dde0eb;
   --muted: #4a5268;
-  --sidebar: 340px;
-  --header-h: 52px;
-  --catbar-h: 46px;
+  --sidebar: 360px;
 }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { height: 100%; }
-body {
-  background: var(--bg); color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  height: 100%; display: flex; flex-direction: column;
-  overflow: hidden;
-}
-
-/* ─── HEADER ─── */
 header {
-  height: var(--header-h);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 18px; border-bottom: 1px solid var(--border);
-  background: rgba(7,9,14,0.98); backdrop-filter: blur(16px);
-  flex-shrink: 0; z-index: 100; position: sticky; top: 0;
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+  background: rgba(7,9,14,0.97); backdrop-filter: blur(16px); flex-shrink: 0; z-index: 50;
 }
-.logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; color:var(--accent); }
+.logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; color:var(--accent); }
 .logo span { color: var(--text); }
-.live-badge { display:flex; align-items:center; gap:5px; font-size:10px; font-weight:600; letter-spacing:1.5px; color:var(--red); text-transform:uppercase; }
-.live-dot { width:6px; height:6px; background:var(--red); border-radius:50%; animation:blink 1.4s ease-in-out infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.live-badge { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:600; letter-spacing:2px; color:var(--red); text-transform:uppercase; }
+.live-dot { width:6px; height:6px; background:var(--red); border-radius:50%; animation:pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
 
-/* ─── CATEGORY BAR ─── */
-.cat-bar {
-  height: var(--catbar-h);
-  display: flex; align-items: center; gap: 7px;
-  padding: 0 14px; border-bottom: 1px solid var(--border);
-  overflow-x: auto; flex-shrink: 0; scrollbar-width: none;
-}
-.cat-bar::-webkit-scrollbar { display: none; }
-.cat-btn {
-  padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border);
-  background: var(--card); color: var(--muted); font-family:'DM Sans',sans-serif;
-  font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
-  transition: all .15s; flex-shrink: 0; user-select: none;
-}
-.cat-btn:active { transform: scale(.96); }
-.cat-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+/* category bar — football subcategories only */
+.cat-bar { display:flex; align-items:center; gap:8px; padding:9px 16px; border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
+.cat-bar::-webkit-scrollbar { display:none; }
+.cat-btn { padding:5px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--muted); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .15s; flex-shrink:0; }
+.cat-btn:hover { border-color:var(--accent); color:var(--accent); }
+.cat-btn.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
 
-/* ─── DESKTOP LAYOUT ─── */
-.main {
-  display: grid;
-  grid-template-columns: 1fr var(--sidebar);
-  flex: 1; overflow: hidden;
-  min-height: 0;
-}
+.main { display:grid; grid-template-columns:1fr var(--sidebar); flex:1; overflow:hidden; }
 
-/* ─── PLAYER SIDE ─── */
-.player-side {
-  display: flex; flex-direction: column;
-  overflow: hidden; border-right: 1px solid var(--border);
-  min-height: 0;
-}
+/* PLAYER */
+.player-side { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); }
 .tabs { display:flex; border-bottom:1px solid var(--border); flex-shrink:0; }
-.tab {
-  flex:1; padding:10px; text-align:center; font-size:10px; font-weight:600;
-  letter-spacing:1.5px; text-transform:uppercase; color:var(--muted);
-  cursor:pointer; border-bottom:2px solid transparent; transition:all .15s;
-}
-.tab:active { opacity: .7; }
+.tab { flex:1; padding:11px; text-align:center; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; }
+.tab:hover { color:var(--text); }
 .tab.active { color:var(--accent); border-bottom-color:var(--accent); }
 
-.stream-area { flex:1; overflow-y:auto; display:flex; flex-direction:column; min-height:0; }
-
-.placeholder {
-  flex:1; display:flex; flex-direction:column; align-items:center;
-  justify-content:center; gap:12px; padding:40px; text-align:center;
-}
-.play-ring { width:64px; height:64px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:24px; color:var(--muted); }
-.placeholder h3 { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:var(--muted); }
-.placeholder p { font-size:11px; color:var(--muted); opacity:.5; max-width:180px; line-height:1.7; }
+.stream-area { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+.placeholder { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:40px; text-align:center; }
+.play-ring { width:72px; height:72px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--muted); }
+.placeholder h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; color:var(--muted); }
+.placeholder p { font-size:12px; color:var(--muted); opacity:.6; max-width:200px; line-height:1.7; }
 
 #playerBox { display:none; flex-direction:column; }
 .video-wrap { position:relative; width:100%; padding-bottom:56.25%; background:#000; flex-shrink:0; }
 .video-wrap > * { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
 
-.match-bar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 16px; border-bottom:1px solid var(--border); gap:10px; flex-wrap:wrap;
-  flex-shrink:0;
-}
-.match-bar-teams { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.mbt { display:flex; align-items:center; gap:6px; }
-.mbt img { width:22px; height:22px; object-fit:contain; }
-.mbt-name { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:1px; }
-.vs-sep { font-size:10px; color:var(--muted); font-weight:600; }
-.match-bar-meta { font-size:10px; color:var(--muted); }
+.match-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-bottom:1px solid var(--border); gap:12px; flex-wrap:wrap; }
+.match-bar-teams { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.mbt { display:flex; align-items:center; gap:7px; }
+.mbt img { width:24px; height:24px; object-fit:contain; }
+.mbt-name { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1px; }
+.vs-sep { font-size:11px; color:var(--muted); font-weight:600; }
+.match-bar-meta { font-size:11px; color:var(--muted); }
 
-.stream-switcher { display:none; gap:7px; padding:9px 14px; flex-wrap:wrap; border-bottom:1px solid var(--border); flex-shrink:0; }
-.stream-btn {
-  padding:5px 12px; background:var(--card); border:1px solid var(--border);
-  color:var(--text); border-radius:5px; cursor:pointer; font-size:11px;
-  font-family:'DM Sans',sans-serif; transition:all .15s;
-}
-.stream-btn.active, .stream-btn:active { border-color:var(--accent); color:var(--accent); }
+.stream-switcher { display:none; gap:8px; padding:10px 14px; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+.stream-btn { padding:5px 13px; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:5px; cursor:pointer; font-size:11px; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.stream-btn.active, .stream-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-.standings-wrap { flex:1; overflow-y:auto; padding:14px; }
-.standings-title { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
-.standings-table { width:100%; border-collapse:collapse; font-size:11px; }
-.standings-table th { padding:5px 6px; color:var(--muted); font-weight:500; letter-spacing:.8px; text-transform:uppercase; border-bottom:1px solid var(--border); text-align:left; }
-.standings-table td { padding:7px 6px; border-bottom:1px solid rgba(28,34,51,.5); }
+.standings-wrap { flex:1; overflow-y:auto; padding:16px; }
+.standings-title { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
+.standings-table { width:100%; border-collapse:collapse; font-size:12px; }
+.standings-table th { padding:6px 7px; color:var(--muted); font-weight:500; letter-spacing:1px; text-transform:uppercase; border-bottom:1px solid var(--border); text-align:left; }
+.standings-table td { padding:7px; border-bottom:1px solid rgba(28,34,51,.5); }
 .standings-table tr:hover td { background:var(--card); }
 
-/* ─── SIDEBAR ─── */
-.sidebar { display:flex; flex-direction:column; overflow:hidden; min-height:0; }
-.sidebar-header {
-  padding:10px 14px 8px; font-family:'Bebas Neue',sans-serif; font-size:13px;
-  letter-spacing:2px; color:var(--muted); border-bottom:1px solid var(--border);
-  flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
-}
-.match-count { font-family:'DM Sans',sans-serif; font-size:10px; font-weight:500; color:var(--muted); letter-spacing:0; }
-.search-wrap { padding:9px 11px; border-bottom:1px solid var(--border); flex-shrink:0; position:relative; }
-.search-icon { position:absolute; left:20px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:12px; pointer-events:none; }
-.search-input {
-  width:100%; background:var(--card); border:1px solid var(--border);
-  border-radius:8px; padding:7px 10px 7px 29px; color:var(--text);
-  font-family:'DM Sans',sans-serif; font-size:12px; outline:none;
-  transition:border-color .15s; -webkit-appearance:none;
-}
+/* SIDEBAR */
+.sidebar { display:flex; flex-direction:column; overflow:hidden; }
+.sidebar-header { padding:11px 14px 9px; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; color:var(--muted); border-bottom:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:space-between; }
+.match-count { font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; color:var(--muted); letter-spacing:0; }
+.search-wrap { padding:10px 12px; border-bottom:1px solid var(--border); flex-shrink:0; position:relative; }
+.search-icon { position:absolute; left:21px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:12px; pointer-events:none; }
+.search-input { width:100%; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:7px 10px 7px 30px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:12px; outline:none; transition:border-color .15s; }
 .search-input:focus { border-color:var(--accent); }
 .search-input::placeholder { color:var(--muted); }
 
 .match-list { overflow-y:auto; flex:1; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
 
-/* ─── PINNED BADGE ─── */
-.pinned-label {
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 12px; background: rgba(212,245,60,.08);
-  border-bottom: 1px solid rgba(212,245,60,.15);
-  font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--accent);
+/* ── PINNED BY THE REDS ── */
+.pinned-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 14px;
+  background: linear-gradient(90deg, rgba(218,41,28,.18) 0%, rgba(218,41,28,.06) 100%);
+  border-bottom: 1px solid rgba(218,41,28,.25);
+  border-left: 3px solid var(--mu-red);
+}
+.pinned-crest {
+  font-size: 14px; flex-shrink: 0;
+}
+.pinned-text {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.8px;
+  text-transform: uppercase; color: #e8776f;
+}
+.pinned-sub {
+  font-size: 9px; color: rgba(232,119,111,.55); letter-spacing: .5px; margin-left: auto;
 }
 
-.match-item {
-  display:flex; align-items:center; gap:9px; padding:10px 12px;
-  border-bottom:1px solid var(--border); cursor:pointer; transition:background .12s;
-  position:relative; -webkit-user-select:none; user-select:none;
-}
-.match-item:active, .match-item:hover { background:var(--card); }
+.match-item { display:flex; align-items:center; gap:9px; padding:10px 12px; border-bottom:1px solid var(--border); cursor:pointer; transition:background .12s; position:relative; }
+.match-item:hover { background:var(--card); }
 .match-item.selected { background:var(--card); }
 .match-item.selected::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); border-radius:0 2px 2px 0; }
-.match-item.pinned { background: rgba(212,245,60,.03); }
-.match-item.pinned .team-name { color: var(--accent); }
 
-.match-time { font-size:10px; font-weight:600; color:var(--muted); min-width:40px; text-align:center; letter-spacing:.5px; flex-shrink:0; }
+/* pinned match item subtle highlight */
+.match-item.mu-pin { background: rgba(218,41,28,.04); }
+.match-item.mu-pin:hover { background: rgba(218,41,28,.09); }
+.match-item.mu-pin.selected { background: rgba(218,41,28,.09); }
+.match-item.mu-pin.selected::before { background: var(--mu-red); }
+.match-item.mu-pin .team-name.mu { color: #ff8077; font-weight: 600; }
+
+.match-time { font-size:10px; font-weight:600; color:var(--muted); min-width:42px; text-align:center; letter-spacing:.5px; flex-shrink:0; }
 .match-time.live { color:var(--red); }
 .match-teams-col { flex:1; min-width:0; }
 .team-row { display:flex; align-items:center; gap:6px; }
@@ -173,83 +129,40 @@ header {
 .team-badge { width:15px; height:15px; object-fit:contain; flex-shrink:0; }
 .team-badge-ph { width:15px; height:15px; background:var(--border); border-radius:2px; flex-shrink:0; display:inline-block; }
 .team-name { font-size:12px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.play-btn { color:var(--muted); font-size:11px; flex-shrink:0; transition:color .12s; }
-.match-item:hover .play-btn, .match-item:active .play-btn { color:var(--accent); }
+.play-btn { color:var(--muted); font-size:12px; flex-shrink:0; transition:color .12s; }
+.match-item:hover .play-btn { color:var(--accent); }
+.match-item.mu-pin:hover .play-btn { color: #ff8077; }
 
-/* ─── UTILITY ─── */
-.loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 20px; gap:12px; color:var(--muted); }
-.spinner { width:24px; height:24px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
+.loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 20px; gap:14px; color:var(--muted); }
+.spinner { width:26px; height:26px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
 .loader-text { font-size:10px; letter-spacing:2px; text-transform:uppercase; }
-.error-box { margin:12px; padding:12px 14px; background:rgba(255,59,59,.07); border:1px solid rgba(255,59,59,.2); border-radius:8px; font-size:12px; color:#ff7070; line-height:1.7; }
-.empty { padding:28px 16px; text-align:center; color:var(--muted); font-size:12px; line-height:1.7; }
+.error-box { margin:14px; padding:12px 14px; background:rgba(255,59,59,.07); border:1px solid rgba(255,59,59,.2); border-radius:8px; font-size:12px; color:#ff7070; line-height:1.7; }
+.empty { padding:32px 16px; text-align:center; color:var(--muted); font-size:12px; line-height:1.7; }
 
-/* ─── MOBILE ─── */
-@media (max-width: 700px) {
-  :root { --header-h: 48px; --catbar-h: 42px; }
-  body { overflow: hidden; }
-
-  .main {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    overflow: hidden;
-  }
-
-  /* On mobile: sidebar on top (match list), player below */
-  .player-side {
-    grid-row: 2;
-    border-right: none;
-    border-top: 1px solid var(--border);
-    overflow: hidden;
-  }
-  .sidebar {
-    grid-row: 1;
-    height: 42vh;
-    border-bottom: none;
-  }
-
-  .match-list { -webkit-overflow-scrolling: touch; }
-
-  .video-wrap { padding-bottom: 56.25%; }
-
-  .match-bar { padding: 8px 12px; }
-  .mbt-name { font-size: 14px; }
-
-  .stream-switcher { padding: 8px 12px; }
-
-  .placeholder { padding: 24px 20px; }
-  .play-ring { width: 52px; height: 52px; font-size: 20px; }
-
-  .tabs .tab { font-size: 9px; padding: 9px 6px; }
-
-  /* Bottom nav feel for mobile stream switcher */
-  .stream-switcher { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
-  .stream-switcher::-webkit-scrollbar { display: none; }
-  .stream-btn { flex-shrink: 0; }
-}
-
-@media (max-width: 400px) {
-  .logo { font-size: 18px; }
-  .live-badge { font-size: 9px; }
-  .cat-btn { font-size: 11px; padding: 4px 12px; }
+@media (max-width:768px) {
+  html,body { overflow:auto; }
+  .main { grid-template-columns:1fr; overflow:visible; }
+  .player-side { border-right:none; border-bottom:1px solid var(--border); overflow:visible; }
+  .stream-area { overflow:visible; }
+  .sidebar { height:65vh; }
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">Nova<span>Stream</span></div>
-  <div class="live-badge"><div class="live-dot"></div>Live Now</div>
+  <div class="logo">Nova<span>STREAM</span></div>
+  <div class="live-badge"><div class="live-dot"></div>LIVE STREAMING</div>
 </header>
 
-<!-- CATEGORY BAR — football only, subcategories fetched from API -->
 <div class="cat-bar" id="catBar">
-  <button class="cat-btn active" data-cat="football">⚽ All</button>
+  <button class="cat-btn active" data-cat="football">Football</button>
 </div>
 
 <div class="main">
 
-  <!-- PLAYER -->
+  <!-- PLAYER SIDE -->
   <div class="player-side">
     <div class="tabs">
       <div class="tab active" data-tab="stream">▶ Stream</div>
@@ -260,7 +173,7 @@ header {
       <div class="placeholder" id="placeholder">
         <div class="play-ring">▶</div>
         <h3>Pilih Pertandingan</h3>
-        <p>Klik pertandingan untuk menonton livestream</p>
+        <p>Klik pertandingan di panel kanan untuk menonton livestream</p>
       </div>
       <div id="playerBox">
         <div class="video-wrap"><div id="embedArea"></div></div>
@@ -277,7 +190,7 @@ header {
     </div>
   </div>
 
-  <!-- SIDEBAR / MATCH LIST -->
+  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
       <span>JADWAL</span>
@@ -285,7 +198,7 @@ header {
     </div>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input class="search-input" id="searchInput" type="search" placeholder="Cari tim..." autocomplete="off">
+      <input class="search-input" id="searchInput" type="text" placeholder="Cari tim..." autocomplete="off">
     </div>
     <div class="match-list" id="matchList">
       <div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>
@@ -296,12 +209,10 @@ header {
 
 <script>
 const API = '/.netlify/functions/sportsrc-proxy';
-const PIN_KEYWORD = 'manchester united';  // pinned keyword (lowercase)
-
 let currentCategory = 'football';
 let allMatches = [];
 
-// ── TABS ──
+// TABS
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -313,16 +224,13 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ── SEARCH ──
+// SEARCH
 document.getElementById('searchInput').addEventListener('input', e => {
   const q = e.target.value.trim().toLowerCase();
-  renderList(q
-    ? allMatches.filter(m => (getHome(m) + ' ' + getAway(m)).toLowerCase().includes(q))
-    : allMatches
-  );
+  renderList(q ? allMatches.filter(m => matchLabel(m).toLowerCase().includes(q)) : allMatches);
 });
 
-// ── FETCH ──
+// FETCH
 async function apiFetch(params) {
   try {
     const res = await fetch(API + '?' + new URLSearchParams(params));
@@ -331,63 +239,20 @@ async function apiFetch(params) {
   } catch(e) { return { error: e.message }; }
 }
 
-// ── HELPERS ──
 function getHome(m) { return m.teams?.home?.name || m.title?.split(' vs ')[0] || '?'; }
 function getAway(m) { return m.teams?.away?.name || (m.title?.split(' vs ')[1] || '?'); }
+function matchLabel(m) { return getHome(m) + ' ' + getAway(m); }
+function isMU(m) { return matchLabel(m).toLowerCase().includes('manchester united'); }
 function formatTime(ms) {
   return new Date(ms).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' }) + ' WIB';
 }
 function badgeImg(url, alt, size) {
   const s = size || 15;
-  const ph = `<span class="team-badge-ph" style="width:${s}px;height:${s}px"></span>`;
-  if (!url) return ph;
-  return `<img class="team-badge" src="${url}" alt="${alt}" width="${s}" height="${s}"
-    onerror="this.outerHTML='${ph.replace(/'/g,"\\'")}'">`;
-}
-function isMU(m) {
-  return (getHome(m) + ' ' + getAway(m)).toLowerCase().includes(PIN_KEYWORD);
+  if (!url) return `<span class="team-badge-ph" style="width:${s}px;height:${s}px"></span>`;
+  return `<img class="team-badge" src="${url}" alt="${alt}" width="${s}" height="${s}" onerror="this.style.display='none'">`;
 }
 
-// ── CATEGORIES — football subcategories only ──
-// We show football + any football sub-leagues from the matches data
-// The cat bar will have: "All" + unique leagues found in matches
-function buildCategoryBar(matches) {
-  const bar = document.getElementById('catBar');
-  // Collect unique leagues
-  const leagues = [...new Set(
-    matches.map(m => m.league || m.competition || m.leagueName || '').filter(Boolean)
-  )];
-
-  bar.innerHTML = '';
-  // "All" button
-  const allBtn = document.createElement('button');
-  allBtn.className = 'cat-btn active';
-  allBtn.dataset.filter = '';
-  allBtn.textContent = '⚽ All';
-  allBtn.addEventListener('click', () => filterByLeague('', allBtn));
-  bar.appendChild(allBtn);
-
-  leagues.slice(0, 12).forEach(league => {
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn';
-    btn.dataset.filter = league;
-    btn.textContent = league;
-    btn.addEventListener('click', () => filterByLeague(league, btn));
-    bar.appendChild(btn);
-  });
-}
-
-function filterByLeague(league, activeBtn) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  activeBtn.classList.add('active');
-  const filtered = league
-    ? allMatches.filter(m => (m.league || m.competition || m.leagueName || '') === league)
-    : allMatches;
-  const q = document.getElementById('searchInput').value.trim().toLowerCase();
-  renderList(q ? filtered.filter(m => (getHome(m)+' '+getAway(m)).toLowerCase().includes(q)) : filtered);
-}
-
-// ── MATCHES ──
+// MATCHES
 async function loadMatches(cat) {
   document.getElementById('matchList').innerHTML =
     '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>';
@@ -398,44 +263,49 @@ async function loadMatches(cat) {
   }
   allMatches = res.data || [];
   document.getElementById('matchCount').textContent = allMatches.length + ' match';
-  buildCategoryBar(allMatches);
   renderList(allMatches);
 }
 
-// ── RENDER LIST with MU pinned ──
+// RENDER with MU pinned on top
 function renderList(matches) {
   const list = document.getElementById('matchList');
   if (!matches.length) { list.innerHTML = '<div class="empty">Tidak ada pertandingan.</div>'; return; }
 
-  // Separate pinned (MU) and rest
   const pinned = matches.filter(isMU);
   const rest   = matches.filter(m => !isMU(m));
 
   list.innerHTML = '';
 
   if (pinned.length) {
-    const label = document.createElement('div');
-    label.className = 'pinned-label';
-    label.innerHTML = '📌 Manchester United';
-    list.appendChild(label);
-    pinned.forEach(m => list.appendChild(makeMatchItem(m, true)));
+    // Banner "Pinned by The Reds"
+    const banner = document.createElement('div');
+    banner.className = 'pinned-banner';
+    banner.innerHTML =
+      `<span class="pinned-crest">🔴</span>` +
+      `<span class="pinned-text">Pinned by The Reds</span>` +
+      `<span class="pinned-sub">${pinned.length} match</span>`;
+    list.appendChild(banner);
+
+    pinned.forEach(m => list.appendChild(makeItem(m, true)));
   }
 
-  rest.forEach(m => list.appendChild(makeMatchItem(m, false)));
+  rest.forEach(m => list.appendChild(makeItem(m, false)));
 }
 
-function makeMatchItem(m, pin) {
+function makeItem(m, pin) {
   const el = document.createElement('div');
-  el.className = 'match-item' + (pin ? ' pinned' : '');
+  el.className = 'match-item' + (pin ? ' mu-pin' : '');
   const home = getHome(m), away = getAway(m);
   const isLive = m.live === true;
   const timeStr = isLive ? 'LIVE' : (m.date ? formatTime(m.date) : 'TBD');
+  const homeMU = home.toLowerCase().includes('manchester united');
+  const awayMU = away.toLowerCase().includes('manchester united');
 
   el.innerHTML =
     `<div class="match-time${isLive?' live':''}">${timeStr}</div>` +
     `<div class="match-teams-col">` +
-      `<div class="team-row">${badgeImg(m.teams?.home?.badge,home)}<span class="team-name">${home}</span></div>` +
-      `<div class="team-row">${badgeImg(m.teams?.away?.badge,away)}<span class="team-name">${away}</span></div>` +
+      `<div class="team-row">${badgeImg(m.teams?.home?.badge,home)}<span class="team-name${homeMU&&pin?' mu':''}">${home}</span></div>` +
+      `<div class="team-row">${badgeImg(m.teams?.away?.badge,away)}<span class="team-name${awayMU&&pin?' mu':''}">${away}</span></div>` +
     `</div>` +
     `<div class="play-btn">▶</div>`;
 
@@ -447,31 +317,21 @@ function makeMatchItem(m, pin) {
   return el;
 }
 
-// ── PLAYER ──
+// STREAM
 async function loadStream(cat, id, m) {
-  // Show player
   document.getElementById('placeholder').style.display = 'none';
   document.getElementById('playerBox').style.display = 'flex';
-
-  // Switch to stream tab
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelector('[data-tab="stream"]').classList.add('active');
   document.getElementById('tabStream').style.display = 'flex';
   document.getElementById('tabStandings').style.display = 'none';
 
-  // Match bar
   const home = getHome(m), away = getAway(m);
   document.getElementById('matchBarTeams').innerHTML =
     `<div class="mbt">${badgeImg(m.teams?.home?.badge,home,22)}<span class="mbt-name">${home}</span></div>` +
     `<span class="vs-sep">VS</span>` +
     `<div class="mbt"><span class="mbt-name">${away}</span>${badgeImg(m.teams?.away?.badge,away,22)}</div>`;
-  document.getElementById('matchBarMeta').textContent =
-    m.live ? '🔴 LIVE' : (m.date ? formatTime(m.date) : '');
-
-  // On mobile: scroll player into view
-  if (window.innerWidth <= 700) {
-    document.getElementById('playerBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  document.getElementById('matchBarMeta').textContent = m.live ? '🔴 LIVE' : (m.date ? formatTime(m.date) : '');
 
   const ea = document.getElementById('embedArea');
   ea.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div class="spinner"></div></div>';
@@ -480,12 +340,11 @@ async function loadStream(cat, id, m) {
 
   const res = await apiFetch({ data: 'detail', category: cat, id });
   if (res.error || !res.success) {
-    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:16px">Gagal: ${res.error||''}</div>`;
+    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px">Gagal: ${res.error||''}</div>`;
     return;
   }
 
-  const detail = res.data || {};
-  const sources = detail.sources || [];
+  const sources = res.data?.sources || [];
 
   function applyEmbed(src) {
     const url = src.embedUrl || src.embed || src.url || '';
@@ -496,13 +355,12 @@ async function loadStream(cat, id, m) {
 
   if (sources.length > 0) {
     applyEmbed(sources[0]);
-
     if (sources.length > 1) {
       sw.style.display = 'flex';
       sources.forEach((s, i) => {
         const btn = document.createElement('button');
         btn.className = 'stream-btn' + (i === 0 ? ' active' : '');
-        btn.textContent = (s.name || ('Stream ' + (s.streamNo || i+1))) + (s.hd ? ' HD' : '');
+        btn.textContent = (s.name || 'Stream ' + (s.streamNo || i+1)) + (s.hd ? ' · HD' : '');
         btn.addEventListener('click', () => {
           sw.querySelectorAll('.stream-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
@@ -512,11 +370,11 @@ async function loadStream(cat, id, m) {
       });
     }
   } else {
-    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:16px">Stream belum tersedia.</div>`;
+    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px">Stream belum tersedia untuk pertandingan ini.</div>`;
   }
 }
 
-// ── STANDINGS ──
+// STANDINGS
 async function loadStandings() {
   const panel = document.getElementById('standingsContent');
   panel.innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>';
@@ -539,7 +397,7 @@ async function loadStandings() {
     </table>`;
 }
 
-// ── INIT ──
+// INIT
 loadMatches(currentCategory);
 </script>
 </body>
