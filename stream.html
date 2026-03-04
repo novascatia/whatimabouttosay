@@ -33,19 +33,16 @@ header {
 .live-dot { width:6px; height:6px; background:var(--red); border-radius:50%; animation:pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
 
-/* category bar — football subcategories only */
 .cat-bar { display:flex; align-items:center; gap:8px; padding:9px 16px; border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
 .cat-bar::-webkit-scrollbar { display:none; }
 .cat-btn { padding:5px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--muted); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .15s; flex-shrink:0; }
 .cat-btn:hover { border-color:var(--accent); color:var(--accent); }
 .cat-btn.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
 
-.main { display:grid; grid-template-columns:1fr var(--sidebar); flex:1; overflow:hidden; min-height:0; height:100%; }
+.main { display:grid; grid-template-columns:1fr var(--sidebar); flex:1; overflow:hidden; }
 
-/* PLAYER */
-.player-side { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); min-height:0; }
-
-.stream-area { flex:1; overflow-y:auto; display:flex; flex-direction:column; min-height:0; }
+.player-side { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); }
+.stream-area { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
 .placeholder { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:40px; text-align:center; }
 .play-ring { width:72px; height:72px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--muted); }
 .placeholder h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; color:var(--muted); }
@@ -53,7 +50,8 @@ header {
 
 #playerBox { display:none; flex-direction:column; }
 .video-wrap { position:relative; width:100%; padding-bottom:56.25%; background:#000; flex-shrink:0; overflow:hidden; }
-.video-wrap > * { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; border:none !important; } .video-wrap iframe { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; border:none !important; max-width:none !important; }
+.video-wrap > * { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; border:none !important; }
+.video-wrap iframe { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; border:none !important; max-width:none !important; }
 
 .match-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-bottom:1px solid var(--border); gap:12px; flex-wrap:wrap; }
 .match-bar-teams { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
@@ -67,9 +65,7 @@ header {
 .stream-btn { padding:5px 13px; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:5px; cursor:pointer; font-size:11px; font-family:'DM Sans',sans-serif; transition:all .15s; }
 .stream-btn.active, .stream-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-
-/* SIDEBAR */
-.sidebar { display:flex; flex-direction:column; overflow:hidden; min-height:0; }
+.sidebar { display:flex; flex-direction:column; overflow:hidden; }
 .sidebar-header { padding:11px 14px 9px; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; color:var(--muted); border-bottom:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:space-between; }
 .match-count { font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; color:var(--muted); letter-spacing:0; }
 .search-wrap { padding:10px 12px; border-bottom:1px solid var(--border); flex-shrink:0; position:relative; }
@@ -80,36 +76,24 @@ header {
 
 .match-list { overflow-y:auto; flex:1; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
 
-/* ── PINNED BY THE REDS ── */
 .pinned-banner {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 14px;
-  background: linear-gradient(90deg, rgba(218,41,28,.18) 0%, rgba(218,41,28,.06) 100%);
-  border-bottom: 1px solid rgba(218,41,28,.25);
-  border-left: 3px solid var(--mu-red);
+  display:flex; align-items:center; gap:8px; padding:7px 14px;
+  background:linear-gradient(90deg, rgba(218,41,28,.18) 0%, rgba(218,41,28,.06) 100%);
+  border-bottom:1px solid rgba(218,41,28,.25); border-left:3px solid var(--mu-red);
 }
-.pinned-crest {
-  font-size: 14px; flex-shrink: 0;
-}
-.pinned-text {
-  font-size: 10px; font-weight: 700; letter-spacing: 1.8px;
-  text-transform: uppercase; color: #e8776f;
-}
-.pinned-sub {
-  font-size: 9px; color: rgba(232,119,111,.55); letter-spacing: .5px; margin-left: auto;
-}
+.pinned-crest { font-size:14px; flex-shrink:0; }
+.pinned-text { font-size:10px; font-weight:700; letter-spacing:1.8px; text-transform:uppercase; color:#e8776f; }
+.pinned-sub { font-size:9px; color:rgba(232,119,111,.55); letter-spacing:.5px; margin-left:auto; }
 
 .match-item { display:flex; align-items:center; gap:9px; padding:10px 12px; border-bottom:1px solid var(--border); cursor:pointer; transition:background .12s; position:relative; }
 .match-item:hover { background:var(--card); }
 .match-item.selected { background:var(--card); }
 .match-item.selected::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); border-radius:0 2px 2px 0; }
-
-/* pinned match item subtle highlight */
-.match-item.mu-pin { background: rgba(218,41,28,.04); }
-.match-item.mu-pin:hover { background: rgba(218,41,28,.09); }
-.match-item.mu-pin.selected { background: rgba(218,41,28,.09); }
-.match-item.mu-pin.selected::before { background: var(--mu-red); }
-.match-item.mu-pin .team-name.mu { color: #ff8077; font-weight: 600; }
+.match-item.mu-pin { background:rgba(218,41,28,.04); }
+.match-item.mu-pin:hover { background:rgba(218,41,28,.09); }
+.match-item.mu-pin.selected { background:rgba(218,41,28,.09); }
+.match-item.mu-pin.selected::before { background:var(--mu-red); }
+.match-item.mu-pin .team-name.mu { color:#ff8077; font-weight:600; }
 
 .match-time { font-size:10px; font-weight:600; color:var(--muted); min-width:42px; text-align:center; letter-spacing:.5px; flex-shrink:0; }
 .match-time.live { color:var(--red); }
@@ -121,7 +105,7 @@ header {
 .team-name { font-size:12px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .play-btn { color:var(--muted); font-size:12px; flex-shrink:0; transition:color .12s; }
 .match-item:hover .play-btn { color:var(--accent); }
-.match-item.mu-pin:hover .play-btn { color: #ff8077; }
+.match-item.mu-pin:hover .play-btn { color:#ff8077; }
 
 .loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 20px; gap:14px; color:var(--muted); }
 .spinner { width:26px; height:26px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
@@ -142,7 +126,7 @@ header {
 <body>
 
 <header>
-  <div class="logo">NOVA<span>STREAM</span></div>
+  <div class="logo">Nova<span>STREAM</span></div>
   <div class="live-badge"><div class="live-dot"></div>LIVE STREAMING</div>
 </header>
 
@@ -154,8 +138,6 @@ header {
 
   <!-- PLAYER SIDE -->
   <div class="player-side">
-    </div>
-
     <div class="stream-area" id="tabStream">
       <div class="placeholder" id="placeholder">
         <div class="play-ring">▶</div>
@@ -170,8 +152,6 @@ header {
         </div>
         <div class="stream-switcher" id="streamSwitcher"></div>
       </div>
-    </div>
-
     </div>
   </div>
 
@@ -203,7 +183,6 @@ document.getElementById('searchInput').addEventListener('input', e => {
   renderList(q ? allMatches.filter(m => matchLabel(m).toLowerCase().includes(q)) : allMatches);
 });
 
-// FETCH
 async function apiFetch(params) {
   try {
     const res = await fetch(API + '?' + new URLSearchParams(params));
@@ -225,7 +204,6 @@ function badgeImg(url, alt, size) {
   return `<img class="team-badge" src="${url}" alt="${alt}" width="${s}" height="${s}" onerror="this.style.display='none'">`;
 }
 
-// MATCHES
 async function loadMatches(cat) {
   document.getElementById('matchList').innerHTML =
     '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>';
@@ -239,18 +217,15 @@ async function loadMatches(cat) {
   renderList(allMatches);
 }
 
-// RENDER with MU pinned on top
 function renderList(matches) {
   const list = document.getElementById('matchList');
   if (!matches.length) { list.innerHTML = '<div class="empty">Tidak ada pertandingan.</div>'; return; }
 
   const pinned = matches.filter(isMU);
   const rest   = matches.filter(m => !isMU(m));
-
   list.innerHTML = '';
 
   if (pinned.length) {
-    // Banner "Pinned by The Reds"
     const banner = document.createElement('div');
     banner.className = 'pinned-banner';
     banner.innerHTML =
@@ -258,7 +233,6 @@ function renderList(matches) {
       `<span class="pinned-text">Pinned by The Reds</span>` +
       `<span class="pinned-sub">${pinned.length} match</span>`;
     list.appendChild(banner);
-
     pinned.forEach(m => list.appendChild(makeItem(m, true)));
   }
 
@@ -290,11 +264,9 @@ function makeItem(m, pin) {
   return el;
 }
 
-// STREAM
 async function loadStream(cat, id, m) {
   document.getElementById('placeholder').style.display = 'none';
   document.getElementById('playerBox').style.display = 'flex';
-  document.getElementById('tabStream').style.display = 'flex';
 
   const home = getHome(m), away = getAway(m);
   document.getElementById('matchBarTeams').innerHTML =
@@ -344,8 +316,6 @@ async function loadStream(cat, id, m) {
   }
 }
 
-
-// INIT
 loadMatches(currentCategory);
 </script>
 </body>
