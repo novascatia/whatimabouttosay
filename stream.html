@@ -131,7 +131,7 @@ header {
 </header>
 
 <div class="cat-bar" id="catBar">
-  <button class="cat-btn active" data-cat="football">Sepak Bola</button>
+  <button class="cat-btn active" data-cat="football">Football</button>
 </div>
 
 <div class="main">
@@ -279,6 +279,21 @@ async function loadStream(cat, id, m) {
   ea.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div class="spinner"></div></div>';
   const sw = document.getElementById('streamSwitcher');
   sw.style.display = 'none'; sw.innerHTML = '';
+
+  // Cek waktu — blok jika > 10 menit sebelum kickoff
+  if (m.date && !m.live) {
+    const diff = m.date - Date.now(); // ms until match
+    if (diff > 10 * 60 * 1000) {
+      const minsLeft = Math.ceil(diff / 60000);
+      ea.innerHTML = `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center">
+        <div style="font-size:36px">⏱️</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent)">BELUM WAKTUNYA</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7;max-width:280px">Kamu baru bisa mengakses streaming 10 menit sebelum pertandingan dimulai!</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Mulai dalam <span style="color:var(--accent);font-weight:700">${minsLeft} menit</span> lagi</div>
+      </div>`;
+      return;
+    }
+  }
 
   const res = await apiFetch({ data: 'detail', category: cat, id });
   if (res.error || !res.success) {
