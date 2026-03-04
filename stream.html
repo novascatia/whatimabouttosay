@@ -321,57 +321,37 @@ async function loadStream(cat, id, m) {
 
   const detail = res.data || {};
 
-  // DEBUG: tampilkan raw JSON isi detail
-  ea.innerHTML = `<div style="position:absolute;inset:0;overflow:auto;padding:14px;background:#07090e">
-    <div style="color:#d4f53c;font-family:monospace;font-size:11px;font-weight:700;margin-bottom:8px">RAW DETAIL RESPONSE:</div>
-    <pre style="color:#bbb;font-size:10px;white-space:pre-wrap;word-break:break-all">${JSON.stringify(res, null, 2)}</pre>
-  </div>`;
-  return;
+  const sources = detail.sources || [];
 
-  const sources = detail.sources || detail.streams || detail.links || [];
-
-  function applyEmbed(code) {
-    if (!code) return false;
-    const c = code.trim();
-    if (c.startsWith('<')) {
-      const wrap = document.createElement('div');
-      wrap.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%';
-      wrap.innerHTML = c;
-      wrap.querySelectorAll('iframe').forEach(f => {
-        f.style.cssText = 'width:100%;height:100%;border:none';
-        f.removeAttribute('width'); f.removeAttribute('height');
-      });
-      ea.innerHTML = '';
-      ea.appendChild(wrap);
-    } else if (c.startsWith('http') || c.startsWith('//')) {
-      ea.innerHTML = `<iframe src="${c}" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture"></iframe>`;
-    } else { return false; }
+  function applyEmbed(src) {
+    const url = src.embedUrl || src.embed || src.url || '';
+    if (!url) return false;
+    ea.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>`;
     return true;
   }
 
+
   if (sources.length > 0) {
-    const ok = applyEmbed(sources[0].embed || sources[0].url || '');
-    if (!ok) ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px">Stream belum aktif.<br><small style="opacity:.6">Fields: ${Object.keys(detail).join(', ')}</small></div>`;
+    applyEmbed(sources[0]);
 
     if (sources.length > 1) {
       sw.style.display = 'flex';
       sources.forEach((s, i) => {
         const btn = document.createElement('button');
-        btn.className = 'stream-btn' + (i===0?' active':'');
-        btn.textContent = s.name || ('Stream '+(i+1));
+        btn.className = 'stream-btn' + (i === 0 ? ' active' : '');
+        const label = s.name || ('Stream ' + s.streamNo || (i+1));
+        const hdBadge = s.hd ? ' HD' : '';
+        btn.textContent = label + hdBadge;
         btn.addEventListener('click', () => {
-          sw.querySelectorAll('.stream-btn').forEach(b=>b.classList.remove('active'));
+          sw.querySelectorAll('.stream-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          if (!applyEmbed(s.embed||s.url||''))
-            ea.innerHTML='<div class="error-box" style="position:absolute;inset:0;margin:20px">Tidak tersedia.</div>';
+          applyEmbed(s);
         });
         sw.appendChild(btn);
       });
     }
   } else {
-    const direct = detail.embed || detail.stream || detail.iframe || detail.url || '';
-    if (!applyEmbed(direct))
-      ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px">Stream belum tersedia.<br><small style="opacity:.6">Fields: ${Object.keys(detail).join(', ')}</small></div>`;
+    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px">Stream belum tersedia untuk pertandingan ini.</div>`;
   }
 }
 
