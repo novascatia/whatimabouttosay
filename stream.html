@@ -72,33 +72,43 @@
     <script>
         const API_BASE = "https://api.sportsrc.org/";
 
-        // 1. Ambil daftar pertandingan
-        async function loadMatches() {
-            const container = document.getElementById('matchList');
-            try {
-                // Sesuai docs: curl "https://api.sportsrc.org/?data=matches&category=football"
-                const response = await fetch(`${API_BASE}?data=matches&category=football`);
-                const matches = await response.json();
+  async function loadMatches() {
+    const container = document.getElementById('matchList');
+    try {
+        // 1. Coba ambil pertandingan yang sedang Live dulu
+        let response = await fetch(`${API_BASE}?data=matches&category=football`);
+        let matches = await response.json();
 
-                if (matches && matches.length > 0) {
-                    container.innerHTML = matches.map(match => `
-                        <div onclick="playMatch('${match.id}', '${match.title}')" 
-                             id="card-${match.id}"
-                             class="match-card glass-card p-4 cursor-pointer">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">${match.league || 'Football'}</span>
-                                <span class="text-[9px] text-zinc-600 font-mono">${match.time || ''}</span>
-                            </div>
-                            <h3 class="text-sm font-bold text-zinc-300 group-hover:text-white transition">${match.title}</h3>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = `<p class="text-zinc-600 text-xs italic">No matches currently available.</p>`;
-                }
-            } catch (e) {
-                container.innerHTML = `<p class="text-red-500 text-xs italic">API Error: Unable to fetch matches.</p>`;
-            }
+        // 2. Jika kosong, otomatis ambil jadwal mendatang (Upcoming)
+        if (!matches || matches.length === 0) {
+            console.log("No live matches, fetching schedules...");
+            // Anda bisa menambahkan parameter sesuai kebutuhan jika API mendukung filter status
+            // Namun berdasarkan docs, matches biasanya sudah mencakup list yang tersedia
+            response = await fetch(`${API_BASE}?data=matches&category=football`); 
+            matches = await response.json();
         }
+
+        if (matches && matches.length > 0) {
+            container.innerHTML = matches.map(match => `
+                <div onclick="playMatch('${match.id}', '${match.title}')" 
+                     id="card-${match.id}"
+                     class="match-card glass-card p-4 cursor-pointer">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">${match.league || 'Football'}</span>
+                        <span class="text-[9px] ${match.is_live ? 'text-red-500' : 'text-zinc-600'} font-mono">
+                            ${match.is_live ? '● LIVE' : match.time}
+                        </span>
+                    </div>
+                    <h3 class="text-sm font-bold text-zinc-300 group-hover:text-white transition">${match.title}</h3>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = `<p class="text-zinc-600 text-xs italic text-center p-4">Belum ada jadwal pertandingan tersedia.</p>`;
+        }
+    } catch (e) {
+        container.innerHTML = `<p class="text-red-500 text-xs italic text-center p-4">Gagal menyambung ke API.</p>`;
+    }
+}
 
         // 2. Ambil detail stream dan putar
         async function playMatch(id, title) {
