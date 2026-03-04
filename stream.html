@@ -1,212 +1,761 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nova Stream - Live Sports</title>
-    <link rel="icon" type="image/png" href="/logo.png">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { 
-            background-color: #0f0f0f; 
-            color: #e5e5e5; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-        }
-        .glass-card { 
-            background: #1a1a1a; 
-            border: 1px solid #2d2d2d; 
-            border-radius: 20px; 
-            transition: all 0.3s ease; 
-        }
-        .glass-card:hover { 
-            border-color: #4a4a4a; 
-            transform: translateY(-4px); 
-        }
-        .category-btn {
-            background: #1a1a1a;
-            border: 1px solid #2d2d2d;
-            transition: all 0.2s;
-        }
-        .category-btn.active {
-            background: #2563eb; /* Primary Blue */
-            border-color: #3b82f6;
-            color: white;
-        }
-        
-        /* Modal Stream */
-        #streamModal {
-            backdrop-filter: blur(10px);
-            background: rgba(0, 0, 0, 0.85);
-        }
-        .video-container iframe {
-            width: 100%;
-            height: 100%;
-            border-radius: 12px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiveSport – Stream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0f;
+    --surface: #0e1117;
+    --card: #131720;
+    --border: #1e2535;
+    --accent: #e8ff47;
+    --accent2: #ff4757;
+    --text: #e8eaf0;
+    --muted: #5a6278;
+    --live: #ff3b3b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(8,10,15,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+
+  .logo span { color: var(--text); }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: var(--live);
+    text-transform: uppercase;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--live);
+    border-radius: 50%;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* LAYOUT */
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* CATEGORIES */
+  .categories-bar {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .categories-bar::-webkit-scrollbar { display: none; }
+
+  .cats-inner {
+    display: flex;
+    gap: 10px;
+    padding: 0 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .cat-btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s;
+    text-transform: capitalize;
+  }
+
+  .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .cat-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+  /* MAIN */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    min-height: calc(100vh - 130px);
+  }
+
+  /* MATCHES LIST */
+  .matches-panel {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    max-height: calc(100vh - 130px);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .panel-header {
+    padding: 20px 24px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 5;
+  }
+
+  .match-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .match-item:hover { background: var(--card); }
+  .match-item.selected { background: var(--card); }
+  .match-item.selected::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+
+  .match-time {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    min-width: 48px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  .match-time.live-text { color: var(--live); font-weight: 700; }
+
+  .match-teams {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .team-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .team-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+
+  .team-score {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 14px;
+    text-align: right;
+  }
+
+  .match-league {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .stream-icon {
+    color: var(--muted);
+    font-size: 16px;
+    transition: color 0.15s;
+  }
+
+  .match-item:hover .stream-icon { color: var(--accent); }
+
+  /* PLAYER PANEL */
+  .player-panel {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: calc(100vh - 130px);
+  }
+
+  .player-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  .play-big {
+    width: 72px; height: 72px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--muted);
+  }
+
+  .placeholder-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  .placeholder-sub {
+    font-size: 13px;
+    color: var(--muted);
+    opacity: 0.6;
+    max-width: 200px;
+    line-height: 1.6;
+  }
+
+  /* STREAM EMBED */
+  .stream-container {
+    display: none;
+    flex-direction: column;
+  }
+
+  .stream-container.active { display: flex; }
+
+  .stream-info {
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stream-match-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1.5px;
+    line-height: 1.2;
+  }
+
+  .stream-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .stream-frame-wrap {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background: #000;
+  }
+
+  .stream-frame-wrap iframe,
+  .stream-frame-wrap #stream-embed {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+
+  #stream-embed-html {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+
+  /* LOADING */
+  .loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    gap: 16px;
+    color: var(--muted);
+  }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loader-text {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ERROR */
+  .error-box {
+    margin: 20px;
+    padding: 16px;
+    background: rgba(255,71,87,0.08);
+    border: 1px solid rgba(255,71,87,0.2);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #ff6b7a;
+    line-height: 1.6;
+  }
+
+  /* LEAGUES/STANDINGS */
+  .standings-panel {
+    padding: 20px;
+  }
+
+  .standings-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    color: var(--muted);
+  }
+
+  .standings-table {
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+  }
+
+  .standings-table th {
+    text-align: left;
+    padding: 6px 8px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .standings-table td {
+    padding: 8px;
+    border-bottom: 1px solid rgba(30,37,53,0.5);
+  }
+
+  .standings-table tr:hover td { background: var(--card); }
+
+  .pos-num { color: var(--muted); font-weight: 500; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+    .player-panel {
+      max-height: none;
+      order: -1;
+    }
+    .matches-panel {
+      max-height: 60vh;
+    }
+    header { padding: 14px 16px; }
+    .cats-inner { padding: 0 16px; }
+  }
+
+  /* EMPTY */
+  .empty {
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+</style>
 </head>
-<body class="py-8 md:py-12 max-w-5xl mx-auto px-6">
+<body>
 
-    <nav class="flex justify-between items-center mb-12">
-        <a href="/" class="text-sm font-bold text-zinc-500 hover:text-white transition uppercase tracking-widest flex items-center">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Home
-        </a>
-        <div class="text-xl font-extrabold tracking-tighter text-white italic">novaStream</div>
-    </nav>
+<header>
+  <div class="logo">LIVE<span>SPORT</span></div>
+  <div class="live-badge"><div class="live-dot"></div>LIVE STREAMING</div>
+</header>
 
-    <header class="mb-10">
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">Live Sports</h1>
-        <p class="text-gray-400 text-sm md:text-base">Watch your favorite matches seamlessly.</p>
-    </header>
+<!-- CATEGORIES -->
+<div class="categories-bar">
+  <div class="cats-inner" id="catBar">
+    <button class="cat-btn active" data-cat="football">⚽ Football</button>
+  </div>
+</div>
 
-    <main>
-        <div class="mb-8">
-            <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4">Select Category</h2>
-            <div id="categoryContainer" class="flex gap-3 overflow-x-auto pb-4 hide-scrollbar">
-                <p class="text-gray-500 text-sm italic">Loading categories...</p>
-            </div>
-        </div>
+<div class="container" style="padding:0; max-width:100%;">
+  <div class="main-grid">
 
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Upcoming Matches</h2>
-            <div class="h-[1px] flex-grow ml-6 bg-zinc-800"></div>
-        </div>
-        
-        <div id="matchesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <p class="text-gray-500 italic text-sm">Select a category to view matches.</p>
-        </div>
-    </main>
-
-    <div id="streamModal" class="fixed inset-0 z-50 hidden flex-col items-center justify-center p-4 md:p-12">
-        <div class="w-full max-w-4xl bg-[#171717] border border-[#2d2d2d] rounded-2xl p-4 md:p-6 relative">
-            <button onclick="closeStream()" class="absolute -top-4 -right-4 bg-red-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-500 transition shadow-lg">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 id="streamTitle" class="text-xl font-bold mb-4">Playing Stream...</h2>
-            
-            <div id="videoEmbed" class="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl flex items-center justify-center">
-                <i class="fas fa-spinner fa-spin text-3xl text-zinc-600"></i>
-            </div>
-        </div>
+    <!-- MATCHES -->
+    <div class="matches-panel">
+      <div class="panel-header">JADWAL PERTANDINGAN</div>
+      <div id="matchList">
+        <div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>
+      </div>
     </div>
 
-    <script>
-        const API_BASE = "https://api.sportsrc.org/";
-        let currentCategory = "";
+    <!-- PLAYER + STANDINGS -->
+    <div class="player-panel">
+      <div class="tabs">
+        <div class="tab active" data-tab="stream">▶ Stream</div>
+        <div class="tab" data-tab="standings">📊 Klasemen</div>
+      </div>
 
-        // 1. Fetch Categories
-        async function fetchCategories() {
-            const container = document.getElementById('categoryContainer');
-            try {
-                const response = await fetch(`${API_BASE}?data=sports`);
-                const categories = await response.json(); 
-                
-                // Menyesuaikan jika response berupa array string atau object
-                container.innerHTML = categories.map(cat => {
-                    // Asumsi response format: ["football", "basketball"] atau [{id: "football", name: "Football"}]
-                    const catId = typeof cat === 'string' ? cat : cat.id;
-                    const catName = typeof cat === 'string' ? cat.toUpperCase() : cat.name;
+      <!-- STREAM TAB -->
+      <div id="tabStream">
+        <div id="playerPlaceholder" class="player-placeholder">
+          <div class="play-big">▶</div>
+          <div class="placeholder-title">Pilih Pertandingan</div>
+          <div class="placeholder-sub">Klik pertandingan di sebelah kiri untuk menonton livestream</div>
+        </div>
 
-                    return `<button onclick="selectCategory('${catId}')" id="btn-${catId}" class="category-btn px-5 py-2 rounded-full text-sm font-semibold text-gray-300 capitalize flex-shrink-0 whitespace-nowrap">
-                                ${catName}
-                            </button>`;
-                }).join('');
+        <div id="streamContainer" class="stream-container">
+          <div class="stream-info">
+            <div class="stream-match-name" id="streamMatchName">–</div>
+            <div class="stream-meta" id="streamMatchMeta">–</div>
+          </div>
+          <div class="stream-frame-wrap">
+            <div id="stream-embed-html"></div>
+          </div>
+        </div>
+      </div>
 
-                // Auto select kategori pertama jika ada
-                if(categories.length > 0) {
-                    const firstCat = typeof categories[0] === 'string' ? categories[0] : categories[0].id;
-                    selectCategory(firstCat);
-                }
+      <!-- STANDINGS TAB -->
+      <div id="tabStandings" style="display:none;">
+        <div class="standings-panel">
+          <div id="standingsContent">
+            <div class="empty">Pilih kategori untuk melihat klasemen.</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            } catch (error) {
-                container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat kategori.</p>`;
-            }
-        }
+  </div>
+</div>
 
-        // 2. Fetch Matches based on Category
-        async function selectCategory(category) {
-            currentCategory = category;
-            
-            // Update UI Button
-            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${category}`).classList.add('active');
+<script>
+const API = 'https://api.sportsrc.org/';
+let currentCategory = 'football';
+let selectedMatchId = null;
 
-            const container = document.getElementById('matchesContainer');
-            container.innerHTML = `<p class="text-zinc-500 text-sm animate-pulse">Fetching ${category} matches...</p>`;
+// ---- TABS ----
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const which = tab.dataset.tab;
+    document.getElementById('tabStream').style.display = which === 'stream' ? '' : 'none';
+    document.getElementById('tabStandings').style.display = which === 'standings' ? '' : 'none';
+    if (which === 'standings') loadStandings(currentCategory);
+  });
+});
 
-            try {
-                const response = await fetch(`${API_BASE}?data=matches&category=${category}`);
-                const matches = await response.json();
+// ---- FETCH HELPER ----
+async function apiFetch(params) {
+  const url = API + '?' + new URLSearchParams(params);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    return { error: e.message };
+  }
+}
 
-                if (matches && matches.length > 0) {
-                    container.innerHTML = matches.map(match => `
-                        <div onclick="openStream('${match.id}', '${match.title || 'Live Match'}')" class="glass-card p-5 cursor-pointer group flex flex-col justify-between">
-                            <div>
-                                <span class="text-[9px] text-zinc-500 uppercase tracking-[0.2em] mb-2 block">
-                                    ${match.time || 'Upcoming'}
-                                </span>
-                                <h3 class="text-lg font-bold group-hover:text-blue-400 transition">
-                                    ${match.title || match.home_team + ' vs ' + match.away_team}
-                                </h3>
-                                <p class="text-sm text-zinc-500 mt-1">${match.league || 'General'}</p>
-                            </div>
-                            <div class="mt-4 flex items-center text-blue-500 text-sm font-semibold group-hover:translate-x-2 transition transform w-max">
-                                <i class="fas fa-play-circle mr-2"></i> Watch Stream
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = `<p class="text-zinc-600 italic text-sm">Tidak ada jadwal pertandingan saat ini.</p>`;
-                }
-            } catch (error) {
-                container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat pertandingan.</p>`;
-            }
-        }
+// ---- LOAD CATEGORIES ----
+async function loadCategories() {
+  const data = await apiFetch({ data: 'sports' });
+  const bar = document.getElementById('catBar');
+  if (data.error || !Array.isArray(data)) return;
 
-        // 3. Fetch Stream Detail and Open Modal
-        async function openStream(matchId, matchTitle) {
-            const modal = document.getElementById('streamModal');
-            const videoEmbed = document.getElementById('videoEmbed');
-            const titleEl = document.getElementById('streamTitle');
-            
-            titleEl.textContent = matchTitle;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            videoEmbed.innerHTML = `<i class="fas fa-spinner fa-spin text-3xl text-zinc-600"></i>`; // Loading state
+  // Build category buttons from API or fallback
+  const cats = Array.isArray(data) ? data : [];
+  if (cats.length === 0) return;
 
-            try {
-                const response = await fetch(`${API_BASE}?data=detail&category=${currentCategory}&id=${matchId}`);
-                const detail = await response.json();
+  bar.innerHTML = '';
+  cats.forEach(cat => {
+    const name = typeof cat === 'string' ? cat : (cat.name || cat.category || JSON.stringify(cat));
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (name.toLowerCase() === currentCategory ? ' active' : '');
+    btn.dataset.cat = name.toLowerCase();
+    btn.textContent = name;
+    btn.addEventListener('click', () => selectCategory(name.toLowerCase()));
+    bar.appendChild(btn);
+  });
+}
 
-                // Asumsi response mengembalikan property "embed_code" atau "stream_url"
-                if(detail.embed_code) {
-                    videoEmbed.innerHTML = `<div class="video-container w-full h-full">${detail.embed_code}</div>`;
-                } else if (detail.stream_url) {
-                    videoEmbed.innerHTML = `<iframe src="${detail.stream_url}" allowfullscreen></iframe>`;
-                } else {
-                    videoEmbed.innerHTML = `<p class="text-red-500">Stream tidak tersedia.</p>`;
-                }
+function selectCategory(cat) {
+  currentCategory = cat;
+  selectedMatchId = null;
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  loadMatches(cat);
+  // Reset stream
+  document.getElementById('playerPlaceholder').style.display = 'flex';
+  document.getElementById('streamContainer').classList.remove('active');
+}
 
-            } catch (error) {
-                videoEmbed.innerHTML = `<p class="text-red-500">Gagal memuat stream.</p>`;
-            }
-        }
+// ---- LOAD MATCHES ----
+async function loadMatches(cat) {
+  const list = document.getElementById('matchList');
+  list.innerHTML = `<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat Jadwal...</div></div>`;
 
-        function closeStream() {
-            const modal = document.getElementById('streamModal');
-            const videoEmbed = document.getElementById('videoEmbed');
-            
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            videoEmbed.innerHTML = ''; // Hentikan video saat modal ditutup
-        }
+  const data = await apiFetch({ data: 'matches', category: cat });
 
-        // Inisialisasi
-        window.onload = () => {
-            fetchCategories();
-        };
-    </script>
+  if (data.error) {
+    list.innerHTML = `<div class="error-box">⚠️ Gagal memuat jadwal.<br><small>${data.error}</small></div>`;
+    return;
+  }
+
+  const matches = Array.isArray(data) ? data : (data.matches || data.events || data.data || []);
+
+  if (!matches.length) {
+    list.innerHTML = `<div class="empty">Tidak ada pertandingan untuk kategori ini.</div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  matches.forEach(m => renderMatchItem(m, list));
+}
+
+function renderMatchItem(m, container) {
+  const el = document.createElement('div');
+  el.className = 'match-item';
+
+  const id = m.id || m.match_id || m.event_id || '';
+  const home = m.home || m.home_team || m.team1 || m.homeTeam || '–';
+  const away = m.away || m.away_team || m.team2 || m.awayTeam || '–';
+  const time = m.time || m.match_time || m.date || '';
+  const league = m.league || m.competition || m.tournament || '';
+  const scoreHome = m.score_home ?? m.home_score ?? '';
+  const scoreAway = m.score_away ?? m.away_score ?? '';
+  const isLive = m.live || m.status === 'live' || m.status === 'Live';
+
+  const timeStr = isLive ? 'LIVE' : (time ? formatTime(time) : 'TBD');
+
+  el.innerHTML = `
+    <div class="match-time ${isLive ? 'live-text' : ''}">${timeStr}</div>
+    <div class="match-teams">
+      <div class="team-row">
+        <span class="team-name">${home}</span>
+        <span class="team-score">${scoreHome !== '' ? scoreHome : ''}</span>
+      </div>
+      <div class="team-row" style="margin-top:5px">
+        <span class="team-name">${away}</span>
+        <span class="team-score">${scoreAway !== '' ? scoreAway : ''}</span>
+      </div>
+      ${league ? `<div class="match-league">${league}</div>` : ''}
+    </div>
+    <div class="stream-icon">▶</div>
+  `;
+
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.match-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    loadStream(currentCategory, id, `${home} vs ${away}`, league || timeStr);
+  });
+
+  container.appendChild(el);
+}
+
+function formatTime(t) {
+  if (!t) return '';
+  const d = new Date(t);
+  if (isNaN(d)) return t;
+  return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) + ' WIB';
+}
+
+// ---- LOAD STREAM ----
+async function loadStream(cat, id, matchName, meta) {
+  if (!id) {
+    document.getElementById('stream-embed-html').innerHTML = `<div class="error-box" style="margin:20px">ID pertandingan tidak tersedia.</div>`;
+  }
+
+  document.getElementById('playerPlaceholder').style.display = 'none';
+  document.getElementById('streamContainer').classList.add('active');
+  document.getElementById('streamMatchName').textContent = matchName;
+  document.getElementById('streamMatchMeta').textContent = meta;
+
+  const embedDiv = document.getElementById('stream-embed-html');
+  embedDiv.innerHTML = `<div class="loader" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"><div class="spinner"></div></div>`;
+
+  const data = await apiFetch({ data: 'detail', category: cat, id });
+
+  if (data.error) {
+    embedDiv.innerHTML = `<div class="error-box" style="margin:20px">⚠️ Gagal memuat stream.<br><small>${data.error}</small></div>`;
+    return;
+  }
+
+  // Find embed code
+  const embed = data.embed || data.stream || data.iframe || data.player || data.url || '';
+
+  if (!embed) {
+    embedDiv.innerHTML = `<div class="error-box" style="margin:20px">Stream tidak tersedia untuk pertandingan ini.</div>`;
+    return;
+  }
+
+  // If it's raw HTML embed code
+  if (embed.trim().startsWith('<')) {
+    embedDiv.innerHTML = embed;
+  } else if (embed.startsWith('http')) {
+    // It's a URL, wrap in iframe
+    embedDiv.innerHTML = `<iframe src="${embed}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+  } else {
+    embedDiv.innerHTML = `<div class="error-box" style="margin:20px">Format stream tidak dikenali.</div>`;
+  }
+
+  // Switch to stream tab
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('[data-tab="stream"]').classList.add('active');
+  document.getElementById('tabStream').style.display = '';
+  document.getElementById('tabStandings').style.display = 'none';
+}
+
+// ---- STANDINGS ----
+async function loadStandings(cat) {
+  const panel = document.getElementById('standingsContent');
+  panel.innerHTML = `<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat klasemen...</div></div>`;
+
+  const leagueData = await apiFetch({ data: 'results', category: 'leagues' });
+  let leagueName = 'PL';
+
+  if (!leagueData.error && Array.isArray(leagueData) && leagueData.length) {
+    const first = leagueData[0];
+    leagueName = first.id || first.league || first.name || 'PL';
+  }
+
+  const data = await apiFetch({ data: 'results', category: 'tables', league: leagueName });
+
+  if (data.error) {
+    panel.innerHTML = `<div class="error-box">⚠️ Gagal memuat klasemen.<br><small>${data.error}</small></div>`;
+    return;
+  }
+
+  const rows = Array.isArray(data) ? data : (data.table || data.standings || data.data || []);
+
+  if (!rows.length) {
+    panel.innerHTML = `<div class="empty">Data klasemen tidak tersedia.</div>`;
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="standings-title">KLASEMEN</div>
+    <table class="standings-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tim</th>
+          <th>M</th>
+          <th>M</th>
+          <th>S</th>
+          <th>K</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map((r, i) => {
+          const pos = r.position || r.pos || r.rank || (i + 1);
+          const team = r.team || r.name || r.team_name || '–';
+          const played = r.played || r.p || r.mp || '–';
+          const won = r.won || r.w || '–';
+          const drawn = r.drawn || r.d || '–';
+          const lost = r.lost || r.l || '–';
+          const pts = r.points || r.pts || '–';
+          return `<tr>
+            <td class="pos-num">${pos}</td>
+            <td>${team}</td>
+            <td>${played}</td>
+            <td>${won}</td>
+            <td>${drawn}</td>
+            <td>${lost}</td>
+            <td style="font-weight:700;color:var(--accent)">${pts}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ---- INIT ----
+async function init() {
+  await loadCategories();
+  await loadMatches(currentCategory);
+}
+
+init();
+</script>
 </body>
 </html>
