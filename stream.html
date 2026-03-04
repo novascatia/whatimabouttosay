@@ -508,9 +508,7 @@
 <script>
 const API = '/.netlify/functions/sportsrc-proxy';
 let currentCategory = 'football';
-let selectedMatchId = null;
 
-// ---- TABS ----
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -522,71 +520,51 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ---- FETCH HELPER ----
 async function apiFetch(params) {
   const url = API + '?' + new URLSearchParams(params);
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     return await res.json();
   } catch (e) {
     return { error: e.message };
   }
 }
 
-// ---- LOAD CATEGORIES ----
 async function loadCategories() {
-  const data = await apiFetch({ data: 'sports' });
+  const res = await apiFetch({ data: 'sports' });
   const bar = document.getElementById('catBar');
-  if (data.error || !Array.isArray(data)) return;
-
-  // Build category buttons from API or fallback
-  const cats = Array.isArray(data) ? data : [];
-  if (cats.length === 0) return;
-
+  const cats = (res && res.data) ? res.data : [];
+  if (!cats.length) return;
   bar.innerHTML = '';
   cats.forEach(cat => {
-    const name = typeof cat === 'string' ? cat : (cat.name || cat.category || JSON.stringify(cat));
     const btn = document.createElement('button');
-    btn.className = 'cat-btn' + (name.toLowerCase() === currentCategory ? ' active' : '');
-    btn.dataset.cat = name.toLowerCase();
-    btn.textContent = name;
-    btn.addEventListener('click', () => selectCategory(name.toLowerCase()));
+    btn.className = 'cat-btn' + (cat.id === currentCategory ? ' active' : '');
+    btn.dataset.cat = cat.id;
+    btn.textContent = cat.name;
+    btn.addEventListener('click', () => selectCategory(cat.id));
     bar.appendChild(btn);
   });
 }
 
 function selectCategory(cat) {
   currentCategory = cat;
-  selectedMatchId = null;
-  document.querySelectorAll('.cat-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.cat === cat);
-  });
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
   loadMatches(cat);
-  // Reset stream
   document.getElementById('playerPlaceholder').style.display = 'flex';
   document.getElementById('streamContainer').classList.remove('active');
 }
 
-// ---- LOAD MATCHES ----
 async function loadMatches(cat) {
   const list = document.getElementById('matchList');
-  list.innerHTML = `<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat Jadwal...</div></div>`;
-
-  const data = await apiFetch({ data: 'matches', category: cat });
-
-  if (data.error) {
-    list.innerHTML = `<div class="error-box">⚠️ Gagal memuat jadwal.<br><small>${data.error}</small></div>`;
+  list.innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat Jadwal...</div></div>';
+  const res = await apiFetch({ data: 'matches', category: cat });
+  if (res.error || !res.success) {
+    list.innerHTML = '<div class="error-box">Gagal memuat jadwal: ' + (res.error || '') + '</div>';
     return;
   }
-
-  const matches = Array.isArray(data) ? data : (data.matches || data.events || data.data || []);
-
-  if (!matches.length) {
-    list.innerHTML = `<div class="empty">Tidak ada pertandingan untuk kategori ini.</div>`;
-    return;
-  }
-
+  const matches = res.data || [];
+  if (!matches.length) { list.innerHTML = '<div class="empty">Tidak ada pertandingan.</div>'; return; }
   list.innerHTML = '';
   matches.forEach(m => renderMatchItem(m, list));
 }
@@ -594,200 +572,107 @@ async function loadMatches(cat) {
 function renderMatchItem(m, container) {
   const el = document.createElement('div');
   el.className = 'match-item';
+  const id = m.id || '';
+  const home = (m.teams && m.teams.home) ? m.teams.home.name : (m.title || '–').split(' vs ')[0];
+  const away = (m.teams && m.teams.away) ? m.teams.away.name : ((m.title || '–').split(' vs ')[1] || '–');
+  const homeBadge = (m.teams && m.teams.home && m.teams.home.badge) ? m.teams.home.badge : '';
+  const awayBadge = (m.teams && m.teams.away && m.teams.away.badge) ? m.teams.away.badge : '';
+  const isLive = m.live === true;
+  const timeStr = isLive ? 'LIVE' : (m.date ? formatTime(m.date) : 'TBD');
+  const badge = (url, alt) => url
+    ? '<img src="' + url + '" alt="' + alt + '" onerror="this.style.display=\'none\'" style="width:20px;height:20px;object-fit:contain;border-radius:3px;flex-shrink:0">'
+    : '<span style="width:20px;height:20px;background:var(--border);border-radius:3px;display:inline-block;flex-shrink:0"></span>';
 
-  const id = m.id || m.match_id || m.event_id || '';
-  const home = m.home || m.home_team || m.team1 || m.homeTeam || '–';
-  const away = m.away || m.away_team || m.team2 || m.awayTeam || '–';
-  const time = m.time || m.match_time || m.date || '';
-  const league = m.league || m.competition || m.tournament || '';
-  const scoreHome = m.score_home ?? m.home_score ?? '';
-  const scoreAway = m.score_away ?? m.away_score ?? '';
-  const isLive = m.live || m.status === 'live' || m.status === 'Live';
-
-  const timeStr = isLive ? 'LIVE' : (time ? formatTime(time) : 'TBD');
-
-  el.innerHTML = `
-    <div class="match-time ${isLive ? 'live-text' : ''}">${timeStr}</div>
-    <div class="match-teams">
-      <div class="team-row">
-        <span class="team-name">${home}</span>
-        <span class="team-score">${scoreHome !== '' ? scoreHome : ''}</span>
-      </div>
-      <div class="team-row" style="margin-top:5px">
-        <span class="team-name">${away}</span>
-        <span class="team-score">${scoreAway !== '' ? scoreAway : ''}</span>
-      </div>
-      ${league ? `<div class="match-league">${league}</div>` : ''}
-    </div>
-    <div class="stream-icon">▶</div>
-  `;
+  el.innerHTML =
+    '<div class="match-time ' + (isLive ? 'live-text' : '') + '">' + timeStr + '</div>' +
+    '<div class="match-teams">' +
+      '<div class="team-row">' + badge(homeBadge,home) + '<span class="team-name" style="margin-left:8px">' + home + '</span></div>' +
+      '<div class="team-row" style="margin-top:6px">' + badge(awayBadge,away) + '<span class="team-name" style="margin-left:8px">' + away + '</span></div>' +
+    '</div>' +
+    '<div class="stream-icon">▶</div>';
 
   el.addEventListener('click', () => {
     document.querySelectorAll('.match-item').forEach(i => i.classList.remove('selected'));
     el.classList.add('selected');
-    loadStream(currentCategory, id, `${home} vs ${away}`, league || timeStr);
+    loadStream(m.category || currentCategory, id, home + ' vs ' + away, timeStr);
   });
-
   container.appendChild(el);
 }
 
-function formatTime(t) {
-  if (!t) return '';
-  const d = new Date(t);
-  if (isNaN(d)) return t;
-  return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) + ' WIB';
+function formatTime(ms) {
+  return new Date(ms).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' }) + ' WIB';
 }
 
-// ---- LOAD STREAM ----
 async function loadStream(cat, id, matchName, meta) {
-  if (!id) {
-    document.getElementById('stream-embed-html').innerHTML = `<div class="error-box" style="margin:20px">ID pertandingan tidak tersedia.</div>`;
-  }
-
   document.getElementById('playerPlaceholder').style.display = 'none';
   document.getElementById('streamContainer').classList.add('active');
   document.getElementById('streamMatchName').textContent = matchName;
   document.getElementById('streamMatchMeta').textContent = meta;
-
-  const embedDiv = document.getElementById('stream-embed-html');
-  embedDiv.innerHTML = `<div class="loader" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"><div class="spinner"></div></div>`;
-
-  const data = await apiFetch({ data: 'detail', category: cat, id });
-
-  if (data.error) {
-    embedDiv.innerHTML = `<div class="error-box" style="margin:20px">⚠️ Gagal memuat stream.<br><small>${data.error}</small></div>`;
-    return;
-  }
-
-  // Find embed code
-  const embed = data.embed || data.stream || data.iframe || data.player || data.url || '';
-
-  if (!embed) {
-    embedDiv.innerHTML = `<div class="error-box" style="margin:20px">Stream tidak tersedia untuk pertandingan ini.</div>`;
-    return;
-  }
-
-  // If it's raw HTML embed code
-  if (embed.trim().startsWith('<')) {
-    embedDiv.innerHTML = embed;
-  } else if (embed.startsWith('http')) {
-    // It's a URL, wrap in iframe
-    embedDiv.innerHTML = `<iframe src="${embed}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-  } else {
-    embedDiv.innerHTML = `<div class="error-box" style="margin:20px">Format stream tidak dikenali.</div>`;
-  }
-
-  // Switch to stream tab
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelector('[data-tab="stream"]').classList.add('active');
   document.getElementById('tabStream').style.display = '';
   document.getElementById('tabStandings').style.display = 'none';
+
+  const embedDiv = document.getElementById('stream-embed-html');
+  embedDiv.innerHTML = '<div class="loader" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"><div class="spinner"></div></div>';
+
+  const res = await apiFetch({ data: 'detail', category: cat, id: id });
+  if (res.error || !res.success) {
+    embedDiv.innerHTML = '<div class="error-box" style="margin:20px">Gagal memuat stream: ' + (res.error||'') + '</div>';
+    return;
+  }
+
+  const detail = res.data || {};
+  const streams = detail.streams || detail.links || [];
+
+  function renderEmbed(code) {
+    if (!code) return '<div class="error-box" style="margin:20px">Stream belum tersedia.<br><small style="opacity:0.6">Fields tersedia: ' + Object.keys(detail).join(', ') + '</small></div>';
+    if (code.trim().startsWith('<')) return code;
+    if (code.startsWith('http')) return '<iframe src="' + code + '" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>';
+    return '<div class="error-box" style="margin:20px">Format tidak dikenali: ' + code.substring(0,100) + '</div>';
+  }
+
+  const firstEmbed = (streams[0] && streams[0].embed) ? streams[0].embed : (detail.embed || detail.stream || detail.iframe || detail.url || '');
+  embedDiv.innerHTML = renderEmbed(firstEmbed);
+
+  // Stream switcher jika ada beberapa stream
+  const old = document.getElementById('streamSwitcher');
+  if (old) old.remove();
+  if (streams.length > 1) {
+    const sw = document.createElement('div');
+    sw.id = 'streamSwitcher';
+    sw.style.cssText = 'padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border)';
+    streams.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = s.name || ('Stream ' + (i+1));
+      btn.style.cssText = 'padding:6px 14px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:5px;cursor:pointer;font-size:12px';
+      btn.addEventListener('click', () => { embedDiv.innerHTML = renderEmbed(s.embed); });
+      sw.appendChild(btn);
+    });
+    document.getElementById('streamContainer').appendChild(sw);
+  }
 }
 
-// ---- STANDINGS ----
 async function loadStandings(cat) {
   const panel = document.getElementById('standingsContent');
-  panel.innerHTML = `<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat klasemen...</div></div>`;
-
-  const leagueData = await apiFetch({ data: 'results', category: 'leagues' });
-  let leagueName = 'PL';
-
-  if (!leagueData.error && Array.isArray(leagueData) && leagueData.length) {
-    const first = leagueData[0];
-    leagueName = first.id || first.league || first.name || 'PL';
-  }
-
-  const data = await apiFetch({ data: 'results', category: 'tables', league: leagueName });
-
-  if (data.error) {
-    panel.innerHTML = `<div class="error-box">⚠️ Gagal memuat klasemen.<br><small>${data.error}</small></div>`;
-    return;
-  }
-
-  const rows = Array.isArray(data) ? data : (data.table || data.standings || data.data || []);
-
-  if (!rows.length) {
-    panel.innerHTML = `<div class="empty">Data klasemen tidak tersedia.</div>`;
-    return;
-  }
-
-  panel.innerHTML = `
-    <div class="standings-title">KLASEMEN</div>
-    <table class="standings-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Tim</th>
-          <th>M</th>
-          <th>M</th>
-          <th>S</th>
-          <th>K</th>
-          <th>Pts</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map((r, i) => {
-          const pos = r.position || r.pos || r.rank || (i + 1);
-          const team = r.team || r.name || r.team_name || '–';
-          const played = r.played || r.p || r.mp || '–';
-          const won = r.won || r.w || '–';
-          const drawn = r.drawn || r.d || '–';
-          const lost = r.lost || r.l || '–';
-          const pts = r.points || r.pts || '–';
-          return `<tr>
-            <td class="pos-num">${pos}</td>
-            <td>${team}</td>
-            <td>${played}</td>
-            <td>${won}</td>
-            <td>${drawn}</td>
-            <td>${lost}</td>
-            <td style="font-weight:700;color:var(--accent)">${pts}</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
-  `;
+  panel.innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat klasemen...</div></div>';
+  const leagueRes = await apiFetch({ data: 'results', category: 'leagues' });
+  const leagues = (leagueRes && leagueRes.data) ? leagueRes.data : [];
+  const leagueName = (leagues[0] && leagues[0].id) ? leagues[0].id : 'PL';
+  const res = await apiFetch({ data: 'results', category: 'tables', league: leagueName });
+  if (res.error || !res.success) { panel.innerHTML = '<div class="error-box">Gagal memuat klasemen.</div>'; return; }
+  const rows = res.data || [];
+  if (!rows.length) { panel.innerHTML = '<div class="empty">Data tidak tersedia.</div>'; return; }
+  panel.innerHTML = '<div class="standings-title">KLASEMEN</div><table class="standings-table"><thead><tr><th>#</th><th>Tim</th><th>M</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead><tbody>' +
+    rows.map((r,i) => '<tr><td class="pos-num">'+(r.position||r.pos||i+1)+'</td><td>'+(r.team||r.name||'–')+'</td><td>'+(r.played||r.p||'–')+'</td><td>'+(r.won||r.w||'–')+'</td><td>'+(r.drawn||r.d||'–')+'</td><td>'+(r.lost||r.l||'–')+'</td><td style="font-weight:700;color:var(--accent)">'+(r.points||r.pts||'–')+'</td></tr>').join('') +
+  '</tbody></table>';
 }
 
-
-// ---- DEBUG ----
-async function debugAPI() {
-  const debugDiv = document.getElementById('debugPanel');
-  if (!debugDiv) return;
-  debugDiv.style.display = 'block';
-  debugDiv.innerHTML = '<b style="color:#e8ff47">🔍 DEBUG - Raw API Response:</b><br><br>';
-
-  const endpoints = [
-    { label: 'Sports (categories)', params: { data: 'sports' } },
-    { label: 'Matches football', params: { data: 'matches', category: 'football' } },
-  ];
-
-  for (const ep of endpoints) {
-    const url = API + '?' + new URLSearchParams(ep.params);
-    try {
-      const res = await fetch(url);
-      const text = await res.text();
-      debugDiv.innerHTML += `<b style="color:#fff">📌 ${ep.label}</b><br><pre style="font-size:10px;color:#e8ff47;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;background:#0e1117;padding:8px;border-radius:6px;margin-bottom:12px">${text.substring(0, 1000)}</pre>`;
-    } catch(e) {
-      debugDiv.innerHTML += `<b style="color:#ff4757">❌ ${ep.label}:</b> ${e.message}<br><br>`;
-    }
-  }
-}
-
-// ---- INIT ----
 async function init() {
   await loadCategories();
   await loadMatches(currentCategory);
-  await debugAPI();
 }
-
 init();
 </script>
-
-<!-- DEBUG PANEL -->
-<div id="debugPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;max-height:320px;overflow-y:auto;background:#080a0f;border-top:2px solid #e8ff47;padding:16px;z-index:9999;font-family:monospace">
-  <button onclick="document.getElementById('debugPanel').style.display='none'" style="float:right;background:#e8ff47;border:none;padding:4px 10px;cursor:pointer;font-weight:bold;border-radius:4px">✕ Tutup</button>
-</div>
-
 </body>
 </html>
