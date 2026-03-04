@@ -1,77 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Stream - Nova</title>
+    <title>Sports Hub - Nova</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f0f0f; color: #e5e5e5; }
-        .glass-card { background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 24px; overflow: hidden; }
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+        .glass-card { background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 20px; transition: all 0.3s ease; }
+        .match-card:hover { border-color: #06b6d4; background: #222; transform: translateY(-2px); }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 12px; overflow: hidden; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .active-stream { border: 2px solid #06b6d4 !important; }
     </style>
 </head>
 <body class="p-6 md:p-12 max-w-6xl mx-auto">
 
     <nav class="mb-12">
         <a href="/" class="text-sm font-bold text-zinc-500 hover:text-white transition uppercase tracking-widest flex items-center">
-            <i class="fas fa-arrow-left mr-2"></i> Back
+            <i class="fas fa-arrow-left mr-2"></i> Back to Archive
         </a>
     </nav>
 
-    <header class="mb-8">
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 text-white italic">Live Stream</h1>
-        <p class="text-zinc-500 text-lg">Sports Hub</p>
-    </header>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2">
+            <header class="mb-6">
+                <h1 id="streamTitle" class="text-3xl font-extrabold tracking-tight text-white italic">Select a Match</h1>
+                <p id="streamStatus" class="text-zinc-500 text-sm">Pick a match from the list to start streaming</p>
+            </header>
 
-    <main>
-        <div class="glass-card shadow-2xl">
-            <div class="bg-zinc-800/50 p-4 border-b border-zinc-700 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-zinc-300">Live Broadcast</span>
+            <div class="glass-card p-2 shadow-2xl">
+                <div id="playerWrapper" class="video-container">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-zinc-600">
+                        <i class="fas fa-play-circle text-6xl mb-4"></i>
+                        <p class="font-bold tracking-widest uppercase text-xs">Ready to Stream</p>
+                    </div>
                 </div>
-                <span class="text-[10px] text-zinc-500 font-mono">Powered by Sportsrc</span>
             </div>
-            
-            <div class="video-container">
-                <iframe 
-                    src="https://sportsrc.org/" 
-                    allowfullscreen="true" 
-                    scrolling="no" 
-                    allow="autoplay; encrypted-media">
-                </iframe>
-            </div>
-        </div>
 
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="glass-card p-6">
-                <h3 class="text-white font-bold mb-2 flex items-center">
-                    <i class="fas fa-info-circle mr-2 text-cyan-500"></i> Tips Nonton
+            <div class="mt-6 glass-card p-6">
+                <h3 class="text-white font-bold mb-2 flex items-center text-sm uppercase tracking-wider">
+                    <i class="fas fa-circle text-red-500 animate-pulse mr-2 text-[10px]"></i> System Log
                 </h3>
-                <p class="text-sm text-zinc-400 leading-relaxed">
-                    Jika player tidak muncul atau error, pastikan ad-blocker Anda dimatikan atau gunakan browser yang mendukung pemutaran HLS.
+                <p class="text-xs text-zinc-400 leading-relaxed font-mono">
+                    > API Connection: Established<br>
+                    > Source: api.sportsrc.org<br>
+                    > Status: Waiting for user input...
                 </p>
             </div>
-            <div class="glass-card p-6">
-                <h3 class="text-white font-bold mb-2 flex items-center">
-                    <i class="fas fa-shield-alt mr-2 text-green-500"></i> Status Server
-                </h3>
-                <div class="flex items-center gap-2 text-sm text-zinc-400">
-                    <span class="px-2 py-1 bg-green-500/10 text-green-500 rounded text-xs font-bold">ONLINE</span>
-                    <span>Stable connection</span>
-                </div>
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Live Matches</h2>
+                <button onclick="loadMatches()" class="text-zinc-500 hover:text-white transition text-xs">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
+            <div id="matchList" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                <p class="text-zinc-600 italic text-sm">Fetching matches...</p>
             </div>
         </div>
-    </main>
 
-    <footer class="mt-20 mb-10 text-center">
-        <p class="text-zinc-600 text-[10px] uppercase tracking-widest font-bold">© 2026 Novascatia Entertainment</p>
-    </footer>
+    </div>
 
+    <script>
+        const API_BASE = "https://api.sportsrc.org/";
+
+        // 1. Ambil daftar pertandingan
+        async function loadMatches() {
+            const container = document.getElementById('matchList');
+            try {
+                // Sesuai docs: curl "https://api.sportsrc.org/?data=matches&category=football"
+                const response = await fetch(`${API_BASE}?data=matches&category=football`);
+                const matches = await response.json();
+
+                if (matches && matches.length > 0) {
+                    container.innerHTML = matches.map(match => `
+                        <div onclick="playMatch('${match.id}', '${match.title}')" 
+                             id="card-${match.id}"
+                             class="match-card glass-card p-4 cursor-pointer">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[9px] text-cyan-500 font-bold uppercase tracking-wider">${match.league || 'Football'}</span>
+                                <span class="text-[9px] text-zinc-600 font-mono">${match.time || ''}</span>
+                            </div>
+                            <h3 class="text-sm font-bold text-zinc-300 group-hover:text-white transition">${match.title}</h3>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<p class="text-zinc-600 text-xs italic">No matches currently available.</p>`;
+                }
+            } catch (e) {
+                container.innerHTML = `<p class="text-red-500 text-xs italic">API Error: Unable to fetch matches.</p>`;
+            }
+        }
+
+        // 2. Ambil detail stream dan putar
+        async function playMatch(id, title) {
+            const playerWrapper = document.getElementById('playerWrapper');
+            const streamTitle = document.getElementById('streamTitle');
+            const streamStatus = document.getElementById('streamStatus');
+
+            // Visual feedback
+            document.querySelectorAll('.match-card').forEach(c => c.classList.remove('active-stream'));
+            document.getElementById(`card-${id}`).classList.add('active-stream');
+
+            streamTitle.textContent = "Loading Stream...";
+            playerWrapper.innerHTML = `<div class="absolute inset-0 flex items-center justify-center"><i class="fas fa-spinner fa-spin text-3xl text-cyan-500"></i></div>`;
+
+            try {
+                // Sesuai docs: curl "https://api.sportsrc.org/?data=detail&category=football&id=match-id"
+                const response = await fetch(`${API_BASE}?data=detail&category=football&id=${id}`);
+                const detail = await response.json();
+
+                if (detail && detail.embed_url) {
+                    streamTitle.textContent = title;
+                    streamStatus.textContent = `Streaming from official source`;
+                    playerWrapper.innerHTML = `
+                        <iframe 
+                            src="${detail.embed_url}" 
+                            allowfullscreen="true" 
+                            scrolling="no" 
+                            allow="autoplay; encrypted-media">
+                        </iframe>`;
+                } else {
+                    throw new Error("No stream URL");
+                }
+            } catch (e) {
+                streamTitle.textContent = "Stream Unavailable";
+                playerWrapper.innerHTML = `
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-red-900/50">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
+                        <p class="text-[10px] font-bold uppercase">Source Error</p>
+                    </div>`;
+            }
+        }
+
+        window.onload = loadMatches;
+    </script>
 </body>
 </html>
