@@ -320,7 +320,14 @@ async function loadStream(cat, id, m) {
   }
 
   const detail = res.data || {};
-  // API uses "sources": [{id, name, embed}, ...]
+
+  // DEBUG: tampilkan raw JSON isi detail
+  ea.innerHTML = `<div style="position:absolute;inset:0;overflow:auto;padding:14px;background:#07090e">
+    <div style="color:#d4f53c;font-family:monospace;font-size:11px;font-weight:700;margin-bottom:8px">RAW DETAIL RESPONSE:</div>
+    <pre style="color:#bbb;font-size:10px;white-space:pre-wrap;word-break:break-all">${JSON.stringify(res, null, 2)}</pre>
+  </div>`;
+  return;
+
   const sources = detail.sources || detail.streams || detail.links || [];
 
   function applyEmbed(code) {
