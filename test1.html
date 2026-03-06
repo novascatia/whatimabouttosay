@@ -19,7 +19,6 @@
         
         * { box-sizing: border-box; }
         
-        /* FIX PROBLEM 1: Buka kunci scroll body agar tidak macet di layar kecil */
         body {
             font-family: var(--font-main);
             margin: 0; padding: 0;
@@ -45,8 +44,9 @@
             padding: 2rem; transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
+        /* Desktop Layout: Lirik mengambil ruang lebih besar dan seimbang */
         @media (min-width: 1024px) {
-            .main-wrapper.lyric-active { max-width: 1000px; grid-template-columns: 450px 1fr; }
+            .main-wrapper.lyric-active { max-width: 1200px; grid-template-columns: 400px 1fr; }
         }
 
         .player-container { text-align: center; width: 100%; }
@@ -59,43 +59,38 @@
         .song-title { font-size: 2.2em; font-weight: 700; margin: 0; line-height: 1.2; }
         .artist-name { font-size: 1.1em; color: var(--secondary-color); margin: 0; }
 
-        /* FIX PROBLEM 1: Ketinggian area lirik dan Scrollbar Desktop */
-        .lyrics-container-rel { position: relative; width: 100%; height: 60vh; min-height: 400px; max-height: 600px; }
-        @media (min-width: 1024px) {
-            .lyrics-container-rel { height: 75vh; max-height: 750px; }
-        }
-
+        /* Container Lirik dengan scrollbar tipis untuk Desktop */
+        .lyrics-container-rel { position: relative; width: 100%; height: 60vh; min-height: 450px; }
         .lyrics-window {
             height: 100%; overflow-y: auto; scroll-behavior: smooth;
-            padding: 50% 20px; /* Padding atas bawah besar agar lirik pertama/terakhir bisa center */
-            text-align: left;
+            padding: 50% 20px; 
+            text-align: center; /* Lirik berada di tengah */
             mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
         }
         
-        /* Memunculkan scrollbar minimalis agar bisa ditarik di Desktop */
         .lyrics-window::-webkit-scrollbar { width: 6px; }
         .lyrics-window::-webkit-scrollbar-track { background: transparent; }
-        .lyrics-window::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
-        .lyrics-window::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        .lyrics-window::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 
         .lyric-line {
-            font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,0.15);
-            margin-bottom: 1.8rem; transition: all 0.4s ease;
+            font-size: 1.8rem; font-weight: 700; color: rgba(255,255,255,0.15);
+            margin-bottom: 2rem; transition: all 0.4s ease;
+            line-height: 1.4;
         }
-        .lyric-line.active { color: white; transform: scale(1.03); }
+        .lyric-line.active { color: white; transform: scale(1.05); }
 
         #syncToSongBtn {
-            position: absolute; bottom: 20px; left: 20px;
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(10px);
             background: var(--spotify-green); color: black;
-            border: none; padding: 10px 18px; border-radius: 30px;
-            font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+            border: none; padding: 10px 20px; border-radius: 30px;
+            font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
             cursor: pointer; display: flex; align-items: center; gap: 8px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.4);
             z-index: 30; transition: all 0.3s;
-            opacity: 0; transform: translateY(10px); pointer-events: none;
+            opacity: 0; pointer-events: none;
         }
-        #syncToSongBtn.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        #syncToSongBtn.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
 
         .progress-bar-container { width: 100%; height: 6px; background-color: #404040; border-radius: 3px; margin-top: 2rem; }
         .progress-bar { height: 100%; background-color: var(--spotify-green); width: 0; }
@@ -149,7 +144,7 @@
                 <button id="lyricToggleBtn">Show Lyrics</button>
 
                 <div class="social-links">
-                    <a href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=3f25f9486a72489e" target="_blank" class="social-link">
+                    <a href="https://open.spotify.com/user/rama" target="_blank" class="social-link">
                         <i class="fab fa-spotify"></i> Spotify Account
                     </a>
                     <a href="https://instagram.com/grayalldayog" target="_blank" class="social-link">
@@ -179,37 +174,21 @@
         const lyricsWin = document.getElementById('lyricsContainer');
         const syncBtn = document.getElementById('syncToSongBtn');
 
-        // Fungsi cek apakah posisi lirik berada di tengah layar
         function isLineInFocus(el) {
             if (!el) return false;
             const rect = el.getBoundingClientRect();
             const winRect = lyricsWin.getBoundingClientRect();
             const centerPoint = winRect.top + (winRect.height / 2);
-            // Toleransi jarak tengah (agar tidak terlalu sensitif)
-            return (Math.abs(rect.top + (rect.height / 2) - centerPoint) < 120);
+            return (Math.abs(rect.top + (rect.height / 2) - centerPoint) < 100);
         }
 
-        // FIX PROBLEM 2: Deteksi scroll HANYA jika dipicu oleh interaksi user (bukan script)
-        const handleUserInteraction = () => {
-            isUserScrolling = true;
-            updateSyncButtonVisibility();
-        };
+        const handleInteraction = () => { isUserScrolling = true; updateSyncButton(); };
+        lyricsWin.addEventListener('wheel', handleInteraction);
+        lyricsWin.addEventListener('touchstart', handleInteraction);
+        lyricsWin.addEventListener('mousedown', handleInteraction);
 
-        // Pasang sensor langsung ke roda mouse, geseran tangan, dan klik (untuk scrollbar desktop)
-        lyricsWin.addEventListener('wheel', handleUserInteraction);
-        lyricsWin.addEventListener('touchstart', handleUserInteraction);
-        lyricsWin.addEventListener('mousedown', handleUserInteraction);
-
-        // Fungsi scroll bawaan cuma dipakai buat ngitung posisi tombol Sync pas lagu lagi muter
-        lyricsWin.addEventListener('scroll', () => {
-            if (isUserScrolling) {
-                updateSyncButtonVisibility();
-            }
-        });
-
-        function updateSyncButtonVisibility() {
+        function updateSyncButton() {
             const activeLine = document.querySelector('.lyric-line.active');
-            // Tampilkan tombol kalau: user lagi scroll manual AND lirik aktif gak di tengah
             if (activeLine && isUserScrolling && !isLineInFocus(activeLine)) {
                 syncBtn.classList.add('show');
             } else {
@@ -221,20 +200,16 @@
             isUserScrolling = false;
             syncBtn.classList.remove('show');
             const activeLine = document.querySelector('.lyric-line.active');
-            if (activeLine) {
-                activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            if (activeLine) activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
 
         async function fetchNowPlaying() {
             try {
                 const res = await fetch('/.netlify/functions/now-playing');
                 const data = await res.json();
-
                 if (data.isPlaying) {
                     document.getElementById('listeningText').classList.add('hidden');
                     document.getElementById('playerInfo').classList.remove('hidden');
-                    
                     const isDesktop = window.innerWidth >= 1024;
                     const wrapper = document.getElementById('mainWrapper');
                     const lyricsArea = document.getElementById('lyricsWrapper');
@@ -254,7 +229,6 @@
                     document.getElementById('artistName').textContent = data.artist;
                     document.getElementById('albumArt').src = data.albumArt;
                     document.getElementById('albumArtBackground').style.backgroundImage = `url('${data.albumArt}')`;
-
                     document.getElementById('progressBar').style.width = (data.progress / data.duration) * 100 + "%";
                     document.getElementById('currentTime').textContent = formatTime(data.progress);
                     document.getElementById('totalTime').textContent = formatTime(data.duration);
@@ -275,11 +249,7 @@
         async function loadLyrics(artist, title) {
             const container = document.getElementById('lyricsContent');
             container.innerHTML = "<p class='lyric-line'>Searching lyrics...</p>";
-            syncedLyrics = [];
-            isUserScrolling = false;
-            lastActiveIdx = -1;
-            syncBtn.classList.remove('show');
-
+            syncedLyrics = []; isUserScrolling = false; lastActiveIdx = -1;
             try {
                 const res = await fetch(`https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`);
                 const data = await res.json();
@@ -312,22 +282,16 @@
                 if (seconds >= syncedLyrics[i].time) activeIdx = i;
                 else break;
             }
-
             if (activeIdx !== -1 && activeIdx !== lastActiveIdx) {
                 lastActiveIdx = activeIdx;
                 document.querySelectorAll('.lyric-line').forEach(l => l.classList.remove('active'));
-                
                 const activeLine = document.getElementById(`line-${activeIdx}`);
                 if (activeLine) {
                     activeLine.classList.add('active');
-                    // AUTO CENTER HANYA BILA USER TIDAK MELAKUKAN INTERVENSI
-                    if (!isUserScrolling) {
-                        activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
+                    if (!isUserScrolling) activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+                updateSyncButton();
             }
-            // Panggil ini agar tombol sync bisa mati otomatis bila lirik berjalan ke dalam fokus view
-            if (isUserScrolling) updateSyncButtonVisibility();
         }
 
         function formatTime(ms) {
@@ -339,12 +303,7 @@
         document.getElementById('lyricToggleBtn').addEventListener('click', function() {
             isLyricView = !isLyricView;
             this.textContent = isLyricView ? "Show Cover" : "Show Lyrics";
-            
-            // Re-center saat dibuka
-            if (isLyricView) {
-                isUserScrolling = false; 
-                syncBtn.classList.remove('show');
-            }
+            if (isLyricView) isUserScrolling = false;
             fetchNowPlaying();
         });
 
