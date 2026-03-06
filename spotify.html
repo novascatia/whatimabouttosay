@@ -5,345 +5,353 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rama is Listening - Now Playing</title>
     <link rel="icon" type="image/png" href="/logo.png">
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* Variabel CSS: DARK MODE 🌙 */
         :root {
             --bg-color: #1a1a1a;
             --text-color: #f0f0f0;
+            --primary-color: #4dc2ff; 
+            --secondary-color: #b0b0b0; 
             --spotify-green: #1ed760;
-            --secondary-color: #b0b0b0;
+            --card-bg: #282828;
+            --shadow-dark: rgba(0, 0, 0, 0.8);
             --font-main: 'Poppins', sans-serif;
         }
         
-        * { box-sizing: border-box; }
-        
+        * {
+            box-sizing: border-box; /* FIX: Mencegah scroll horizontal dari padding */
+        }
+
         body {
             font-family: var(--font-main);
-            margin: 0; padding: 0;
+            margin: 0;
+            padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* FIX: Menghilangkan scroll horizontal */
             overflow-x: hidden; 
-            overflow-y: auto; 
-            /* FIX: Sembunyikan scrollbar utama secara visual, TAPI tetap bisa scroll */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
-        }
-        body::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
         }
 
+        .player-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px; 
+            padding: 2rem;
+            box-sizing: border-box;
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* Efek Latar Belakang (Blur effect) */
         #albumArtBackground {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover; background-position: center;
-            filter: blur(80px) brightness(0.4); transform: scale(1.1);
-            opacity: 0.4; transition: all 0.8s ease; z-index: 1;
-        }
-
-        .main-wrapper {
-            position: relative; z-index: 10;
-            display: grid; grid-template-columns: 1fr;
-            gap: 2rem; width: 100%; max-width: 450px;
-            padding: 2rem; transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        /* Desktop Layout: Lirik mengambil ruang lebih besar dan seimbang */
-        @media (min-width: 1024px) {
-            .main-wrapper.lyric-active { max-width: 1200px; grid-template-columns: 400px 1fr; }
-        }
-
-        .player-container { text-align: center; width: 100%; }
-        .album-art {
-            width: 100%; max-width: 350px; border-radius: 12px;
-            margin-bottom: 2rem; box-shadow: 0 15px 30px rgba(0,0,0,0.8);
-            object-fit: cover;
-        }
-
-        .song-title { font-size: 2.2em; font-weight: 700; margin: 0; line-height: 1.2; }
-        .artist-name { font-size: 1.1em; color: var(--secondary-color); margin: 0; }
-
-        /* Container Lirik dengan scrollbar tipis untuk Desktop */
-        .lyrics-container-rel { position: relative; width: 100%; height: 60vh; min-height: 450px; }
-        .lyrics-window {
-            height: 100%; overflow-y: auto; scroll-behavior: smooth;
-            padding: 50% 20px; 
-            text-align: center; /* Lirik berada di tengah */
-            mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(80px) brightness(0.7);
+            transform: scale(1.1);
+            opacity: 0.4;
+            transition: all 0.8s ease;
+            z-index: 1;
         }
         
-        .lyrics-window::-webkit-scrollbar { width: 6px; }
-        .lyrics-window::-webkit-scrollbar-track { background: transparent; }
-        .lyrics-window::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-
-        .lyric-line {
-            font-size: 1.8rem; font-weight: 700; color: rgba(255,255,255,0.15);
-            margin-bottom: 2rem; transition: all 0.4s ease;
-            line-height: 1.4;
+        /* Album Art Utama */
+        .album-art {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 30px var(--shadow-dark);
+            transition: transform 0.3s ease;
+            max-width: 350px;
+            object-fit: cover;
         }
-        .lyric-line.active { color: white; transform: scale(1.05); }
-
-        #syncToSongBtn {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: var(--spotify-green); color: black;
-            border: none; padding: 10px 20px; border-radius: 30px;
-            font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
-            cursor: pointer; display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            z-index: 30; transition: all 0.3s;
-            opacity: 0; pointer-events: none;
+        .album-art:hover {
+            transform: scale(1.02);
         }
-        #syncToSongBtn.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
 
-        .progress-bar-container { width: 100%; height: 6px; background-color: #404040; border-radius: 3px; margin-top: 2rem; }
-        .progress-bar { height: 100%; background-color: var(--spotify-green); width: 0; }
-        .time-display { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--secondary-color); margin-top: 0.5rem; }
+        /* Judul Lagu dan Artis */
+        .song-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0 0 5px 0;
+            line-height: 1.2;
+        }
+        .artist-name {
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            margin: 0;
+            font-weight: 400;
+        }
 
-        .controls i { font-size: 1.8rem; color: var(--secondary-color); cursor: pointer; margin: 0 1rem; }
-        .play-btn i { font-size: 3rem; color: var(--spotify-green); }
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: #404040;
+            border-radius: 3px;
+            margin-top: 2rem;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--spotify-green);
+            width: 0;
+        }
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
 
-        .social-links { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        /* Kontrol */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+        .controls i {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .controls i:hover {
+            color: var(--text-color);
+        }
+        .controls .play-btn i {
+            font-size: 3rem;
+            color: var(--spotify-green);
+        }
+        .controls .play-btn i:hover {
+            color: #1aae55;
+        }
+        
+        /* Link Sosial & Koneksi */
+        .social-links-container {
+            margin-top: 4rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+            width: 100%;
+        }
+
         .social-link {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            color: var(--secondary-color); text-decoration: none; margin-bottom: 10px;
-            font-size: 0.9rem; transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            transition: color 0.3s;
         }
-        .social-link:hover { color: var(--spotify-green); }
 
-        #lyricToggleBtn {
-            margin-top: 1.5rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-            color: white; padding: 10px 24px; border-radius: 25px; font-size: 0.85rem; 
-            cursor: pointer; font-weight: 600;
+        .social-link:hover {
+            color: var(--primary-color);
         }
+        
+        .connect-button a {
+            background-color: var(--spotify-green);
+            color: var(--card-bg);
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        .connect-button a:hover {
+            background-color: #1aae55;
+        }
+        
         .hidden { display: none !important; }
+
     </style>
 </head>
 <body>
+    
     <div id="albumArtBackground"></div>
 
-    <div id="mainWrapper" class="main-wrapper">
-        <div class="player-container">
-            <h1 id="listeningText" style="color:var(--spotify-green); margin-bottom: 2rem; font-size: 1.8em; font-weight: 700;">Loading...</h1>
-            <img id="albumArt" src="" class="album-art hidden">
+    <div id="playerContainer" class="player-container">
+        
+        <p id="staticListeningHeader" style="font-size:1.1em; color:var(--spotify-green); margin-bottom: 0.5rem;" class="hidden">Rama is listening to:</p>
+        
+        <h1 id="listeningText" style="font-size:1.1em; color:var(--spotify-green); margin-bottom: 2rem;">Loading...</h1>
+        
+        <img id="albumArt" src="" alt="Album Art" class="album-art hidden">
+        
+        <div class="w-full">
+            <h2 id="songTitle" class="song-title hidden"></h2>
+            <p id="artistName" class="artist-name hidden"></p>
+        </div>
+        
+        <div id="progressBarContainer" class="progress-bar-container hidden">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="timeDisplay" class="time-display hidden">
+            <span id="currentTime">0:00</span>
+            <span id="totalTime">0:00</span>
+        </div>
+
+        <div id="controls" class="controls hidden">
+            <i class="fas fa-backward"></i>
+            <span class="play-btn">
+                <i id="playPauseIcon" class="fas fa-pause"></i>
+            </span>
+            <i class="fas fa-forward"></i>
+        </div>
+
+        <div id="socialLinksContainer" class="social-links-container">
+            <a id="spotifyLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" 
+               class="social-link hidden">
+                <i class="fab fa-spotify"></i>
+                <span id="spotifyLinkText">Follow my Spotify!</span>
+            </a>
             
-            <div id="playerInfo" class="hidden">
-                <h2 id="songTitle" class="song-title"></h2>
-                <p id="artistName" class="artist-name"></p>
-                
-                <div class="progress-bar-container">
-                    <div id="progressBar" class="progress-bar"></div>
-                </div>
-                <div class="time-display">
-                    <span id="currentTime">0:00</span>
-                    <span id="totalTime">0:00</span>
-                </div>
+            <a id="instagramLink" href="https://instagram.com/grayalldayog" target="_blank" rel="noopener noreferrer" 
+               class="social-link hidden">
+                <i class="fab fa-instagram"></i>
+                <span id="instagramLinkText">Hit me up on Instagram!</span>
+            </a>
 
-                <div class="controls mt-6">
-                    <i class="fas fa-backward"></i>
-                    <span class="play-btn"><i class="fas fa-pause"></i></span>
-                    <i class="fas fa-forward"></i>
-                </div>
-
-                <button id="lyricToggleBtn">Show Lyrics</button>
-
-                <div class="social-links">
-                    <a href="https://open.spotify.com/user/rama" target="_blank" class="social-link">
-                        <i class="fab fa-spotify"></i> Spotify Account
-                    </a>
-                    <a href="https://instagram.com/grayalldayog" target="_blank" class="social-link">
-                        <i class="fab fa-instagram"></i> Instagram Account
-                    </a>
-                </div>
+            <div id="connectButton" class="connect-button hidden">
+                <a href="/.netlify/functions/login-spotify">
+                    Connect to Spotify
+                </a>
             </div>
         </div>
-
-        <div id="lyricsWrapper" class="lyrics-container-rel hidden">
-            <div id="lyricsContainer" class="lyrics-window">
-                <div id="lyricsContent"></div>
-            </div>
-            <button id="syncToSongBtn">
-                <i class="fas fa-arrow-down"></i> Sync to Song
-            </button>
-        </div>
+        
     </div>
 
     <script>
-        let lastTrack = "";
-        let syncedLyrics = [];
-        let isLyricView = false;
-        let isUserScrolling = false;
-        let lastActiveIdx = -1;
-
-        const lyricsWin = document.getElementById('lyricsContainer');
-        const syncBtn = document.getElementById('syncToSongBtn');
-
-        function isLineInFocus(el) {
-            if (!el) return false;
-            const rect = el.getBoundingClientRect();
-            const winRect = lyricsWin.getBoundingClientRect();
-            const centerPoint = winRect.top + (winRect.height / 2);
-            return (Math.abs(rect.top + (rect.height / 2) - centerPoint) < 100);
+        const listeningText = document.getElementById('listeningText');
+        const staticListeningHeader = document.getElementById('staticListeningHeader');
+        const albumArt = document.getElementById('albumArt');
+        const albumArtBackground = document.getElementById('albumArtBackground');
+        const songTitle = document.getElementById('songTitle');
+        const artistName = document.getElementById('artistName');
+        const progressBar = document.getElementById('progressBar');
+        const currentTimeElement = document.getElementById('currentTime');
+        const totalTimeElement = document.getElementById('totalTime');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        const socialLinksContainer = document.getElementById('socialLinksContainer');
+        const spotifyLink = document.getElementById('spotifyLink');
+        const instagramLink = document.getElementById('instagramLink');
+        const spotifyLinkText = document.getElementById('spotifyLinkText');
+        const instagramLinkText = document.getElementById('instagramLinkText');
+        const connectButton = document.getElementById('connectButton');
+        
+        function formatTime(ms) {
+            const seconds = Math.floor((ms / 1000) % 60);
+            const minutes = Math.floor((ms / 1000 / 60) % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
-
-        const handleInteraction = () => { isUserScrolling = true; updateSyncButton(); };
-        lyricsWin.addEventListener('wheel', handleInteraction);
-        lyricsWin.addEventListener('touchstart', handleInteraction);
-        lyricsWin.addEventListener('mousedown', handleInteraction);
-
-        function updateSyncButton() {
-            const activeLine = document.querySelector('.lyric-line.active');
-            if (activeLine && isUserScrolling && !isLineInFocus(activeLine)) {
-                syncBtn.classList.add('show');
-            } else {
-                syncBtn.classList.remove('show');
-            }
+        
+        function showPlayingElements(show) {
+            // Kontrol UI saat lagu sedang diputar
+            const playingElements = [
+                albumArt, songTitle, artistName, progressBarContainer, timeDisplay, controls
+            ];
+            
+            playingElements.forEach(el => el.classList.toggle('hidden', !show));
+            staticListeningHeader.classList.toggle('hidden', !show);
+            listeningText.classList.toggle('hidden', show);
+            
+            // Link sosial selalu ditampilkan, tetapi kontennya berubah di JS
+            socialLinksContainer.classList.remove('hidden');
         }
-
-        syncBtn.addEventListener('click', () => {
-            isUserScrolling = false;
-            syncBtn.classList.remove('show');
-            const activeLine = document.querySelector('.lyric-line.active');
-            if (activeLine) activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
 
         async function fetchNowPlaying() {
-            try {
-                const res = await fetch('/.netlify/functions/now-playing');
-                const data = await res.json();
-                
-                const listeningText = document.getElementById('listeningText');
-                const playerInfo = document.getElementById('playerInfo');
-                const albumArtImg = document.getElementById('albumArt');
-                const lyricsWrapper = document.getElementById('lyricsWrapper');
-                const mainWrapper = document.getElementById('mainWrapper');
+            const response = await fetch('/.netlify/functions/now-playing');
+            const data = await response.json();
 
-                // FIX: Kalau lagunya mati / gak ada lagu
-                if (!data || !data.isPlaying) {
-                    listeningText.textContent = "Rama is doing something else right now..";
-                    listeningText.style.color = "var(--text-color)";
-                    listeningText.classList.remove('hidden');
-                    
-                    playerInfo.classList.add('hidden');
-                    albumArtImg.classList.add('hidden');
-                    lyricsWrapper.classList.add('hidden');
-                    mainWrapper.classList.remove('lyric-active');
-                    document.getElementById('albumArtBackground').style.backgroundImage = 'none';
-                    lastTrack = "";
-                    return;
-                }
-
-                // Kalau lagu nyala
-                listeningText.classList.add('hidden');
-                listeningText.style.color = "var(--spotify-green)";
-                playerInfo.classList.remove('hidden');
-
-                const isDesktop = window.innerWidth >= 1024;
-
-                if (isLyricView) {
-                    mainWrapper.classList.add('lyric-active');
-                    lyricsWrapper.classList.remove('hidden');
-                    albumArtImg.classList.toggle('hidden', !isDesktop);
-                } else {
-                    mainWrapper.classList.remove('lyric-active');
-                    lyricsWrapper.classList.add('hidden');
-                    albumArtImg.classList.remove('hidden');
-                }
-
-                document.getElementById('songTitle').textContent = data.title;
-                document.getElementById('artistName').textContent = data.artist;
-                document.getElementById('albumArt').src = data.albumArt;
-                document.getElementById('albumArtBackground').style.backgroundImage = `url('${data.albumArt}')`;
-                document.getElementById('progressBar').style.width = (data.progress / data.duration) * 100 + "%";
-                document.getElementById('currentTime').textContent = formatTime(data.progress);
-                document.getElementById('totalTime').textContent = formatTime(data.duration);
-
-                if (lastTrack !== data.title) {
-                    lastTrack = data.title;
-                    loadLyrics(data.artist, data.title);
-                }
-                updateLyricHighlight(data.progress);
-                
-            } catch (e) {
-                // Handle kalau API gagal
-                const listeningText = document.getElementById('listeningText');
-                listeningText.textContent = "Rama is doing something else right now..";
-                listeningText.style.color = "var(--text-color)";
+            if (data.error) {
+                // Handle Error / Token not set
                 listeningText.classList.remove('hidden');
+                listeningText.textContent = 'ERROR: Admin connection required.';
+                listeningText.style.color = '#ff0000';
+                connectButton.classList.remove('hidden');
+                albumArtBackground.style.backgroundImage = 'none';
+                showPlayingElements(false);
+                return;
+            }
+            
+            connectButton.classList.add('hidden');
+            listeningText.style.color = 'var(--spotify-green)';
+
+            if (data.isPlaying) {
+                // ===================================
+                // 1. STATE: LAGU SEDANG DIPUTAR
+                // ===================================
+
+                // Update UI elements
+                albumArt.src = data.albumArt;
+                albumArtBackground.style.backgroundImage = `url('${data.albumArt}')`;
+                songTitle.textContent = data.title;
+                artistName.textContent = data.artist;
+
+                // Progress Bar Update
+                const currentProgressMs = data.progress;
+                const durationMs = data.duration;
+                totalTimeElement.textContent = formatTime(durationMs);
+                currentTimeElement.textContent = formatTime(currentProgressMs);
+                const progressPercent = (currentProgressMs / durationMs) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+
+                // Update Link Texts ke default/minimal
+                spotifyLinkText.textContent = 'Follow my Spotify!';
+                instagramLinkText.textContent = 'Hit me up on Instagram!';
                 
-                document.getElementById('playerInfo').classList.add('hidden');
-                document.getElementById('albumArt').classList.add('hidden');
-                document.getElementById('lyricsWrapper').classList.add('hidden');
-                document.getElementById('mainWrapper').classList.remove('lyric-active');
-                document.getElementById('albumArtBackground').style.backgroundImage = 'none';
+                // Show playing elements
+                showPlayingElements(true);
+                spotifyLink.classList.remove('hidden');
+                instagramLink.classList.remove('hidden');
+
+            } else {
+                // ===================================
+                // 2. STATE: LAGU TIDAK DIPUTAR (DOING SOMETHING ELSE)
+                // ===================================
+                
+                // Set Pesan Utama
+                listeningText.textContent = 'Rama is doing something else..';
+                listeningText.style.fontSize = '1.8em';
+                listeningText.style.fontWeight = '700';
+                listeningText.style.color = 'var(--text-color)';
+                
+                // Update Link Texts Sesuai Permintaan
+                spotifyLinkText.textContent = 'But still you can stalk my spotify!';
+                instagramLinkText.textContent = 'Maybe im active here? idk';
+
+                // Ensure links are visible
+                spotifyLink.classList.remove('hidden');
+                instagramLink.classList.remove('hidden');
+
+                // Hide playing elements
+                albumArtBackground.style.backgroundImage = 'none';
+                showPlayingElements(false);
             }
         }
-
-        async function loadLyrics(artist, title) {
-            const container = document.getElementById('lyricsContent');
-            container.innerHTML = "<p class='lyric-line'>Searching lyrics...</p>";
-            syncedLyrics = []; isUserScrolling = false; lastActiveIdx = -1;
-            try {
-                const res = await fetch(`https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`);
-                const data = await res.json();
-                if (data.syncedLyrics) parseLRC(data.syncedLyrics);
-                else if (data.plainLyrics) container.innerHTML = data.plainLyrics.split('\n').map(l => `<p class="lyric-line active">${l}</p>`).join('');
-                else container.innerHTML = "<p class='lyric-line'>Lyrics not found.</p>";
-            } catch (e) { container.innerHTML = "<p class='lyric-line'>Lyrics unavailable.</p>"; }
-        }
-
-        function parseLRC(lrc) {
-            const container = document.getElementById('lyricsContent');
-            container.innerHTML = ""; syncedLyrics = [];
-            lrc.split('\n').forEach(line => {
-                const match = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
-                if (match && match[3].trim()) {
-                    const time = parseInt(match[1]) * 60 + parseFloat(match[2]);
-                    const p = document.createElement('p');
-                    p.className = 'lyric-line'; p.textContent = match[3].trim();
-                    p.id = `line-${syncedLyrics.length}`;
-                    container.appendChild(p);
-                    syncedLyrics.push({ time, el: p });
-                }
-            });
-        }
-
-        function updateLyricHighlight(ms) {
-            const seconds = ms / 1000;
-            let activeIdx = -1;
-            for (let i = 0; i < syncedLyrics.length; i++) {
-                if (seconds >= syncedLyrics[i].time) activeIdx = i;
-                else break;
-            }
-            if (activeIdx !== -1 && activeIdx !== lastActiveIdx) {
-                lastActiveIdx = activeIdx;
-                document.querySelectorAll('.lyric-line').forEach(l => l.classList.remove('active'));
-                const activeLine = document.getElementById(`line-${activeIdx}`);
-                if (activeLine) {
-                    activeLine.classList.add('active');
-                    if (!isUserScrolling) activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                updateSyncButton();
-            }
-        }
-
-        function formatTime(ms) {
-            const s = Math.floor((ms / 1000) % 60);
-            const m = Math.floor((ms / 1000 / 60) % 60);
-            return `${m}:${s.toString().padStart(2, '0')}`;
-        }
-
-        document.getElementById('lyricToggleBtn').addEventListener('click', function() {
-            isLyricView = !isLyricView;
-            this.textContent = isLyricView ? "Show Cover" : "Show Lyrics";
-            if (isLyricView) isUserScrolling = false;
-            fetchNowPlaying();
-        });
-
-        setInterval(fetchNowPlaying, 1000);
+        
         fetchNowPlaying();
+        setInterval(fetchNowPlaying, 1000); 
     </script>
 </body>
 </html>
