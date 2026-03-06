@@ -26,8 +26,14 @@
             color: var(--text-color);
             min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            /* FIX 1: Hide scrollbar website utama yang besar di kanan */
-            overflow: hidden; 
+            overflow-x: hidden; 
+            overflow-y: auto; 
+            /* FIX: Sembunyikan scrollbar utama secara visual, TAPI tetap bisa scroll */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
         }
 
         #albumArtBackground {
@@ -120,7 +126,7 @@
 
     <div id="mainWrapper" class="main-wrapper">
         <div class="player-container">
-            <h1 id="listeningText" style="color:var(--spotify-green); margin-bottom: 2rem; font-size: 1.8em;">Loading...</h1>
+            <h1 id="listeningText" style="color:var(--spotify-green); margin-bottom: 2rem; font-size: 1.8em; font-weight: 700;">Loading...</h1>
             <img id="albumArt" src="" class="album-art hidden">
             
             <div id="playerInfo" class="hidden">
@@ -203,52 +209,47 @@
             if (activeLine) activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
 
-        // Fungsi Helper untuk state idle (gak muter lagu)
-        function setIdleState() {
-            const listeningText = document.getElementById('listeningText');
-            listeningText.textContent = "Rama is doing something else right now..";
-            listeningText.classList.remove('hidden');
-            listeningText.style.color = "var(--text-color)"; // Ganti warna biar netral
-
-            document.getElementById('playerInfo').classList.add('hidden');
-            document.getElementById('mainWrapper').classList.remove('lyric-active');
-            document.getElementById('albumArt').classList.add('hidden');
-            document.getElementById('lyricsWrapper').classList.add('hidden');
-            document.getElementById('albumArtBackground').style.backgroundImage = 'none';
-            lastTrack = "";
-        }
-
         async function fetchNowPlaying() {
             try {
                 const res = await fetch('/.netlify/functions/now-playing');
                 const data = await res.json();
                 
-                // FIX 2: Cek apakah tidak ada lagu yang diputar
+                const listeningText = document.getElementById('listeningText');
+                const playerInfo = document.getElementById('playerInfo');
+                const albumArtImg = document.getElementById('albumArt');
+                const lyricsWrapper = document.getElementById('lyricsWrapper');
+                const mainWrapper = document.getElementById('mainWrapper');
+
+                // FIX: Kalau lagunya mati / gak ada lagu
                 if (!data || !data.isPlaying) {
-                    setIdleState();
+                    listeningText.textContent = "Rama is doing something else right now..";
+                    listeningText.style.color = "var(--text-color)";
+                    listeningText.classList.remove('hidden');
+                    
+                    playerInfo.classList.add('hidden');
+                    albumArtImg.classList.add('hidden');
+                    lyricsWrapper.classList.add('hidden');
+                    mainWrapper.classList.remove('lyric-active');
+                    document.getElementById('albumArtBackground').style.backgroundImage = 'none';
+                    lastTrack = "";
                     return;
                 }
 
-                // Kalo lagu jalan, balikin warna judul
-                const listeningText = document.getElementById('listeningText');
-                listeningText.style.color = "var(--spotify-green)";
+                // Kalau lagu nyala
                 listeningText.classList.add('hidden');
+                listeningText.style.color = "var(--spotify-green)";
+                playerInfo.classList.remove('hidden');
 
-                document.getElementById('playerInfo').classList.remove('hidden');
-                
                 const isDesktop = window.innerWidth >= 1024;
-                const wrapper = document.getElementById('mainWrapper');
-                const lyricsArea = document.getElementById('lyricsWrapper');
-                const album = document.getElementById('albumArt');
 
                 if (isLyricView) {
-                    wrapper.classList.add('lyric-active');
-                    lyricsArea.classList.remove('hidden');
-                    album.classList.toggle('hidden', !isDesktop);
+                    mainWrapper.classList.add('lyric-active');
+                    lyricsWrapper.classList.remove('hidden');
+                    albumArtImg.classList.toggle('hidden', !isDesktop);
                 } else {
-                    wrapper.classList.remove('lyric-active');
-                    lyricsArea.classList.add('hidden');
-                    album.classList.remove('hidden');
+                    mainWrapper.classList.remove('lyric-active');
+                    lyricsWrapper.classList.add('hidden');
+                    albumArtImg.classList.remove('hidden');
                 }
 
                 document.getElementById('songTitle').textContent = data.title;
@@ -266,8 +267,17 @@
                 updateLyricHighlight(data.progress);
                 
             } catch (e) {
-                // Kalo error / offline, masuk mode idle
-                setIdleState();
+                // Handle kalau API gagal
+                const listeningText = document.getElementById('listeningText');
+                listeningText.textContent = "Rama is doing something else right now..";
+                listeningText.style.color = "var(--text-color)";
+                listeningText.classList.remove('hidden');
+                
+                document.getElementById('playerInfo').classList.add('hidden');
+                document.getElementById('albumArt').classList.add('hidden');
+                document.getElementById('lyricsWrapper').classList.add('hidden');
+                document.getElementById('mainWrapper').classList.remove('lyric-active');
+                document.getElementById('albumArtBackground').style.backgroundImage = 'none';
             }
         }
 
