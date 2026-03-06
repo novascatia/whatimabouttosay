@@ -26,8 +26,7 @@
             color: var(--text-color);
             min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            /* HIDE WEBSITE SCROLLBAR */
-            overflow: hidden; 
+            overflow-x: hidden; 
         }
 
         #albumArtBackground {
@@ -65,10 +64,11 @@
             text-align: center; 
             mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-            /* HIDE LYRIC SCROLLBAR (OPTIONAL) */
-            -ms-overflow-style: none; scrollbar-width: none;
         }
-        .lyrics-window::-webkit-scrollbar { display: none; }
+        
+        .lyrics-window::-webkit-scrollbar { width: 6px; }
+        .lyrics-window::-webkit-scrollbar-track { background: transparent; }
+        .lyrics-window::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 
         .lyric-line {
             font-size: 1.8rem; font-weight: 700; color: rgba(255,255,255,0.15);
@@ -110,11 +110,6 @@
             cursor: pointer; font-weight: 600;
         }
         .hidden { display: none !important; }
-
-        /* Mode "Doing Something Else" styling */
-        .not-playing-text {
-            font-size: 1.8em; font-weight: 700; color: var(--text-color);
-        }
     </style>
 </head>
 <body>
@@ -122,10 +117,7 @@
 
     <div id="mainWrapper" class="main-wrapper">
         <div class="player-container">
-            <div id="statusContainer">
-                <h1 id="listeningText" class="not-playing-text">Loading...</h1>
-            </div>
-            
+            <h1 id="listeningText" style="color:var(--spotify-green); margin-bottom: 2rem;">Loading...</h1>
             <img id="albumArt" src="" class="album-art hidden">
             
             <div id="playerInfo" class="hidden">
@@ -149,7 +141,7 @@
                 <button id="lyricToggleBtn">Show Lyrics</button>
 
                 <div class="social-links">
-                    <a href="https://open.spotify.com/user/ramadhana" target="_blank" class="social-link">
+                    <a href="http://spotify.com" target="_blank" class="social-link">
                         <i class="fab fa-spotify"></i> Spotify Account
                     </a>
                     <a href="https://instagram.com/grayalldayog" target="_blank" class="social-link">
@@ -213,7 +205,6 @@
                 const res = await fetch('/.netlify/functions/now-playing');
                 const data = await res.json();
                 
-                // FIX BUG: Cek jika tidak ada lagu yang diputar
                 if (!data || !data.isPlaying) {
                     resetToIdle();
                     return;
@@ -221,7 +212,6 @@
 
                 document.getElementById('listeningText').classList.add('hidden');
                 document.getElementById('playerInfo').classList.remove('hidden');
-                
                 const isDesktop = window.innerWidth >= 1024;
                 const wrapper = document.getElementById('mainWrapper');
                 const lyricsArea = document.getElementById('lyricsWrapper');
@@ -250,17 +240,13 @@
                     loadLyrics(data.artist, data.title);
                 }
                 updateLyricHighlight(data.progress);
-                
-            } catch (e) {
-                resetToIdle();
-            }
+            } catch (e) { resetToIdle(); }
         }
 
         function resetToIdle() {
             const listeningText = document.getElementById('listeningText');
             listeningText.textContent = "Rama is doing something else right now..";
             listeningText.classList.remove('hidden');
-            
             document.getElementById('playerInfo').classList.add('hidden');
             document.getElementById('lyricsWrapper').classList.add('hidden');
             document.getElementById('albumArt').classList.add('hidden');
