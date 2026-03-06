@@ -59,11 +59,12 @@
         .lyrics-container-rel { position: relative; width: 100%; height: 450px; }
         .lyrics-window {
             height: 100%; overflow-y: auto; scroll-behavior: smooth;
-            padding: 40px 20px; text-align: left;
+            padding: 60px 20px; text-align: left;
             mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
         }
-        .lyrics-window::-webkit-scrollbar { display: none; }
+        /* Memastikan scrollbar desktop tidak merusak layout tapi tetap bisa di-scroll */
+        .lyrics-window::-webkit-scrollbar { width: 0px; background: transparent; }
 
         .lyric-line {
             font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,0.15);
@@ -161,32 +162,32 @@
         let isLyricView = false;
         let isUserScrolling = false;
         let lastActiveIdx = -1;
-        let scrollTimer = null;
+        let scrollTimeout = null;
 
         const lyricsWin = document.getElementById('lyricsContainer');
         const syncBtn = document.getElementById('syncToSongBtn');
 
-        // Fungsi ngecek apa lirik aktif ada di area pandang tengah
+        // Deteksi apakah lirik aktif berada di tengah kontainer
         function isLineInFocus(el) {
             if (!el) return false;
             const rect = el.getBoundingClientRect();
             const winRect = lyricsWin.getBoundingClientRect();
-            // Cek apakah posisi lirik berada di tengah (kasih margin 150px atas bawah)
-            return (rect.top >= winRect.top + 50 && rect.bottom <= winRect.bottom - 50);
+            const centerPoint = winRect.top + (winRect.height / 2);
+            // Toleransi 80px dari titik tengah
+            return (Math.abs(rect.top + (rect.height / 2) - centerPoint) < 80);
         }
 
-        // Event listener pas user scroll
+        // Fungsi scroll manual terdeteksi
         lyricsWin.addEventListener('scroll', () => {
+            // Jika dipicu oleh script auto-scroll, abaikan
+            if (window.isAutoScrolling) return;
+
             isUserScrolling = true;
             updateSyncButtonVisibility();
-            
-            // Bersihin timer lama, kalau user diem 5 detik bisa balik auto (opsional)
-            // Tapi karena lo minta tombol manual, kita stay di manual mode aja.
         });
 
         function updateSyncButtonVisibility() {
             const activeLine = document.querySelector('.lyric-line.active');
-            // Munculin tombol cuma kalau user lagi scroll manual DAN lirik aktifnya gak keliatan di fokus
             if (activeLine && isUserScrolling && !isLineInFocus(activeLine)) {
                 syncBtn.classList.add('show');
             } else {
@@ -197,11 +198,18 @@
         syncBtn.addEventListener('click', () => {
             isUserScrolling = false;
             syncBtn.classList.remove('show');
+            performAutoScroll();
+        });
+
+        function performAutoScroll() {
             const activeLine = document.querySelector('.lyric-line.active');
             if (activeLine) {
+                window.isAutoScrolling = true;
                 activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Reset flag setelah animasi selesai
+                setTimeout(() => { window.isAutoScrolling = false; }, 600);
             }
-        });
+        }
 
         async function fetchNowPlaying() {
             try {
@@ -295,10 +303,7 @@
                 const activeLine = document.getElementById(`line-${activeIdx}`);
                 if (activeLine) {
                     activeLine.classList.add('active');
-                    // AUTO-SCROLL CUMA JALAN KALU USER GAK LAGI NYENTUH LAYAR
-                    if (!isUserScrolling) {
-                        activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
+                    if (!isUserScrolling) performAutoScroll();
                 }
                 updateSyncButtonVisibility();
             }
