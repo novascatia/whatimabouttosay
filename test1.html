@@ -44,7 +44,6 @@
             padding: 2rem; transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* Layout lirik aktif untuk Desktop */
         @media (min-width: 1024px) {
             .main-wrapper.lyric-active { max-width: 1000px; grid-template-columns: 450px 1fr; }
         }
@@ -60,7 +59,6 @@
         .song-title { font-size: 2.2em; font-weight: 700; margin: 0; line-height: 1.2; }
         .artist-name { font-size: 1.1em; color: var(--secondary-color); margin: 0; }
 
-        /* Container Lirik */
         .lyrics-container-rel { position: relative; width: 100%; }
         .lyrics-window {
             height: 450px; overflow-y: auto; scroll-behavior: smooth;
@@ -70,12 +68,11 @@
         .lyrics-window::-webkit-scrollbar { display: none; }
 
         .lyric-line {
-            font-size: 1.5rem; font-weight: 700; color: rgba(255,255,255,0.2);
+            font-size: 1.5rem; font-weight: 700; color: rgba(255,255,255,0.1);
             margin-bottom: 1.5rem; transition: all 0.3s ease; transform-origin: left;
         }
         .lyric-line.active { color: white; transform: scale(1.05); }
 
-        /* Tombol Sync to Song (Floating) */
         #syncToSongBtn {
             position: absolute; bottom: 30px; left: 20px;
             background: var(--spotify-green); color: black;
@@ -141,7 +138,7 @@
                 <button id="lyricToggleBtn">Show Lyrics</button>
 
                 <div class="social-links">
-                    <a href="https://open.spotify.com" target="_blank" class="social-link">
+                    <a href="https://open.spotify.com/user/ramajoki" target="_blank" class="social-link">
                         <i class="fab fa-spotify"></i> Spotify Account
                     </a>
                     <a href="https://instagram.com/grayalldayog" target="_blank" class="social-link">
@@ -166,33 +163,30 @@
         let syncedLyrics = [];
         let isLyricView = false;
         let isUserScrolling = false;
+        let lastActiveIdx = -1;
 
         const lyricsWin = document.getElementById('lyricsContainer');
         const syncBtn = document.getElementById('syncToSongBtn');
 
-        // Fungsi cek apakah lirik aktif terlihat di area pandang
-        function isLineVisible(el) {
+        function isLineInView(el) {
             if (!el) return false;
             const rect = el.getBoundingClientRect();
             const winRect = lyricsWin.getBoundingClientRect();
-            const buffer = 100; 
-            return (rect.top >= (winRect.top - buffer) && rect.bottom <= (winRect.bottom + buffer));
+            return (rect.top >= winRect.top && rect.bottom <= winRect.bottom);
         }
 
-        // Deteksi scroll manual
         lyricsWin.addEventListener('scroll', () => {
             isUserScrolling = true;
-            updateSyncButtonVisibility();
+            updateSyncButton();
         });
 
-        function updateSyncButtonVisibility() {
+        function updateSyncButton() {
             const activeLine = document.querySelector('.lyric-line.active');
-            if (!activeLine || !isUserScrolling) {
+            if (activeLine && isUserScrolling && !isLineInView(activeLine)) {
+                syncBtn.classList.add('show');
+            } else {
                 syncBtn.classList.remove('show');
-                return;
             }
-            if (!isLineVisible(activeLine)) syncBtn.classList.add('show');
-            else syncBtn.classList.remove('show');
         }
 
         syncBtn.addEventListener('click', () => {
@@ -219,8 +213,7 @@
                     if (isLyricView) {
                         wrapper.classList.add('lyric-active');
                         lyricsArea.classList.remove('hidden');
-                        if (!isDesktop) album.classList.add('hidden');
-                        else album.classList.remove('hidden');
+                        album.classList.toggle('hidden', !isDesktop);
                     } else {
                         wrapper.classList.remove('lyric-active');
                         lyricsArea.classList.add('hidden');
@@ -241,7 +234,6 @@
                         loadLyrics(data.artist, data.title);
                     }
                     updateLyricHighlight(data.progress);
-                    updateSyncButtonVisibility();
                 } else {
                     document.getElementById('listeningText').textContent = "Rama is doing something else..";
                     document.getElementById('playerInfo').classList.add('hidden');
@@ -255,7 +247,7 @@
             container.innerHTML = "<p class='lyric-line'>Searching lyrics...</p>";
             syncedLyrics = [];
             isUserScrolling = false;
-            syncBtn.classList.remove('show');
+            lastActiveIdx = -1;
 
             try {
                 const res = await fetch(`https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`);
@@ -289,13 +281,19 @@
                 if (seconds >= syncedLyrics[i].time) activeIdx = i;
                 else break;
             }
-            if (activeIdx !== -1) {
+
+            if (activeIdx !== -1 && activeIdx !== lastActiveIdx) {
+                lastActiveIdx = activeIdx;
                 document.querySelectorAll('.lyric-line').forEach(l => l.classList.remove('active'));
                 const activeLine = document.getElementById(`line-${activeIdx}`);
                 if (activeLine) {
                     activeLine.classList.add('active');
-                    if (!isUserScrolling) activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // AUTO-SCROLL hanya jika user tidak sedang scroll manual
+                    if (!isUserScrolling) {
+                        activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
+                updateSyncButton();
             }
         }
 
