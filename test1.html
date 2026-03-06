@@ -44,8 +44,7 @@
             padding: 2rem; transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .main-wrapper.lyric-active { max-width: 450px; }
-        
+        /* Layout lirik aktif untuk Desktop */
         @media (min-width: 1024px) {
             .main-wrapper.lyric-active { max-width: 1000px; grid-template-columns: 450px 1fr; }
         }
@@ -61,7 +60,7 @@
         .song-title { font-size: 2.2em; font-weight: 700; margin: 0; line-height: 1.2; }
         .artist-name { font-size: 1.1em; color: var(--secondary-color); margin: 0; }
 
-        /* Sync Lyrics Styles */
+        /* Container Lirik */
         .lyrics-container-rel { position: relative; width: 100%; }
         .lyrics-window {
             height: 450px; overflow-y: auto; scroll-behavior: smooth;
@@ -76,7 +75,7 @@
         }
         .lyric-line.active { color: white; transform: scale(1.05); }
 
-        /* Floating Sync Button */
+        /* Tombol Sync to Song (Floating) */
         #syncToSongBtn {
             position: absolute; bottom: 30px; left: 20px;
             background: var(--spotify-green); color: black;
@@ -88,7 +87,6 @@
             opacity: 0; transform: translateY(10px); pointer-events: none;
         }
         #syncToSongBtn.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-        #syncToSongBtn:hover { transform: scale(1.05); background: #1fdf64; }
 
         .progress-bar-container { width: 100%; height: 6px; background-color: #404040; border-radius: 3px; margin-top: 2rem; }
         .progress-bar { height: 100%; background-color: var(--spotify-green); width: 0; }
@@ -143,7 +141,7 @@
                 <button id="lyricToggleBtn">Show Lyrics</button>
 
                 <div class="social-links">
-                    <a href="https://open.spotify.com/user/YOUR_ID" target="_blank" class="social-link">
+                    <a href="https://open.spotify.com" target="_blank" class="social-link">
                         <i class="fab fa-spotify"></i> Spotify Account
                     </a>
                     <a href="https://instagram.com/grayalldayog" target="_blank" class="social-link">
@@ -168,26 +166,38 @@
         let syncedLyrics = [];
         let isLyricView = false;
         let isUserScrolling = false;
-        let scrollTimeout;
 
         const lyricsWin = document.getElementById('lyricsContainer');
         const syncBtn = document.getElementById('syncToSongBtn');
 
-        // Deteksi User Scroll
+        // Fungsi cek apakah lirik aktif terlihat di area pandang
+        function isLineVisible(el) {
+            if (!el) return false;
+            const rect = el.getBoundingClientRect();
+            const winRect = lyricsWin.getBoundingClientRect();
+            const buffer = 100; 
+            return (rect.top >= (winRect.top - buffer) && rect.bottom <= (winRect.bottom + buffer));
+        }
+
+        // Deteksi scroll manual
         lyricsWin.addEventListener('scroll', () => {
-            if (!isUserScrolling) {
-                isUserScrolling = true;
-                syncBtn.classList.add('show');
-            }
-            // Jika user scroll secara manual, bersihkan timeout auto-resume
-            clearTimeout(scrollTimeout);
+            isUserScrolling = true;
+            updateSyncButtonVisibility();
         });
 
-        // Tombol Kembali ke Sync
+        function updateSyncButtonVisibility() {
+            const activeLine = document.querySelector('.lyric-line.active');
+            if (!activeLine || !isUserScrolling) {
+                syncBtn.classList.remove('show');
+                return;
+            }
+            if (!isLineVisible(activeLine)) syncBtn.classList.add('show');
+            else syncBtn.classList.remove('show');
+        }
+
         syncBtn.addEventListener('click', () => {
             isUserScrolling = false;
             syncBtn.classList.remove('show');
-            // Paksa scroll ke lirik aktif
             const activeLine = document.querySelector('.lyric-line.active');
             if (activeLine) activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
@@ -231,6 +241,7 @@
                         loadLyrics(data.artist, data.title);
                     }
                     updateLyricHighlight(data.progress);
+                    updateSyncButtonVisibility();
                 } else {
                     document.getElementById('listeningText').textContent = "Rama is doing something else..";
                     document.getElementById('playerInfo').classList.add('hidden');
@@ -243,7 +254,7 @@
             const container = document.getElementById('lyricsContent');
             container.innerHTML = "<p class='lyric-line'>Searching lyrics...</p>";
             syncedLyrics = [];
-            isUserScrolling = false; // Reset scroll state on new track
+            isUserScrolling = false;
             syncBtn.classList.remove('show');
 
             try {
@@ -260,16 +271,13 @@
             container.innerHTML = ""; syncedLyrics = [];
             lrc.split('\n').forEach(line => {
                 const match = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
-                if (match) {
+                if (match && match[3].trim()) {
                     const time = parseInt(match[1]) * 60 + parseFloat(match[2]);
-                    const text = match[3].trim();
-                    if (text) {
-                        const p = document.createElement('p');
-                        p.className = 'lyric-line'; p.textContent = text;
-                        p.id = `line-${syncedLyrics.length}`;
-                        container.appendChild(p);
-                        syncedLyrics.push({ time, el: p });
-                    }
+                    const p = document.createElement('p');
+                    p.className = 'lyric-line'; p.textContent = match[3].trim();
+                    p.id = `line-${syncedLyrics.length}`;
+                    container.appendChild(p);
+                    syncedLyrics.push({ time, el: p });
                 }
             });
         }
@@ -286,10 +294,7 @@
                 const activeLine = document.getElementById(`line-${activeIdx}`);
                 if (activeLine) {
                     activeLine.classList.add('active');
-                    // Hanya auto-scroll jika user TIDAK sedang scroll manual
-                    if (!isUserScrolling) {
-                        activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
+                    if (!isUserScrolling) activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
         }
