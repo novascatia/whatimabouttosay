@@ -26,8 +26,8 @@
             color: var(--text-color);
             min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            overflow-x: hidden; 
-            overflow-y: auto; 
+            /* HIDE WEBSITE SCROLLBAR */
+            overflow: hidden; 
         }
 
         #albumArtBackground {
@@ -44,7 +44,6 @@
             padding: 2rem; transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* Desktop Layout: Lirik mengambil ruang lebih besar dan seimbang */
         @media (min-width: 1024px) {
             .main-wrapper.lyric-active { max-width: 1200px; grid-template-columns: 400px 1fr; }
         }
@@ -59,19 +58,17 @@
         .song-title { font-size: 2.2em; font-weight: 700; margin: 0; line-height: 1.2; }
         .artist-name { font-size: 1.1em; color: var(--secondary-color); margin: 0; }
 
-        /* Container Lirik dengan scrollbar tipis untuk Desktop */
         .lyrics-container-rel { position: relative; width: 100%; height: 60vh; min-height: 450px; }
         .lyrics-window {
             height: 100%; overflow-y: auto; scroll-behavior: smooth;
             padding: 50% 20px; 
-            text-align: center; /* Lirik berada di tengah */
+            text-align: center; 
             mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+            /* HIDE LYRIC SCROLLBAR (OPTIONAL) */
+            -ms-overflow-style: none; scrollbar-width: none;
         }
-        
-        .lyrics-window::-webkit-scrollbar { width: 6px; }
-        .lyrics-window::-webkit-scrollbar-track { background: transparent; }
-        .lyrics-window::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .lyrics-window::-webkit-scrollbar { display: none; }
 
         .lyric-line {
             font-size: 1.8rem; font-weight: 700; color: rgba(255,255,255,0.15);
@@ -113,6 +110,11 @@
             cursor: pointer; font-weight: 600;
         }
         .hidden { display: none !important; }
+
+        /* Mode "Doing Something Else" styling */
+        .not-playing-text {
+            font-size: 1.8em; font-weight: 700; color: var(--text-color);
+        }
     </style>
 </head>
 <body>
@@ -120,7 +122,10 @@
 
     <div id="mainWrapper" class="main-wrapper">
         <div class="player-container">
-            <h1 id="listeningText" style="color:var(--spotify-green); margin-bottom: 2rem;">Loading...</h1>
+            <div id="statusContainer">
+                <h1 id="listeningText" class="not-playing-text">Loading...</h1>
+            </div>
+            
             <img id="albumArt" src="" class="album-art hidden">
             
             <div id="playerInfo" class="hidden">
@@ -144,7 +149,7 @@
                 <button id="lyricToggleBtn">Show Lyrics</button>
 
                 <div class="social-links">
-                    <a href="https://open.spotify.com/user/rama" target="_blank" class="social-link">
+                    <a href="https://open.spotify.com/user/ramadhana" target="_blank" class="social-link">
                         <i class="fab fa-spotify"></i> Spotify Account
                     </a>
                     <a href="https://instagram.com/grayalldayog" target="_blank" class="social-link">
@@ -207,43 +212,61 @@
             try {
                 const res = await fetch('/.netlify/functions/now-playing');
                 const data = await res.json();
-                if (data.isPlaying) {
-                    document.getElementById('listeningText').classList.add('hidden');
-                    document.getElementById('playerInfo').classList.remove('hidden');
-                    const isDesktop = window.innerWidth >= 1024;
-                    const wrapper = document.getElementById('mainWrapper');
-                    const lyricsArea = document.getElementById('lyricsWrapper');
-                    const album = document.getElementById('albumArt');
-
-                    if (isLyricView) {
-                        wrapper.classList.add('lyric-active');
-                        lyricsArea.classList.remove('hidden');
-                        album.classList.toggle('hidden', !isDesktop);
-                    } else {
-                        wrapper.classList.remove('lyric-active');
-                        lyricsArea.classList.add('hidden');
-                        album.classList.remove('hidden');
-                    }
-
-                    document.getElementById('songTitle').textContent = data.title;
-                    document.getElementById('artistName').textContent = data.artist;
-                    document.getElementById('albumArt').src = data.albumArt;
-                    document.getElementById('albumArtBackground').style.backgroundImage = `url('${data.albumArt}')`;
-                    document.getElementById('progressBar').style.width = (data.progress / data.duration) * 100 + "%";
-                    document.getElementById('currentTime').textContent = formatTime(data.progress);
-                    document.getElementById('totalTime').textContent = formatTime(data.duration);
-
-                    if (lastTrack !== data.title) {
-                        lastTrack = data.title;
-                        loadLyrics(data.artist, data.title);
-                    }
-                    updateLyricHighlight(data.progress);
-                } else {
-                    document.getElementById('listeningText').textContent = "Rama is doing something else..";
-                    document.getElementById('playerInfo').classList.add('hidden');
-                    document.getElementById('mainWrapper').classList.remove('lyric-active');
+                
+                // FIX BUG: Cek jika tidak ada lagu yang diputar
+                if (!data || !data.isPlaying) {
+                    resetToIdle();
+                    return;
                 }
-            } catch (e) {}
+
+                document.getElementById('listeningText').classList.add('hidden');
+                document.getElementById('playerInfo').classList.remove('hidden');
+                
+                const isDesktop = window.innerWidth >= 1024;
+                const wrapper = document.getElementById('mainWrapper');
+                const lyricsArea = document.getElementById('lyricsWrapper');
+                const album = document.getElementById('albumArt');
+
+                if (isLyricView) {
+                    wrapper.classList.add('lyric-active');
+                    lyricsArea.classList.remove('hidden');
+                    album.classList.toggle('hidden', !isDesktop);
+                } else {
+                    wrapper.classList.remove('lyric-active');
+                    lyricsArea.classList.add('hidden');
+                    album.classList.remove('hidden');
+                }
+
+                document.getElementById('songTitle').textContent = data.title;
+                document.getElementById('artistName').textContent = data.artist;
+                document.getElementById('albumArt').src = data.albumArt;
+                document.getElementById('albumArtBackground').style.backgroundImage = `url('${data.albumArt}')`;
+                document.getElementById('progressBar').style.width = (data.progress / data.duration) * 100 + "%";
+                document.getElementById('currentTime').textContent = formatTime(data.progress);
+                document.getElementById('totalTime').textContent = formatTime(data.duration);
+
+                if (lastTrack !== data.title) {
+                    lastTrack = data.title;
+                    loadLyrics(data.artist, data.title);
+                }
+                updateLyricHighlight(data.progress);
+                
+            } catch (e) {
+                resetToIdle();
+            }
+        }
+
+        function resetToIdle() {
+            const listeningText = document.getElementById('listeningText');
+            listeningText.textContent = "Rama is doing something else right now..";
+            listeningText.classList.remove('hidden');
+            
+            document.getElementById('playerInfo').classList.add('hidden');
+            document.getElementById('lyricsWrapper').classList.add('hidden');
+            document.getElementById('albumArt').classList.add('hidden');
+            document.getElementById('mainWrapper').classList.remove('lyric-active');
+            document.getElementById('albumArtBackground').style.backgroundImage = 'none';
+            lastTrack = "";
         }
 
         async function loadLyrics(artist, title) {
