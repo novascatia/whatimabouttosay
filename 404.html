@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Not Found</title>
+    <title>Ooops.. you hit 404 page</title>
     <link rel="icon" type="image/png" href="/logo.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
     <style>
         body { 
             background-color: #0f0f0f; 
@@ -20,21 +24,64 @@
             margin: 0;
             overflow: hidden;
         }
+        
+        .glass-card { 
+            background: #1a1a1a; 
+            border: 1px solid #2d2d2d; 
+            border-radius: 24px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Sembunyikan elemen sebelum animasi GSAP jalan untuk mencegah kedip */
+        .pop-up-container {
+            opacity: 0;
+            visibility: hidden;
+        }
     </style>
 </head>
 <body>
 
-    <div class="text-center px-6">
-        <h1 class="text-9xl font-extrabold tracking-tighter text-zinc-800 mb-4">404</h1>
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Oops! Nyasar ya?</h2>
-        <p class="text-zinc-500 mb-8 max-w-md mx-auto">
-            Halaman yang kamu cari sepertinya tidak ada, sudah dihapus, atau kamu salah masukin URL.
-        </p>
-        
-        <a href="/" class="inline-flex items-center px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-zinc-200 transition-colors duration-300">
-            <i class="fas fa-home mr-2"></i> Kembali ke Beranda
-        </a>
+    <div class="pop-up-container text-center px-8 py-12 glass-card max-w-lg mx-4 relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-zinc-800 rounded-full blur-3xl opacity-50"></div>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-zinc-800 rounded-full blur-3xl opacity-50"></div>
+
+        <div class="relative z-10">
+            <h1 class="text-8xl md:text-9xl font-extrabold tracking-tighter text-zinc-800 mb-2 drop-shadow-md relative inline-block">
+                <span class="error-number inline-block">4</span>
+                <span class="error-number inline-block">0</span>
+                <span class="error-number inline-block">4</span>
+            </h1>
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Oops! Nyasar ya?</h2>
+            <p class="text-zinc-400 mb-8 text-sm md:text-base leading-relaxed">
+                Halaman yang kamu cari sepertinya tidak ada, sudah dihapus, atau URL-nya kurang pas.
+            </p>
+            
+            <a href="/" class="inline-flex items-center px-6 py-3 bg-white text-black font-bold rounded-full hover:scale-105 hover:bg-zinc-200 transition-all duration-300">
+                <i class="fas fa-home mr-2"></i> Kembali ke Beranda
+            </a>
+        </div>
     </div>
 
+    <script>
+        // Memunculkan kotak utamanya dengan efek membesar (scale) dari kecil ke normal
+        gsap.set(".pop-up-container", { visibility: "visible" });
+        gsap.from(".pop-up-container", { 
+            duration: 0.8, 
+            scale: 0.7, 
+            opacity: 0, 
+            y: 40,
+            ease: "back.out(1.5)" // Efek memantul ringan
+        });
+        
+        // Animasi tambahan untuk angka 404 agar melompat satu-satu
+        gsap.from(".error-number", {
+            duration: 0.6,
+            y: -30,
+            opacity: 0,
+            stagger: 0.15,
+            ease: "bounce.out",
+            delay: 0.3
+        });
+    </script>
 </body>
 </html>
