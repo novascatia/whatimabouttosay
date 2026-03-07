@@ -23,6 +23,8 @@
             min-height: 100vh;
             margin: 0;
             overflow: hidden;
+            /* Penting untuk efek 3D perspektif */
+            perspective: 1000px; 
         }
         
         .glass-card { 
@@ -32,10 +34,15 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        /* Posisi awal sebelum dianimasikan GSAP */
         .pop-up-container {
             opacity: 0;
             transform: scale(0.8) translateY(40px);
+        }
+
+        /* Setel preserve-3d agar elemen anaknya (angka) bisa menonjol ke depan (sumbu Z) */
+        .error-title {
+            transform-style: preserve-3d;
+            cursor: crosshair;
         }
     </style>
 </head>
@@ -46,7 +53,7 @@
         <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-zinc-800 rounded-full blur-3xl opacity-50"></div>
 
         <div class="relative z-10">
-            <h1 class="text-8xl md:text-9xl font-extrabold tracking-tighter text-zinc-800 mb-2 drop-shadow-md relative inline-block">
+            <h1 class="error-title text-8xl md:text-9xl font-extrabold tracking-tighter text-zinc-800 mb-2 drop-shadow-lg relative inline-block py-4 px-8">
                 <span class="error-number inline-block">4</span>
                 <span class="error-number inline-block">0</span>
                 <span class="error-number inline-block">4</span>
@@ -63,16 +70,15 @@
     </div>
 
     <script>
-        // Memunculkan kotak utamanya ke posisi normal
+        // 1. Animasi saat halaman pertama kali dimuat
         gsap.to(".pop-up-container", { 
             duration: 0.8, 
             scale: 1, 
             opacity: 1, 
             y: 0,
-            ease: "back.out(1.5)" // Efek memantul ringan
+            ease: "back.out(1.5)"
         });
         
-        // Animasi angka 404 agar melompat satu-satu dari atas
         gsap.from(".error-number", {
             duration: 0.6,
             y: -30,
@@ -80,6 +86,49 @@
             stagger: 0.15,
             ease: "bounce.out",
             delay: 0.3
+        });
+
+        // 2. Logika 3D Tilt Hover Effect pada tulisan 404
+        const errorTitle = document.querySelector('.error-title');
+
+        errorTitle.addEventListener('mousemove', (e) => {
+            // Ambil ukuran dan posisi tulisan 404
+            const rect = errorTitle.getBoundingClientRect();
+            
+            // Hitung posisi mouse relatif terhadap titik tengah elemen (-1 sampai 1)
+            const x = ((e.clientX - rect.left) / rect.width) - 0.5;
+            const y = ((e.clientY - rect.top) / rect.height) - 0.5;
+
+            // Putar tulisan 404 (Rotation)
+            gsap.to(errorTitle, {
+                duration: 0.3,
+                rotationY: x * 40,  // Memutar ke kiri/kanan maks 20 derajat
+                rotationX: -y * 40, // Memutar ke atas/bawah maks 20 derajat
+                ease: "power1.out"
+            });
+
+            // Dorong angka ke depan agar terasa keluar/timbul (Translate Z)
+            gsap.to(".error-number", {
+                duration: 0.3,
+                z: 60, // Maju ke depan sejauh 60px
+                ease: "power1.out"
+            });
+        });
+
+        // Kembalikan ke posisi normal saat kursor pergi
+        errorTitle.addEventListener('mouseleave', () => {
+            gsap.to(errorTitle, {
+                duration: 0.8,
+                rotationY: 0,
+                rotationX: 0,
+                ease: "elastic.out(1, 0.4)" // Efek memantul saat kembali lurus
+            });
+            
+            gsap.to(".error-number", {
+                duration: 0.8,
+                z: 0,
+                ease: "elastic.out(1, 0.4)"
+            });
         });
     </script>
 </body>
