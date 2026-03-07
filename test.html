@@ -3,126 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pencari Lirik Lagu</title>
+    <title>Pencari Lirik</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-        }
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        input {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        #hasil-lirik {
-            margin-top: 30px;
-            text-align: left;
-            white-space: pre-wrap; /* Menjaga format baris lirik */
-            line-height: 1.6;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            border: 1px solid #eee;
-            display: none; /* Disembunyikan sebelum ada hasil */
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .loading {
-            color: #7f8c8d;
-            font-style: italic;
-            margin-top: 20px;
-        }
+        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+        .box { background: white; padding: 20px; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+        input { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px;}
+        button { background: #3498db; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;}
+        button:hover { background: #2980b9; }
+        #hasil { margin-top: 20px; text-align: left; white-space: pre-wrap; display: none; background: #f9f9f9; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto; line-height: 1.6; border: 1px solid #eee;}
+        .info { color: #666; font-size: 14px; margin-top: 15px; font-style: italic; }
+        .judul-lagu { font-weight: bold; font-size: 18px; margin-bottom: 15px; color: #2c3e50; text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 10px;}
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Pencari Lirik Lagu 🎶</h1>
-        <p>Masukkan nama artis dan judul lagu untuk mencari lirik.</p>
-        
-        <input type="text" id="input-artis" placeholder="Nama Artis (contoh: Coldplay)" required>
-        <input type="text" id="input-lagu" placeholder="Judul Lagu (contoh: Yellow)" required>
-        
-        <button onclick="cariLirik()">Cari Lirik</button>
+<div class="box">
+    <h2>Pencari Lirik 🎵</h2>
+    <input type="text" id="input-pencarian" placeholder="Ketik lagunya (misal: Yellow Coldplay)" onkeydown="if(event.key === 'Enter') cariLirik()">
+    <button onclick="cariLirik()">Cari</button>
+    
+    <div id="status" class="info"></div>
+    <div id="hasil"></div>
+</div>
 
-        <div id="status" class="loading"></div>
-        <div id="hasil-lirik"></div>
-    </div>
+<script>
+    async function cariLirik() {
+        const input = document.getElementById('input-pencarian').value.trim();
+        const hasilDiv = document.getElementById('hasil');
+        const statusDiv = document.getElementById('status');
 
-    <script>
-        async function cariLirik() {
-            const artis = document.getElementById('input-artis').value.trim();
-            const lagu = document.getElementById('input-lagu').value.trim();
-            const hasilDiv = document.getElementById('hasil-lirik');
-            const statusDiv = document.getElementById('status');
+        if (!input) {
+            alert("Ketik lagunya dulu ya!");
+            return;
+        }
 
-            // Cek apakah input kosong
-            if (!artis || !lagu) {
-                alert("Tolong isi nama artis dan judul lagunya ya!");
+        statusDiv.textContent = "Mencari lagu...";
+        hasilDiv.style.display = 'none';
+        hasilDiv.innerHTML = "";
+
+        try {
+            // Tahap 1: Cari tebakan artis & judul dari kata kunci
+            const resSearch = await fetch(`https://api.lyrics.ovh/suggest/${input}`);
+            const dataSearch = await resSearch.json();
+
+            // Kalau lagu tidak ditemukan di database
+            if (dataSearch.data.length === 0) {
+                statusDiv.textContent = "Yah, lagunya nggak ketemu. Coba tambahkan nama artisnya.";
                 return;
             }
 
-            // Tampilan loading
-            statusDiv.textContent = "Mencari lirik... Tunggu sebentar ya.";
-            hasilDiv.style.display = 'none';
-            hasilDiv.textContent = "";
+            // Ambil hasil pencarian teratas (paling relevan)
+            const artis = dataSearch.data[0].artist.name;
+            const judul = dataSearch.data[0].title;
+            
+            statusDiv.textContent = `Ketemu! Mengambil lirik: ${judul} - ${artis}...`;
 
-            try {
-                // Mengambil data dari public API
-                const response = await fetch(`https://api.lyrics.ovh/v1/${artis}/${lagu}`);
-                const data = await response.json();
+            // Tahap 2: Ambil liriknya berdasarkan tebakan tadi
+            const resLyrics = await fetch(`https://api.lyrics.ovh/v1/${artis}/${judul}`);
+            const dataLyrics = await resLyrics.json();
 
-                if (data.lyrics) {
-                    statusDiv.textContent = "";
-                    hasilDiv.style.display = 'block';
-                    // Menghapus teks "Paroles de la chanson" yang kadang muncul dari API ini
-                    let lirikBersih = data.lyrics.replace(/Paroles de la chanson .+\r?\n/i, "");
-                    hasilDiv.textContent = lirikBersih;
-                } else {
-                    statusDiv.textContent = "Yah, lirik lagunya nggak ketemu. Coba cek ejaan nama artis dan judul lagunya.";
-                }
-            } catch (error) {
-                statusDiv.textContent = "Terjadi kesalahan saat mencari lirik. Mungkin server API sedang sibuk atau koneksi internet terputus.";
-                console.error(error);
+            if (dataLyrics.lyrics) {
+                statusDiv.textContent = "";
+                hasilDiv.style.display = 'block';
+                
+                // Bersihkan teks iklan yang kadang nyangkut dari API
+                let lirikBersih = dataLyrics.lyrics.replace(/Paroles de la chanson .+\r?\n/i, "");
+                
+                // Tampilkan judul + artis di bagian atas lirik
+                hasilDiv.innerHTML = `<div class="judul-lagu">${judul}<br><small style="font-weight:normal; font-size:14px;">oleh ${artis}</small></div>${lirikBersih}`;
+            } else {
+                statusDiv.textContent = `Lagu "${judul} - ${artis}" ada, tapi liriknya belum tersedia di database.`;
             }
+
+        } catch (error) {
+            statusDiv.textContent = "Terjadi kesalahan. Mungkin server sedang sibuk, coba klik Cari lagi.";
         }
-    </script>
+    }
+</script>
 
 </body>
 </html>
