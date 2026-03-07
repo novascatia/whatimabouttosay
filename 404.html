@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ooops.. you hit 404 page</title>
+    <title>404 - Not Found</title>
     <link rel="icon" type="image/png" href="/logo.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,10 +32,10 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        /* Sembunyikan elemen sebelum animasi GSAP jalan untuk mencegah kedip */
+        /* Posisi awal sebelum dianimasikan GSAP */
         .pop-up-container {
             opacity: 0;
-            visibility: hidden;
+            transform: scale(0.8) translateY(40px);
         }
     </style>
 </head>
@@ -63,17 +63,16 @@
     </div>
 
     <script>
-        // Memunculkan kotak utamanya dengan efek membesar (scale) dari kecil ke normal
-        gsap.set(".pop-up-container", { visibility: "visible" });
-        gsap.from(".pop-up-container", { 
+        // Memunculkan kotak utamanya ke posisi normal
+        gsap.to(".pop-up-container", { 
             duration: 0.8, 
-            scale: 0.7, 
-            opacity: 0, 
-            y: 40,
+            scale: 1, 
+            opacity: 1, 
+            y: 0,
             ease: "back.out(1.5)" // Efek memantul ringan
         });
         
-        // Animasi tambahan untuk angka 404 agar melompat satu-satu
+        // Animasi angka 404 agar melompat satu-satu dari atas
         gsap.from(".error-number", {
             duration: 0.6,
             y: -30,
