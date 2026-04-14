@@ -10,17 +10,20 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
+        /* FIX: Mencegah overflow horizontal yang menyebabkan off-center di mobile */
         html, body { 
             overflow-x: hidden; 
             width: 100%;
-            max-width: 100vw;
             margin: 0;
             padding: 0;
             background-color: #0f0f0f; 
             color: #e5e5e5; 
             font-family: 'Plus Jakarta Sans', sans-serif; 
         }
+
         .reveal { opacity: 0; transform: translateY(20px); }
+        
+        /* Post Styling */
         .post-card { 
             background: #1a1a1a; 
             border: 1px solid #2d2d2d; 
@@ -29,6 +32,8 @@
             width: 100%;
         }
         .post-card:hover { border-color: #4a4a4a; transform: translateY(-4px); }
+
+        /* Spotify Player Bar - Responsive */
         .spotify-player-bar {
             position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
             border-top: 1px solid #282828; padding: 0.75rem 1.5rem; display: flex;
@@ -36,30 +41,32 @@
             transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .spotify-player-bar.visible { transform: translateY(0); }
+        
         .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 4px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed; top: 20px; right: 20px;
+            background-color: #1a1a1a; border: 1px solid #333;
+            padding: 12px 20px; border-radius: 12px; z-index: 10000;
+            transform: translateX(150%); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .toast-notification.show { transform: translateX(0); }
+
+        /* Container Custom untuk centering yang presisi */
         .content-wrapper {
             width: 100%;
             max-width: 1024px;
             margin: 0 auto;
             padding: 0 1.5rem;
-            box-sizing: border-box;
-        }
-        .bloxy-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: flex; flex-wrap: wrap; align-content: flex-start;
-            z-index: 99999;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .bloxy-block {
-            transform-origin: center;
         }
     </style>
 </head>
 <body class="py-8 md:py-12">
+
+
     <div class="content-wrapper">
         <nav class="reveal flex justify-between items-center mb-16">
             <div class="text-xl font-extrabold tracking-tighter text-white">nov4</div>
@@ -68,6 +75,7 @@
                 <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">Instagram</a>
             </div>
         </nav>
+
         <header class="mb-20">
             <h1 class="reveal text-4xl md:text-7xl font-extrabold tracking-tight leading-tight md:leading-[1.1] mb-6 text-white">
                 Hello there! <br class="md:hidden"> <span class="text-gray-500">Nova</span> di sini :3
@@ -76,20 +84,24 @@
                 digital notebook i created :D
             </p>
         </header>
+
         <main>
             <div class="reveal flex items-center justify-between mb-8">
                 <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Posts</h2>
                 <div class="h-[1px] flex-grow ml-6 bg-zinc-800"></div>
             </div>
+            
             <div id="postsList" class="grid grid-cols-1 gap-4 md:gap-6">
                 <p class="reveal text-gray-500 italic text-sm">Mengambil data dari server...</p>
             </div>
         </main>
+
         <footer class="reveal mt-24 mb-32 pt-12 border-t border-zinc-800 flex justify-between items-center">
             <div class="text-gray-500 text-[10px] uppercase tracking-widest font-bold">© 2026 Novascatia</div>
             <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]"></div>
         </footer>
     </div>
+
     <div id="spotifyPlayer" class="spotify-player-bar">
         <div class="flex items-center w-full md:w-[30%] overflow-hidden">
             <img id="albumArt" src="" alt="" class="w-10 h-10 md:w-12 md:h-12 rounded-md mr-3 shadow-lg flex-shrink-0">
@@ -98,6 +110,7 @@
                 <p id="artistName" class="text-[10px] text-gray-400 truncate pr-2"></p>
             </div>
         </div>
+
         <div class="hidden sm:flex flex-col items-center w-[40%] px-4">
             <div class="text-[9px] text-[#1ed760] font-bold tracking-widest uppercase mb-1">Now Streaming</div>
             <div class="flex items-center w-full gap-3 text-[9px] text-gray-400 font-mono">
@@ -108,84 +121,33 @@
                 <span id="totalTime">0:00</span>
             </div>
         </div>
+
         <div class="flex items-center justify-end md:w-[30%] flex-shrink-0 ml-2">
             <i class="fab fa-spotify text-[#1ed760] text-xl"></i>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <script>
-        const overlay = document.createElement('div');
-        overlay.className = 'bloxy-overlay';
-        document.body.appendChild(overlay);
-
-        const blocksize = 50;
-
-        function createblocks() {
-            overlay.innerHTML = '';
-            const cols = Math.ceil(window.innerWidth / blocksize);
-            const rows = Math.ceil(window.innerHeight / blocksize);
-            const totalblocks = cols * rows;
-
-            for (let i = 0; i < totalblocks; i++) {
-                const block = document.createElement('div');
-                block.className = 'bloxy-block';
-                block.style.width = blocksize + 'px';
-                block.style.height = blocksize + 'px';
-                const iswhite = Math.random() > 0.5;
-                block.style.backgroundColor = iswhite ? '#ffffff' : '#151515'; 
-                block.style.transform = 'scale(1)'; 
-                overlay.appendChild(block);
-            }
-            return { cols, rows };
-        }
-
-        function pageenter() {
-            const { cols, rows } = createblocks();
-            anime({
-                targets: '.bloxy-block',
-                scale: [1, 0],
-                easing: 'easeInOutQuad',
-                duration: 400,
-                delay: anime.stagger(40, { grid: [cols, rows], axis: 'x' })
+        // Animasi Pembuka
+        function triggerReveal() {
+            gsap.to(".reveal", {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "power2.out"
             });
         }
 
-        function triggertransition(url) {
-            overlay.style.pointerEvents = 'auto';
-            const { cols, rows } = createblocks();
-            anime.set('.bloxy-block', { scale: 0 }); 
-
-            anime({
-                targets: '.bloxy-block',
-                scale: [0, 1], 
-                easing: 'easeInOutQuad',
-                duration: 400,
-                delay: anime.stagger(40, { grid: [cols, rows], axis: 'x' }),
-                complete: () => { window.location.href = url; }
-            });
-        }
-
-        document.addEventListener('click', (e) => {
-            const link = e.target.closest('a');
-            if (link && link.href && link.host === window.location.host && link.target !== '_blank') {
-                e.preventDefault();
-                triggertransition(link.href);
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', pageenter);
-
-        function triggerreveal() {
-            gsap.to(".reveal", { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" });
-        }
-
-        function formattime(ms) {
+        // Format Waktu ke Detik (Menit:Detik)
+        function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
             const minutes = Math.floor((ms / 1000 / 60) % 60);
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        async function fetchposts() {
+        // Fetch Postingan dari Supabase
+        async function fetchPosts() {
             const container = document.getElementById('postsList');
             try {
                 const response = await fetch('/.netlify/functions/fetch-posts');
@@ -193,7 +155,7 @@
                 
                 if (posts && posts.length > 0) {
                     container.innerHTML = posts.map(post => `
-                        <div onclick="triggertransition('/posts/${post.id}')" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
+                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
                             <div class="flex-1 overflow-hidden">
                                 <span class="text-[9px] md:text-[10px] text-zinc-600 uppercase tracking-[0.2em] mb-1 block">
                                     ${new Date(post.created_at).toLocaleDateString('id-ID')}
@@ -213,10 +175,11 @@
             } catch (e) {
                 container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat data.</p>`;
             }
-            triggerreveal();
+            triggerReveal();
         }
 
-        async function fetchnowplaying() {
+        // Spotify Listening Logic
+        async function fetchNowPlaying() {
             try {
                 const response = await fetch('/.netlify/functions/now-playing');
                 const data = await response.json();
@@ -227,8 +190,8 @@
                     document.getElementById('artistName').textContent = data.artist;
                     document.getElementById('albumArt').src = data.albumArt;
                     document.getElementById('progressBar').style.width = `${(data.progress / data.duration) * 100}%`;
-                    document.getElementById('currentTime').textContent = formattime(data.progress);
-                    document.getElementById('totalTime').textContent = formattime(data.duration);
+                    document.getElementById('currentTime').textContent = formatTime(data.progress);
+                    document.getElementById('totalTime').textContent = formatTime(data.duration);
                     player.classList.add('visible');
                 } else {
                     player.classList.remove('visible');
@@ -236,9 +199,20 @@
             } catch (e) {}
         }
 
+        // Initialize
         window.onload = () => {
-            fetchposts();
-            setInterval(fetchnowplaying, 1000);
+            fetchPosts();
+            setInterval(fetchNowPlaying, 1000);
+
+            // Toast Notification Logic
+            const toast = document.getElementById('redirectToast');
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 2500);
+
+            toast.addEventListener('click', () => {
+                window.location.href = '/date';
+            });
         };
     </script>
 </body>
