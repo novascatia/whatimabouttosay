@@ -58,11 +58,10 @@
             padding: 0 1.5rem;
         }
 
-        /* === EFEK BLOXY WAVE === */
         .bloxy-overlay {
             position: fixed;
             top: 0; left: 0;
-            width: 100vw; height: 100vh;
+            width: 100vw; height: 150vh;
             display: flex; flex-wrap: wrap; align-content: flex-start;
             z-index: 99999;
             pointer-events: none;
@@ -134,38 +133,40 @@
         </div>
     </div>
 
+    <div id="redirectToast" class="toast-notification">
+        <p class="text-sm font-bold text-white">🗓️ Lihat Progress Tahun Ini!</p>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
     <script>
-        // === LOGIKA BLOXY WAVE TRANSITION ===
         const overlay = document.createElement('div');
         overlay.className = 'bloxy-overlay';
         document.body.appendChild(overlay);
 
-        const blockSize = 50;
+        const blocksize = 50;
 
-        function createBlocks() {
+        function createblocks() {
             overlay.innerHTML = '';
-            const cols = Math.ceil(window.innerWidth / blockSize);
-            const rows = Math.ceil(window.innerHeight / blockSize);
-            const totalBlocks = cols * rows;
+            const cols = Math.ceil(window.innerWidth / blocksize) + 2;
+            const rows = Math.ceil(window.innerHeight / blocksize) + 5;
+            const totalblocks = cols * rows;
 
-            for (let i = 0; i < totalBlocks; i++) {
+            for (let i = 0; i < totalblocks; i++) {
                 const block = document.createElement('div');
                 block.className = 'bloxy-block';
-                block.style.width = blockSize + 'px';
-                block.style.height = blockSize + 'px';
-                // Warna Hitam & Putih acak
-                const isWhite = Math.random() > 0.5;
-                block.style.backgroundColor = isWhite ? '#ffffff' : '#151515'; 
+                block.style.width = blocksize + 'px';
+                block.style.height = blocksize + 'px';
+                const iswhite = Math.random() > 0.5;
+                block.style.backgroundColor = iswhite ? '#ffffff' : '#151515'; 
                 block.style.transform = 'scale(1)'; 
                 overlay.appendChild(block);
             }
             return { cols, rows };
         }
 
-        function pageEnter() {
-            const { cols, rows } = createBlocks();
+        function pageenter() {
+            const { cols, rows } = createblocks();
             anime({
                 targets: '.bloxy-block',
                 scale: [1, 0],
@@ -176,9 +177,9 @@
             });
         }
 
-        function triggerTransition(url) {
+        function triggertransition(url) {
             overlay.style.pointerEvents = 'auto';
-            const { cols, rows } = createBlocks();
+            const { cols, rows } = createblocks();
             anime.set('.bloxy-block', { scale: 0 }); 
 
             anime({
@@ -191,29 +192,27 @@
             });
         }
 
-        // Tangkap klik tag <a> internal
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
             if (link && link.href && link.host === window.location.host && link.target !== '_blank') {
                 e.preventDefault();
-                triggerTransition(link.href);
+                triggertransition(link.href);
             }
         });
 
-        window.addEventListener('DOMContentLoaded', pageEnter);
-        // ===================================
+        window.addEventListener('DOMContentLoaded', pageenter);
 
-        function triggerReveal() {
+        function triggerreveal() {
             gsap.to(".reveal", { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" });
         }
 
-        function formatTime(ms) {
+        function formattime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
             const minutes = Math.floor((ms / 1000 / 60) % 60);
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        async function fetchPosts() {
+        async function fetchposts() {
             const container = document.getElementById('postsList');
             try {
                 const response = await fetch('/.netlify/functions/fetch-posts');
@@ -221,7 +220,7 @@
                 
                 if (posts && posts.length > 0) {
                     container.innerHTML = posts.map(post => `
-                        <div onclick="triggerTransition('/posts/${post.id}')" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
+                        <div onclick="triggertransition('/posts/${post.id}')" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
                             <div class="flex-1 overflow-hidden">
                                 <span class="text-[9px] md:text-[10px] text-zinc-600 uppercase tracking-[0.2em] mb-1 block">
                                     ${new Date(post.created_at).toLocaleDateString('id-ID')}
@@ -241,10 +240,10 @@
             } catch (e) {
                 container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat data.</p>`;
             }
-            triggerReveal();
+            triggerreveal();
         }
 
-        async function fetchNowPlaying() {
+        async function fetchnowplaying() {
             try {
                 const response = await fetch('/.netlify/functions/now-playing');
                 const data = await response.json();
@@ -255,8 +254,8 @@
                     document.getElementById('artistName').textContent = data.artist;
                     document.getElementById('albumArt').src = data.albumArt;
                     document.getElementById('progressBar').style.width = `${(data.progress / data.duration) * 100}%`;
-                    document.getElementById('currentTime').textContent = formatTime(data.progress);
-                    document.getElementById('totalTime').textContent = formatTime(data.duration);
+                    document.getElementById('currentTime').textContent = formattime(data.progress);
+                    document.getElementById('totalTime').textContent = formattime(data.duration);
                     player.classList.add('visible');
                 } else {
                     player.classList.remove('visible');
@@ -265,13 +264,13 @@
         }
 
         window.onload = () => {
-            fetchPosts();
-            setInterval(fetchNowPlaying, 1000);
+            fetchposts();
+            setInterval(fetchnowplaying, 1000);
 
             const toast = document.getElementById('redirectToast');
             if(toast) {
                 setTimeout(() => { toast.classList.add('show'); }, 2500);
-                toast.addEventListener('click', () => { triggerTransition('/date'); });
+                toast.addEventListener('click', () => { triggertransition('/date'); });
             }
         };
     </script>
