@@ -10,6 +10,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
+        /* FIX: Mencegah overflow horizontal yang menyebabkan off-center di mobile */
         html, body { 
             overflow-x: hidden; 
             width: 100%;
@@ -22,6 +23,7 @@
 
         .reveal { opacity: 0; transform: translateY(20px); }
         
+        /* Post Styling */
         .post-card { 
             background: #1a1a1a; 
             border: 1px solid #2d2d2d; 
@@ -31,6 +33,7 @@
         }
         .post-card:hover { border-color: #4a4a4a; transform: translateY(-4px); }
 
+        /* Spotify Player Bar - Responsive */
         .spotify-player-bar {
             position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
             border-top: 1px solid #282828; padding: 0.75rem 1.5rem; display: flex;
@@ -42,6 +45,7 @@
         .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 4px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
 
+        /* Toast Notification */
         .toast-notification {
             position: fixed; top: 20px; right: 20px;
             background-color: #1a1a1a; border: 1px solid #333;
@@ -51,27 +55,17 @@
         }
         .toast-notification.show { transform: translateX(0); }
 
+        /* Container Custom untuk centering yang presisi */
         .content-wrapper {
             width: 100%;
             max-width: 1024px;
             margin: 0 auto;
             padding: 0 1.5rem;
         }
-
-        .bloxy-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 150vh;
-            display: flex; flex-wrap: wrap; align-content: flex-start;
-            z-index: 99999;
-            pointer-events: none;
-        }
-        .bloxy-block {
-            transform-origin: center;
-        }
     </style>
 </head>
 <body class="py-8 md:py-12">
+
 
     <div class="content-wrapper">
         <nav class="reveal flex justify-between items-center mb-16">
@@ -133,86 +127,27 @@
         </div>
     </div>
 
-    <div id="redirectToast" class="toast-notification">
-        <p class="text-sm font-bold text-white">🗓️ Lihat Progress Tahun Ini!</p>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-
     <script>
-        const overlay = document.createElement('div');
-        overlay.className = 'bloxy-overlay';
-        document.body.appendChild(overlay);
-
-        const blocksize = 50;
-
-        function createblocks() {
-            overlay.innerHTML = '';
-            const cols = Math.ceil(window.innerWidth / blocksize) + 2;
-            const rows = Math.ceil(window.innerHeight / blocksize) + 5;
-            const totalblocks = cols * rows;
-
-            for (let i = 0; i < totalblocks; i++) {
-                const block = document.createElement('div');
-                block.className = 'bloxy-block';
-                block.style.width = blocksize + 'px';
-                block.style.height = blocksize + 'px';
-                const iswhite = Math.random() > 0.5;
-                block.style.backgroundColor = iswhite ? '#ffffff' : '#151515'; 
-                block.style.transform = 'scale(1)'; 
-                overlay.appendChild(block);
-            }
-            return { cols, rows };
-        }
-
-        function pageenter() {
-            const { cols, rows } = createblocks();
-            anime({
-                targets: '.bloxy-block',
-                scale: [1, 0],
-                easing: 'easeInOutQuad',
-                duration: 400,
-                delay: anime.stagger(40, { grid: [cols, rows], axis: 'x' }),
-                complete: () => { overlay.style.pointerEvents = 'none'; }
+        // Animasi Pembuka
+        function triggerReveal() {
+            gsap.to(".reveal", {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "power2.out"
             });
         }
 
-        function triggertransition(url) {
-            overlay.style.pointerEvents = 'auto';
-            const { cols, rows } = createblocks();
-            anime.set('.bloxy-block', { scale: 0 }); 
-
-            anime({
-                targets: '.bloxy-block',
-                scale: [0, 1], 
-                easing: 'easeInOutQuad',
-                duration: 400,
-                delay: anime.stagger(40, { grid: [cols, rows], axis: 'x' }),
-                complete: () => { window.location.href = url; }
-            });
-        }
-
-        document.addEventListener('click', (e) => {
-            const link = e.target.closest('a');
-            if (link && link.href && link.host === window.location.host && link.target !== '_blank') {
-                e.preventDefault();
-                triggertransition(link.href);
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', pageenter);
-
-        function triggerreveal() {
-            gsap.to(".reveal", { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" });
-        }
-
-        function formattime(ms) {
+        // Format Waktu ke Detik (Menit:Detik)
+        function formatTime(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
             const minutes = Math.floor((ms / 1000 / 60) % 60);
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        async function fetchposts() {
+        // Fetch Postingan dari Supabase
+        async function fetchPosts() {
             const container = document.getElementById('postsList');
             try {
                 const response = await fetch('/.netlify/functions/fetch-posts');
@@ -220,7 +155,7 @@
                 
                 if (posts && posts.length > 0) {
                     container.innerHTML = posts.map(post => `
-                        <div onclick="triggertransition('/posts/${post.id}')" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
+                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
                             <div class="flex-1 overflow-hidden">
                                 <span class="text-[9px] md:text-[10px] text-zinc-600 uppercase tracking-[0.2em] mb-1 block">
                                     ${new Date(post.created_at).toLocaleDateString('id-ID')}
@@ -240,10 +175,11 @@
             } catch (e) {
                 container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat data.</p>`;
             }
-            triggerreveal();
+            triggerReveal();
         }
 
-        async function fetchnowplaying() {
+        // Spotify Listening Logic
+        async function fetchNowPlaying() {
             try {
                 const response = await fetch('/.netlify/functions/now-playing');
                 const data = await response.json();
@@ -254,8 +190,8 @@
                     document.getElementById('artistName').textContent = data.artist;
                     document.getElementById('albumArt').src = data.albumArt;
                     document.getElementById('progressBar').style.width = `${(data.progress / data.duration) * 100}%`;
-                    document.getElementById('currentTime').textContent = formattime(data.progress);
-                    document.getElementById('totalTime').textContent = formattime(data.duration);
+                    document.getElementById('currentTime').textContent = formatTime(data.progress);
+                    document.getElementById('totalTime').textContent = formatTime(data.duration);
                     player.classList.add('visible');
                 } else {
                     player.classList.remove('visible');
@@ -263,15 +199,20 @@
             } catch (e) {}
         }
 
+        // Initialize
         window.onload = () => {
-            fetchposts();
-            setInterval(fetchnowplaying, 1000);
+            fetchPosts();
+            setInterval(fetchNowPlaying, 1000);
 
+            // Toast Notification Logic
             const toast = document.getElementById('redirectToast');
-            if(toast) {
-                setTimeout(() => { toast.classList.add('show'); }, 2500);
-                toast.addEventListener('click', () => { triggertransition('/date'); });
-            }
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 2500);
+
+            toast.addEventListener('click', () => {
+                window.location.href = '/date';
+            });
         };
     </script>
 </body>
