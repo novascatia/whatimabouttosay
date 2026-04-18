@@ -1,5 +1,11 @@
 [functions]
   directory = "netlify/functions"
+  
+[[redirects]]
+  from = "/api/spotify"
+  to = "/.netlify/functions/spotify-raw"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/admin"
