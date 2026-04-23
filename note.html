@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omnichord Sequencer Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        :root { 
+            --bg: #0a0a0c; 
+            --panel: #16161a; 
+            --accent: #00ffcc; 
+            --next: #ff9f43; 
+            --danger: #ff4757;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container { 
+            background: var(--panel); 
+            padding: 30px; 
+            border-radius: 32px; 
+            width: 95%; 
+            max-width: 600px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .vol-container { display: flex; align-items: center; gap: 10px; font-size: 10px; color: #666; }
+        
+        input[type=range] { accent-color: var(--accent); cursor: pointer; }
+
+        textarea { 
+            width: 100%; 
+            background: rgba(0,0,0,0.3); 
+            color: var(--accent); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 16px; 
+            padding: 15px; 
+            font-size: 1.1em; 
+            resize: none; 
+            margin-bottom: 15px; 
+            transition: all 0.3s;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); }
+        textarea:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .playlist-visual { 
+            display: flex; 
+            gap: 10px; 
+            overflow-x: auto; 
+            padding: 15px 5px; 
+            margin-bottom: 20px; 
+            min-height: 45px;
+            scrollbar-width: none;
+        }
+        .playlist-visual::-webkit-scrollbar { display: none; }
+
+        .chord-tag { 
+            padding: 8px 18px; 
+            background: var(--glass); 
+            border-radius: 12px; 
+            font-size: 0.9em; 
+            white-space: nowrap; 
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            color: #aaa;
+        }
+
+        .chord-tag:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        
+        .chord-tag.playing { 
+            background: var(--next); 
+            color: #000; 
+            font-weight: bold; 
+            transform: scale(1.05); 
+            box-shadow: 0 0 20px rgba(255, 159, 67, 0.4);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .controls { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; }
+        
+        .btn { 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            padding: 15px; 
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        .btn-start { background: var(--accent); color: #000; }
+        .btn-start.stop { background: var(--danger); color: #fff; }
+        .btn-nav { background: var(--glass); color: #fff; }
+        .btn-reset { background: rgba(255,255,255,0.05); color: #666; font-size: 0.7em; }
+
+        .chord-indicator { 
+            font-size: 4em; 
+            font-weight: 900; 
+            text-align: center; 
+            margin: 30px 0; 
+            color: #fff; 
+            letter-spacing: -2px;
+            min-height: 1.2em;
+        }
+
+        .plate { 
+            height: 120px; 
+            background: linear-gradient(135deg, #1e1e24 0%, #0a0a0c 100%); 
+            border-radius: 20px; 
+            margin-top: 25px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #333; 
+            font-weight: 900; 
+            cursor: crosshair;
+            border: 1px solid rgba(255,255,255,0.05);
+            user-select: none;
+        }
+
+        .label { font-size: 9px; color: #444; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <span style="font-weight: 900; letter-spacing: 1px; color: var(--accent);">OMNICHORD V9</span>
+            <div class="vol-container">
+                VOL <input type="range" id="vol" min="0" max="1" step="0.1" value="0.5">
+            </div>
+        </div>
+
+        <textarea id="chord-input" rows="3" placeholder="Contoh: C Am F G C/E">C Am F G C/E</textarea>
+        
+        <span class="label">Chord Stream (Click to jump)</span>
+        <div id="visual-list" class="playlist-visual"></div>
+
+        <div class="chord-indicator" id="current-display">---</div>
+
+        <div class="controls">
+            <button id="btn-play" class="btn btn-start" onclick="togglePlay()">Start</button>
+            <button class="btn btn-nav" onclick="prevChord()">Back</button>
+            <button class="btn btn-nav" onclick="nextChord()">Next</button>
+            <button class="btn btn-reset" onclick="resetToBegin()">Reset</button>
+        </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const masterGain = audioCtx.createGain();
+        masterGain.connect(audioCtx.destination);
+        masterGain.gain.value = 0.5;
+
+        let activeOscs = [];
+        let chords = [];
+        let currentIndex = -1;
+        let isPlaying = false;
+
+        const freqs = { 'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13, 'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00, 'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88 };
+        const chordInts = { maj: [0, 4, 7], m: [0, 3, 7], '7': [0, 4, 7, 10], maj7: [0, 4, 7, 11] };
+
+        const input = document.getElementById('chord-input');
+
+        // Real-time Visual Update
+        input.addEventListener('input', () => {
+            if(!isPlaying) {
+                chords = input.value.split(/[\s,]+/).filter(x => x.length > 0);
+                updateVisual();
+            }
+        });
+
+        function parse(raw) {
+            if (!raw) return null;
+            let parts = raw.split('/');
+            let root = parts[0].match(/^[A-G][#]?/)[0];
+            let variant = parts[0].slice(root.length) || 'maj';
+            return { root, variant, bass: parts[1] || null, label: raw };
+        }
+
+        function updateVisual() {
+            const visual = document.getElementById('visual-list');
+            visual.innerHTML = '';
+            chords.forEach((c, i) => {
+                const span = document.createElement('span');
+                span.className = 'chord-tag' + (i === currentIndex ? ' playing' : '');
+                span.innerText = c;
+                span.onclick = () => {
+                    if(isPlaying) {
+                        currentIndex = i;
+                        playIndex();
+                    }
+                };
+                visual.appendChild(span);
+            });
+            
+            // Auto scroll to active chord
+            const active = visual.querySelector('.playing');
+            if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+        }
+
+        function togglePlay() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const btn = document.getElementById('btn-play');
+
+            if (!isPlaying) {
+                chords = input.value.split(/[\s,]+/).filter(x => x.length > 0);
+                if (chords.length === 0) return;
+                isPlaying = true;
+                input.disabled = true;
+                btn.innerText = "Stop";
+                btn.classList.add('stop');
+                currentIndex = 0;
+                playIndex();
+            } else {
+                stopAll();
+                isPlaying = false;
+                input.disabled = false;
+                btn.innerText = "Start";
+                btn.classList.remove('stop');
+                document.getElementById('current-display').innerText = "---";
+                currentIndex = -1;
+                updateVisual();
+            }
+        }
+
+        function nextChord() {
+            if (!isPlaying) return;
+            currentIndex = (currentIndex + 1) % chords.length;
+            playIndex();
+        }
+
+        function prevChord() {
+            if (!isPlaying) return;
+            currentIndex = (currentIndex - 1 + chords.length) % chords.length;
+            playIndex();
+        }
+
+        function resetToBegin() {
+            if (!isPlaying) return;
+            currentIndex = 0;
+            playIndex();
+        }
+
+        function playIndex() {
+            let data = parse(chords[currentIndex]);
+            document.getElementById('current-display').innerText = data.label;
+            playAudio(data);
+            updateVisual();
+        }
+
+        function stopAll() {
+            activeOscs.forEach(o => { try { o.stop(); } catch(e) {} });
+            activeOscs = [];
+        }
+
+        function playAudio(data) {
+            stopAll();
+            const base = freqs[data.root];
+            const ints = chordInts[data.variant] || chordInts.maj;
+            ints.forEach(i => createOsc(base * Math.pow(2, i/12), 0.2, 'triangle'));
+            if (data.bass && freqs[data.bass]) createOsc(freqs[data.bass] / 2, 0.4, 'triangle');
+        }
+
+        function createOsc(f, v, t) {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = t;
+            o.frequency.setValueAtTime(f, audioCtx.currentTime);
+            g.gain.setValueAtTime(v, audioCtx.currentTime);
+            o.connect(g); g.connect(masterGain);
+            o.start(); activeOscs.push(o);
+        }
+
+        document.getElementById('vol').oninput = (e) => masterGain.gain.value = e.target.value;
+
+        // Strumming Interaction
+        let lastX = 0;
+        document.getElementById('plate').onmousemove = (e) => {
+            if (currentIndex === -1) return;
+            if (Math.abs(e.offsetX - lastX) > 30) {
+                let note = document.getElementById('current-display').innerText;
+                if(note === "---") return;
+                let data = parse(note);
+                const f = (freqs[data.root] * 2) * Math.pow(2, (chordInts[data.variant] || [0])[0]/12);
+                const o = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                o.type = 'sine'; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+                g.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                o.connect(g); g.connect(masterGain);
+                o.start(); o.stop(audioCtx.currentTime + 0.4);
+                lastX = e.offsetX;
+            }
+        };
+
+        // Initialize visual on load
+        chords = input.value.split(/[\s,]+/).filter(x => x.length > 0);
+        updateVisual();
+    </script>
+</body>
+</html>
