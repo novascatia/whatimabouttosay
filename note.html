@@ -3,139 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omnichord Sequencer Pro - Full Chords</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <title>Omnichord Smooth Sequencer</title>
     <style>
         :root { 
-            --bg: #0a0a0c; 
-            --panel: #16161a; 
-            --accent: #00ffcc; 
-            --next: #ff9f43; 
-            --danger: #ff4757;
-            --glass: rgba(255, 255, 255, 0.05);
+            --bg: #0a0a0c; --panel: #16161a; --accent: #00ffcc; 
+            --next: #ff9f43; --danger: #ff4757; --glass: rgba(255, 255, 255, 0.05);
         }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: #fff; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 20px; 
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        .container { 
-            background: var(--panel); 
-            padding: 30px; 
-            border-radius: 32px; 
-            width: 95%; 
-            max-width: 600px; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        textarea { 
-            width: 100%; 
-            background: rgba(0,0,0,0.3); 
-            color: var(--accent); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 16px; 
-            padding: 15px; 
-            font-size: 1.1em; 
-            resize: none; 
-            margin-bottom: 15px; 
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .playlist-visual { 
-            display: flex; 
-            gap: 10px; 
-            overflow-x: auto; 
-            padding: 15px 5px; 
-            margin-bottom: 20px; 
-            min-height: 45px;
-            scrollbar-width: none;
-        }
-
-        .chord-tag { 
-            padding: 8px 18px; 
-            background: var(--glass); 
-            border-radius: 12px; 
-            font-size: 0.9em; 
-            white-space: nowrap; 
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #aaa;
-        }
-
-        .chord-tag.playing { 
-            background: var(--next); 
-            color: #000; 
-            font-weight: bold; 
-            box-shadow: 0 0 20px rgba(255, 159, 67, 0.4);
-        }
-
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; }
+        .container { background: var(--panel); padding: 30px; border-radius: 32px; width: 95%; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        textarea { width: 100%; background: rgba(0,0,0,0.3); color: var(--accent); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; font-size: 1.1em; resize: none; margin-bottom: 15px; box-sizing: border-box; outline: none; }
+        .playlist-visual { display: flex; gap: 10px; overflow-x: auto; padding: 15px 5px; margin-bottom: 20px; min-height: 45px; scrollbar-width: none; }
+        .chord-tag { padding: 8px 18px; background: var(--glass); border-radius: 12px; font-size: 0.9em; white-space: nowrap; cursor: pointer; transition: 0.2s; color: #aaa; border: 1px solid transparent; }
+        .chord-tag.playing { background: var(--next); color: #000; font-weight: bold; border-color: rgba(255,255,255,0.3); }
         .controls { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; }
-        
-        .btn { 
-            border: none; 
-            border-radius: 14px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            padding: 15px; 
-            font-size: 0.9em;
-            text-transform: uppercase;
-        }
-
+        .btn { border: none; border-radius: 14px; font-weight: 700; cursor: pointer; padding: 15px; font-size: 0.8em; text-transform: uppercase; }
         .btn-start { background: var(--accent); color: #000; }
         .btn-start.stop { background: var(--danger); color: #fff; }
         .btn-nav { background: var(--glass); color: #fff; }
-
-        .chord-indicator { 
-            font-size: 4em; 
-            font-weight: 900; 
-            text-align: center; 
-            margin: 30px 0; 
-            min-height: 1.2em;
-        }
-
-        .plate { 
-            height: 100px; 
-            background: #000; 
-            border-radius: 20px; 
-            margin-top: 25px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: #333; 
-            font-weight: 900; 
-            cursor: crosshair;
-        }
+        .chord-indicator { font-size: 4em; font-weight: 900; text-align: center; margin: 30px 0; min-height: 1.2em; color: white; }
+        .plate { height: 100px; background: #000; border-radius: 20px; margin-top: 25px; display: flex; align-items: center; justify-content: center; color: #222; font-weight: 900; cursor: crosshair; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <span style="color: var(--accent); font-weight: 900;">OMNICHORD V9.1</span>
+            <span style="color: var(--accent); font-weight: 900; letter-spacing: 1px;">SMOOTH OMNI V9.2</span>
             <input type="range" id="vol" min="0" max="1" step="0.1" value="0.5">
         </div>
 
-        <textarea id="chord-input" rows="3">C Caug C6 Cmaj7 Am Asus4</textarea>
-        
+        <textarea id="chord-input" rows="3">C G Am F Cmaj7 G/B</textarea>
         <div id="visual-list" class="playlist-visual"></div>
-
         <div class="chord-indicator" id="current-display">---</div>
 
         <div class="controls">
@@ -149,171 +48,154 @@
     </div>
 
     <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const masterGain = audioCtx.createGain();
-        masterGain.connect(audioCtx.destination);
-        masterGain.gain.value = 0.5;
+        const audiocontext = new (window.AudioContext || window.webkitAudioContext)();
+        const masternode = audiocontext.createGain();
+        masternode.connect(audiocontext.destination);
+        masternode.gain.value = 0.5;
 
-        let activeOscs = [];
-        let chords = [];
-        let currentIndex = -1;
-        let isPlaying = false;
+        let activeoscs = [];
+        let chordlist = [];
+        let currentindex = -1;
+        let isplaying = false;
 
-        const freqs = { 
+        const basefreqs = { 
             'C': 261.63, 'C#': 277.18, 'Db': 277.18, 'D': 293.66, 'D#': 311.13, 'Eb': 311.13,
             'E': 329.63, 'F': 349.23, 'F#': 369.99, 'Gb': 369.99, 'G': 392.00, 'G#': 415.30,
-            'Ab': 415.30, 'A': 440.00, 'A#': 466.16, 'Bb': 466.16, 'B': 493.88 
+            'Ab': 415.30, 'A': 220.00, 'A#': 233.08, 'Bb': 233.08, 'B': 246.94 
         };
 
-        // KAMUS CHORD LENGKAP
-        const chordInts = {
-            maj: [0, 4, 7],
-            m: [0, 3, 7],
-            '7': [0, 4, 7, 10],
-            maj7: [0, 4, 7, 11],
-            m7: [0, 3, 7, 10],
-            '6': [0, 4, 7, 9],
-            m6: [0, 3, 7, 9],
-            '9': [0, 4, 7, 10, 14],
-            aug: [0, 4, 8],
-            dim: [0, 3, 6],
-            dim7: [0, 3, 6, 9],
-            sus4: [0, 5, 7],
-            sus2: [0, 2, 7],
-            '5': [0, 7]
+        const chordintervals = {
+            maj: [0, 4, 7], m: [0, 3, 7], '7': [0, 4, 7, 10], maj7: [0, 4, 7, 11],
+            m7: [0, 3, 7, 10], '6': [0, 4, 7, 9], m6: [0, 3, 7, 9], '9': [0, 4, 7, 10, 14],
+            aug: [0, 4, 8], dim: [0, 3, 6], sus4: [0, 5, 7], sus2: [0, 2, 7]
         };
 
         const input = document.getElementById('chord-input');
 
         input.addEventListener('input', () => {
-            if(!isPlaying) {
-                chords = input.value.split(/[\s,]+/).filter(x => x.length > 0);
-                updateVisual();
+            if(!isplaying) {
+                chordlist = input.value.split(/[\s,]+/).filter(x => x.length > 0);
+                updatevisual();
             }
         });
 
-        function parse(raw) {
+        function parsechord(raw) {
             if (!raw) return null;
             let parts = raw.split('/');
-            let rootPart = parts[0];
+            let rootpart = parts[0];
             let bass = parts[1] || null;
-
-            // Cari Root (C, C#, Bb, dsb)
-            let rootMatch = rootPart.match(/^[A-G][#b]?/);
-            if (!rootMatch) return null;
-            
-            let root = rootMatch[0];
-            let variant = rootPart.slice(root.length) || 'maj';
-
-            // Normalisasi penulisan
+            let rootmatch = rootpart.match(/^[A-G][#b]?/);
+            if (!rootmatch) return null;
+            let root = rootmatch[0];
+            let variant = rootpart.slice(root.length) || 'maj';
             if (variant === 'min') variant = 'm';
-            if (variant === 'M7') variant = 'maj7';
-
             return { root, variant, bass, label: raw };
         }
 
-        function updateVisual() {
+        function updatevisual() {
             const visual = document.getElementById('visual-list');
             visual.innerHTML = '';
-            chords.forEach((c, i) => {
+            chordlist.forEach((c, i) => {
                 const span = document.createElement('span');
-                span.className = 'chord-tag' + (i === currentIndex ? ' playing' : '');
+                span.className = 'chord-tag' + (i === currentindex ? ' playing' : '');
                 span.innerText = c;
-                span.onclick = () => { if(isPlaying) { currentIndex = i; playIndex(); } };
+                span.onclick = () => { if(isplaying) { currentindex = i; playindex(); } };
                 visual.appendChild(span);
             });
         }
 
         function togglePlay() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (audiocontext.state === 'suspended') audiocontext.resume();
             const btn = document.getElementById('btn-play');
-
-            if (!isPlaying) {
-                chords = input.value.split(/[\s,]+/).filter(x => x.length > 0);
-                if (chords.length === 0) return;
-                isPlaying = true;
+            if (!isplaying) {
+                chordlist = input.value.split(/[\s,]+/).filter(x => x.length > 0);
+                if (chordlist.length === 0) return;
+                isplaying = true;
                 input.disabled = true;
-                btn.innerText = "Stop";
-                btn.classList.add('stop');
-                currentIndex = 0;
-                playIndex();
+                btn.innerText = "Stop"; btn.classList.add('stop');
+                currentindex = 0; playindex();
             } else {
-                stopAll();
-                isPlaying = false;
-                input.disabled = false;
-                btn.innerText = "Start";
-                btn.classList.remove('stop');
+                stopaudio();
+                isplaying = false; input.disabled = false;
+                btn.innerText = "Start"; btn.classList.remove('stop');
                 document.getElementById('current-display').innerText = "---";
-                currentIndex = -1;
-                updateVisual();
+                currentindex = -1; updatevisual();
             }
         }
 
-        function nextChord() { if (isPlaying) { currentIndex = (currentIndex + 1) % chords.length; playIndex(); } }
-        function prevChord() { if (isPlaying) { currentIndex = (currentIndex - 1 + chords.length) % chords.length; playIndex(); } }
-        function resetToBegin() { if (isPlaying) { currentIndex = 0; playIndex(); } }
+        function nextChord() { if (isplaying) { currentindex = (currentindex + 1) % chordlist.length; playindex(); } }
+        function prevChord() { if (isplaying) { currentindex = (currentindex - 1 + chordlist.length) % chordlist.length; playindex(); } }
+        function resetToBegin() { if (isplaying) { currentindex = 0; playindex(); } }
 
-        function playIndex() {
-            let data = parse(chords[currentIndex]);
+        function playindex() {
+            let data = parsechord(chordlist[currentindex]);
             if (data) {
                 document.getElementById('current-display').innerText = data.label;
-                playAudio(data);
-                updateVisual();
+                playaudio(data);
+                updatevisual();
             }
         }
 
-        function stopAll() {
-            activeOscs.forEach(o => { try { o.stop(); } catch(e) {} });
-            activeOscs = [];
+        function stopaudio() {
+            activeoscs.forEach(o => { try { o.stop(); } catch(e) {} });
+            activeoscs = [];
         }
 
-        function playAudio(data) {
-            stopAll();
-            const base = freqs[data.root];
-            // Jika varian tidak ditemukan di kamus, default ke Major agar tidak bunyi nada tunggal
-            const ints = chordInts[data.variant] || chordInts.maj;
+        function playaudio(data) {
+            stopaudio();
+            let base = basefreqs[data.root];
             
-            ints.forEach(i => createOsc(base * Math.pow(2, i/12), 0.2, 'triangle'));
+            // LOGIKA SMOOTH VOICING:
+            // Jika nada dasar di atas 350Hz (Nada F ke atas), turunkan 1 oktaf
+            // agar selalu berkumpul di area tengah (200Hz - 350Hz)
+            if (base > 350) base = base / 2;
+
+            const ints = chordintervals[data.variant] || chordintervals.maj;
+            ints.forEach(i => createosc(base * Math.pow(2, i/12), 0.2, 'triangle'));
             
-            if (data.bass && freqs[data.bass]) {
-                createOsc(freqs[data.bass] / 2, 0.4, 'triangle');
+            if (data.bass && basefreqs[data.bass]) {
+                let bassf = basefreqs[data.bass];
+                while(bassf > 200) bassf /= 2; // Pastikan bass selalu rendah
+                createosc(bassf, 0.4, 'triangle');
             }
         }
 
-        function createOsc(f, v, t) {
-            const o = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
+        function createosc(f, v, t) {
+            const o = audiocontext.createOscillator();
+            const g = audiocontext.createGain();
             o.type = t;
-            o.frequency.setValueAtTime(f, audioCtx.currentTime);
-            g.gain.setValueAtTime(v, audioCtx.currentTime);
-            o.connect(g); g.connect(masterGain);
-            o.start(); activeOscs.push(o);
+            o.frequency.setValueAtTime(f, audiocontext.currentTime);
+            g.gain.setValueAtTime(v, audiocontext.currentTime);
+            o.connect(g); g.connect(masternode);
+            o.start(); activeoscs.push(o);
         }
 
-        document.getElementById('vol').oninput = (e) => masterGain.gain.value = e.target.value;
+        document.getElementById('vol').oninput = (e) => masternode.gain.value = e.target.value;
 
-        let lastX = 0;
+        let lastx = 0;
         document.getElementById('plate').onmousemove = (e) => {
-            if (currentIndex === -1) return;
-            if (Math.abs(e.offsetX - lastX) > 30) {
+            if (currentindex === -1) return;
+            if (Math.abs(e.offsetX - lastx) > 30) {
                 let note = document.getElementById('current-display').innerText;
-                if(note === "---") return;
-                let data = parse(note);
-                const ints = chordInts[data.variant] || [0];
-                const f = (freqs[data.root] * 2) * Math.pow(2, ints[Math.floor(Math.random() * ints.length)]/12);
-                const o = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                o.type = 'sine'; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-                g.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-                o.connect(g); g.connect(masterGain);
-                o.start(); o.stop(audioCtx.currentTime + 0.4);
-                lastX = e.offsetX;
+                let data = parsechord(note);
+                if(!data) return;
+                let base = basefreqs[data.root];
+                if (base > 350) base /= 2;
+                const ints = chordintervals[data.variant] || [0];
+                const f = (base * 2) * Math.pow(2, ints[Math.floor(Math.random() * ints.length)]/12);
+                const o = audiocontext.createOscillator();
+                const g = audiocontext.createGain();
+                o.type = 'sine'; o.frequency.setValueAtTime(f, audiocontext.currentTime);
+                g.gain.setValueAtTime(0.2, audiocontext.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, audiocontext.currentTime + 0.4);
+                o.connect(g); g.connect(masternode);
+                o.start(); o.stop(audiocontext.currentTime + 0.4);
+                lastx = e.offsetX;
             }
         };
 
-        chords = input.value.split(/[\s,]+/).filter(x => x.length > 0);
-        updateVisual();
+        chordlist = input.value.split(/[\s,]+/).filter(x => x.length > 0);
+        updatevisual();
     </script>
 </body>
 </html>
