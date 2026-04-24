@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omnichord Smooth Sequencer</title>
+    <title>Omnichord Octave Sequencer</title>
     <style>
         :root { 
             --bg: #0a0a0c; --panel: #16161a; --accent: #00ffcc; 
@@ -12,15 +12,23 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; }
         .container { background: var(--panel); padding: 30px; border-radius: 32px; width: 95%; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        
+        /* Octave Controls */
+        .octave-ctrl { display: flex; align-items: center; gap: 10px; background: var(--glass); padding: 5px 15px; border-radius: 12px; }
+        .oct-btn { background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 5px; cursor: pointer; width: 25px; height: 25px; font-weight: bold; }
+        .oct-val { font-size: 12px; font-weight: bold; min-width: 60px; text-align: center; color: #888; }
+
         textarea { width: 100%; background: rgba(0,0,0,0.3); color: var(--accent); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; font-size: 1.1em; resize: none; margin-bottom: 15px; box-sizing: border-box; outline: none; }
         .playlist-visual { display: flex; gap: 10px; overflow-x: auto; padding: 15px 5px; margin-bottom: 20px; min-height: 45px; scrollbar-width: none; }
         .chord-tag { padding: 8px 18px; background: var(--glass); border-radius: 12px; font-size: 0.9em; white-space: nowrap; cursor: pointer; transition: 0.2s; color: #aaa; border: 1px solid transparent; }
         .chord-tag.playing { background: var(--next); color: #000; font-weight: bold; border-color: rgba(255,255,255,0.3); }
+        
         .controls { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; }
         .btn { border: none; border-radius: 14px; font-weight: 700; cursor: pointer; padding: 15px; font-size: 0.8em; text-transform: uppercase; }
         .btn-start { background: var(--accent); color: #000; }
         .btn-start.stop { background: var(--danger); color: #fff; }
         .btn-nav { background: var(--glass); color: #fff; }
+        
         .chord-indicator { font-size: 4em; font-weight: 900; text-align: center; margin: 30px 0; min-height: 1.2em; color: white; }
         .plate { height: 100px; background: #000; border-radius: 20px; margin-top: 25px; display: flex; align-items: center; justify-content: center; color: #222; font-weight: 900; cursor: crosshair; }
     </style>
@@ -29,11 +37,15 @@
 
     <div class="container">
         <div class="header">
-            <span style="color: var(--accent); font-weight: 900; letter-spacing: 1px;">SMOOTH OMNI V9.2</span>
-            <input type="range" id="vol" min="0" max="1" step="0.1" value="0.5">
+            <span style="color: var(--accent); font-weight: 900;">OMNI V9.3</span>
+            <div class="octave-ctrl">
+                <button class="oct-btn" onclick="changeOctave(-1)">-</button>
+                <span class="oct-val" id="oct-display">OCTAVE: 0</span>
+                <button class="oct-btn" onclick="changeOctave(1)">+</button>
+            </div>
         </div>
 
-        <textarea id="chord-input" rows="3">C G Am F Cmaj7 G/B</textarea>
+        <textarea id="chord-input" rows="3">C G Am F</textarea>
         <div id="visual-list" class="playlist-visual"></div>
         <div class="chord-indicator" id="current-display">---</div>
 
@@ -57,6 +69,7 @@
         let chordlist = [];
         let currentindex = -1;
         let isplaying = false;
+        let octaveoffset = 0; // Default oktaf tengah
 
         const basefreqs = { 
             'C': 261.63, 'C#': 277.18, 'Db': 277.18, 'D': 293.66, 'D#': 311.13, 'Eb': 311.13,
@@ -79,17 +92,24 @@
             }
         });
 
+        function changeOctave(dir) {
+            octaveoffset += dir;
+            // Batasi oktaf agar tidak terlalu ekstrem
+            if(octaveoffset < -2) octaveoffset = -2;
+            if(octaveoffset > 2) octaveoffset = 2;
+            document.getElementById('oct-display').innerText = `OCTAVE: ${octaveoffset}`;
+            if(isplaying && currentindex !== -1) playindex();
+        }
+
         function parsechord(raw) {
             if (!raw) return null;
             let parts = raw.split('/');
-            let rootpart = parts[0];
-            let bass = parts[1] || null;
-            let rootmatch = rootpart.match(/^[A-G][#b]?/);
+            let rootmatch = parts[0].match(/^[A-G][#b]?/);
             if (!rootmatch) return null;
             let root = rootmatch[0];
-            let variant = rootpart.slice(root.length) || 'maj';
+            let variant = parts[0].slice(root.length) || 'maj';
             if (variant === 'min') variant = 'm';
-            return { root, variant, bass, label: raw };
+            return { root, variant, bass: parts[1] || null, label: raw };
         }
 
         function updatevisual() {
@@ -144,18 +164,18 @@
         function playaudio(data) {
             stopaudio();
             let base = basefreqs[data.root];
-            
-            // LOGIKA SMOOTH VOICING:
-            // Jika nada dasar di atas 350Hz (Nada F ke atas), turunkan 1 oktaf
-            // agar selalu berkumpul di area tengah (200Hz - 350Hz)
-            if (base > 350) base = base / 2;
+            if (base > 350) base /= 2;
+
+            // Terapkan Octave Offset (kali 2 untuk naik, bagi 2 untuk turun)
+            base = base * Math.pow(2, octaveoffset);
 
             const ints = chordintervals[data.variant] || chordintervals.maj;
             ints.forEach(i => createosc(base * Math.pow(2, i/12), 0.2, 'triangle'));
             
             if (data.bass && basefreqs[data.bass]) {
                 let bassf = basefreqs[data.bass];
-                while(bassf > 200) bassf /= 2; // Pastikan bass selalu rendah
+                while(bassf > 200) bassf /= 2;
+                bassf = bassf * Math.pow(2, octaveoffset);
                 createosc(bassf, 0.4, 'triangle');
             }
         }
@@ -170,8 +190,6 @@
             o.start(); activeoscs.push(o);
         }
 
-        document.getElementById('vol').oninput = (e) => masternode.gain.value = e.target.value;
-
         let lastx = 0;
         document.getElementById('plate').onmousemove = (e) => {
             if (currentindex === -1) return;
@@ -181,6 +199,7 @@
                 if(!data) return;
                 let base = basefreqs[data.root];
                 if (base > 350) base /= 2;
+                base = base * Math.pow(2, octaveoffset);
                 const ints = chordintervals[data.variant] || [0];
                 const f = (base * 2) * Math.pow(2, ints[Math.floor(Math.random() * ints.length)]/12);
                 const o = audiocontext.createOscillator();
