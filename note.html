@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omnichord Sequencer Pro</title>
+    <title>Omnichord Sequencer Pro - Full Chords</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         :root { 
@@ -16,7 +16,7 @@
         }
 
         body { 
-            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            font-family: 'Inter', sans-serif; 
             background: var(--bg); 
             color: #fff; 
             display: flex; 
@@ -44,10 +44,6 @@
             margin-bottom: 25px;
         }
 
-        .vol-container { display: flex; align-items: center; gap: 10px; font-size: 10px; color: #666; }
-        
-        input[type=range] { accent-color: var(--accent); cursor: pointer; }
-
         textarea { 
             width: 100%; 
             background: rgba(0,0,0,0.3); 
@@ -58,13 +54,9 @@
             font-size: 1.1em; 
             resize: none; 
             margin-bottom: 15px; 
-            transition: all 0.3s;
             box-sizing: border-box;
             outline: none;
         }
-
-        textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); }
-        textarea:disabled { opacity: 0.3; cursor: not-allowed; }
 
         .playlist-visual { 
             display: flex; 
@@ -75,7 +67,6 @@
             min-height: 45px;
             scrollbar-width: none;
         }
-        .playlist-visual::-webkit-scrollbar { display: none; }
 
         .chord-tag { 
             padding: 8px 18px; 
@@ -84,20 +75,15 @@
             font-size: 0.9em; 
             white-space: nowrap; 
             cursor: pointer;
-            border: 1px solid transparent;
             transition: all 0.2s;
             color: #aaa;
         }
 
-        .chord-tag:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        
         .chord-tag.playing { 
             background: var(--next); 
             color: #000; 
             font-weight: bold; 
-            transform: scale(1.05); 
             box-shadow: 0 0 20px rgba(255, 159, 67, 0.4);
-            border-color: rgba(255,255,255,0.3);
         }
 
         .controls { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; }
@@ -107,33 +93,26 @@
             border-radius: 14px; 
             font-weight: 700; 
             cursor: pointer; 
-            transition: all 0.2s; 
             padding: 15px; 
             font-size: 0.9em;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
-
-        .btn:active { transform: scale(0.95); }
 
         .btn-start { background: var(--accent); color: #000; }
         .btn-start.stop { background: var(--danger); color: #fff; }
         .btn-nav { background: var(--glass); color: #fff; }
-        .btn-reset { background: rgba(255,255,255,0.05); color: #666; font-size: 0.7em; }
 
         .chord-indicator { 
             font-size: 4em; 
             font-weight: 900; 
             text-align: center; 
             margin: 30px 0; 
-            color: #fff; 
-            letter-spacing: -2px;
             min-height: 1.2em;
         }
 
         .plate { 
-            height: 120px; 
-            background: linear-gradient(135deg, #1e1e24 0%, #0a0a0c 100%); 
+            height: 100px; 
+            background: #000; 
             border-radius: 20px; 
             margin-top: 25px; 
             display: flex; 
@@ -142,26 +121,19 @@
             color: #333; 
             font-weight: 900; 
             cursor: crosshair;
-            border: 1px solid rgba(255,255,255,0.05);
-            user-select: none;
         }
-
-        .label { font-size: 9px; color: #444; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <span style="font-weight: 900; letter-spacing: 1px; color: var(--accent);">OMNICHORD V9</span>
-            <div class="vol-container">
-                VOL <input type="range" id="vol" min="0" max="1" step="0.1" value="0.5">
-            </div>
+            <span style="color: var(--accent); font-weight: 900;">OMNICHORD V9.1</span>
+            <input type="range" id="vol" min="0" max="1" step="0.1" value="0.5">
         </div>
 
-        <textarea id="chord-input" rows="3" placeholder="Contoh: C Am F G C/E">C Am F G C/E</textarea>
+        <textarea id="chord-input" rows="3">C Caug C6 Cmaj7 Am Asus4</textarea>
         
-        <span class="label">Chord Stream (Click to jump)</span>
         <div id="visual-list" class="playlist-visual"></div>
 
         <div class="chord-indicator" id="current-display">---</div>
@@ -170,8 +142,11 @@
             <button id="btn-play" class="btn btn-start" onclick="togglePlay()">Start</button>
             <button class="btn btn-nav" onclick="prevChord()">Back</button>
             <button class="btn btn-nav" onclick="nextChord()">Next</button>
-            <button class="btn btn-reset" onclick="resetToBegin()">Reset</button>
+            <button class="btn btn-nav" onclick="resetToBegin()">Reset</button>
         </div>
+
+        <div class="plate" id="plate">STRUM PLATE</div>
+    </div>
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -184,12 +159,32 @@
         let currentIndex = -1;
         let isPlaying = false;
 
-        const freqs = { 'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13, 'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00, 'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88 };
-        const chordInts = { maj: [0, 4, 7], m: [0, 3, 7], '7': [0, 4, 7, 10], maj7: [0, 4, 7, 11] };
+        const freqs = { 
+            'C': 261.63, 'C#': 277.18, 'Db': 277.18, 'D': 293.66, 'D#': 311.13, 'Eb': 311.13,
+            'E': 329.63, 'F': 349.23, 'F#': 369.99, 'Gb': 369.99, 'G': 392.00, 'G#': 415.30,
+            'Ab': 415.30, 'A': 440.00, 'A#': 466.16, 'Bb': 466.16, 'B': 493.88 
+        };
+
+        // KAMUS CHORD LENGKAP
+        const chordInts = {
+            maj: [0, 4, 7],
+            m: [0, 3, 7],
+            '7': [0, 4, 7, 10],
+            maj7: [0, 4, 7, 11],
+            m7: [0, 3, 7, 10],
+            '6': [0, 4, 7, 9],
+            m6: [0, 3, 7, 9],
+            '9': [0, 4, 7, 10, 14],
+            aug: [0, 4, 8],
+            dim: [0, 3, 6],
+            dim7: [0, 3, 6, 9],
+            sus4: [0, 5, 7],
+            sus2: [0, 2, 7],
+            '5': [0, 7]
+        };
 
         const input = document.getElementById('chord-input');
 
-        // Real-time Visual Update
         input.addEventListener('input', () => {
             if(!isPlaying) {
                 chords = input.value.split(/[\s,]+/).filter(x => x.length > 0);
@@ -200,9 +195,21 @@
         function parse(raw) {
             if (!raw) return null;
             let parts = raw.split('/');
-            let root = parts[0].match(/^[A-G][#]?/)[0];
-            let variant = parts[0].slice(root.length) || 'maj';
-            return { root, variant, bass: parts[1] || null, label: raw };
+            let rootPart = parts[0];
+            let bass = parts[1] || null;
+
+            // Cari Root (C, C#, Bb, dsb)
+            let rootMatch = rootPart.match(/^[A-G][#b]?/);
+            if (!rootMatch) return null;
+            
+            let root = rootMatch[0];
+            let variant = rootPart.slice(root.length) || 'maj';
+
+            // Normalisasi penulisan
+            if (variant === 'min') variant = 'm';
+            if (variant === 'M7') variant = 'maj7';
+
+            return { root, variant, bass, label: raw };
         }
 
         function updateVisual() {
@@ -212,18 +219,9 @@
                 const span = document.createElement('span');
                 span.className = 'chord-tag' + (i === currentIndex ? ' playing' : '');
                 span.innerText = c;
-                span.onclick = () => {
-                    if(isPlaying) {
-                        currentIndex = i;
-                        playIndex();
-                    }
-                };
+                span.onclick = () => { if(isPlaying) { currentIndex = i; playIndex(); } };
                 visual.appendChild(span);
             });
-            
-            // Auto scroll to active chord
-            const active = visual.querySelector('.playing');
-            if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center' });
         }
 
         function togglePlay() {
@@ -251,29 +249,17 @@
             }
         }
 
-        function nextChord() {
-            if (!isPlaying) return;
-            currentIndex = (currentIndex + 1) % chords.length;
-            playIndex();
-        }
-
-        function prevChord() {
-            if (!isPlaying) return;
-            currentIndex = (currentIndex - 1 + chords.length) % chords.length;
-            playIndex();
-        }
-
-        function resetToBegin() {
-            if (!isPlaying) return;
-            currentIndex = 0;
-            playIndex();
-        }
+        function nextChord() { if (isPlaying) { currentIndex = (currentIndex + 1) % chords.length; playIndex(); } }
+        function prevChord() { if (isPlaying) { currentIndex = (currentIndex - 1 + chords.length) % chords.length; playIndex(); } }
+        function resetToBegin() { if (isPlaying) { currentIndex = 0; playIndex(); } }
 
         function playIndex() {
             let data = parse(chords[currentIndex]);
-            document.getElementById('current-display').innerText = data.label;
-            playAudio(data);
-            updateVisual();
+            if (data) {
+                document.getElementById('current-display').innerText = data.label;
+                playAudio(data);
+                updateVisual();
+            }
         }
 
         function stopAll() {
@@ -284,9 +270,14 @@
         function playAudio(data) {
             stopAll();
             const base = freqs[data.root];
+            // Jika varian tidak ditemukan di kamus, default ke Major agar tidak bunyi nada tunggal
             const ints = chordInts[data.variant] || chordInts.maj;
+            
             ints.forEach(i => createOsc(base * Math.pow(2, i/12), 0.2, 'triangle'));
-            if (data.bass && freqs[data.bass]) createOsc(freqs[data.bass] / 2, 0.4, 'triangle');
+            
+            if (data.bass && freqs[data.bass]) {
+                createOsc(freqs[data.bass] / 2, 0.4, 'triangle');
+            }
         }
 
         function createOsc(f, v, t) {
@@ -301,7 +292,6 @@
 
         document.getElementById('vol').oninput = (e) => masterGain.gain.value = e.target.value;
 
-        // Strumming Interaction
         let lastX = 0;
         document.getElementById('plate').onmousemove = (e) => {
             if (currentIndex === -1) return;
@@ -309,7 +299,8 @@
                 let note = document.getElementById('current-display').innerText;
                 if(note === "---") return;
                 let data = parse(note);
-                const f = (freqs[data.root] * 2) * Math.pow(2, (chordInts[data.variant] || [0])[0]/12);
+                const ints = chordInts[data.variant] || [0];
+                const f = (freqs[data.root] * 2) * Math.pow(2, ints[Math.floor(Math.random() * ints.length)]/12);
                 const o = audioCtx.createOscillator();
                 const g = audioCtx.createGain();
                 o.type = 'sine'; o.frequency.setValueAtTime(f, audioCtx.currentTime);
@@ -321,7 +312,6 @@
             }
         };
 
-        // Initialize visual on load
         chords = input.value.split(/[\s,]+/).filter(x => x.length > 0);
         updateVisual();
     </script>
