@@ -125,7 +125,7 @@
         let userProfile = { name: "Someone", image: "/logo.png" };
         let forceAnimate = true;
         let trackerInterval;
-        let lastTrackerDataString = ""; // Digunakan untuk mendeteksi perubahan data
+        let lastTrackerDataString = "";
 
         function logoutSpotify() {
             localStorage.removeItem('spotify_user_token');
@@ -137,15 +137,37 @@
             window.history.replaceState({}, document.title, "/" + cleanName);
         }
 
-        function checkAuth() {
-            const hash = window.location.hash;
-            if (hash.includes('access_token')) {
-                const urlParams = new URLSearchParams(hash.substring(1));
-                const token = urlParams.get('access_token');
-                localStorage.setItem('spotify_user_token', token);
-                window.location.hash = ''; 
+        async function checkAuth() {
+            // 1. TANGKAP ?code= DARI URL SPOTIFY
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            if (code) {
+                // Tampilkan animasi loading saat menukar kode dengan token
+                const authBtn = document.querySelector('#auth-section button');
+                if(authBtn) {
+                    authBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> CONNECTING...';
+                    authBtn.disabled = true;
+                }
+
+                try {
+                    // Minta backend untuk menukarkan code menjadi token
+                    const res = await fetch('/.netlify/functions/exchange-token', {
+                        method: 'POST',
+                        body: JSON.stringify({ code: code })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.access_token) {
+                        localStorage.setItem('spotify_user_token', data.access_token);
+                    }
+                } catch(e) { console.error(e); }
+                
+                // Bersihkan URL yang jelek (?code=...) jadi rapi kembali
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
 
+            // 2. CEK TOKEN DI LOCALSTORAGE SEPERTI BIASA
             const token = localStorage.getItem('spotify_user_token');
             if (token) {
                 document.getElementById('auth-section').classList.add('hidden');
@@ -155,6 +177,11 @@
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('auth-section').classList.add('flex');
                 document.getElementById('stats-section').classList.add('hidden');
+                const authBtn = document.querySelector('#auth-section button');
+                if(authBtn) {
+                    authBtn.innerHTML = 'LOGIN WITH SPOTIFY';
+                    authBtn.disabled = false;
+                }
             }
         }
 
@@ -179,17 +206,15 @@
                 document.getElementById('share-watermark').src = userProfile.image;
 
                 beautifyURL(userProfile.name);
+            } else {
+                logoutSpotify(); // Jika token invalid/expired, paksa logout
             }
             
-            // Panggilan pertama tidak silent (munculkan loader)
             fetchTrackerData(false);
-            
-            // Interval tiap 15 detik bersifat silent (isSilent = true)
             if(trackerInterval) clearInterval(trackerInterval);
             trackerInterval = setInterval(() => fetchTrackerData(true), 15000); 
         }
 
-        // FUNGSI FETCH DIPERBARUI: Menerima parameter isSilent agar tidak menampilkan loader di background
         async function fetchTrackerData(isSilent = false) {
             const token = localStorage.getItem('spotify_user_token');
             if(!token) return;
@@ -217,10 +242,9 @@
                     trackerData.top = topRes.items.map(track => ({ title: track.name, artist: track.artists.map(a => a.name).join(', '), albumArt: track.album.images[0].url, url: track.external_urls.spotify }));
                 }
 
-                // Cek apakah ada lagu yang berubah secara background
                 const newDataString = JSON.stringify(trackerData);
                 if (isSilent && lastTrackerDataString !== "" && lastTrackerDataString !== newDataString) {
-                    forceAnimate = true; // Picu animasi nge-bounce lagi karena lagunya ganti
+                    forceAnimate = true; 
                 }
                 lastTrackerDataString = newDataString;
 
@@ -248,7 +272,6 @@
             document.getElementById('filter-' + range).classList.add('active');
             document.getElementById('top-list').innerHTML = ''; 
             
-            // Panggil fungsi fetch tanpa silent agar loader-nya muter saat orang klik filter waktu
             fetchTrackerData(false);
         }
 
@@ -307,9 +330,11 @@
             });
             setTimeout(() => {
                 html2canvas(document.querySelector("#share-template"), { backgroundColor: "#0f0f0f", useCORS: true, scale: 3, logging: false }).then(canvas => {
-                    document.getElementById('share-preview').src = canvas.toDataURL("image/png");
-                    document.getElementById('download-link').href = canvas.toDataURL("image/png");
-                    btn.innerHTML = '<i class="fas fa-share-nodes"></i> Share These Stats'; btn.disabled = false;
+                    const imgUrl = canvas.toDataURL("image/png");
+                    document.getElementById('share-preview').src = imgUrl;
+                    document.getElementById('download-link').href = imgUrl;
+                    document.getElementById('download-link').download = `${userProfile.name.toLowerCase()}-stats.png`;
+                    btn.innerHTML = '<i class="fas fa-share-nodes"></i> Download Card'; btn.disabled = false;
                     const modal = document.getElementById('share-modal');
                     modal.classList.remove('hidden'); modal.classList.add('flex');
                     setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); }, 10);
