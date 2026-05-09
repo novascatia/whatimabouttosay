@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Stats Tracker</title>
+    <title>Spotify Stats Tracker by Novascatia</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -51,7 +51,7 @@
     <div id="auth-section" class="hidden flex-col items-center justify-center min-h-[80vh] text-center">
         <i class="fab fa-spotify text-6xl text-[#1ed760] mb-6"></i>
         <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">Spotify Stats</h1>
-        <p class="text-zinc-400 mb-8 max-w-sm mx-auto">Login to see your realtime activity, top tracks, and generate your spotify share card.</p>
+        <p class="text-zinc-400 mb-8 max-w-sm mx-auto">Login to see your realtime activity, top tracks, and generate your aesthetic share card.</p>
         <button onclick="window.location.href='/.netlify/functions/login-tracker'" class="bg-[#1ed760] text-black font-bold px-8 py-3.5 rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(30,215,96,0.2)] tracking-widest text-sm">LOGIN WITH SPOTIFY</button>
     </div>
 
@@ -124,14 +124,15 @@
         let trackerData = { recent: [], top: [], nowPlaying: null };
         let userProfile = { name: "Someone", image: "/logo.png" };
         let forceAnimate = true;
+        let trackerInterval;
+        let lastTrackerDataString = ""; // Digunakan untuk mendeteksi perubahan data
 
-            function logoutSpotify() {
+        function logoutSpotify() {
             localStorage.removeItem('spotify_user_token');
             window.location.href = "/"; 
         }
 
         function beautifyURL(username) {
-            // Hanya sisipkan huruf dan angka, hapus spasi dan karakter aneh (+)
             const cleanName = username.toLowerCase().replace(/[^a-z0-9]/g, '');
             window.history.replaceState({}, document.title, "/" + cleanName);
         }
@@ -142,7 +143,6 @@
                 const urlParams = new URLSearchParams(hash.substring(1));
                 const token = urlParams.get('access_token');
                 localStorage.setItem('spotify_user_token', token);
-                // Hash dihapus segera setelah disave
                 window.location.hash = ''; 
             }
 
@@ -158,17 +158,10 @@
             }
         }
 
-async function fetchSpotifyAPI(endpoint, token) {
-            // Memecah teks URL agar tidak disensor otomatis
-            const p1 = "api";
-            const p2 = "spotify";
-            const p3 = "com";
+        async function fetchSpotifyAPI(endpoint, token) {
+            const p1 = "api"; const p2 = "spotify"; const p3 = "com";
             const baseUrl = "https://" + p1 + "." + p2 + "." + p3 + "/v1/";
-
-            const res = await fetch(baseUrl + endpoint, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
+            const res = await fetch(baseUrl + endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
             if (res.status === 401) { logoutSpotify(); return null; } 
             if (res.status === 204) return null; 
             return await res.json();
@@ -185,33 +178,52 @@ async function fetchSpotifyAPI(endpoint, token) {
                 document.getElementById('share-title').innerText = `What ${userProfile.name} been listening..`;
                 document.getElementById('share-watermark').src = userProfile.image;
 
-                // EKSEKUSI MERAPIKAN URL
                 beautifyURL(userProfile.name);
             }
-            fetchTrackerData();
-            setInterval(fetchTrackerData, 15000); 
+            
+            // Panggilan pertama tidak silent (munculkan loader)
+            fetchTrackerData(false);
+            
+            // Interval tiap 15 detik bersifat silent (isSilent = true)
+            if(trackerInterval) clearInterval(trackerInterval);
+            trackerInterval = setInterval(() => fetchTrackerData(true), 15000); 
         }
 
-        // (Fungsi fetchData, renderTrackerUI, generateShareImage, dll tetap sama dengan perbaikan Grid)
-        async function fetchTrackerData() {
+        // FUNGSI FETCH DIPERBARUI: Menerima parameter isSilent agar tidak menampilkan loader di background
+        async function fetchTrackerData(isSilent = false) {
             const token = localStorage.getItem('spotify_user_token');
             if(!token) return;
-            document.getElementById('tracker-loader').classList.remove('hidden');
+            
+            if (!isSilent) {
+                document.getElementById('tracker-loader').classList.remove('hidden');
+            }
+
             try {
                 const [nowPlayingRes, recentRes, topRes] = await Promise.all([
                     fetchSpotifyAPI('me/player/currently-playing', token),
                     fetchSpotifyAPI('me/player/recently-played?limit=20', token),
                     fetchSpotifyAPI(`me/top/tracks?time_range=${currentTimeRange}&limit=20`, token)
                 ]);
+
                 if (nowPlayingRes && nowPlayingRes.is_playing && nowPlayingRes.item) {
                     trackerData.nowPlaying = { isPlaying: true, title: nowPlayingRes.item.name, artist: nowPlayingRes.item.artists.map(a => a.name).join(', '), albumArt: nowPlayingRes.item.album.images[0].url, url: nowPlayingRes.item.external_urls.spotify };
                 } else trackerData.nowPlaying = null;
+                
                 if (recentRes && recentRes.items) {
                     trackerData.recent = recentRes.items.map(item => ({ title: item.track.name, artist: item.track.artists.map(a => a.name).join(', '), albumArt: item.track.album.images[0].url, playedAt: item.played_at, url: item.track.external_urls.spotify }));
                 }
+                
                 if (topRes && topRes.items) {
                     trackerData.top = topRes.items.map(track => ({ title: track.name, artist: track.artists.map(a => a.name).join(', '), albumArt: track.album.images[0].url, url: track.external_urls.spotify }));
                 }
+
+                // Cek apakah ada lagu yang berubah secara background
+                const newDataString = JSON.stringify(trackerData);
+                if (isSilent && lastTrackerDataString !== "" && lastTrackerDataString !== newDataString) {
+                    forceAnimate = true; // Picu animasi nge-bounce lagi karena lagunya ganti
+                }
+                lastTrackerDataString = newDataString;
+
                 renderTrackerUI();
             } catch (e) { console.error(e); }
         }
@@ -235,8 +247,9 @@ async function fetchSpotifyAPI(endpoint, token) {
             document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('filter-' + range).classList.add('active');
             document.getElementById('top-list').innerHTML = ''; 
-            document.getElementById('tracker-loader').classList.remove('hidden');
-            fetchTrackerData();
+            
+            // Panggil fungsi fetch tanpa silent agar loader-nya muter saat orang klik filter waktu
+            fetchTrackerData(false);
         }
 
         function formatRelativeTime(dateString) {
@@ -275,7 +288,7 @@ async function fetchSpotifyAPI(endpoint, token) {
 
         async function generateShareImage() {
             const btn = document.getElementById('share-btn');
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> GENERATING...'; btn.disabled = true;
             const shareItemsCont = document.getElementById('share-items');
             const shareSubtitle = document.getElementById('share-subtitle');
             shareItemsCont.innerHTML = '';
