@@ -46,33 +46,25 @@
             overflow: hidden;
         }
 
-        /* LOGO BACKGROUND TRANSPARAN */
         .bg-logo-watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 280px;
-            height: 280px;
-            opacity: 0.05; /* Sangat transparan agar menyatu */
-            z-index: 0;
-            pointer-events: none;
-            filter: grayscale(1);
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 280px; height: 280px; opacity: 0.05; z-index: 0; pointer-events: none; filter: grayscale(1);
         }
 
         .share-content { position: relative; z-index: 10; }
-
         .hidden { display: none !important; }
+        
+        /* Custom scrollbar untuk Modal Pop-up */
+        .modal-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
-<body class="p-6 md:p-12 max-w-5xl mx-auto mb-20">
-
     <header class="mb-10 text-center mt-6 relative">
         <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-2 text-white">Rama's Account</h1>
         <p class="text-zinc-500 text-sm mb-6">Listening activity and Top tracks on Rama's account</p>
         
         <button id="share-btn" onclick="generateShareImage()" class="inline-flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-full text-xs font-bold transition disabled:opacity-50">
-            <i class="fas fa-share-nodes"></i> SHARE PNG
+            <i class="fas fa-share-nodes"></i> SHARE
         </button>
     </header>
 
@@ -113,15 +105,15 @@
         </div>
     </div>
 
-    <div id="share-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden flex-col items-center justify-center p-4 transition-opacity duration-300 opacity-0 backdrop-blur-md">
-        <div id="share-modal-content" class="relative max-w-sm w-full flex flex-col items-center transform scale-95 transition-transform duration-300">
-            <button onclick="closeModal()" class="absolute -top-14 right-0 text-zinc-500 hover:text-white transition p-2">
-                <i class="fas fa-times text-3xl"></i>
+    <div id="share-modal" class="fixed inset-0 bg-black/90 z-[9999] hidden flex-col items-center p-4 transition-opacity duration-300 opacity-0 backdrop-blur-md overflow-y-auto modal-scroll">
+        <div id="share-modal-content" class="relative max-w-sm w-full flex flex-col items-center transform scale-95 transition-transform duration-300 my-auto py-10">
+            <button onclick="closeModal()" class="absolute top-2 right-0 md:-right-6 bg-zinc-800 hover:bg-zinc-700 text-white w-10 h-10 rounded-full flex items-center justify-center transition border border-zinc-600 shadow-lg z-50">
+                <i class="fas fa-times text-xl"></i>
             </button>
             
-            <img id="share-preview" src="" alt="Preview" class="w-full rounded-2xl shadow-2xl mb-8 border border-zinc-800">
+            <img id="share-preview" src="" alt="Preview" class="w-full max-w-[300px] max-h-[55vh] object-contain rounded-2xl shadow-2xl mb-6 border border-zinc-800">
             
-            <a id="download-link" href="#" download="rama-listening.png" class="bg-[#1ed760] hover:bg-[#1db954] text-black font-black px-8 py-4 rounded-full flex items-center justify-center gap-3 transition transform hover:scale-105 shadow-[0_15px_30px_rgba(30,215,96,0.2)] w-full text-xs tracking-[0.15em] uppercase">
+            <a id="download-link" href="#" download="rama-listening.png" class="bg-[#1ed760] hover:bg-[#1db954] text-black font-black px-8 py-4 rounded-full flex items-center justify-center gap-3 transition transform hover:scale-105 shadow-[0_15px_30px_rgba(30,215,96,0.2)] w-full max-w-[280px] text-xs tracking-[0.15em] uppercase">
                 <i class="fas fa-download text-lg"></i> Download PNG
             </a>
         </div>
@@ -167,16 +159,20 @@
                 items = currentData.top.slice(0, 5);
             }
 
-            // FIX REBORN: Menghilangkan truncate di canvas dan menambah line-height serta padding vertikal
+            // FIX: Struktur div baru agar html2canvas tidak error saat memotong text
             items.forEach((item, idx) => {
                 shareItemsCont.innerHTML += `
                     <div class="flex items-center gap-4 bg-[#161616] p-3.5 rounded-xl border border-zinc-800/50">
-                        <img src="${item.albumArt}" class="w-12 h-12 rounded-lg shadow-md" crossOrigin="anonymous">
-                        <div class="flex-1 min-w-0" style="padding-top: 2px; padding-bottom: 2px;">
-                            <p class="font-bold text-[13px] text-white" style="line-height: 1.5; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</p>
-                            <p class="text-zinc-500 text-[10px] font-medium" style="line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.artist}</p>
+                        <img src="${item.albumArt}" class="w-12 h-12 rounded-lg shadow-md flex-shrink-0" crossOrigin="anonymous">
+                        <div class="flex-1 min-w-0">
+                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 3px;">
+                                <span class="font-bold text-[13px] text-white" style="line-height: 1.2;">${item.title}</span>
+                            </div>
+                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 2px;">
+                                <span class="text-zinc-500 text-[10px] font-medium" style="line-height: 1.2;">${item.artist}</span>
+                            </div>
                         </div>
-                        <div class="ml-auto text-zinc-800 font-black text-xl italic" style="opacity: 0.8">#${idx+1}</div>
+                        <div class="ml-2 text-zinc-800 font-black text-xl italic flex-shrink-0" style="opacity: 0.8">#${idx+1}</div>
                     </div>
                 `;
             });
@@ -265,11 +261,11 @@
                     html += `
                         <div class="glass-card p-3.5 flex items-center gap-4 border border-green-500/30 hover:border-green-500 transition ${animClass}" style="animation-delay: 0s">
                             <img src="${currentData.nowPlaying.albumArt}" class="w-12 h-12 rounded-md object-cover shadow-lg">
-                            <div class="flex-1 overflow-hidden">
+                            <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-sm text-green-400 truncate">${currentData.nowPlaying.title}</h3>
                                 <p class="text-[10px] text-zinc-400 truncate font-medium">${currentData.nowPlaying.artist}</p>
                             </div>
-                            <div class="waveform mr-2">
+                            <div class="waveform mr-2 flex-shrink-0">
                                 <div class="waveform-bar"></div><div class="waveform-bar"></div>
                                 <div class="waveform-bar"></div><div class="waveform-bar"></div>
                             </div>
@@ -280,12 +276,12 @@
                     if (currentData.nowPlaying && currentData.nowPlaying.title === t.title) return;
                     html += `
                         <div class="glass-card p-3.5 flex items-center gap-4 hover:border-zinc-600 transition ${animClass}" style="animation-delay: ${(i+1) * 0.05}s">
-                            <img src="${t.albumArt}" class="w-12 h-12 rounded-md object-cover">
-                            <div class="flex-1 overflow-hidden">
+                            <img src="${t.albumArt}" class="w-12 h-12 rounded-md object-cover flex-shrink-0">
+                            <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-sm text-zinc-200 truncate">${t.title}</h3>
                                 <p class="text-[10px] text-zinc-500 truncate font-medium">${t.artist}</p>
                             </div>
-                            <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mr-2 whitespace-nowrap">
+                            <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-bold flex-shrink-0 mr-2">
                                 ${formatRelativeTime(t.playedAt)}
                             </span>
                         </div>
