@@ -2,11 +2,10 @@ exports.handler = async (event) => {
     const { code } = event.queryStringParameters;
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    // URL Redirect ini harus didaftarkan di Spotify Dashboard!
     const redirectUri = 'https://novascatia.my.id/.netlify/functions/callback-tracker';
 
     const fetch = (await import('node-fetch')).default;
-
-    // Menggunakan pemecahan string agar link asli tidak disensor
     const tokenUrl = 'https://' + 'accounts.spotify.com/api/token';
 
     const response = await fetch(tokenUrl, {
@@ -20,6 +19,7 @@ exports.handler = async (event) => {
 
     const data = await response.json();
     
+    // REDIRECT KE HASHTAG (#), BUKAN QUERY (?) AGAR LEBIH AMAN DAN MUDAH DIBACA JS
     return {
         statusCode: 302,
         headers: {
