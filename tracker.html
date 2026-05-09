@@ -59,6 +59,8 @@
         .modal-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
+<body class="p-6 md:p-12 max-w-2xl mx-auto mb-20">
+
     <header class="mb-10 text-center mt-6 relative">
         <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-2 text-white">Rama's Account</h1>
         <p class="text-zinc-500 text-sm mb-6">Listening activity and Top tracks on Rama's account</p>
@@ -84,7 +86,7 @@
     </div>
 
     <div id="recent-list" class="flex flex-col gap-3"></div>
-    <div id="top-list" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden"></div>
+    <div id="top-list" class="grid grid-cols-2 sm:grid-cols-3 gap-4 hidden"></div>
 
     <div id="share-template">
         <img src="/logo.png" class="bg-logo-watermark">
@@ -159,7 +161,6 @@
                 items = currentData.top.slice(0, 5);
             }
 
-            // FIX: Struktur div baru agar html2canvas tidak error saat memotong text
             items.forEach((item, idx) => {
                 shareItemsCont.innerHTML += `
                     <div class="flex items-center gap-4 bg-[#161616] p-3.5 rounded-xl border border-zinc-800/50">
