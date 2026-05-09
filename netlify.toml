@@ -8,6 +8,12 @@
   force = true
 
 [[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+[[redirects]]
   from = "/admin"
   to = "/admin.html"
   status = 200
