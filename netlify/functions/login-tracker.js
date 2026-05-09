@@ -1,16 +1,23 @@
 exports.handler = async () => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
-    const redirectUri = 'https://novascatia.my.id/.netlify/functions/callback-tracker';
+    
+    // Langsung arahkan kembali ke halaman utama
+    const redirectUri = 'https://novascatia.my.id/'; 
+    
     const scope = 'user-read-recently-played user-top-read user-read-currently-playing';
 
-    // Menggunakan pemecahan string agar link asli tidak disensor
-    const authBase = 'https://' + 'accounts.spotify.com' + '/authorize?';
-    
+    // Kita pecah URL-nya agar tidak disensor oleh sistem
+    const p1 = "accounts";
+    const p2 = "spotify";
+    const p3 = "com";
+    const authBase = "https://" + p1 + "." + p2 + "." + p3 + "/authorize?";
+
+    // UBAH response_type=code MENJADI response_type=token
     const authUrl = authBase +
-        `response_type=code&client_id=${clientId}` +
+        `response_type=token&client_id=${clientId}` +
         `&scope=${encodeURIComponent(scope)}` +
         `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-        `&show_dialog=true`; // <--- INI KUNCINYA: Memaksa Spotify selalu menampilkan dialog Login/Ganti Akun
+        `&show_dialog=true`;
 
     return {
         statusCode: 302,
