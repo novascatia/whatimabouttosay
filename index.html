@@ -2,218 +2,488 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>novascatia.my.id</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novascatia - Digital Garden</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
     <style>
-        /* FIX: Mencegah overflow horizontal yang menyebabkan off-center di mobile */
-        html, body { 
-            overflow-x: hidden; 
-            width: 100%;
-            margin: 0;
-            padding: 0;
+        body { 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
             background-color: #0f0f0f; 
             color: #e5e5e5; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
+            overflow-x: hidden; 
         }
-
-        .reveal { opacity: 0; transform: translateY(20px); }
         
-        /* Post Styling */
-        .post-card { 
-            background: #1a1a1a; 
-            border: 1px solid #2d2d2d; 
-            border-radius: 20px; 
-            transition: all 0.3s ease; 
-            width: 100%;
-        }
-        .post-card:hover { border-color: #4a4a4a; transform: translateY(-4px); }
+        /* Glassmorphism Cards */
+        .glass-card { background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 16px; transition: 0.3s; }
+        .glass-card:hover { border-color: #3f3f46; }
 
-        /* Spotify Player Bar - Responsive */
-        .spotify-player-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
-            border-top: 1px solid #282828; padding: 0.75rem 1.5rem; display: flex;
-            align-items: center; justify-content: space-between; z-index: 999;
-            transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .spotify-player-bar.visible { transform: translateY(0); }
+        /* Tabs UI */
+        .nav-tab { color: #52525b; transition: all 0.3s; cursor: pointer; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem; padding-bottom: 8px; }
+        .nav-tab.active { color: #f0f0f0; border-bottom: 2px solid #f0f0f0; }
         
-        .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 4px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
+        .filter-btn { padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #71717a; border: 1px solid #2d2d2d; transition: all 0.2s; cursor: pointer; }
+        .filter-btn.active { background: #1ed760; color: #000; border-color: #1ed760; }
 
-        /* Toast Notification */
-        .toast-notification {
-            position: fixed; top: 20px; right: 20px;
-            background-color: #1a1a1a; border: 1px solid #333;
-            padding: 12px 20px; border-radius: 12px; z-index: 10000;
-            transform: translateX(150%); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .toast-notification.show { transform: translateX(0); }
+        /* Animasi */
+        .bounce-up { opacity: 0; transform: translateY(30px); animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes bounceIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* Container Custom untuk centering yang presisi */
-        .content-wrapper {
-            width: 100%;
-            max-width: 1024px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
+        .waveform { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
+        .waveform-bar { width: 3px; background-color: #1ed760; border-radius: 2px; animation: wave 1s infinite ease-in-out; }
+        .waveform-bar:nth-child(2) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.4s; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.6s; }
+        @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+
+        /* Share Template (Hidden) */
+        #share-template { position: absolute; left: -9999px; top: 0; width: 400px; padding: 40px 30px; background: #0f0f0f; border: 1px solid #2d2d2d; color: white; font-family: Arial, sans-serif; overflow: hidden; }
+        .bg-logo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 280px; opacity: 0.05; z-index: 0; pointer-events: none; filter: grayscale(1); object-fit: cover; border-radius: 50%; }
+        .share-content { position: relative; z-index: 10; }
+        .hidden { display: none !important; }
+        .modal-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
-<body class="py-8 md:py-12">
+<body class="p-6 md:p-12 max-w-5xl mx-auto mb-32">
 
-
-    <div class="content-wrapper">
-        <nav class="reveal flex justify-between items-center mb-16">
-            <div class="text-xl font-extrabold tracking-tighter text-white">nov4</div>
-            <div class="flex gap-6 md:gap-8 text-xs md:text-sm font-medium text-gray-400">
-                <a href="/spotify" class="hover:text-white transition">Spotify</a>
-                <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">Instagram</a>
-            </div>
-        </nav>
-
-        <header class="mb-20">
-            <h1 class="reveal text-4xl md:text-7xl font-extrabold tracking-tight leading-tight md:leading-[1.1] mb-6 text-white">
-                Hello there! <br class="md:hidden"> <span class="text-gray-500">Nova</span> di sini :3
-            </h1>
-            <p class="reveal text-gray-400 text-base md:text-xl max-w-2xl leading-relaxed">
-                digital notebook i created :D
-            </p>
-        </header>
-
-        <main>
-            <div class="reveal flex items-center justify-between mb-8">
-                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Posts</h2>
-                <div class="h-[1px] flex-grow ml-6 bg-zinc-800"></div>
-            </div>
+    <header class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-12 border-b border-zinc-800 pb-10">
+        <img src="/logo.png" alt="Profile" class="w-24 h-24 rounded-full border-2 border-zinc-700 shadow-xl object-cover">
+        <div class="text-center md:text-left">
+            <h1 class="text-3xl font-extrabold text-white tracking-tight mb-2">Rama</h1>
+            <p class="text-zinc-400 text-sm max-w-md">Welcome to my digital garden. A place where I drop my thoughts, notes, and what I'm listening to.</p>
             
-            <div id="postsList" class="grid grid-cols-1 gap-4 md:gap-6">
-                <p class="reveal text-gray-500 italic text-sm">Mengambil data dari server...</p>
-            </div>
-        </main>
-
-        <footer class="reveal mt-24 mb-32 pt-12 border-t border-zinc-800 flex justify-between items-center">
-            <div class="text-gray-500 text-[10px] uppercase tracking-widest font-bold">© 2026 Novascatia</div>
-            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]"></div>
-        </footer>
-    </div>
-
-    <div id="spotifyPlayer" class="spotify-player-bar">
-        <div class="flex items-center w-full md:w-[30%] overflow-hidden">
-            <img id="albumArt" src="" alt="" class="w-10 h-10 md:w-12 md:h-12 rounded-md mr-3 shadow-lg flex-shrink-0">
-            <div class="flex flex-col justify-center overflow-hidden">
-                <h3 id="songTitle" class="text-xs font-bold text-white truncate pr-2"></h3>
-                <p id="artistName" class="text-[10px] text-gray-400 truncate pr-2"></p>
+            <div class="flex gap-4 mt-4 justify-center md:justify-start">
+                <a href="https://instagram.com/grayalldayog" target="_blank" class="text-zinc-500 hover:text-white transition"><i class="fab fa-instagram text-xl"></i></a>
+                <a href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" class="text-zinc-500 hover:text-[#1ed760] transition"><i class="fab fa-spotify text-xl"></i></a>
             </div>
         </div>
+    </header>
 
-        <div class="hidden sm:flex flex-col items-center w-[40%] px-4">
-            <div class="text-[9px] text-[#1ed760] font-bold tracking-widest uppercase mb-1">Now Streaming</div>
-            <div class="flex items-center w-full gap-3 text-[9px] text-gray-400 font-mono">
-                <span id="currentTime">0:00</span>
-                <div class="progress-bar-bg flex-grow">
-                    <div id="progressBar" class="progress-bar-fill"></div>
+    <div class="flex justify-center md:justify-start gap-8 mb-8 border-b border-zinc-800">
+        <button onclick="switchMainTab('blog')" id="tab-blog" class="nav-tab active">📝 Notebook</button>
+        <button onclick="switchMainTab('tracker')" id="tab-tracker" class="nav-tab flex items-center gap-2"><i class="fab fa-spotify text-[#1ed760]"></i> My Stats</button>
+    </div>
+
+    <div id="blog-section">
+        <div id="posts-loader" class="text-center py-10 text-zinc-500 text-sm">
+            <i class="fas fa-circle-notch fa-spin text-[#1ed760] mr-2"></i> Fetching posts...
+        </div>
+        <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+            </div>
+    </div>
+
+    <div id="tracker-section" class="hidden">
+        
+        <div id="auth-section" class="flex flex-col items-center justify-center py-16 text-center bg-[#111] rounded-2xl border border-zinc-800">
+            <i class="fab fa-spotify text-5xl text-[#1ed760] mb-4"></i>
+            <h2 class="text-2xl font-black text-white mb-2">Discover Your Stats</h2>
+            <p class="text-zinc-400 text-xs mb-6 max-w-xs mx-auto">Login to see your realtime activity, top tracks, and generate your custom share card.</p>
+            <button onclick="loginSpotify()" class="bg-[#1ed760] text-black font-bold px-6 py-3 rounded-full hover:scale-105 transition shadow-lg text-xs tracking-widest uppercase">Connect Spotify</button>
+        </div>
+
+        <div id="stats-section" class="hidden">
+            <div class="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 bg-[#111] p-4 rounded-2xl border border-zinc-800">
+                <div class="flex items-center gap-4">
+                    <img id="user-profile-img" src="/logo.png" class="w-12 h-12 rounded-full object-cover">
+                    <div class="text-left">
+                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Logged in as</p>
+                        <h3 id="user-profile-name" class="text-white font-bold text-lg truncate max-w-[150px]">Someone</h3>
+                    </div>
                 </div>
-                <span id="totalTime">0:00</span>
+                <div class="flex gap-2">
+                    <button onclick="generateShareImage()" id="share-btn" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-2">
+                        <i class="fas fa-share-nodes"></i> SHARE
+                    </button>
+                    <button onclick="logoutSpotify()" class="text-zinc-500 hover:text-red-500 px-3 py-2 text-sm transition">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <div class="flex items-center justify-end md:w-[30%] flex-shrink-0 ml-2">
-            <i class="fab fa-spotify text-[#1ed760] text-xl"></i>
+            <div class="flex justify-center gap-6 mb-6">
+                <button onclick="switchTrackerTab('recent')" id="btn-recent" class="filter-btn active bg-transparent border-none text-zinc-500">RECENT</button>
+                <button onclick="switchTrackerTab('top')" id="btn-top" class="filter-btn bg-transparent border-none text-zinc-500">TOP TRACKS</button>
+            </div>
+
+            <div id="top-filters" class="flex justify-center gap-2 mb-6 hidden">
+                <button onclick="changeTimeRange('short_term')" id="filter-short_term" class="filter-btn active">4 Weeks</button>
+                <button onclick="changeTimeRange('medium_term')" id="filter-medium_term" class="filter-btn">6 Months</button>
+                <button onclick="changeTimeRange('long_term')" id="filter-long_term" class="filter-btn">All Time</button>
+            </div>
+
+            <div id="tracker-loader" class="text-center py-10 hidden">
+                <i class="fas fa-circle-notch fa-spin text-2xl text-[#1ed760]"></i>
+            </div>
+
+            <div id="recent-list" class="flex flex-col gap-3"></div>
+            <div id="top-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 hidden"></div>
         </div>
     </div>
+
+    <div id="share-template">
+        <img id="share-watermark" src="/logo.png" class="bg-logo-watermark" crossOrigin="anonymous">
+        <div class="share-content">
+            <div class="text-center mb-8">
+                <p class="text-[#1ed760] text-[10px] font-black uppercase tracking-[0.3em] mb-2">Spotify Stats</p>
+                <h2 id="share-title" class="text-2xl font-black">What someone been listening..</h2>
+                <p id="share-subtitle" class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest mt-1"></p>
+            </div>
+            <div id="share-items" class="flex flex-col gap-3"></div>
+            <div class="mt-12 pt-6 border-t border-zinc-800/50 text-center">
+                <p class="text-zinc-600 text-[9px] font-bold tracking-widest uppercase">novascatia.my.id</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="share-modal" class="fixed inset-0 bg-black/90 z-[9999] hidden flex-col items-center p-4 transition-opacity duration-300 opacity-0 backdrop-blur-md overflow-y-auto modal-scroll">
+        <div id="share-modal-content" class="relative max-w-sm w-full flex flex-col items-center transform scale-95 transition-transform duration-300 my-auto py-10">
+            <button onclick="closeModal()" class="absolute top-2 right-0 md:-right-6 bg-zinc-800 hover:bg-zinc-700 text-white w-10 h-10 rounded-full flex items-center justify-center transition shadow-lg z-50 border border-zinc-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <img id="share-preview" src="" alt="Preview" class="w-full max-w-[300px] max-h-[55vh] object-contain rounded-2xl shadow-2xl mb-6 border border-zinc-800">
+            <a id="download-link" href="#" download="my-stats.png" class="bg-[#1ed760] hover:bg-[#1db954] text-black font-black px-8 py-4 rounded-full flex items-center justify-center gap-3 transition transform hover:scale-105 shadow-[0_15px_30px_rgba(30,215,96,0.2)] w-full max-w-[280px] text-xs tracking-[0.15em] uppercase">
+                <i class="fas fa-download text-lg"></i> Download PNG
+            </a>
+        </div>
+    </div>
+
+    <div id="rama-player" class="fixed bottom-0 left-0 w-full bg-[#1a1a1a]/90 backdrop-blur border-t border-zinc-800 p-4 flex items-center justify-between z-50">
+        <div class="flex items-center gap-4">
+            <img id="rama-album-art" src="/logo.png" class="w-10 h-10 rounded shadow">
+            <div>
+                <p class="text-[10px] text-[#1ed760] font-bold uppercase tracking-widest mb-0.5">Rama is listening</p>
+                <h4 id="rama-song-title" class="text-sm font-bold text-white leading-tight">Loading...</h4>
+                <p id="rama-artist-name" class="text-xs text-zinc-400 truncate max-w-[150px] md:max-w-xs">...</p>
+            </div>
+        </div>
+    </div>
+
 
     <script>
-        // Animasi Pembuka
-        function triggerReveal() {
-            gsap.to(".reveal", {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: "power2.out"
-            });
+        // ==========================================
+        // 1. LOGIC MAIN TABS (BLOG vs TRACKER)
+        // ==========================================
+        function switchMainTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            document.getElementById('blog-section').classList.toggle('hidden', tab !== 'blog');
+            document.getElementById('tracker-section').classList.toggle('hidden', tab !== 'tracker');
+
+            if(tab === 'tracker') checkAuth(); // Jalankan logic tracker saat tab dibuka
         }
 
-        // Format Waktu ke Detik (Menit:Detik)
-        function formatTime(ms) {
-            const seconds = Math.floor((ms / 1000) % 60);
-            const minutes = Math.floor((ms / 1000 / 60) % 60);
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        // Fetch Postingan dari Supabase
-        async function fetchPosts() {
-            const container = document.getElementById('postsList');
+        // ==========================================
+        // 2. LOGIC FETCH BLOG POSTS (Fitur lama)
+        // ==========================================
+        async function loadPosts() {
             try {
-                const response = await fetch('/.netlify/functions/fetch-posts');
-                const posts = await response.json();
+                const res = await fetch('/.netlify/functions/fetch-posts');
+                const posts = await res.json();
+                const container = document.getElementById('posts-container');
+                const loader = document.getElementById('posts-loader');
                 
-                if (posts && posts.length > 0) {
-                    container.innerHTML = posts.map(post => `
-                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
-                            <div class="flex-1 overflow-hidden">
-                                <span class="text-[9px] md:text-[10px] text-zinc-600 uppercase tracking-[0.2em] mb-1 block">
-                                    ${new Date(post.created_at).toLocaleDateString('id-ID')}
-                                </span>
-                                <h3 class="text-lg md:text-xl font-bold group-hover:text-white transition italic truncate">
-                                    ${post.title}
-                                </h3>
-                            </div>
-                            <div class="text-zinc-700 group-hover:text-zinc-400 transition transform group-hover:translate-x-2 ml-4 flex-shrink-0">
-                                <i class="fas fa-chevron-right"></i>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = `<p class="text-gray-600 italic text-sm">Belum ada log yang tersedia.</p>`;
+                loader.classList.add('hidden');
+                container.classList.remove('hidden');
+
+                if(!posts || posts.length === 0) {
+                    container.innerHTML = '<p class="text-zinc-500 text-sm">No posts yet.</p>';
+                    return;
                 }
+
+                container.innerHTML = posts.map(post => `
+                    <a href="/post?id=${post.id}" class="glass-card p-5 hover:border-zinc-500 block">
+                        <span class="text-[10px] text-[#1ed760] font-bold uppercase tracking-widest">${new Date(post.created_at).toLocaleDateString()}</span>
+                        <h3 class="text-xl font-bold text-white mt-1 mb-2 truncate">${post.title}</h3>
+                        <p class="text-sm text-zinc-400 line-clamp-3">${post.content.replace(/<[^>]+>/g, '')}</p>
+                    </a>
+                `).join('');
             } catch (e) {
-                container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat data.</p>`;
+                document.getElementById('posts-loader').innerHTML = 'Failed to load posts.';
             }
-            triggerReveal();
         }
 
-        // Spotify Listening Logic
-        async function fetchNowPlaying() {
-            try {
-                const response = await fetch('/.netlify/functions/now-playing');
-                const data = await response.json();
-                const player = document.getElementById('spotifyPlayer');
+        // ==========================================
+        // 3. TRACKER AUTHENTICATION (IMPLICIT FLOW)
+        // ==========================================
+        const CLIENT_ID = 'ISI_DENGAN_CLIENT_ID_SPOTIFY_KAMU'; 
+        const REDIRECT_URI = window.location.origin + window.location.pathname; 
+        const SCOPES = 'user-read-recently-played user-top-read user-read-currently-playing';
 
-                if (data.isPlaying) {
-                    document.getElementById('songTitle').textContent = data.title;
-                    document.getElementById('artistName').textContent = data.artist;
-                    document.getElementById('albumArt').src = data.albumArt;
-                    document.getElementById('progressBar').style.width = `${(data.progress / data.duration) * 100}%`;
-                    document.getElementById('currentTime').textContent = formatTime(data.progress);
-                    document.getElementById('totalTime').textContent = formatTime(data.duration);
-                    player.classList.add('visible');
-                } else {
-                    player.classList.remove('visible');
-                }
-            } catch (e) {}
+        function loginSpotify() {
+            const authUrl = `https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=104{CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
+            window.location.href = authUrl;
         }
 
-        // Initialize
-        window.onload = () => {
-            fetchPosts();
-            setInterval(fetchNowPlaying, 1000);
+        function logoutSpotify() {
+            localStorage.removeItem('spotify_user_token');
+            window.location.reload();
+        }
 
-            // Toast Notification Logic
-            const toast = document.getElementById('redirectToast');
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 2500);
+        function checkAuth() {
+            // Tangkap token dari URL jika baru kembali dari login
+            const hash = window.location.hash;
+            if (hash.includes('access_token')) {
+                const urlParams = new URLSearchParams(hash.substring(1));
+                const token = urlParams.get('access_token');
+                localStorage.setItem('spotify_user_token', token);
+                window.location.hash = ''; // Bersihkan URL agar rapi
+                switchMainTab('tracker'); // Tetap di tab tracker
+            }
 
-            toast.addEventListener('click', () => {
-                window.location.href = '/date';
+            const token = localStorage.getItem('spotify_user_token');
+            if (token) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('stats-section').classList.remove('hidden');
+                initTrackerApp(token);
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('stats-section').classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // 4. TRACKER FETCHING & RENDERING
+        // ==========================================
+        let currentTrackerTab = 'recent';
+        let currentTimeRange = 'short_term';
+        let trackerData = { recent: [], top: [], nowPlaying: null };
+        let userProfile = { name: "Someone", image: "/logo.png" };
+        let trackerInterval;
+
+        async function fetchSpotifyAPI(endpoint, token) {
+            const res = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=105{endpoint}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (res.status === 401) { logoutSpotify(); return null; } // Token Expired (habis 1 jam)
+            if (res.status === 204) return null; 
+            return await res.json();
+        }
+
+        async function initTrackerApp(token) {
+            // Setup Profil User
+            const profile = await fetchSpotifyAPI('me', token);
+            if (profile) {
+                userProfile.name = profile.display_name || 'User';
+                if (profile.images && profile.images.length > 0) userProfile.image = profile.images[0].url;
+                
+                document.getElementById('user-profile-name').innerText = userProfile.name;
+                document.getElementById('user-profile-img').src = userProfile.image;
+                document.getElementById('share-title').innerText = `What ${userProfile.name} been listening..`;
+                document.getElementById('share-watermark').src = userProfile.image;
+            }
+
+            fetchTrackerData();
+            if(trackerInterval) clearInterval(trackerInterval);
+            trackerInterval = setInterval(fetchTrackerData, 15000); // Auto-refresh data user
+        }
+
+        async function fetchTrackerData() {
+            const token = localStorage.getItem('spotify_user_token');
+            if(!token) return;
+
+            document.getElementById('tracker-loader').classList.remove('hidden');
+            
+            try {
+                const [nowPlayingRes, recentRes, topRes] = await Promise.all([
+                    fetchSpotifyAPI('me/player/currently-playing', token),
+                    fetchSpotifyAPI('me/player/recently-played?limit=20', token),
+                    fetchSpotifyAPI(`me/top/tracks?time_range=${currentTimeRange}&limit=20`, token)
+                ]);
+
+                if (nowPlayingRes && nowPlayingRes.is_playing) {
+                    trackerData.nowPlaying = {
+                        isPlaying: true, title: nowPlayingRes.item.name,
+                        artist: nowPlayingRes.item.artists.map(a => a.name).join(', '),
+                        albumArt: nowPlayingRes.item.album.images[0].url, url: nowPlayingRes.item.external_urls.spotify
+                    };
+                } else trackerData.nowPlaying = null;
+
+                if (recentRes && recentRes.items) {
+                    trackerData.recent = recentRes.items.map(item => ({
+                        title: item.track.name, artist: item.track.artists.map(a => a.name).join(', '),
+                        albumArt: item.track.album.images[0].url, playedAt: item.played_at, url: item.track.external_urls.spotify
+                    }));
+                }
+
+                if (topRes && topRes.items) {
+                    trackerData.top = topRes.items.map(track => ({
+                        title: track.name, artist: track.artists.map(a => a.name).join(', '),
+                        albumArt: track.album.images[0].url, url: track.external_urls.spotify
+                    }));
+                }
+                renderTrackerUI();
+            } catch (e) { console.error(e); }
+        }
+
+        function switchTrackerTab(tab) {
+            currentTrackerTab = tab;
+            document.getElementById('btn-recent').classList.toggle('text-[#1ed760]', tab === 'recent');
+            document.getElementById('btn-recent').classList.toggle('text-zinc-500', tab !== 'recent');
+            document.getElementById('btn-top').classList.toggle('text-[#1ed760]', tab === 'top');
+            document.getElementById('btn-top').classList.toggle('text-zinc-500', tab !== 'top');
+            
+            document.getElementById('recent-list').classList.toggle('hidden', tab !== 'recent');
+            document.getElementById('top-list').classList.toggle('hidden', tab !== 'top');
+            document.getElementById('top-filters').classList.toggle('hidden', tab !== 'top');
+            renderTrackerUI();
+        }
+
+        function changeTimeRange(range) {
+            currentTimeRange = range;
+            document.querySelectorAll('#top-filters .filter-btn').forEach(b => b.classList.remove('active', 'text-black', 'bg-[#1ed760]'));
+            const activeBtn = document.getElementById('filter-' + range);
+            activeBtn.classList.add('active');
+            activeBtn.style.color = '#000';
+            
+            document.getElementById('top-list').innerHTML = ''; 
+            fetchTrackerData();
+        }
+
+        function formatRelativeTime(dateString) {
+            const diffMins = Math.floor((new Date() - new Date(dateString)) / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffMins < 1) return "Baru saja";
+            if (diffMins < 60) return `${diffMins} mnt lalu`;
+            if (diffHours < 24) return `${diffHours} jam lalu`;
+            if (Math.floor(diffHours / 24) === 1) return "Kemarin";
+            return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+        }
+
+        function renderTrackerUI() {
+            document.getElementById('tracker-loader').classList.add('hidden');
+            if (currentTrackerTab === 'recent') {
+                const cont = document.getElementById('recent-list');
+                let html = '';
+                if (trackerData.nowPlaying && trackerData.nowPlaying.isPlaying) {
+                    html += `
+                        <a href="${trackerData.nowPlaying.url}" target="_blank" class="glass-card p-3 flex items-center gap-4 border border-green-500/50 hover:border-green-500 transition bounce-up">
+                            <img src="${trackerData.nowPlaying.albumArt}" class="w-12 h-12 rounded-md object-cover shadow-lg">
+                            <div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-green-400 truncate">${trackerData.nowPlaying.title}</h3><p class="text-[10px] text-zinc-400 truncate">${trackerData.nowPlaying.artist}</p></div>
+                            <div class="waveform mr-2 flex-shrink-0"><div class="waveform-bar"></div><div class="waveform-bar"></div><div class="waveform-bar"></div><div class="waveform-bar"></div></div>
+                        </a>
+                    `;
+                }
+                trackerData.recent.forEach((t, i) => {
+                    if (trackerData.nowPlaying && trackerData.nowPlaying.title === t.title) return;
+                    html += `
+                        <a href="${t.url}" target="_blank" class="glass-card p-3 flex items-center gap-4 hover:border-zinc-500 transition bounce-up" style="animation-delay: ${(i+1)*0.05}s">
+                            <img src="${t.albumArt}" class="w-12 h-12 rounded-md object-cover flex-shrink-0">
+                            <div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-zinc-200 truncate">${t.title}</h3><p class="text-[10px] text-zinc-500 truncate">${t.artist}</p></div>
+                            <span class="text-[9px] text-zinc-500 uppercase font-bold flex-shrink-0">${formatRelativeTime(t.playedAt)}</span>
+                        </a>
+                    `;
+                });
+                cont.innerHTML = html;
+            } else {
+                const cont = document.getElementById('top-list');
+                let html = '';
+                trackerData.top.forEach((t, i) => {
+                    html += `
+                        <a href="${t.url}" target="_blank" class="glass-card p-3 relative group hover:border-green-500 transition block bounce-up" style="animation-delay: ${i*0.05}s">
+                            <div class="absolute -top-2 -left-2 bg-zinc-800 text-white w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-bold shadow-lg z-10">#${i+1}</div>
+                            <img src="${t.albumArt}" class="w-full aspect-square rounded-xl mb-2 object-cover">
+                            <h3 class="text-xs font-bold text-zinc-200 truncate mb-0.5">${t.title}</h3>
+                            <p class="text-[9px] text-zinc-500 truncate">${t.artist}</p>
+                        </a>
+                    `;
+                });
+                cont.innerHTML = html;
+            }
+        }
+
+        // ==========================================
+        // 5. LOGIC GENERATE SHARE PNG
+        // ==========================================
+        function generateShareImage() {
+            const btn = document.getElementById('share-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            const shareItemsCont = document.getElementById('share-items');
+            const shareSubtitle = document.getElementById('share-subtitle');
+            shareItemsCont.innerHTML = '';
+
+            let items = [];
+            if (currentTrackerTab === 'recent') {
+                shareSubtitle.innerText = "Recently Played";
+                if(trackerData.nowPlaying && trackerData.nowPlaying.isPlaying) items.push(trackerData.nowPlaying);
+                items = [...items, ...trackerData.recent].slice(0, 5);
+            } else {
+                const labels = { short_term: "Last Month", medium_term: "Last 6 Months", long_term: "All Time" };
+                shareSubtitle.innerText = "Top Tracks " + labels[currentTimeRange];
+                items = trackerData.top.slice(0, 5);
+            }
+
+            items.forEach((item, idx) => {
+                shareItemsCont.innerHTML += `
+                    <div class="flex items-center gap-4 bg-[#161616] p-3.5 rounded-xl border border-zinc-800/50">
+                        <img src="${item.albumArt}" class="w-12 h-12 rounded-lg flex-shrink-0" crossOrigin="anonymous">
+                        <div class="flex-1 min-w-0">
+                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 2px;"><span class="font-bold text-[13px] text-white">${item.title}</span></div>
+                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><span class="text-zinc-500 text-[10px] font-medium">${item.artist}</span></div>
+                        </div>
+                        <div class="ml-2 text-zinc-800 font-black text-xl italic">#${idx+1}</div>
+                    </div>
+                `;
+            });
+
+            setTimeout(() => {
+                html2canvas(document.querySelector("#share-template"), { backgroundColor: "#0f0f0f", useCORS: true, scale: 3, logging: false }).then(canvas => {
+                    document.getElementById('share-preview').src = canvas.toDataURL("image/png");
+                    document.getElementById('download-link').href = canvas.toDataURL("image/png");
+                    btn.innerHTML = '<i class="fas fa-share-nodes"></i> SHARE';
+                    btn.disabled = false;
+
+                    const modal = document.getElementById('share-modal');
+                    modal.classList.remove('hidden'); modal.classList.add('flex');
+                    setTimeout(() => { modal.classList.remove('opacity-0'); modal.classList.add('opacity-100'); }, 10);
+                });
+            }, 600);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('share-modal');
+            modal.classList.remove('opacity-100'); modal.classList.add('opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        // ==========================================
+        // 6. BOTTOM PLAYER RAMA (Backend Now Playing)
+        // ==========================================
+        async function loadRamaStatus() {
+            try {
+                const res = await fetch('/.netlify/functions/now-playing');
+                const data = await res.json();
+                if(data.isPlaying) {
+                    document.getElementById('rama-song-title').innerText = data.title;
+                    document.getElementById('rama-artist-name').innerText = data.artist;
+                    document.getElementById('rama-album-art').src = data.albumArt;
+                } else {
+                    document.getElementById('rama-song-title').innerText = "Doing something else..";
+                    document.getElementById('rama-artist-name').innerText = "Not playing anything right now";
+                }
+            } catch (e) { console.error("Error loading Rama status"); }
+        }
+
+        // ==========================================
+        // INISIALISASI HALAMAN
+        // ==========================================
+        window.onload = () => {
+            loadPosts();       // Load postingan blog kamu
+            loadRamaStatus();  // Load player Rama di bawah
+            setInterval(loadRamaStatus, 15000);
+
+            // Jika URL ada hash access token, otomatis pindah ke Tab Tracker
+            if (window.location.hash.includes('access_token')) {
+                checkAuth();
+            }
         };
+
     </script>
 </body>
 </html>
