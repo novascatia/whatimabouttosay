@@ -31,14 +31,15 @@
             font-family: var(--font-main);
             background-color: var(--bg-color);
             color: var(--text-color);
-            height: 100vh;
             width: 100vw;
-            overflow: hidden; /* Fix layout shifting */
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto; /* Allows scrolling on very small screens instead of overlapping */
         }
 
         /* Blur Background */
         #albumArtBackground {
-            position: absolute;
+            position: fixed;
             top: -5%;
             left: -5%;
             width: 110%;
@@ -50,33 +51,64 @@
             transition: background-image 1s ease-in-out;
         }
 
-        /* --- PLAYING UI --- */
-        .main-ui {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* --- STRUCTURAL LAYOUT --- */
+        .main-layout {
+            position: relative;
             z-index: 10;
-            opacity: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 40px 60px;
+            opacity: 0;
             transition: opacity 0.5s ease;
         }
 
-        /* PC Layout: Album Centered */
-        .album-wrapper {
+        .main-layout.visible {
+            opacity: 1;
+        }
+
+        /* Top Center: Album Area */
+        .album-section {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            height: 100%;
+            min-height: 300px;
+            margin-bottom: 40px;
         }
 
-        /* 3D Peel Effect Container */
+        /* Top Center: Not Playing Message */
+        .message-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Bottom Row: Info (Left) & Socials (Right) */
+        .bottom-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            gap: 30px;
+        }
+
+        .bottom-bar.center-socials {
+            justify-content: center;
+        }
+
+        /* --- 3D ALBUM ART --- */
         .album-container {
             position: relative;
-            width: 450px;
-            height: 450px;
-            perspective: 1500px; /* Enable 3D space */
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 1 / 1; /* Keeps art perfectly square regardless of image dims */
+            perspective: 1500px;
         }
 
         .album-art {
@@ -94,7 +126,6 @@
         .new-art { z-index: 1; }
         .current-art { z-index: 2; }
         
-        /* The Peeling Animation */
         .peel-off {
             z-index: 3;
             animation: peelAnim 1.2s cubic-bezier(0.3, 0.0, 0.2, 1) forwards;
@@ -105,18 +136,14 @@
             100% { transform: rotateY(-110deg) scale(1.1) translateX(-30px); opacity: 0; filter: drop-shadow(20px 20px 20px rgba(0,0,0,0.5)); }
         }
 
-        /* PC Layout: Info Bottom Left */
+        /* --- INFO SECTION (Left Side PC) --- */
         .info-section {
-            position: absolute;
-            bottom: 60px;
-            left: 60px;
             width: 450px;
-            z-index: 20;
-            text-align: left;
+            max-width: 100%;
         }
 
         .song-title {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
             color: var(--text-color);
             margin: 0 0 5px 0;
@@ -133,10 +160,8 @@
             font-weight: 400;
         }
 
-        /* Progress Bar & Timestamp */
-        .progress-area {
-            width: 100%;
-        }
+        /* Progress Bar */
+        .progress-area { width: 100%; }
 
         .progress-bar-container {
             width: 100%;
@@ -150,7 +175,6 @@
             height: 100%;
             background-color: var(--spotify-green);
             width: 0%;
-            /* Transition updated via JS for smooth rewind */
         }
 
         .time-display {
@@ -183,38 +207,7 @@
         .controls .play-btn i { font-size: 3rem; color: var(--spotify-green); }
         .controls .play-btn i:hover { color: #1aae55; }
 
-        /* Socials Container */
-        .socials-section {
-            position: absolute;
-            bottom: 60px;
-            right: 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 15px;
-            z-index: 20;
-        }
-
-        .social-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--secondary-color);
-            text-decoration: none;
-            font-size: 0.95em;
-            transition: color 0.3s;
-        }
-        .social-link:hover { color: var(--primary-color); }
-
         /* --- NOT PLAYING UI --- */
-        .not-playing-ui {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 30;
-        }
-
         .not-playing-title {
             font-size: 1.8em;
             font-weight: 700;
@@ -234,48 +227,67 @@
         }
         .connect-button a:hover { background-color: #1aae55; }
 
-        .hidden { display: none !important; opacity: 0; pointer-events: none; }
+        /* --- SOCIALS (Right Side PC / Bottom Mobile) --- */
+        .socials-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.3s;
+        }
+        .social-link:hover { color: var(--primary-color); }
+
+        .hidden { display: none !important; }
 
         /* --- ANDROID / MOBILE RESPONSIVE --- */
         @media (max-width: 850px) {
-            .main-ui {
-                flex-direction: column;
-                justify-content: center;
-                padding: 30px;
+            .main-layout {
+                padding: 30px 25px;
+                justify-content: flex-start; /* Stacks everything top-down */
             }
 
-            .album-wrapper {
-                height: auto;
-                margin-bottom: 40px;
+            .album-section {
+                margin-bottom: 30px;
+                min-height: unset;
             }
 
             .album-container {
                 width: 80vw;
-                height: 80vw;
                 max-width: 350px;
-                max-height: 350px;
+            }
+
+            .bottom-bar {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 45px;
+                margin-top: auto; /* Pushes bottom-bar (and socials inside it) to the very bottom */
             }
 
             .info-section {
-                position: relative;
-                bottom: auto; left: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
                 width: 100%;
-                max-width: 400px;
-                text-align: center; /* Center text on mobile */
             }
 
-            .song-title { font-size: 2rem; }
-
             .controls {
-                justify-content: center; /* Center controls on mobile */
+                justify-content: center;
             }
 
             .socials-section {
-                position: relative;
-                bottom: auto; right: auto;
-                align-items: center; /* Center socials */
-                margin-top: 40px;
+                align-items: center; /* Centers social items on mobile */
                 width: 100%;
+                margin-bottom: 20px;
             }
         }
     </style>
@@ -284,64 +296,70 @@
     
     <div id="albumArtBackground"></div>
 
-    <!-- PLAYING STATE -->
-    <div id="mainUI" class="main-ui hidden">
+    <div id="mainLayout" class="main-layout">
         
-        <div class="album-wrapper">
+        <!-- DYNAMIC TOP SECTION -->
+        <div id="albumSection" class="album-section hidden">
             <div id="albumContainer" class="album-container">
-                <!-- JS will inject album art here for peel effect -->
+                <!-- JS handles album art injection for peel effect -->
             </div>
         </div>
 
-        <div class="info-section">
-            <h2 id="songTitle" class="song-title">Loading...</h2>
-            <p id="artistName" class="artist-name">Loading...</p>
+        <div id="messageSection" class="message-section">
+            <h1 id="listeningText" class="not-playing-title">Loading...</h1>
+            <div id="connectButton" class="connect-button hidden">
+                <a href="/.netlify/functions/login-spotify">Connect to Spotify</a>
+            </div>
+        </div>
+
+        <!-- ALWAYS AT BOTTOM -->
+        <div id="bottomBar" class="bottom-bar">
             
-            <div class="progress-area">
-                <div class="progress-bar-container">
-                    <div id="progressBar" class="progress-bar"></div>
+            <div id="infoSection" class="info-section hidden">
+                <h2 id="songTitle" class="song-title">Loading...</h2>
+                <p id="artistName" class="artist-name">Loading...</p>
+                
+                <div class="progress-area">
+                    <div class="progress-bar-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
                 </div>
-                <div class="time-display">
-                    <span id="currentTime">0:00</span>
-                    <span id="totalTime">0:00</span>
+
+                <div class="controls">
+                    <i class="fas fa-backward"></i>
+                    <span class="play-btn">
+                        <i id="playPauseIcon" class="fas fa-pause"></i>
+                    </span>
+                    <i class="fas fa-forward"></i>
                 </div>
             </div>
 
-            <div class="controls">
-                <i class="fas fa-backward"></i>
-                <span class="play-btn">
-                    <i id="playPauseIcon" class="fas fa-pause"></i>
-                </span>
-                <i class="fas fa-forward"></i>
+            <div class="socials-section">
+                <a id="spotifyLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" class="social-link">
+                    <i class="fab fa-spotify"></i>
+                    <span id="spotifyLinkText">Follow my Spotify!</span>
+                </a>
+                
+                <a id="instagramLink" href="https://instagram.com/grayalldayog" target="_blank" rel="noopener noreferrer" class="social-link">
+                    <i class="fab fa-instagram"></i>
+                    <span id="instagramLinkText">Hit me up on Instagram!</span>
+                </a>
             </div>
+
         </div>
-
-    </div>
-
-    <!-- NOT PLAYING / ERROR STATE -->
-    <div id="notPlayingUI" class="not-playing-ui">
-        <h1 id="listeningText" class="not-playing-title">Loading...</h1>
-        <div id="connectButton" class="connect-button hidden">
-            <a href="/.netlify/functions/login-spotify">Connect to Spotify</a>
-        </div>
-    </div>
-
-    <!-- SOCIALS (Always visible, adjusted positioning) -->
-    <div id="socialsSection" class="socials-section hidden">
-        <a id="spotifyLink" href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=2238a3ccbb1545a2" target="_blank" rel="noopener noreferrer" class="social-link">
-            <i class="fab fa-spotify"></i>
-            <span id="spotifyLinkText">Follow my Spotify!</span>
-        </a>
-        
-        <a id="instagramLink" href="https://instagram.com/grayalldayog" target="_blank" rel="noopener noreferrer" class="social-link">
-            <i class="fab fa-instagram"></i>
-            <span id="instagramLinkText">Hit me up on Instagram!</span>
-        </a>
     </div>
 
     <script>
-        const mainUI = document.getElementById('mainUI');
-        const notPlayingUI = document.getElementById('notPlayingUI');
+        const mainLayout = document.getElementById('mainLayout');
+        const albumSection = document.getElementById('albumSection');
+        const messageSection = document.getElementById('messageSection');
+        const bottomBar = document.getElementById('bottomBar');
+        const infoSection = document.getElementById('infoSection');
+        
         const listeningText = document.getElementById('listeningText');
         const albumContainer = document.getElementById('albumContainer');
         const albumArtBackground = document.getElementById('albumArtBackground');
@@ -350,7 +368,6 @@
         const progressBar = document.getElementById('progressBar');
         const currentTimeElement = document.getElementById('currentTime');
         const totalTimeElement = document.getElementById('totalTime');
-        const socialsSection = document.getElementById('socialsSection');
         const spotifyLinkText = document.getElementById('spotifyLinkText');
         const instagramLinkText = document.getElementById('instagramLinkText');
         const connectButton = document.getElementById('connectButton');
@@ -366,33 +383,27 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        // --- 1. PEELING OFF ANIMATION LOGIC ---
+        // --- PEELING OFF ANIMATION ---
         function triggerPeelOff(newUrl) {
             const currentArt = albumContainer.querySelector('.current-art');
             
-            // Initial load
             if (!currentArt) {
                 albumContainer.innerHTML = `<img src="${newUrl}" class="album-art current-art">`;
                 albumArtBackground.style.backgroundImage = `url('${newUrl}')`;
                 return;
             }
 
-            // Don't peel if it's the exact same image
             if (currentArt.src === newUrl) return;
 
-            // Create new art behind the current one
             const newArt = document.createElement('img');
             newArt.src = newUrl;
             newArt.className = 'album-art new-art';
             albumContainer.appendChild(newArt);
 
-            // Trigger peel off animation on old art
             currentArt.classList.remove('current-art');
             currentArt.classList.add('peel-off');
-
             albumArtBackground.style.backgroundImage = `url('${newUrl}')`;
 
-            // Cleanup DOM after animation completes
             setTimeout(() => {
                 if (currentArt.parentNode) currentArt.parentNode.removeChild(currentArt);
                 newArt.classList.remove('new-art');
@@ -400,23 +411,20 @@
             }, 1200); 
         }
 
-        // --- 2. BACKWARD TIMESTAMP/PROGRESS ANIMATION LOGIC ---
+        // --- BACKWARD TIMESTAMP ANIMATION ---
         async function performRewind(startMs) {
             isRewinding = true;
-
-            // Smooth transition for progress bar backwards
             progressBar.style.transition = 'width 1s cubic-bezier(0.25, 1, 0.5, 1)';
             progressBar.style.width = '0%';
 
             let startTime = performance.now();
-            const duration = 1000; // Rewind takes 1 second
+            const duration = 1000; 
 
             return new Promise(resolve => {
                 function updateNumber(time) {
                     let elapsed = time - startTime;
                     let progress = Math.min(elapsed / duration, 1);
                     
-                    // Ease out effect for the numbers rewinding
                     let ease = 1 - Math.pow(1 - progress, 3);
                     let currentMs = startMs - (startMs * ease);
 
@@ -426,7 +434,7 @@
                         requestAnimationFrame(updateNumber);
                     } else {
                         isRewinding = false;
-                        progressBar.style.transition = 'width 1s linear'; // Restore normal forward transition
+                        progressBar.style.transition = 'width 1s linear'; 
                         resolve();
                     }
                 }
@@ -434,15 +442,69 @@
             });
         }
 
-        // --- 3. FETCH & STATE MANAGEMENT ---
+        // --- UI STATE MANAGEMENT ---
+        function updatePlayingUI(data) {
+            mainLayout.classList.add('visible');
+            albumSection.classList.remove('hidden');
+            infoSection.classList.remove('hidden');
+            messageSection.classList.add('hidden');
+            bottomBar.classList.remove('center-socials');
+            connectButton.classList.add('hidden');
+
+            songTitle.textContent = data.title;
+            artistName.textContent = data.artist;
+
+            lastProgressMs = data.progress;
+            const progressPercent = (data.progress / data.duration) * 100;
+
+            progressBar.style.transition = 'width 1s linear';
+            progressBar.style.width = `${progressPercent}%`;
+
+            currentTimeElement.textContent = formatTime(data.progress);
+            totalTimeElement.textContent = formatTime(data.duration);
+
+            spotifyLinkText.textContent = 'Follow my Spotify!';
+            instagramLinkText.textContent = 'Hit me up on Instagram!';
+        }
+
+        function showNotPlayingState() {
+            mainLayout.classList.add('visible');
+            albumSection.classList.add('hidden');
+            infoSection.classList.add('hidden');
+            messageSection.classList.remove('hidden');
+            bottomBar.classList.add('center-socials'); 
+
+            albumArtBackground.style.backgroundImage = 'none';
+            listeningText.textContent = 'Rama is doing something else..';
+            listeningText.style.color = 'var(--text-color)';
+            connectButton.classList.add('hidden');
+
+            spotifyLinkText.textContent = 'But still you can stalk my spotify!';
+            instagramLinkText.textContent = 'Maybe im active here? idk';
+
+            currentSongId = null; 
+        }
+
+        function showErrorState() {
+            mainLayout.classList.add('visible');
+            albumSection.classList.add('hidden');
+            infoSection.classList.add('hidden');
+            messageSection.classList.remove('hidden');
+            bottomBar.classList.add('center-socials');
+
+            albumArtBackground.style.backgroundImage = 'none';
+            listeningText.textContent = 'ERROR: Admin connection required.';
+            listeningText.style.color = '#ff4d4d';
+            connectButton.classList.remove('hidden');
+        }
+
+        // --- FETCH DATA ---
         async function fetchNowPlaying() {
-            if (isRewinding) return; // Prevent conflicting UI updates while rewinding
+            if (isRewinding) return;
 
             try {
                 const response = await fetch('/.netlify/functions/now-playing');
                 const data = await response.json();
-
-                socialsSection.classList.remove('hidden');
 
                 if (data.error) {
                     showErrorState();
@@ -452,7 +514,6 @@
                 if (data.isPlaying) {
                     const newSongId = `${data.title}-${data.artist}`;
 
-                    // Detect Song Change or Loop Back
                     if (currentSongId && currentSongId !== newSongId) {
                         triggerPeelOff(data.albumArt);
                         await performRewind(lastProgressMs);
@@ -461,7 +522,6 @@
                         triggerPeelOff(data.albumArt);
                         currentSongId = newSongId;
                     } else if (data.progress < lastProgressMs - 3000) {
-                        // Triggers if song is placed on repeat and drops back to 0
                         await performRewind(lastProgressMs);
                     }
 
@@ -476,54 +536,6 @@
             }
         }
 
-        function updatePlayingUI(data) {
-            mainUI.classList.remove('hidden');
-            notPlayingUI.classList.add('hidden');
-            connectButton.classList.add('hidden');
-
-            songTitle.textContent = data.title;
-            artistName.textContent = data.artist;
-
-            lastProgressMs = data.progress;
-            const progressPercent = (data.progress / data.duration) * 100;
-
-            // Standard forward progression
-            progressBar.style.transition = 'width 1s linear';
-            progressBar.style.width = `${progressPercent}%`;
-
-            currentTimeElement.textContent = formatTime(data.progress);
-            totalTimeElement.textContent = formatTime(data.duration);
-
-            spotifyLinkText.textContent = 'Follow my Spotify!';
-            instagramLinkText.textContent = 'Hit me up on Instagram!';
-        }
-
-        function showNotPlayingState() {
-            mainUI.classList.add('hidden');
-            notPlayingUI.classList.remove('hidden');
-            albumArtBackground.style.backgroundImage = 'none';
-
-            listeningText.textContent = 'Rama is doing something else..';
-            listeningText.style.color = 'var(--text-color)';
-            connectButton.classList.add('hidden');
-
-            spotifyLinkText.textContent = 'But still you can stalk my spotify!';
-            instagramLinkText.textContent = 'Maybe im active here? idk';
-
-            currentSongId = null; // Reset so peeling triggers again next session
-        }
-
-        function showErrorState() {
-            mainUI.classList.add('hidden');
-            notPlayingUI.classList.remove('hidden');
-            albumArtBackground.style.backgroundImage = 'none';
-
-            listeningText.textContent = 'ERROR: Admin connection required.';
-            listeningText.style.color = '#ff4d4d';
-            connectButton.classList.remove('hidden');
-        }
-
-        // Initialize and set interval
         fetchNowPlaying();
         setInterval(fetchNowPlaying, 1000); 
     </script>
