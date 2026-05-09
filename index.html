@@ -130,10 +130,9 @@
             window.location.href = "/"; 
         }
 
-        // FUNGSI UNTUK MERAPIKAN URL
         function beautifyURL(username) {
-            const cleanName = username.toLowerCase().replace(/\s+/g, '');
-            // Mengubah URL jadi novascatia.my.id/username tanpa reload
+            // Hanya sisipkan huruf dan angka, hapus spasi dan karakter aneh (+)
+            const cleanName = username.toLowerCase().replace(/[^a-z0-9]/g, '');
             window.history.replaceState({}, document.title, "/" + cleanName);
         }
 
