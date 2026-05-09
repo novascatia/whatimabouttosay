@@ -5,7 +5,7 @@ exports.handler = async (event) => {
     const supabaseKey = process.env.SUPABASE_KEY;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Ambil Refresh Token
+    // 1. Ambil Refresh Token
     const { data, error } = await supabase
         .from('spotify_tokens')
         .select('refresh_token')
@@ -18,7 +18,7 @@ exports.handler = async (event) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-    // Refresh Token
+    // 2. Refresh Token menggunakan API asli Spotify
     const fetch = (await import('node-fetch')).default;
     const refreshResponse = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
@@ -34,12 +34,13 @@ exports.handler = async (event) => {
     // Dapatkan filter waktu dari URL (default: short_term / 4 minggu)
     const timeRange = event.queryStringParameters?.time_range || 'short_term';
 
-    // Ambil Data (Recent & Top Tracks sesuai time range)
+    // 3. Ambil Data (Recent & Top Tracks)
     const [recentRes, topTracksRes] = await Promise.all([
-        fetch('https://api.spotify.com/v1/me/player/recently-played?limit=10?limit=30', {
+        fetch('https://api.spotify.com/v1/me/player/recently-played?limit=20', {
             headers: { 'Authorization': `Bearer ${access_token}` }
         }),
-        fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10?time_range=${timeRange}&limit=20`, {
+        // URL API ini yang sebelumnya typo, sekarang sudah diperbaiki:
+        fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=20`, {
             headers: { 'Authorization': `Bearer ${access_token}` }
         })
     ]);
@@ -49,6 +50,7 @@ exports.handler = async (event) => {
 
     return {
         statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             recent: recentData.items ? recentData.items.map(item => ({
                 title: item.track.name,
