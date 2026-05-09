@@ -29,7 +29,7 @@
         }
 
         /* WAVEFORM ANIMASI */
-        .waveform { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
+        .waveform { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
         .waveform-bar { width: 3px; background-color: #1ed760; border-radius: 2px; animation: wave 1s infinite ease-in-out; }
         .waveform-bar:nth-child(2) { animation-delay: 0.2s; }
         .waveform-bar:nth-child(3) { animation-delay: 0.4s; }
@@ -64,20 +64,22 @@
         <i class="fas fa-circle-notch fa-spin text-3xl text-green-500"></i>
     </div>
 
-    <div id="recent-list" class="grid grid-cols-1 gap-3"></div>
+    <div id="recent-list" class="flex flex-col gap-3"></div>
     <div id="top-list" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden"></div>
 
     <script>
         let currentTab = 'recent';
         let currentTimeRange = 'short_term';
         let currentData = { recent: [], top: [], nowPlaying: null };
+        
+        let lastDataHash = ""; // Untuk mengecek apakah ada perubahan lagu
+        let forceAnimate = true; // Set true saat awal load / pindah tab
 
-        // Konversi waktu ISO jadi teks cantik (Baru saja, 5 menit lalu, Hari ini, dsb)
+        // Format waktu jadi (Baru saja, 5 menit lalu, Hari ini, Kemarin)
         function formatRelativeTime(dateString) {
             const date = new Date(dateString);
             const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
+            const diffMins = Math.floor((now - date) / 60000);
             const diffHours = Math.floor(diffMins / 60);
             const diffDays = Math.floor(diffHours / 24);
 
@@ -91,7 +93,10 @@
         }
 
         function switchTab(tab) {
+            if(currentTab === tab) return;
             currentTab = tab;
+            forceAnimate = true; // Paksa animasi bounce saat ganti tab
+
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + tab).classList.add('active');
             
@@ -104,31 +109,40 @@
                 document.getElementById('top-list').classList.remove('hidden');
                 document.getElementById('top-filters').classList.remove('hidden');
             }
-            renderUI(); // Render ulang agar animasi main lagi
+            renderUI();
         }
 
         function changeTimeRange(range) {
+            if(currentTimeRange === range) return;
             currentTimeRange = range;
+            forceAnimate = true;
+
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('filter-' + range).classList.add('active');
             
-            document.getElementById('top-list').innerHTML = ''; // Kosongkan biar animasi ngulang
+            document.getElementById('top-list').innerHTML = ''; 
             document.getElementById('loader').classList.remove('hidden');
-            fetchData(); // Fetch ulang data dari API Spotify
+            fetchData();
         }
 
-        // Render Data ke HTML
         function renderUI() {
             document.getElementById('loader').classList.add('hidden');
             
+            // Cek perubahan data agar tidak re-render/kedip saat nunggu realtime
+            const newDataHash = JSON.stringify(currentData);
+            if (newDataHash === lastDataHash && !forceAnimate) return;
+            lastDataHash = newDataHash;
+
+            const animClass = forceAnimate ? 'bounce-up' : '';
+
             if (currentTab === 'recent') {
                 const recentCont = document.getElementById('recent-list');
-                recentCont.innerHTML = '';
+                let html = '';
 
-                // 1. Cek & Render Now Playing (Lagu yang sedang jalan ditaruh Paling Atas)
+                // 1. Render Now Playing (Paling Atas)
                 if (currentData.nowPlaying && currentData.nowPlaying.isPlaying) {
-                    recentCont.innerHTML += `
-                        <a href="${currentData.nowPlaying.songUrl}" target="_blank" class="glass-card p-3 flex items-center gap-4 hover:border-green-500 bounce-up" style="animation-delay: 0s">
+                    html += `
+                        <a href="${currentData.nowPlaying.songUrl}" target="_blank" class="glass-card p-3 flex items-center gap-4 border border-green-500/30 hover:border-green-500 transition ${animClass}" style="animation-delay: 0s">
                             <img src="${currentData.nowPlaying.albumArt}" class="w-12 h-12 rounded-md object-cover shadow-md">
                             <div class="flex-1 overflow-hidden">
                                 <h3 class="font-bold text-sm text-green-400 truncate">${currentData.nowPlaying.title}</h3>
@@ -142,13 +156,14 @@
                     `;
                 }
 
-                // 2. Render History (Diberi animasi bertahap)
-                currentData.recent.forEach((t, i) => {
-                    // Skip lagu yang sama dengan now playing agar tidak double
-                    if(currentData.nowPlaying && currentData.nowPlaying.title === t.title) return;
+                // 2. Render Riwayat
+                let delayIndex = 1;
+                currentData.recent.forEach(t => {
+                    // Hindari duplikat jika lagu yang sedang diputar ada di riwayat teratas
+                    if (currentData.nowPlaying && currentData.nowPlaying.title === t.title) return;
 
-                    recentCont.innerHTML += `
-                        <a href="${t.url}" target="_blank" class="glass-card p-3 flex items-center gap-4 hover:border-zinc-600 bounce-up" style="animation-delay: ${(i+1) * 0.05}s">
+                    html += `
+                        <a href="${t.url}" target="_blank" class="glass-card p-3 flex items-center gap-4 hover:border-zinc-600 transition ${animClass}" style="animation-delay: ${delayIndex * 0.05}s">
                             <img src="${t.albumArt}" class="w-12 h-12 rounded-md object-cover">
                             <div class="flex-1 overflow-hidden">
                                 <h3 class="font-bold text-sm text-zinc-200 truncate">${t.title}</h3>
@@ -159,28 +174,39 @@
                             </span>
                         </a>
                     `;
+                    delayIndex++;
                 });
+                recentCont.innerHTML = html;
+
             } else {
                 const topCont = document.getElementById('top-list');
-                topCont.innerHTML = '';
+                let html = '';
 
-                // Render Top Tracks (Diberi Ranking dan Animasi)
+                // Render Top Tracks (Dengan Nomor Rank)
                 currentData.top.forEach((t, i) => {
-                    topCont.innerHTML += `
-                        <a href="${t.url}" target="_blank" class="glass-card p-4 relative group hover:border-green-500 bounce-up block" style="animation-delay: ${i * 0.05}s">
-                            <div class="absolute -top-3 -left-3 bg-zinc-800 text-white w-7 h-7 flex items-center justify-center rounded-full text-xs font-black shadow-lg border border-zinc-600 group-hover:bg-green-500 group-hover:text-black transition">
+                    html += `
+                        <a href="${t.url}" target="_blank" class="glass-card p-4 relative group hover:border-green-500 transition block ${animClass}" style="animation-delay: ${i * 0.05}s">
+                            <div class="absolute -top-3 -left-3 bg-zinc-800 text-white w-7 h-7 flex items-center justify-center rounded-full text-xs font-black shadow-lg border border-zinc-600 group-hover:bg-green-500 group-hover:text-black transition z-10">
                                 #${i + 1}
                             </div>
-                            <img src="${t.albumArt}" class="w-full aspect-square rounded-xl mb-3 object-cover shadow-lg group-hover:scale-105 transition duration-300">
+                            <div class="overflow-hidden rounded-xl mb-3 shadow-lg aspect-square">
+                                <img src="${t.albumArt}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                            </div>
                             <h3 class="text-sm font-bold text-zinc-200 truncate">${t.title}</h3>
                             <p class="text-[10px] text-zinc-500 truncate">${t.artist}</p>
                         </a>
                     `;
                 });
+                topCont.innerHTML = html;
+            }
+
+            // Matikan force animate setelah render selesai
+            if (forceAnimate) {
+                setTimeout(() => forceAnimate = false, 1000);
             }
         }
 
-        // Fetch Data (Now Playing & Tracker API secara bersamaan)
+        // Fetch Data
         async function fetchData() {
             try {
                 const [nowRes, trackRes] = await Promise.all([
@@ -194,17 +220,16 @@
                     currentData.recent = data.recent || [];
                     currentData.top = data.topTracks || [];
                 }
-
+                
                 renderUI();
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // Jalankan pas awal buka
+        // Load awal
         fetchData();
 
-        // Fitur Realtime: Ambil data secara silent tiap 15 detik agar tetap up-to-date
+        // Background update tiap 15 detik. Karena kita matikan forceAnimate, 
+        // pas lagu ganti, dia bakal langsung update HTML-nya (turun otomatis) tanpa nge-bounce.
         setInterval(() => {
             fetchData();
         }, 15000);
