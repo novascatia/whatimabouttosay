@@ -12,16 +12,36 @@
     <style>
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0f0f0f; color: #e5e5e5; overflow-x: hidden; }
         .glass-card { background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 16px; transition: 0.3s; }
-        .filter-btn { padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #71717a; border: 1px solid #2d2d2d; transition: all 0.2s; cursor: pointer; }
-        .filter-btn.active { background: #1ed760; color: #000; border-color: #1ed760; }
+        .glass-card:hover { border-color: #4a4a4a; }
+
+        /* FIX: Tombol Tab Utama (Recent & Top) */
+        .tab-pill { 
+            padding: 8px 24px; border-radius: 30px; font-size: 13px; font-weight: 800; 
+            text-transform: uppercase; letter-spacing: 1px; color: #71717a; 
+            background: transparent; transition: all 0.3s; cursor: pointer; 
+        }
+        .tab-pill:hover { color: #fff; }
+        .tab-pill.active { background: #1ed760; color: #000; }
+
+        /* FIX: Tombol Sub-Filter Waktu */
+        .time-filter-btn { 
+            padding: 6px 16px; border-radius: 20px; font-size: 10px; font-weight: bold; 
+            text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; 
+            border: 1px solid #3f3f46; background: transparent; transition: all 0.2s; cursor: pointer; 
+        }
+        .time-filter-btn:hover { border-color: #71717a; color: #fff; }
+        .time-filter-btn.active { background: #1ed760 !important; color: #000 !important; border-color: #1ed760 !important; }
+
         .bounce-up { opacity: 0; transform: translateY(30px); animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes bounceIn { to { opacity: 1; transform: translateY(0); } }
+        
         .waveform { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
         .waveform-bar { width: 3px; background-color: #1ed760; border-radius: 2px; animation: wave 1s infinite ease-in-out; }
         .waveform-bar:nth-child(2) { animation-delay: 0.2s; }
         .waveform-bar:nth-child(3) { animation-delay: 0.4s; }
         .waveform-bar:nth-child(4) { animation-delay: 0.6s; }
         @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+        
         #share-template { position: absolute; left: -9999px; top: 0; width: 400px; padding: 40px 30px; background: #0f0f0f; border: 1px solid #2d2d2d; color: white; font-family: Arial, sans-serif; overflow: hidden; }
         .bg-logo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 280px; opacity: 0.05; z-index: 0; pointer-events: none; filter: grayscale(1); object-fit: cover; border-radius: 50%; }
         .share-content { position: relative; z-index: 10; }
@@ -30,7 +50,7 @@
         .modal-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
-<body class="p-6 md:p-12 max-w-2xl mx-auto mb-20">
+<body class="p-6 md:p-12 max-w-5xl mx-auto mb-20">
 
     <div id="auth-section" class="hidden flex-col items-center justify-center min-h-[80vh] text-center">
         <i class="fab fa-spotify text-6xl text-[#1ed760] mb-6"></i>
@@ -41,7 +61,7 @@
 
     <div id="stats-section" class="hidden mt-6">
         
-        <div class="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6 bg-[#111] p-5 rounded-3xl border border-zinc-800/80 shadow-lg">
+        <div class="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6 bg-[#111] p-5 rounded-3xl border border-zinc-800/80 shadow-lg max-w-2xl mx-auto">
             <div class="flex items-center gap-4">
                 <img id="user-profile-img" src="/logo.png" class="w-14 h-14 rounded-full object-cover border-2 border-zinc-700">
                 <div class="text-left">
@@ -59,23 +79,24 @@
             </div>
         </div>
 
-        <div class="flex justify-center gap-6 mb-8">
-            <button onclick="switchTrackerTab('recent')" id="btn-recent" class="filter-btn active bg-transparent border-none text-zinc-500 text-sm">RECENT</button>
-            <button onclick="switchTrackerTab('top')" id="btn-top" class="filter-btn bg-transparent border-none text-zinc-500 text-sm">TOP TRACKS</button>
+        <div class="flex justify-center gap-4 mb-8">
+            <button onclick="switchTrackerTab('recent')" id="btn-recent" class="tab-pill active">RECENT</button>
+            <button onclick="switchTrackerTab('top')" id="btn-top" class="tab-pill">TOP TRACKS</button>
         </div>
 
         <div id="top-filters" class="flex justify-center gap-3 mb-8 hidden">
-            <button onclick="changeTimeRange('short_term')" id="filter-short_term" class="filter-btn active">4 Weeks</button>
-            <button onclick="changeTimeRange('medium_term')" id="filter-medium_term" class="filter-btn">6 Months</button>
-            <button onclick="changeTimeRange('long_term')" id="filter-long_term" class="filter-btn">All Time</button>
+            <button onclick="changeTimeRange('short_term')" id="filter-short_term" class="time-filter-btn active">4 Weeks</button>
+            <button onclick="changeTimeRange('medium_term')" id="filter-medium_term" class="time-filter-btn">6 Months</button>
+            <button onclick="changeTimeRange('long_term')" id="filter-long_term" class="time-filter-btn">All Time</button>
         </div>
 
         <div id="tracker-loader" class="text-center py-20 hidden">
             <i class="fas fa-circle-notch fa-spin text-3xl text-[#1ed760]"></i>
         </div>
 
-        <div id="recent-list" class="flex flex-col gap-3"></div>
-        <div id="top-list" class="grid grid-cols-2 sm:grid-cols-3 gap-4 hidden"></div>
+        <div id="recent-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        
+        <div id="top-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 hidden"></div>
     </div>
 
     <div id="share-template">
@@ -115,7 +136,7 @@
 
         function logoutSpotify() {
             localStorage.removeItem('spotify_user_token');
-            window.location.href = window.location.pathname; // Hapus hash di url
+            window.location.href = window.location.pathname; 
         }
 
         function checkAuth() {
@@ -140,7 +161,6 @@
         }
 
         async function fetchSpotifyAPI(endpoint, token) {
-            // FIX: Menggunakan API Spotify asli
             const baseUrl = 'https://' + 'api.spotify.com/v1/';
             const res = await fetch(baseUrl + endpoint, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -206,12 +226,12 @@
         }
 
         function switchTrackerTab(tab) {
+            if(currentTrackerTab === tab) return;
             currentTrackerTab = tab;
             forceAnimate = true;
-            document.getElementById('btn-recent').classList.toggle('text-[#1ed760]', tab === 'recent');
-            document.getElementById('btn-recent').classList.toggle('text-zinc-500', tab !== 'recent');
-            document.getElementById('btn-top').classList.toggle('text-[#1ed760]', tab === 'top');
-            document.getElementById('btn-top').classList.toggle('text-zinc-500', tab !== 'top');
+            
+            document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + tab).classList.add('active');
             
             document.getElementById('recent-list').classList.toggle('hidden', tab !== 'recent');
             document.getElementById('top-list').classList.toggle('hidden', tab !== 'top');
@@ -220,14 +240,16 @@
         }
 
         function changeTimeRange(range) {
+            if(currentTimeRange === range) return;
             currentTimeRange = range;
             forceAnimate = true;
-            document.querySelectorAll('#top-filters .filter-btn').forEach(b => b.classList.remove('active', 'text-black', 'bg-[#1ed760]'));
-            const activeBtn = document.getElementById('filter-' + range);
-            activeBtn.classList.add('active');
-            activeBtn.style.color = '#000';
+            
+            // FIX: Hanya mengubah active class tanpa campur tangan inline styles
+            document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('filter-' + range).classList.add('active');
             
             document.getElementById('top-list').innerHTML = ''; 
+            document.getElementById('tracker-loader').classList.remove('hidden');
             fetchTrackerData();
         }
 
@@ -251,7 +273,7 @@
                 if (trackerData.nowPlaying && trackerData.nowPlaying.isPlaying) {
                     html += `
                         <a href="${trackerData.nowPlaying.url}" target="_blank" class="glass-card p-3.5 flex items-center gap-4 border border-green-500/50 hover:border-green-500 transition ${animClass}">
-                            <img src="${trackerData.nowPlaying.albumArt}" class="w-12 h-12 rounded-md object-cover shadow-lg">
+                            <img src="${trackerData.nowPlaying.albumArt}" class="w-12 h-12 rounded-md object-cover shadow-lg flex-shrink-0">
                             <div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-green-400 truncate">${trackerData.nowPlaying.title}</h3><p class="text-[10px] text-zinc-400 truncate">${trackerData.nowPlaying.artist}</p></div>
                             <div class="waveform mr-2 flex-shrink-0"><div class="waveform-bar"></div><div class="waveform-bar"></div><div class="waveform-bar"></div><div class="waveform-bar"></div></div>
                         </a>
@@ -263,7 +285,7 @@
                         <a href="${t.url}" target="_blank" class="glass-card p-3.5 flex items-center gap-4 hover:border-zinc-500 transition ${animClass}" style="animation-delay: ${(i+1)*0.05}s">
                             <img src="${t.albumArt}" class="w-12 h-12 rounded-md object-cover flex-shrink-0">
                             <div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-zinc-200 truncate">${t.title}</h3><p class="text-[10px] text-zinc-500 truncate">${t.artist}</p></div>
-                            <span class="text-[9px] text-zinc-500 uppercase font-bold flex-shrink-0">${formatRelativeTime(t.playedAt)}</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-bold flex-shrink-0 mr-2">${formatRelativeTime(t.playedAt)}</span>
                         </a>
                     `;
                 });
