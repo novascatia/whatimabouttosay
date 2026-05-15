@@ -69,6 +69,14 @@ function renderGmName(name, isGm) {
   return isGm ? `<span class="gm-tag">GM</span>${safeName}` : safeName;
 }
 
+// Fallback logic to safely extract player data
+function getPlayerInfo(board, color) {
+  const p = board?.players?.[color];
+  if (!p) return { name: "Waiting...", isGm: false };
+  if (typeof p === "string") return { name: p, isGm: false }; // Older clients fallback
+  return { name: p.name || "Guest", isGm: p.isGm || false };
+}
+
 function showToast(message) {
   const container = document.getElementById("toastContainer");
   if (!container) return;
@@ -611,7 +619,7 @@ async function castTargetSkill(to) {
     }
     if (!blocked) { board.tiles[to] = piece; delete board.tiles[from]; }
     piece.cooldown = SKILLS.pawn.cooldown;
-    addLog(board, `⚡ Pawn leaped and devoured ${hits} piece(s)!`);
+    addLog(board, `⚡ Pawn leaped and devoured ${hits} enemy piece(s)!`);
     checkPromotion(board, to);
   }
 
@@ -629,7 +637,7 @@ async function castTargetSkill(to) {
     }
     if (!blocked) { board.tiles[to] = piece; delete board.tiles[from]; }
     piece.cooldown = SKILLS.bishop.cooldown;
-    addLog(board, `🏹 Bishop pierced through and destroyed ${hits} piece(s)!`);
+    addLog(board, `🏹 Bishop pierced through and destroyed ${hits} enemy piece(s)!`);
   }
 
   else if (piece.type === "queen") {
@@ -733,14 +741,17 @@ function renderBoard() {
 
 function renderPlayerLabels() {
   if (!els.topPlayerLabel || !els.bottomPlayerLabel) return;
-  const board = getBoard(); const players = board?.players || { white: { name: "White", isGm: false }, black: { name: "Black", isGm: false } };
+  const board = getBoard(); 
+  
+  const wInfo = getPlayerInfo(board, "white");
+  const bInfo = getPlayerInfo(board, "black");
   
   if (state.playerColor === "black") { 
-    els.topPlayerLabel.innerHTML = renderGmName(players.white.name, players.white.isGm); 
-    els.bottomPlayerLabel.innerHTML = renderGmName(players.black.name, players.black.isGm); 
+    els.topPlayerLabel.innerHTML = renderGmName(wInfo.name, wInfo.isGm); 
+    els.bottomPlayerLabel.innerHTML = renderGmName(bInfo.name, bInfo.isGm); 
   } else { 
-    els.topPlayerLabel.innerHTML = renderGmName(players.black.name, players.black.isGm); 
-    els.bottomPlayerLabel.innerHTML = renderGmName(players.white.name, players.white.isGm); 
+    els.topPlayerLabel.innerHTML = renderGmName(bInfo.name, bInfo.isGm); 
+    els.bottomPlayerLabel.innerHTML = renderGmName(wInfo.name, wInfo.isGm); 
   }
 }
 
@@ -764,8 +775,8 @@ function renderGame() {
 
   if (board.drawOffer && board.drawOffer !== state.playerColor && !board.winner) {
     if (state.lastSeenDrawAt !== board.drawOfferAt) {
-      const offerer = board.players?.[board.drawOffer];
-      showToast(`${offerer ? offerer.name : board.drawOffer} offered a draw.`); state.lastSeenDrawAt = board.drawOfferAt;
+      const offerer = getPlayerInfo(board, board.drawOffer);
+      showToast(`${offerer.name} offered a draw.`); state.lastSeenDrawAt = board.drawOfferAt;
     }
     els.drawOfferBanner?.classList.remove("hidden");
   } else { els.drawOfferBanner?.classList.add("hidden"); }
@@ -910,28 +921,28 @@ async function handleGameResult() {
 function resignGame() {
   showModal("Confirm Resign", "Are you sure you want to resign and lose the game?", async () => {
     const board = clone(getBoard()); board.winner = opposite(state.playerColor);
-    const p = board.players?.[state.playerColor];
-    addLog(board, `${p ? p.name : state.playerColor} resigned.`); await updateGameBoard(board);
+    const pInfo = getPlayerInfo(board, state.playerColor);
+    addLog(board, `${pInfo.name} resigned.`); await updateGameBoard(board);
   });
 }
 
 async function offerDraw() {
   const board = clone(getBoard()); if (board.drawOffer === state.playerColor) return;
   board.drawOffer = state.playerColor; board.drawOfferAt = Date.now(); 
-  const p = board.players?.[state.playerColor];
-  addLog(board, `${p ? p.name : state.playerColor} offered a draw.`); await updateGameBoard(board);
+  const pInfo = getPlayerInfo(board, state.playerColor);
+  addLog(board, `${pInfo.name} offered a draw.`); await updateGameBoard(board);
 }
 
 async function acceptDraw() {
   const board = clone(getBoard()); board.winner = "draw"; board.drawOffer = null; board.drawOfferAt = null;
-  const p = board.players?.[state.playerColor];
-  addLog(board, `${p ? p.name : state.playerColor} accepted the draw.`); await updateGameBoard(board);
+  const pInfo = getPlayerInfo(board, state.playerColor);
+  addLog(board, `${pInfo.name} accepted the draw.`); await updateGameBoard(board);
 }
 
 async function declineDraw() {
   const board = clone(getBoard()); board.drawOffer = null; board.drawOfferAt = null;
-  const p = board.players?.[state.playerColor];
-  addLog(board, `${p ? p.name : state.playerColor} declined the draw.`); await updateGameBoard(board);
+  const pInfo = getPlayerInfo(board, state.playerColor);
+  addLog(board, `${pInfo.name} declined the draw.`); await updateGameBoard(board);
 }
 
 els.loginTabBtn?.addEventListener("click", () => setAuthMode("login"));
