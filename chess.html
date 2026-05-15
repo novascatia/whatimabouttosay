@@ -466,19 +466,15 @@
       line-height: 1;
       user-select: none;
       pointer-events: none;
-      font-family: "Times New Roman", Georgia, serif;
-      font-weight: 700;
       transition: transform 160ms ease;
     }
 
-    .piece.white {
-      color: #ffffff;
-      text-shadow: 0 2px 2px rgba(0, 0, 0, 0.65), 0 0 1px #000;
-    }
-
-    .piece.black {
-      color: #111111;
-      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.55), 0 0 1px #fff;
+    /* CSS BARU UNTUK GAMBAR BIDAK */
+    .piece-img {
+      width: 88%;
+      height: 88%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
     }
 
     .piece-meta {
@@ -502,6 +498,7 @@
       font-family: Arial, Helvetica, sans-serif;
       font-weight: 800;
       line-height: 1;
+      z-index: 10;
     }
 
     .hp { background: var(--danger); }
@@ -561,6 +558,61 @@
     .winner-banner p { margin: 0 0 8px; color: var(--muted); }
     .hidden { display: none !important; }
 
+    /* --- NOTIFICATION & MODAL CSS (BARU) --- */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--panel);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      font-weight: 700;
+      font-size: 0.95rem;
+      animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), fadeOut 0.3s ease 3.2s forwards;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    .custom-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      width: 90%;
+      max-width: 360px;
+      text-align: center;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-content h3 { margin: 0 0 10px; font-size: 1.5rem; }
+    .modal-content p { margin: 0 0 20px; color: var(--muted); line-height: 1.4; }
+    /* --------------------------------------- */
+
     @media (max-width: 920px) {
       .auth-layout, .landing-layout, .lobby-grid, .game-layout { grid-template-columns: 1fr; }
       .board, .player-strip { width: min(100%, 78vh, 760px); }
@@ -583,7 +635,6 @@
       .game-room { justify-content: center; }
       .room-code { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
       .board, .player-strip { width: min(100%, calc(100vh - 320px)); }
-      .piece { font-size: clamp(1.8rem, 10vw, 3.2rem); }
       .side-panel { grid-template-columns: 1fr; }
       .panel { padding: 13px; }
       .compact { padding: 12px; }
@@ -593,12 +644,24 @@
 
     @media (max-width: 380px) {
       .board, .player-strip { width: min(100%, calc(100vh - 350px)); }
-      .piece { font-size: clamp(1.5rem, 9vw, 2.7rem); }
     }
   </style>
 </head>
 
 <body>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <div id="customModal" class="custom-modal hidden">
+    <div class="modal-content panel">
+      <h3 id="modalTitle">Confirm</h3>
+      <p id="modalText">Are you sure?</p>
+      <div class="stack" style="grid-template-columns: 1fr 1fr;">
+        <button id="modalConfirmBtn" class="btn btn-primary" style="background: var(--danger); color: white;">Yes, Resign</button>
+        <button id="modalCancelBtn" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <main class="app-shell">
     <section id="authView" class="view view-active">
       <nav class="topbar">
@@ -753,7 +816,7 @@
       <div class="game-layout">
         <section class="board-column">
           <div id="topPlayerStrip" class="player-strip">
-            <span>Opponent</span><strong id="topPlayerLabel">Black</strong>
+            <span>Opponent</span><strong id="topPlayerLabel">Loading...</strong>
           </div>
 
           <section class="board-wrap">
@@ -766,7 +829,7 @@
           </section>
 
           <div id="bottomPlayerStrip" class="player-strip">
-            <span>You</span><strong id="bottomPlayerLabel">White</strong>
+            <span>You</span><strong id="bottomPlayerLabel">Loading...</strong>
           </div>
         </section>
 
@@ -794,7 +857,7 @@
 
           <section class="panel compact">
             <p class="eyebrow">Selected Piece</p>
-            <h2 id="selectedTitle">None</h2>
+            <h2 id="selectedTitle" style="display: flex; align-items: center; gap: 8px;">None</h2>
             <p id="selectedDescription" class="muted">Select your piece to move or use a skill.</p>
             <div class="stack">
               <button id="useSkillBtn" class="btn btn-primary full" disabled>Use Skill</button>
