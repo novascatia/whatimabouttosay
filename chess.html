@@ -25,12 +25,9 @@
       --move-dot: rgba(20, 20, 20, 0.28);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html,
-    body {
+    html, body {
       margin: 0;
       min-height: 100%;
       background: var(--bg);
@@ -38,19 +35,9 @@
       font-family: Arial, Helvetica, sans-serif;
     }
 
-    body {
-      overflow-x: hidden;
-    }
-
-    button,
-    input,
-    select {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
+    body { overflow-x: hidden; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
 
     .app-shell {
       width: min(1220px, calc(100% - 24px));
@@ -58,42 +45,23 @@
       padding: 14px 0;
     }
 
-    .view {
-      display: none;
-    }
-
+    .view { display: none; }
     .view-active {
       display: block;
       animation: fadeIn 180ms ease both;
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes pieceMoveIn {
-      from {
-        transform: scale(0.72);
-        opacity: 0.5;
-      }
-
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
+      from { transform: scale(0.72); opacity: 0.5; }
+      to { transform: scale(1); opacity: 1; }
     }
 
-    .piece-move-animate {
-      animation: pieceMoveIn 180ms ease-out;
-    }
+    .piece-move-animate { animation: pieceMoveIn 180ms ease-out; }
 
     .topbar {
       display: flex;
@@ -131,9 +99,7 @@
       font-size: 0.9rem;
     }
 
-    .user-chip strong {
-      color: var(--text);
-    }
+    .user-chip strong { color: var(--text); }
 
     .btn {
       border: 0;
@@ -145,37 +111,13 @@
       font-weight: 700;
     }
 
-    .btn:hover {
-      filter: brightness(1.08);
-    }
-
-    .btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #17210e;
-    }
-
-    .btn-secondary {
-      background: #4a4742;
-    }
-
-    .btn-blue {
-      background: var(--blue);
-      color: white;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-    }
-
-    .full {
-      width: 100%;
-    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #17210e; }
+    .btn-secondary { background: #4a4742; }
+    .btn-blue { background: var(--blue); color: white; }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .full { width: 100%; }
 
     .panel {
       background: var(--panel);
@@ -184,9 +126,7 @@
       padding: 16px;
     }
 
-    .compact {
-      padding: 14px;
-    }
+    .compact { padding: 14px; }
 
     .eyebrow {
       margin: 0 0 7px;
@@ -197,19 +137,10 @@
       letter-spacing: 0.08em;
     }
 
-    .muted {
-      color: var(--muted);
-      line-height: 1.45;
-    }
+    .muted { color: var(--muted); line-height: 1.45; }
+    .status-text { color: var(--warning); min-height: 1.3em; font-weight: 700; }
 
-    .status-text {
-      color: var(--warning);
-      min-height: 1.3em;
-      font-weight: 700;
-    }
-
-    input,
-    select {
+    input, select {
       width: 100%;
       min-height: 40px;
       border: 1px solid var(--border);
@@ -220,16 +151,8 @@
       outline: none;
     }
 
-    input:focus,
-    select:focus {
-      border-color: var(--accent);
-    }
-
-    .stack {
-      display: grid;
-      gap: 9px;
-      margin-top: 12px;
-    }
+    input:focus, select:focus { border-color: var(--accent); }
+    .stack { display: grid; gap: 9px; margin-top: 12px; }
 
     .auth-layout {
       min-height: calc(100vh - 80px);
@@ -264,10 +187,7 @@
       line-height: 1.55;
     }
 
-    .auth-card h2 {
-      margin: 0 0 8px;
-      font-size: 1.55rem;
-    }
+    .auth-card h2 { margin: 0 0 8px; font-size: 1.55rem; }
 
     .auth-tabs {
       display: grid;
@@ -285,15 +205,8 @@
       font-weight: 800;
     }
 
-    .auth-tab.active {
-      background: var(--accent);
-      color: #17210e;
-    }
-
-    .auth-form {
-      display: grid;
-      gap: 10px;
-    }
+    .auth-tab.active { background: var(--accent); color: #17210e; }
+    .auth-form { display: grid; gap: 10px; }
 
     .auth-form label {
       display: grid;
@@ -346,22 +259,9 @@
       line-height: 1.55;
     }
 
-    .hero-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .info-card {
-      display: grid;
-      gap: 12px;
-      align-content: start;
-    }
-
-    .profile-card {
-      display: grid;
-      gap: 10px;
-    }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .info-card { display: grid; gap: 12px; align-content: start; }
+    .profile-card { display: grid; gap: 10px; }
 
     .profile-row {
       display: flex;
@@ -373,13 +273,8 @@
       background: var(--panel-2);
     }
 
-    .profile-row span {
-      color: var(--muted);
-    }
-
-    .profile-row strong {
-      font-size: 1.15rem;
-    }
+    .profile-row span { color: var(--muted); }
+    .profile-row strong { font-size: 1.15rem; }
 
     .preview-board {
       display: grid;
@@ -396,15 +291,8 @@
       line-height: 1;
     }
 
-    .preview-board span:nth-child(odd) {
-      background: var(--light-square);
-      color: #222;
-    }
-
-    .preview-board span:nth-child(even) {
-      background: var(--dark-square);
-      color: #111;
-    }
+    .preview-board span:nth-child(odd) { background: var(--light-square); color: #222; }
+    .preview-board span:nth-child(even) { background: var(--dark-square); color: #111; }
 
     .rules-small {
       display: grid;
@@ -415,9 +303,7 @@
       color: var(--muted);
     }
 
-    .rules-small b {
-      color: var(--text);
-    }
+    .rules-small b { color: var(--text); }
 
     .lobby-grid {
       display: grid;
@@ -425,10 +311,7 @@
       gap: 14px;
     }
 
-    .lobby-grid h1 {
-      margin: 0 0 8px;
-      font-size: 1.7rem;
-    }
+    .lobby-grid h1 { margin: 0 0 8px; font-size: 1.7rem; }
 
     .join-row {
       display: grid;
@@ -437,13 +320,8 @@
       margin-top: 12px;
     }
 
-    #roomCodeInput {
-      text-transform: uppercase;
-    }
-
-    .rules-panel {
-      grid-column: 1 / -1;
-    }
+    #roomCodeInput { text-transform: uppercase; }
+    .rules-panel { grid-column: 1 / -1; }
 
     .rules-list {
       display: grid;
@@ -457,16 +335,8 @@
       background: var(--panel-2);
     }
 
-    .rules-list b {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .rules-list span {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.35;
-    }
+    .rules-list b { display: block; margin-bottom: 4px; }
+    .rules-list span { color: var(--muted); font-size: 0.9rem; line-height: 1.35; }
 
     .game-topbar {
       position: sticky;
@@ -502,9 +372,7 @@
       font-size: 0.85rem;
     }
 
-    .pill.online {
-      color: var(--accent-hover);
-    }
+    .pill.online { color: var(--accent-hover); }
 
     .game-layout {
       display: grid;
@@ -532,9 +400,7 @@
       font-size: 0.9rem;
     }
 
-    .player-strip strong {
-      color: var(--text);
-    }
+    .player-strip strong { color: var(--text); }
 
     .board-wrap {
       position: relative;
@@ -569,18 +435,9 @@
       overflow: hidden;
     }
 
-    .square.light {
-      background: var(--light-square);
-    }
-
-    .square.dark {
-      background: var(--dark-square);
-    }
-
-    .square.selected {
-      box-shadow: inset 0 0 0 999px rgba(247, 236, 110, 0.55);
-      z-index: 2;
-    }
+    .square.light { background: var(--light-square); }
+    .square.dark { background: var(--dark-square); }
+    .square.selected { box-shadow: inset 0 0 0 999px rgba(247, 236, 110, 0.55); z-index: 2; }
 
     .square.can-move::after,
     .square.can-skill::after {
@@ -616,16 +473,12 @@
 
     .piece.white {
       color: #ffffff;
-      text-shadow:
-        0 2px 2px rgba(0, 0, 0, 0.65),
-        0 0 1px #000;
+      text-shadow: 0 2px 2px rgba(0, 0, 0, 0.65), 0 0 1px #000;
     }
 
     .piece.black {
       color: #111111;
-      text-shadow:
-        0 1px 1px rgba(255, 255, 255, 0.55),
-        0 0 1px #fff;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.55), 0 0 1px #fff;
     }
 
     .piece-meta {
@@ -637,9 +490,7 @@
       pointer-events: none;
     }
 
-    .hp,
-    .cd,
-    .shield {
+    .hp, .cd, .shield {
       display: grid;
       place-items: center;
       min-width: 17px;
@@ -653,33 +504,13 @@
       line-height: 1;
     }
 
-    .hp {
-      background: var(--danger);
-    }
+    .hp { background: var(--danger); }
+    .cd { background: #6a5acd; }
+    .shield { background: var(--accent); color: #16220f; }
 
-    .cd {
-      background: #6a5acd;
-    }
-
-    .shield {
-      background: var(--accent);
-      color: #16220f;
-    }
-
-    .side-panel {
-      display: grid;
-      gap: 10px;
-    }
-
-    .side-panel h2 {
-      margin: 0 0 7px;
-      font-size: 1.18rem;
-    }
-
-    .timer-box {
-      display: grid;
-      gap: 8px;
-    }
+    .side-panel { display: grid; gap: 10px; }
+    .side-panel h2 { margin: 0 0 7px; font-size: 1.18rem; }
+    .timer-box { display: grid; gap: 8px; }
 
     .timer-row {
       display: flex;
@@ -691,20 +522,9 @@
       background: var(--panel-2);
     }
 
-    .timer-row.active {
-      outline: 2px solid var(--warning);
-    }
-
-    .timer-name {
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .timer-time {
-      font-size: 1.25rem;
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
-    }
+    .timer-row.active { outline: 2px solid var(--warning); }
+    .timer-name { color: var(--muted); font-weight: 700; }
+    .timer-time { font-size: 1.25rem; font-weight: 900; font-variant-numeric: tabular-nums; }
 
     .battle-log {
       display: grid;
@@ -737,147 +557,43 @@
       backdrop-filter: blur(6px);
     }
 
-    .winner-banner h2 {
-      margin: 0;
-      font-size: clamp(2rem, 6vw, 4rem);
-    }
-
-    .winner-banner p {
-      margin: 0 0 8px;
-      color: var(--muted);
-    }
-
-    .hidden {
-      display: none !important;
-    }
+    .winner-banner h2 { margin: 0; font-size: clamp(2rem, 6vw, 4rem); }
+    .winner-banner p { margin: 0 0 8px; color: var(--muted); }
+    .hidden { display: none !important; }
 
     @media (max-width: 920px) {
-      .auth-layout,
-      .landing-layout,
-      .lobby-grid,
-      .game-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .board,
-      .player-strip {
-        width: min(100%, 78vh, 760px);
-      }
-
-      .side-panel {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .side-panel .panel:nth-child(3),
-      .side-panel .panel:nth-child(4),
-      .side-panel .panel:nth-child(5) {
-        grid-column: 1 / -1;
-      }
-
-      .rules-list {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .auth-layout, .landing-layout, .lobby-grid, .game-layout { grid-template-columns: 1fr; }
+      .board, .player-strip { width: min(100%, 78vh, 760px); }
+      .side-panel { grid-template-columns: 1fr 1fr; }
+      .side-panel .panel:nth-child(3), .side-panel .panel:nth-child(4), .side-panel .panel:nth-child(5) { grid-column: 1 / -1; }
+      .rules-list { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 600px) {
-      .app-shell {
-        width: min(100% - 12px, 1220px);
-        padding: 8px 0;
-      }
-
-      .topbar {
-        margin-bottom: 8px;
-      }
-
-      .brand-mark {
-        font-size: 1.75rem;
-      }
-
-      .auth-layout,
-      .landing-layout {
-        min-height: auto;
-      }
-
-      .auth-hero,
-      .hero {
-        padding: 18px;
-      }
-
-      .auth-hero h1,
-      .hero h1 {
-        font-size: clamp(2rem, 12vw, 3.2rem);
-      }
-
-      .hero-actions {
-        display: grid;
-        grid-template-columns: 1fr;
-      }
-
-      .join-row {
-        grid-template-columns: 1fr;
-      }
-
-      .rules-list {
-        grid-template-columns: 1fr;
-      }
-
-      .game-topbar {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 8px;
-      }
-
-      .game-room {
-        justify-content: center;
-      }
-
-      .room-code {
-        max-width: 110px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .board,
-      .player-strip {
-        width: min(100%, calc(100vh - 320px));
-      }
-
-      .piece {
-        font-size: clamp(1.8rem, 10vw, 3.2rem);
-      }
-
-      .side-panel {
-        grid-template-columns: 1fr;
-      }
-
-      .panel {
-        padding: 13px;
-      }
-
-      .compact {
-        padding: 12px;
-      }
-
-      .battle-log {
-        max-height: 120px;
-      }
-
-      .user-chip {
-        gap: 5px;
-        padding: 6px 8px;
-        font-size: 0.8rem;
-      }
+      .app-shell { width: min(100% - 12px, 1220px); padding: 8px 0; }
+      .topbar { margin-bottom: 8px; }
+      .brand-mark { font-size: 1.75rem; }
+      .auth-layout, .landing-layout { min-height: auto; }
+      .auth-hero, .hero { padding: 18px; }
+      .auth-hero h1, .hero h1 { font-size: clamp(2rem, 12vw, 3.2rem); }
+      .hero-actions { display: grid; grid-template-columns: 1fr; }
+      .join-row { grid-template-columns: 1fr; }
+      .rules-list { grid-template-columns: 1fr; }
+      .game-topbar { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; }
+      .game-room { justify-content: center; }
+      .room-code { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+      .board, .player-strip { width: min(100%, calc(100vh - 320px)); }
+      .piece { font-size: clamp(1.8rem, 10vw, 3.2rem); }
+      .side-panel { grid-template-columns: 1fr; }
+      .panel { padding: 13px; }
+      .compact { padding: 12px; }
+      .battle-log { max-height: 120px; }
+      .user-chip { gap: 5px; padding: 6px 8px; font-size: 0.8rem; }
     }
 
     @media (max-width: 380px) {
-      .board,
-      .player-strip {
-        width: min(100%, calc(100vh - 350px));
-      }
-
-      .piece {
-        font-size: clamp(1.5rem, 9vw, 2.7rem);
-      }
+      .board, .player-strip { width: min(100%, calc(100vh - 350px)); }
+      .piece { font-size: clamp(1.5rem, 9vw, 2.7rem); }
     }
   </style>
 </head>
@@ -909,29 +625,16 @@
           </div>
 
           <h2 id="authTitle">Login</h2>
-          <p id="authSubtitle" class="muted">
-            Masuk pakai username dan password.
-          </p>
+          <p id="authSubtitle" class="muted">Masuk pakai username dan password.</p>
 
           <form id="authForm" class="auth-form">
-            <label>
-              Username
-              <input id="authUsernameInput" type="text" placeholder="username" autocomplete="username" required />
-            </label>
-
-            <label>
-              Password
-              <input id="authPasswordInput" type="password" placeholder="minimum 6 characters" autocomplete="current-password" required />
-            </label>
-
+            <label>Username <input id="authUsernameInput" type="text" placeholder="username" autocomplete="username" required /></label>
+            <label>Password <input id="authPasswordInput" type="password" placeholder="minimum 6 characters" autocomplete="current-password" required /></label>
             <button id="authSubmitBtn" class="btn btn-primary full" type="submit">Login</button>
           </form>
 
           <p id="authStatus" class="status-text">Please login first.</p>
-
-          <div class="auth-note">
-            New account starts from <b>0 ELO</b>. Win gives +25 ELO, lose gives -10 ELO.
-          </div>
+          <div class="auth-note">New account starts from <b>0 ELO</b>. Win gives +25 ELO, lose gives -10 ELO.</div>
         </section>
       </div>
     </section>
@@ -942,7 +645,6 @@
           <span class="brand-mark">♞</span>
           <span>Magic Chess</span>
         </a>
-
         <div class="user-chip">
           <span id="navUsername">Guest</span>
           <strong id="navElo">0 ELO</strong>
@@ -958,7 +660,6 @@
             Create a private room, invite a friend, or use quick match. Move pieces,
             cast skills, and defeat the enemy king.
           </p>
-
           <div class="hero-actions">
             <button id="heroPlayBtn" class="btn btn-primary">Start Game</button>
             <button id="heroRulesBtn" class="btn btn-secondary">See Rules</button>
@@ -968,35 +669,17 @@
         <aside class="panel info-card">
           <div class="profile-card">
             <p class="eyebrow">Your Profile</p>
-
-            <div class="profile-row">
-              <span>Name</span>
-              <strong id="profileUsername">Guest</strong>
-            </div>
-
-            <div class="profile-row">
-              <span>ELO</span>
-              <strong id="profileElo">0</strong>
-            </div>
-
-            <div class="profile-row">
-              <span>Wins</span>
-              <strong id="profileWins">0</strong>
-            </div>
-
-            <div class="profile-row">
-              <span>Losses</span>
-              <strong id="profileLosses">0</strong>
-            </div>
+            <div class="profile-row"><span>Name</span><strong id="profileUsername">Guest</strong></div>
+            <div class="profile-row"><span>ELO</span><strong id="profileElo">0</strong></div>
+            <div class="profile-row"><span>Wins</span><strong id="profileWins">0</strong></div>
+            <div class="profile-row"><span>Losses</span><strong id="profileLosses">0</strong></div>
           </div>
-
           <div class="preview-board" aria-hidden="true">
             <span>♜</span><span>♞</span><span>♝</span><span>♛</span>
             <span>♟</span><span></span><span>♟</span><span>♚</span>
             <span></span><span>♘</span><span></span><span></span>
             <span>♙</span><span>♕</span><span>♔</span><span>♖</span>
           </div>
-
           <ul class="rules-small">
             <li><b>Goal:</b> defeat the enemy king.</li>
             <li><b>Turns:</b> move or cast one skill.</li>
@@ -1010,26 +693,15 @@
     <section id="lobbyView" class="view lobby">
       <nav class="topbar">
         <button id="backToLandingBtn" class="btn btn-ghost">← Home</button>
-
-        <div class="brand">
-          <span class="brand-mark">♞</span>
-          <span>Lobby</span>
-        </div>
-
-        <div class="user-chip">
-          <span id="lobbyUsername">Guest</span>
-          <strong id="lobbyElo">0 ELO</strong>
-        </div>
+        <div class="brand"><span class="brand-mark">♞</span><span>Lobby</span></div>
+        <div class="user-chip"><span id="lobbyUsername">Guest</span><strong id="lobbyElo">0 ELO</strong></div>
       </nav>
 
       <div class="lobby-grid">
         <section class="panel">
           <p class="eyebrow">Matchmaking</p>
           <h1>Find a game</h1>
-          <p class="muted">
-            Quick match joins an open room. If there is no room, it creates one.
-          </p>
-
+          <p class="muted">Quick match joins an open room. If there is no room, it creates one.</p>
           <label class="muted" for="timerSelect">Timer</label>
           <select id="timerSelect">
             <option value="300">5 minutes</option>
@@ -1037,7 +709,6 @@
             <option value="900">15 minutes</option>
             <option value="1800">30 minutes</option>
           </select>
-
           <div class="stack">
             <button id="quickMatchBtn" class="btn btn-primary full">Quick Match</button>
             <button id="createPrivateBtn" class="btn btn-secondary full">Create Private Room</button>
@@ -1047,51 +718,23 @@
         <section class="panel">
           <p class="eyebrow">Private Room</p>
           <h1>Join by code</h1>
-          <p class="muted">
-            Ask your friend for the room code, then paste it here.
-          </p>
-
+          <p class="muted">Ask your friend for the room code, then paste it here.</p>
           <div class="join-row">
             <input id="roomCodeInput" type="text" maxlength="8" placeholder="ROOM CODE" autocomplete="off" />
             <button id="joinRoomBtn" class="btn btn-primary">Join</button>
           </div>
-
           <p id="lobbyStatus" class="status-text">Ready.</p>
         </section>
 
         <section class="panel rules-panel">
           <p class="eyebrow">Skills</p>
-
           <div class="rules-list">
-            <article>
-              <b>Pawn</b>
-              <span>Spark: damage 1 nearby enemy.</span>
-            </article>
-
-            <article>
-              <b>Rook</b>
-              <span>Bulwark: gain shield.</span>
-            </article>
-
-            <article>
-              <b>Bishop</b>
-              <span>Heal ally or damage enemy diagonally.</span>
-            </article>
-
-            <article>
-              <b>Knight</b>
-              <span>Blink to an L-square and damage nearby enemies.</span>
-            </article>
-
-            <article>
-              <b>Queen</b>
-              <span>Arcane Storm: damage enemies in a 3×3 area.</span>
-            </article>
-
-            <article>
-              <b>King</b>
-              <span>Royal Guard: heal and gain shield.</span>
-            </article>
+            <article><b>Pawn</b><span>Spark: damage 1 nearby enemy.</span></article>
+            <article><b>Rook</b><span>Bulwark: gain shield.</span></article>
+            <article><b>Bishop</b><span>Heal ally or damage enemy diagonally.</span></article>
+            <article><b>Knight</b><span>Blink to an L-square and damage nearby enemies.</span></article>
+            <article><b>Queen</b><span>Arcane Storm: damage enemies in a 3×3 area.</span></article>
+            <article><b>King</b><span>Royal Guard: heal and gain shield.</span></article>
           </div>
         </section>
       </div>
@@ -1100,20 +743,17 @@
     <section id="gameView" class="view game">
       <nav class="topbar game-topbar">
         <button id="leaveGameBtn" class="btn btn-ghost">← Leave</button>
-
         <div class="game-room">
           <span>Room</span>
           <button id="copyRoomBtn" class="room-code">------</button>
         </div>
-
         <div id="connectionPill" class="pill">Offline</div>
       </nav>
 
       <div class="game-layout">
         <section class="board-column">
           <div id="topPlayerStrip" class="player-strip">
-            <span>Opponent</span>
-            <strong id="topPlayerLabel">Black</strong>
+            <span>Opponent</span><strong id="topPlayerLabel">Black</strong>
           </div>
 
           <section class="board-wrap">
@@ -1122,13 +762,11 @@
               <p id="winnerText">The king has fallen.</p>
               <button id="returnLobbyBtn" class="btn btn-primary">Back to Lobby</button>
             </div>
-
             <div id="board" class="board" aria-label="Magic chess board"></div>
           </section>
 
           <div id="bottomPlayerStrip" class="player-strip">
-            <span>You</span>
-            <strong id="bottomPlayerLabel">White</strong>
+            <span>You</span><strong id="bottomPlayerLabel">White</strong>
           </div>
         </section>
 
@@ -1140,7 +778,6 @@
                 <span class="timer-name">White</span>
                 <span id="whiteTimer" class="timer-time">10:00</span>
               </div>
-
               <div id="blackTimerRow" class="timer-row">
                 <span class="timer-name">Black</span>
                 <span id="blackTimer" class="timer-time">10:00</span>
@@ -1158,10 +795,7 @@
           <section class="panel compact">
             <p class="eyebrow">Selected Piece</p>
             <h2 id="selectedTitle">None</h2>
-            <p id="selectedDescription" class="muted">
-              Select your piece to move or use a skill.
-            </p>
-
+            <p id="selectedDescription" class="muted">Select your piece to move or use a skill.</p>
             <div class="stack">
               <button id="useSkillBtn" class="btn btn-primary full" disabled>Use Skill</button>
               <button id="cancelSkillBtn" class="btn btn-secondary full hidden">Cancel Skill</button>
@@ -1169,17 +803,26 @@
           </section>
 
           <section class="panel compact">
+            <p class="eyebrow">Match Actions</p>
+            <div class="stack">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button id="offerDrawBtn" class="btn btn-secondary">Draw</button>
+                <button id="resignBtn" class="btn btn-secondary" style="background: var(--danger); color: white;">Resign</button>
+              </div>
+              <div id="drawOfferBanner" class="hidden" style="margin-top: 8px; padding: 10px; background: rgba(240, 193, 92, 0.2); border: 1px solid var(--warning); border-radius: 6px; text-align: center;">
+                <p style="margin: 0 0 8px; font-size: 0.9rem; color: var(--warning);">Opponent offers a draw.</p>
+                <div style="display: flex; gap: 8px;">
+                  <button id="acceptDrawBtn" class="btn btn-primary full">Accept</button>
+                  <button id="declineDrawBtn" class="btn btn-secondary full">Decline</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel compact">
             <p class="eyebrow">Profile</p>
-
-            <div class="profile-row">
-              <span>You</span>
-              <strong id="gameUsername">Guest</strong>
-            </div>
-
-            <div class="profile-row">
-              <span>ELO</span>
-              <strong id="gameElo">0</strong>
-            </div>
+            <div class="profile-row"><span>You</span><strong id="gameUsername">Guest</strong></div>
+            <div class="profile-row"><span>ELO</span><strong id="gameElo">0</strong></div>
           </section>
 
           <section class="panel compact">
