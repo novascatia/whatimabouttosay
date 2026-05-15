@@ -8,7 +8,7 @@
 
   <style>
     :root {
-      --bg: #10131a;
+      --bg: #0f1117;
       --panel: #181c25;
       --panel-2: #202636;
       --border: #31384a;
@@ -18,10 +18,11 @@
       --accent-2: #5f45d8;
       --danger: #f05267;
       --good: #42d392;
+      --warning: #f8c44f;
 
-      --light-square: #e3d7c5;
-      --dark-square: #8b6f54;
-      --light-text: #1e2230;
+      --light-square: #e6d7c3;
+      --dark-square: #84684d;
+      --light-text: #20232d;
       --dark-text: #f8f2e8;
     }
 
@@ -43,7 +44,8 @@
     }
 
     button,
-    input {
+    input,
+    select {
       font: inherit;
     }
 
@@ -59,10 +61,44 @@
 
     .view {
       display: none;
+      opacity: 0;
+      transform: translateY(12px);
     }
 
     .view-active {
       display: block;
+      animation: pageIn 360ms ease forwards;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes softPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 rgba(124, 92, 255, 0);
+      }
+      50% {
+        box-shadow: 0 0 28px rgba(124, 92, 255, 0.25);
+      }
     }
 
     .topbar {
@@ -91,7 +127,8 @@
       border-radius: 10px;
       background: var(--accent);
       color: white;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+      animation: softPulse 2.8s ease infinite;
     }
 
     .btn {
@@ -101,15 +138,22 @@
       color: var(--text);
       background: var(--panel-2);
       min-height: 42px;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
     }
 
     .btn:hover {
+      transform: translateY(-1px);
       border-color: #56617a;
+    }
+
+    .btn:active {
+      transform: translateY(0);
     }
 
     .btn:disabled {
       opacity: 0.45;
       cursor: not-allowed;
+      transform: none;
     }
 
     .btn-primary {
@@ -135,6 +179,7 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 18px;
+      animation: cardIn 420ms ease both;
     }
 
     .compact {
@@ -161,8 +206,6 @@
       min-height: 1.3em;
     }
 
-    /* LANDING */
-
     .landing-layout {
       display: grid;
       grid-template-columns: 1fr 360px;
@@ -176,16 +219,17 @@
       align-content: center;
       gap: 18px;
       padding: 28px;
-      background: var(--panel);
+      background: linear-gradient(135deg, #181c25, #12151d);
       border: 1px solid var(--border);
       border-radius: 18px;
+      animation: cardIn 420ms ease both;
     }
 
     .hero h1 {
       margin: 0;
       max-width: 720px;
-      font-size: clamp(2.2rem, 6vw, 4.8rem);
-      line-height: 0.98;
+      font-size: clamp(2.2rem, 6vw, 4.5rem);
+      line-height: 1;
       letter-spacing: -0.05em;
     }
 
@@ -220,7 +264,8 @@
     .simple-board-preview span {
       display: grid;
       place-items: center;
-      font-size: 2rem;
+      font-weight: 900;
+      font-size: 1.35rem;
       min-width: 0;
       min-height: 0;
     }
@@ -250,8 +295,6 @@
       color: var(--text);
     }
 
-    /* LOBBY */
-
     .lobby-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -276,7 +319,8 @@
       margin-top: 14px;
     }
 
-    input {
+    input,
+    select {
       width: 100%;
       min-height: 42px;
       border: 1px solid var(--border);
@@ -285,10 +329,14 @@
       color: var(--text);
       background: #111620;
       outline: none;
+    }
+
+    input {
       text-transform: uppercase;
     }
 
-    input:focus {
+    input:focus,
+    select:focus {
       border-color: var(--accent);
     }
 
@@ -319,8 +367,6 @@
       font-size: 0.9rem;
       line-height: 1.4;
     }
-
-    /* GAME */
 
     .game-topbar {
       position: sticky;
@@ -364,7 +410,7 @@
 
     .game-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 300px;
+      grid-template-columns: minmax(0, 1fr) 310px;
       gap: 16px;
       align-items: start;
     }
@@ -437,22 +483,33 @@
     .piece {
       display: grid;
       place-items: center;
-      width: 100%;
-      height: 100%;
-      font-size: clamp(1.5rem, 5.2vmin, 3.8rem);
+      width: 70%;
+      height: 70%;
+      border-radius: 999px;
+      font-size: clamp(0.75rem, 2.4vmin, 1.25rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
       line-height: 1;
       user-select: none;
       pointer-events: none;
+      transition: transform 160ms ease;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.28);
     }
 
     .piece.white {
-      color: #fffdf7;
-      text-shadow: 0 2px 2px rgba(0, 0, 0, 0.45);
+      color: #141821;
+      background: linear-gradient(135deg, #ffffff, #d8dce8);
+      border: 2px solid rgba(255, 255, 255, 0.8);
     }
 
     .piece.black {
-      color: #141414;
-      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35);
+      color: #f8f8fb;
+      background: linear-gradient(135deg, #252a36, #05070b);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .square:hover .piece {
+      transform: scale(1.05);
     }
 
     .piece-meta {
@@ -502,10 +559,41 @@
       font-size: 1.25rem;
     }
 
+    .timer-box {
+      display: grid;
+      gap: 8px;
+    }
+
+    .timer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel-2);
+    }
+
+    .timer-row.active {
+      border-color: var(--warning);
+    }
+
+    .timer-name {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .timer-time {
+      font-size: 1.3rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
     .battle-log {
       display: grid;
       gap: 8px;
-      max-height: 190px;
+      max-height: 180px;
       overflow: auto;
     }
 
@@ -530,7 +618,7 @@
       text-align: center;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background: rgba(16, 19, 26, 0.9);
+      background: rgba(16, 19, 26, 0.92);
       backdrop-filter: blur(8px);
     }
 
@@ -547,8 +635,6 @@
     .hidden {
       display: none !important;
     }
-
-    /* TABLET */
 
     @media (max-width: 900px) {
       .landing-layout,
@@ -570,7 +656,8 @@
         grid-template-columns: 1fr 1fr;
       }
 
-      .side-panel .panel:last-child {
+      .side-panel .panel:nth-child(3),
+      .side-panel .panel:nth-child(4) {
         grid-column: 1 / -1;
       }
 
@@ -578,8 +665,6 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
-
-    /* PHONE */
 
     @media (max-width: 600px) {
       .app-shell {
@@ -650,13 +735,15 @@
       }
 
       .board {
-        width: min(100%, calc(100vh - 270px));
+        width: min(100%, calc(100vh - 300px));
         min-width: 0;
         border-radius: 8px;
       }
 
       .piece {
-        font-size: clamp(1.2rem, 9vw, 2.6rem);
+        width: 72%;
+        height: 72%;
+        font-size: clamp(0.65rem, 3.5vw, 1rem);
       }
 
       .piece-meta {
@@ -690,21 +777,6 @@
         max-height: 130px;
       }
     }
-
-    @media (max-width: 380px) {
-      .btn {
-        padding: 9px 10px;
-        font-size: 0.9rem;
-      }
-
-      .board {
-        width: min(100%, calc(100vh - 300px));
-      }
-
-      .piece {
-        font-size: clamp(1rem, 8vw, 2.2rem);
-      }
-    }
   </style>
 </head>
 
@@ -713,7 +785,7 @@
     <section id="landingView" class="view view-active landing">
       <nav class="topbar">
         <a class="brand" href="/">
-          <span class="brand-mark">♛</span>
+          <span class="brand-mark">MC</span>
           <span>Magic Chess</span>
         </a>
 
@@ -737,17 +809,17 @@
 
         <aside class="panel info-card">
           <div class="simple-board-preview" aria-hidden="true">
-            <span>♜</span><span>♞</span><span>♝</span><span>♛</span>
-            <span>♟</span><span>✦</span><span>♟</span><span>♚</span>
-            <span></span><span>♘</span><span></span><span>☄</span>
-            <span>♙</span><span>♕</span><span>♔</span><span>♖</span>
+            <span>BR</span><span>BN</span><span>BB</span><span>BQ</span>
+            <span>BP</span><span>✦</span><span>BP</span><span>BK</span>
+            <span></span><span>WN</span><span></span><span>☄</span>
+            <span>WP</span><span>WQ</span><span>WK</span><span>WR</span>
           </div>
 
           <ul class="rules-small">
             <li><b>Goal:</b> defeat the enemy king.</li>
             <li><b>Turns:</b> move or cast one skill each turn.</li>
-            <li><b>HP:</b> pieces can survive damage.</li>
-            <li><b>Cooldown:</b> skills need time before reuse.</li>
+            <li><b>Timer:</b> default 10 minutes each player.</li>
+            <li><b>Board:</b> your color always starts at the bottom.</li>
           </ul>
         </aside>
       </div>
@@ -758,7 +830,7 @@
         <button id="backToLandingBtn" class="btn btn-ghost">← Home</button>
 
         <div class="brand">
-          <span class="brand-mark">♛</span>
+          <span class="brand-mark">MC</span>
           <span>Lobby</span>
         </div>
       </nav>
@@ -770,6 +842,14 @@
           <p class="muted">
             Quick match joins an open room. If there is no room, it creates one.
           </p>
+
+          <label class="muted" for="timerSelect">Timer</label>
+          <select id="timerSelect">
+            <option value="300">5 minutes</option>
+            <option value="600" selected>10 minutes</option>
+            <option value="900">15 minutes</option>
+            <option value="1800">30 minutes</option>
+          </select>
 
           <div class="stack">
             <button id="quickMatchBtn" class="btn btn-primary full">Quick Match</button>
@@ -854,6 +934,20 @@
         </section>
 
         <aside class="side-panel">
+          <section class="panel compact">
+            <p class="eyebrow">Timer</p>
+            <div class="timer-box">
+              <div id="whiteTimerRow" class="timer-row">
+                <span class="timer-name">White</span>
+                <span id="whiteTimer" class="timer-time">10:00</span>
+              </div>
+              <div id="blackTimerRow" class="timer-row">
+                <span class="timer-name">Black</span>
+                <span id="blackTimer" class="timer-time">10:00</span>
+              </div>
+            </div>
+          </section>
+
           <section class="panel compact">
             <p class="eyebrow">Turn</p>
             <h2 id="turnText">Waiting...</h2>
