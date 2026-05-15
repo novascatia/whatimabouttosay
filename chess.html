@@ -469,7 +469,6 @@
       transition: transform 160ms ease;
     }
 
-    /* CSS BARU UNTUK GAMBAR BIDAK */
     .piece-img {
       width: 88%;
       height: 88%;
@@ -558,7 +557,6 @@
     .winner-banner p { margin: 0 0 8px; color: var(--muted); }
     .hidden { display: none !important; }
 
-    /* --- NOTIFICATION & MODAL CSS (BARU) --- */
     .toast-container {
       position: fixed;
       top: 20px;
@@ -611,7 +609,6 @@
 
     .modal-content h3 { margin: 0 0 10px; font-size: 1.5rem; }
     .modal-content p { margin: 0 0 20px; color: var(--muted); line-height: 1.4; }
-    /* --------------------------------------- */
 
     @media (max-width: 920px) {
       .auth-layout, .landing-layout, .lobby-grid, .game-layout { grid-template-columns: 1fr; }
@@ -790,14 +787,14 @@
         </section>
 
         <section class="panel rules-panel">
-          <p class="eyebrow">Skills</p>
+          <p class="eyebrow">Skills & Rules (OP Mode)</p>
           <div class="rules-list">
-            <article><b>Pawn</b><span>Spark: damage 1 nearby enemy.</span></article>
-            <article><b>Rook</b><span>Bulwark: gain shield.</span></article>
-            <article><b>Bishop</b><span>Heal ally or damage enemy diagonally.</span></article>
-            <article><b>Knight</b><span>Blink to an L-square and damage nearby enemies.</span></article>
-            <article><b>Queen</b><span>Arcane Storm: damage enemies in a 3×3 area.</span></article>
-            <article><b>King</b><span>Royal Guard: heal and gain shield.</span></article>
+            <article><b>Pawn</b><span>Chain Eat: Lompat miring maks 3 petak & memakan semua musuh di jalur. Berubah jadi Queen jika sampai ujung!</span></article>
+            <article><b>Rook</b><span>Build Wall: Membangun dinding kebal (HP 99) di depan pion terdepan untuk menghalangi musuh (hancur dalam 2 putaran).</span></article>
+            <article><b>Bishop</b><span>Pierce: Melesat miring maks 5 petak, menghancurkan pion/kuda/benteng musuh di jalurnya.</span></article>
+            <article><b>Knight</b><span>Passive (Expand Walk): Selain lompat L, kuda kini bisa berjalan lurus secara tak terbatas ke petak kosong.</span></article>
+            <article><b>Queen</b><span>Obliterate (CD 15): Pindah ke mana saja di jalurnya lalu musnahkan SELURUH musuh di sekelilingnya (8 petak)!</span></article>
+            <article><b>King</b><span>Teleport: Melarikan diri dari checkmate dengan pindah secara instan ke petak kosong mana saja di papan.</span></article>
           </div>
         </section>
       </div>
