@@ -195,10 +195,6 @@ function normalizeUsername(value) {
     .replace(/[^a-z0-9_]/g, "");
 }
 
-function usernameToInternalEmail(username) {
-  return `${username}@magicchess-users.com`;
-}
-
 function setAuthStatus(message) {
   if (els.authStatus) {
     els.authStatus.textContent = message;
@@ -230,58 +226,42 @@ function setAuthMode(mode) {
   setAuthStatus(isLogin ? "Please login first." : "Create your account.");
 }
 
-async function loadProfile(user) {
-  const { data: existingProfile, error: readError } = await supabase
-    .from("magic_chess_profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+function saveSession(profile) {
+  localStorage.setItem("magicChessProfile", JSON.stringify(profile));
+}
 
-  if (existingProfile) {
-    state.profile = existingProfile;
-    renderProfile();
-    return existingProfile;
+function clearSession() {
+  localStorage.removeItem("magicChessProfile");
+}
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem("magicChessProfile");
+    if (!raw) return null;
+
+    const profile = JSON.parse(raw);
+
+    if (!profile?.id || !profile?.username) {
+      return null;
+    }
+
+    return profile;
+  } catch {
+    return null;
   }
+}
 
-  if (readError && readError.code !== "PGRST116") {
-    throw readError;
-  }
+function applyProfile(profile) {
+  state.user = {
+    id: profile.id,
+    username: profile.username
+  };
 
-  const username =
-    user.user_metadata?.username ||
-    user.email?.split("@")[0] ||
-    "player";
+  state.profile = profile;
+  state.playerId = profile.id;
 
-  const { data: newProfile, error: insertError } = await supabase
-    .from("magic_chess_profiles")
-    .insert({
-      id: user.id,
-      username,
-      elo: 0,
-      wins: 0,
-      losses: 0,
-      games_played: 0
-    })
-    .select()
-    .single();
-
-  if (insertError) {
-    const { data: retryProfile, error: retryError } = await supabase
-      .from("magic_chess_profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (retryError) throw insertError;
-
-    state.profile = retryProfile;
-    renderProfile();
-    return retryProfile;
-  }
-
-  state.profile = newProfile;
+  saveSession(profile);
   renderProfile();
-  return newProfile;
 }
 
 function renderProfile() {
@@ -324,54 +304,31 @@ async function handleAuthSubmit(event) {
     return;
   }
 
-  const email = usernameToInternalEmail(username);
-
   els.authSubmitBtn.disabled = true;
   setAuthStatus(state.authMode === "login" ? "Logging in..." : "Registering...");
 
   try {
-    if (state.authMode === "register") {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username
-          }
-        }
-      });
-
-      if (error) throw error;
-
-      if (!data.user) {
-        setAuthStatus("Register berhasil. Sekarang coba login.");
-        setAuthMode("login");
-        return;
-      }
-
-      state.user = data.user;
-      state.playerId = data.user.id;
-
-      await loadProfile(data.user);
-
-      setAuthStatus("Register success.");
-      showView("landing");
-      return;
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    const response = await fetch("/.netlify/functions/chess-auth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mode: state.authMode,
+        username,
+        password
+      })
     });
 
-    if (error) throw error;
+    const result = await response.json();
 
-    state.user = data.user;
-    state.playerId = data.user.id;
+    if (!response.ok) {
+      throw new Error(result.error || "Auth failed.");
+    }
 
-    await loadProfile(data.user);
+    applyProfile(result.profile);
 
-    setAuthStatus("Login success.");
+    setAuthStatus(state.authMode === "login" ? "Login success." : "Register success.");
     showView("landing");
   } catch (error) {
     setAuthStatus(error.message || "Auth failed.");
@@ -385,7 +342,7 @@ async function logout() {
     await supabase.removeChannel(state.channel);
   }
 
-  await supabase.auth.signOut();
+  clearSession();
 
   state.user = null;
   state.profile = null;
@@ -402,16 +359,13 @@ async function logout() {
   setAuthMode("login");
 }
 
-async function initAuth() {
+function initAuth() {
   setAuthMode("login");
 
-  const { data } = await supabase.auth.getSession();
+  const profile = loadSession();
 
-  if (data.session?.user) {
-    state.user = data.session.user;
-    state.playerId = data.session.user.id;
-
-    await loadProfile(data.session.user);
+  if (profile) {
+    applyProfile(profile);
     showView("landing");
   } else {
     showView("auth");
@@ -1626,34 +1580,32 @@ async function handleGameResult() {
 
   state.resultProcessing = true;
 
-  const didWin = board.winner === state.playerColor;
-  const currentElo = Number(state.profile.elo || 0);
-  const currentWins = Number(state.profile.wins || 0);
-  const currentLosses = Number(state.profile.losses || 0);
-  const currentGames = Number(state.profile.games_played || 0);
+  try {
+    const response = await fetch("/.netlify/functions/chess-result", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        profileId: state.user.id,
+        gameId: state.game.id,
+        playerColor: state.playerColor
+      })
+    });
 
-  const nextProfile = {
-    elo: didWin ? currentElo + 25 : Math.max(0, currentElo - 10),
-    wins: didWin ? currentWins + 1 : currentWins,
-    losses: didWin ? currentLosses : currentLosses + 1,
-    games_played: currentGames + 1,
-    updated_at: new Date().toISOString()
-  };
+    const result = await response.json();
 
-  const { data, error } = await supabase
-    .from("magic_chess_profiles")
-    .update(nextProfile)
-    .eq("id", state.user.id)
-    .select()
-    .single();
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to apply result.");
+    }
 
-  if (!error && data) {
     localStorage.setItem(storageKey, "done");
-    state.profile = data;
-    renderProfile();
+    applyProfile(result.profile);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    state.resultProcessing = false;
   }
-
-  state.resultProcessing = false;
 }
 
 els.loginTabBtn?.addEventListener("click", () => setAuthMode("login"));
