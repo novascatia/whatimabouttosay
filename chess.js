@@ -329,7 +329,7 @@ async function handleAuthSubmit(event) {
     applyProfile(result.profile);
 
     setAuthStatus(state.authMode === "login" ? "Login success." : "Register success.");
-    showView("landing");
+    checkUrlAndJoin(); // Jika berhasil login, cek URL barangkali ada kode room
   } catch (error) {
     setAuthStatus(error.message || "Auth failed.");
   } finally {
@@ -359,6 +359,19 @@ async function logout() {
   setAuthMode("login");
 }
 
+async function checkUrlAndJoin() {
+  const params = new URLSearchParams(window.location.search);
+  const roomCode = params.get("room");
+
+  if (roomCode) {
+    showView("lobby");
+    els.roomCodeInput.value = roomCode;
+    await joinRoomByCode();
+  } else {
+    showView("landing");
+  }
+}
+
 function initAuth() {
   setAuthMode("login");
 
@@ -366,7 +379,7 @@ function initAuth() {
 
   if (profile) {
     applyProfile(profile);
-    showView("landing");
+    checkUrlAndJoin();
   } else {
     showView("auth");
   }
@@ -1454,6 +1467,11 @@ async function enterGame(game, color) {
   state.resultProcessing = false;
   clearSelection();
 
+  // --- UPDATE URL DENGAN ROOM CODE ---
+  const newUrl = new URL(window.location);
+  newUrl.searchParams.set("room", game.room_code);
+  window.history.pushState({ room: game.room_code }, "", newUrl);
+
   showView("game");
   setOnline(false);
   renderGame();
@@ -1495,6 +1513,12 @@ async function leaveGame() {
 
   clearSelection();
   setOnline(false);
+
+  // --- BERSIHKAN ROOM CODE DARI URL ---
+  const newUrl = new URL(window.location);
+  newUrl.searchParams.delete("room");
+  window.history.pushState({}, "", newUrl);
+
   showView("lobby");
 }
 
@@ -1640,4 +1664,3 @@ setInterval(() => {
 }, 250);
 
 initAuth();
-renderGame();
