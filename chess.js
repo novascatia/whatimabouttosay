@@ -20,11 +20,34 @@ const supabase = createClient(
 const $ = selector => document.querySelector(selector);
 
 const els = {
+  authView: $("#authView"),
   landingView: $("#landingView"),
   lobbyView: $("#lobbyView"),
   gameView: $("#gameView"),
 
-  openLobbyBtn: $("#openLobbyBtn"),
+  loginTabBtn: $("#loginTabBtn"),
+  registerTabBtn: $("#registerTabBtn"),
+  authTitle: $("#authTitle"),
+  authSubtitle: $("#authSubtitle"),
+  authForm: $("#authForm"),
+  authUsernameInput: $("#authUsernameInput"),
+  authPasswordInput: $("#authPasswordInput"),
+  authSubmitBtn: $("#authSubmitBtn"),
+  authStatus: $("#authStatus"),
+
+  logoutBtn: $("#logoutBtn"),
+
+  navUsername: $("#navUsername"),
+  navElo: $("#navElo"),
+  profileUsername: $("#profileUsername"),
+  profileElo: $("#profileElo"),
+  profileWins: $("#profileWins"),
+  profileLosses: $("#profileLosses"),
+  lobbyUsername: $("#lobbyUsername"),
+  lobbyElo: $("#lobbyElo"),
+  gameUsername: $("#gameUsername"),
+  gameElo: $("#gameElo"),
+
   heroPlayBtn: $("#heroPlayBtn"),
   heroRulesBtn: $("#heroRulesBtn"),
   backToLandingBtn: $("#backToLandingBtn"),
@@ -34,6 +57,7 @@ const els = {
   joinRoomBtn: $("#joinRoomBtn"),
   roomCodeInput: $("#roomCodeInput"),
   lobbyStatus: $("#lobbyStatus"),
+  timerSelect: $("#timerSelect"),
 
   board: $("#board"),
   leaveGameBtn: $("#leaveGameBtn"),
@@ -44,9 +68,17 @@ const els = {
   winnerTitle: $("#winnerTitle"),
   winnerText: $("#winnerText"),
 
+  topPlayerLabel: $("#topPlayerLabel"),
+  bottomPlayerLabel: $("#bottomPlayerLabel"),
+
   turnText: $("#turnText"),
   playerText: $("#playerText"),
   gameStatus: $("#gameStatus"),
+
+  whiteTimer: $("#whiteTimer"),
+  blackTimer: $("#blackTimer"),
+  whiteTimerRow: $("#whiteTimerRow"),
+  blackTimerRow: $("#blackTimerRow"),
 
   selectedTitle: $("#selectedTitle"),
   selectedDescription: $("#selectedDescription"),
@@ -123,7 +155,12 @@ const SKILLS = {
 };
 
 let state = {
-  playerId: getPlayerId(),
+  user: null,
+  profile: null,
+  playerId: null,
+  authMode: "login",
+  resultProcessing: false,
+
   playerColor: null,
   game: null,
   channel: null,
@@ -133,25 +170,252 @@ let state = {
   skillHints: []
 };
 
-function getPlayerId() {
-  const existing = localStorage.getItem("magicChessPlayerId");
-  if (existing) return existing;
-
-  const id = crypto.randomUUID();
-  localStorage.setItem("magicChessPlayerId", id);
-  return id;
-}
-
 function showView(name) {
-  const views = [els.landingView, els.lobbyView, els.gameView];
+  const views = [
+    els.authView,
+    els.landingView,
+    els.lobbyView,
+    els.gameView
+  ].filter(Boolean);
 
   for (const view of views) {
     view.classList.remove("view-active");
   }
 
+  if (name === "auth") els.authView.classList.add("view-active");
   if (name === "landing") els.landingView.classList.add("view-active");
   if (name === "lobby") els.lobbyView.classList.add("view-active");
   if (name === "game") els.gameView.classList.add("view-active");
+}
+
+function normalizeUsername(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "");
+}
+
+function usernameToInternalEmail(username) {
+  return `${username}@magicchess.local`;
+}
+
+function setAuthStatus(message) {
+  if (els.authStatus) {
+    els.authStatus.textContent = message;
+  }
+}
+
+function setAuthMode(mode) {
+  state.authMode = mode;
+
+  const isLogin = mode === "login";
+
+  els.loginTabBtn?.classList.toggle("active", isLogin);
+  els.registerTabBtn?.classList.toggle("active", !isLogin);
+
+  if (els.authTitle) {
+    els.authTitle.textContent = isLogin ? "Login" : "Register";
+  }
+
+  if (els.authSubtitle) {
+    els.authSubtitle.textContent = isLogin
+      ? "Masuk pakai username dan password."
+      : "Buat akun baru pakai username dan password.";
+  }
+
+  if (els.authSubmitBtn) {
+    els.authSubmitBtn.textContent = isLogin ? "Login" : "Register";
+  }
+
+  setAuthStatus(isLogin ? "Please login first." : "Create your account.");
+}
+
+async function loadProfile(user) {
+  const { data: existingProfile, error: readError } = await supabase
+    .from("magic_chess_profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (existingProfile) {
+    state.profile = existingProfile;
+    renderProfile();
+    return existingProfile;
+  }
+
+  if (readError && readError.code !== "PGRST116") {
+    throw readError;
+  }
+
+  const username =
+    user.user_metadata?.username ||
+    user.email?.split("@")[0] ||
+    "player";
+
+  const { data: newProfile, error: insertError } = await supabase
+    .from("magic_chess_profiles")
+    .insert({
+      id: user.id,
+      username,
+      elo: 0,
+      wins: 0,
+      losses: 0,
+      games_played: 0
+    })
+    .select()
+    .single();
+
+  if (insertError) {
+    const { data: retryProfile, error: retryError } = await supabase
+      .from("magic_chess_profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (retryError) throw insertError;
+
+    state.profile = retryProfile;
+    renderProfile();
+    return retryProfile;
+  }
+
+  state.profile = newProfile;
+  renderProfile();
+  return newProfile;
+}
+
+function renderProfile() {
+  const profile = state.profile;
+  if (!profile) return;
+
+  const username = profile.username || "Player";
+  const elo = Number(profile.elo || 0);
+  const wins = Number(profile.wins || 0);
+  const losses = Number(profile.losses || 0);
+
+  if (els.navUsername) els.navUsername.textContent = username;
+  if (els.navElo) els.navElo.textContent = `${elo} ELO`;
+
+  if (els.profileUsername) els.profileUsername.textContent = username;
+  if (els.profileElo) els.profileElo.textContent = elo;
+  if (els.profileWins) els.profileWins.textContent = wins;
+  if (els.profileLosses) els.profileLosses.textContent = losses;
+
+  if (els.lobbyUsername) els.lobbyUsername.textContent = username;
+  if (els.lobbyElo) els.lobbyElo.textContent = `${elo} ELO`;
+
+  if (els.gameUsername) els.gameUsername.textContent = username;
+  if (els.gameElo) els.gameElo.textContent = elo;
+}
+
+async function handleAuthSubmit(event) {
+  event.preventDefault();
+
+  const username = normalizeUsername(els.authUsernameInput?.value);
+  const password = els.authPasswordInput?.value || "";
+
+  if (!username || username.length < 3) {
+    setAuthStatus("Username minimal 3 karakter. Pakai huruf, angka, atau underscore.");
+    return;
+  }
+
+  if (password.length < 6) {
+    setAuthStatus("Password minimal 6 karakter.");
+    return;
+  }
+
+  const email = usernameToInternalEmail(username);
+
+  els.authSubmitBtn.disabled = true;
+  setAuthStatus(state.authMode === "login" ? "Logging in..." : "Registering...");
+
+  try {
+    if (state.authMode === "register") {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (!data.user) {
+        setAuthStatus("Register berhasil. Sekarang coba login.");
+        setAuthMode("login");
+        return;
+      }
+
+      state.user = data.user;
+      state.playerId = data.user.id;
+
+      await loadProfile(data.user);
+
+      setAuthStatus("Register success.");
+      showView("landing");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    state.user = data.user;
+    state.playerId = data.user.id;
+
+    await loadProfile(data.user);
+
+    setAuthStatus("Login success.");
+    showView("landing");
+  } catch (error) {
+    setAuthStatus(error.message || "Auth failed.");
+  } finally {
+    els.authSubmitBtn.disabled = false;
+  }
+}
+
+async function logout() {
+  if (state.channel) {
+    await supabase.removeChannel(state.channel);
+  }
+
+  await supabase.auth.signOut();
+
+  state.user = null;
+  state.profile = null;
+  state.playerId = null;
+  state.game = null;
+  state.playerColor = null;
+  state.channel = null;
+  state.selected = null;
+  state.moveHints = [];
+  state.skillMode = false;
+  state.skillHints = [];
+
+  showView("auth");
+  setAuthMode("login");
+}
+
+async function initAuth() {
+  setAuthMode("login");
+
+  const { data } = await supabase.auth.getSession();
+
+  if (data.session?.user) {
+    state.user = data.session.user;
+    state.playerId = data.session.user.id;
+
+    await loadProfile(data.session.user);
+    showView("landing");
+  } else {
+    showView("auth");
+  }
 }
 
 function setLobbyStatus(message) {
@@ -195,6 +459,18 @@ function clone(value) {
   return structuredClone(value);
 }
 
+function nowMs() {
+  return Date.now();
+}
+
+function formatTime(seconds) {
+  const safe = Math.max(0, Math.ceil(seconds));
+  const minutes = Math.floor(safe / 60);
+  const secs = safe % 60;
+
+  return `${minutes}:${String(secs).padStart(2, "0")}`;
+}
+
 function createPiece(type, color, x) {
   return {
     id: `${color}-${type}-${x}-${crypto.randomUUID().slice(0, 6)}`,
@@ -207,7 +483,7 @@ function createPiece(type, color, x) {
   };
 }
 
-function createInitialBoard() {
+function createInitialBoard(timerSeconds = 600) {
   const tiles = {};
   const back = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
 
@@ -222,9 +498,15 @@ function createInitialBoard() {
   return {
     turn: "white",
     tiles,
-    log: ["Game created. White moves first."],
+    log: ["Room created. Waiting for another player."],
     winner: null,
-    lastAction: null
+    lastAction: null,
+    timers: {
+      white: timerSeconds,
+      black: timerSeconds
+    },
+    timerStartedAt: null,
+    resultApplied: false
   };
 }
 
@@ -236,12 +518,16 @@ function getPiece(square) {
   return getBoard()?.tiles?.[square] || null;
 }
 
-function isMyTurn() {
-  return getBoard()?.turn === state.playerColor;
-}
-
 function opposite(color) {
   return color === "white" ? "black" : "white";
+}
+
+function isMyTurn() {
+  return (
+    state.game?.status === "active" &&
+    getBoard()?.turn === state.playerColor &&
+    !getBoard()?.winner
+  );
 }
 
 function pieceLabel(piece) {
@@ -251,7 +537,92 @@ function pieceLabel(piece) {
 function addLog(board, message) {
   board.log = board.log || [];
   board.log.unshift(message);
-  board.log = board.log.slice(0, 10);
+  board.log = board.log.slice(0, 12);
+}
+
+function getDisplayedTimers(board) {
+  if (!board?.timers) {
+    return {
+      white: 600,
+      black: 600
+    };
+  }
+
+  const timers = {
+    white: Number(board.timers.white ?? 600),
+    black: Number(board.timers.black ?? 600)
+  };
+
+  if (
+    state.game?.status === "active" &&
+    !board.winner &&
+    board.timerStartedAt
+  ) {
+    const elapsed = (nowMs() - Number(board.timerStartedAt)) / 1000;
+    timers[board.turn] = Math.max(0, timers[board.turn] - elapsed);
+  }
+
+  return timers;
+}
+
+function renderTimers() {
+  const board = getBoard();
+  const timers = getDisplayedTimers(board);
+
+  if (!els.whiteTimer || !els.blackTimer) return;
+
+  els.whiteTimer.textContent = formatTime(timers.white);
+  els.blackTimer.textContent = formatTime(timers.black);
+
+  els.whiteTimerRow?.classList.toggle(
+    "active",
+    board?.turn === "white" && state.game?.status === "active" && !board?.winner
+  );
+
+  els.blackTimerRow?.classList.toggle(
+    "active",
+    board?.turn === "black" && state.game?.status === "active" && !board?.winner
+  );
+}
+
+function applyTimerBeforeAction(board) {
+  if (
+    state.game?.status !== "active" ||
+    board.winner ||
+    !board.timerStartedAt
+  ) {
+    return;
+  }
+
+  const elapsed = (nowMs() - Number(board.timerStartedAt)) / 1000;
+  board.timers[board.turn] = Math.max(0, Number(board.timers[board.turn]) - elapsed);
+  board.timerStartedAt = nowMs();
+
+  if (board.timers[board.turn] <= 0) {
+    board.winner = opposite(board.turn);
+    addLog(board, `${board.turn} ran out of time.`);
+  }
+}
+
+function startTurnTimer(board) {
+  board.timerStartedAt = nowMs();
+}
+
+function checkTimerFlag() {
+  const board = getBoard();
+
+  if (!board || state.game?.status !== "active" || board.winner) return;
+
+  const timers = getDisplayedTimers(board);
+
+  if (timers[board.turn] <= 0 && isMyTurn()) {
+    const nextBoard = clone(board);
+    applyTimerBeforeAction(nextBoard);
+
+    if (nextBoard.winner) {
+      updateGameBoard(nextBoard);
+    }
+  }
 }
 
 function switchTurn(board) {
@@ -266,6 +637,8 @@ function switchTurn(board) {
       piece.shield = Math.max(0, piece.shield - 1);
     }
   }
+
+  startTurnTimer(board);
 }
 
 function damagePiece(board, square, amount) {
@@ -468,7 +841,7 @@ async function updateGameBoard(board) {
       board_state: board,
       current_turn: board.turn,
       winner: board.winner,
-      status: board.winner ? "finished" : "active",
+      status: board.winner ? "finished" : state.game.status === "waiting" ? "waiting" : "active",
       updated_at: new Date().toISOString()
     })
     .eq("id", state.game.id)
@@ -487,6 +860,14 @@ async function updateGameBoard(board) {
 
 async function moveSelected(to) {
   const board = clone(getBoard());
+
+  applyTimerBeforeAction(board);
+
+  if (board.winner) {
+    await updateGameBoard(board);
+    return;
+  }
+
   const from = state.selected;
   const piece = board.tiles[from];
 
@@ -517,6 +898,16 @@ async function moveSelected(to) {
   board.tiles[to] = piece;
   delete board.tiles[from];
 
+  board.lastAction = {
+    type: "move",
+    from,
+    to,
+    pieceId: piece.id,
+    pieceType: piece.type,
+    color: piece.color,
+    at: Date.now()
+  };
+
   if (!board.winner) {
     switchTurn(board);
   }
@@ -526,6 +917,14 @@ async function moveSelected(to) {
 
 async function castSelfSkill() {
   const board = clone(getBoard());
+
+  applyTimerBeforeAction(board);
+
+  if (board.winner) {
+    await updateGameBoard(board);
+    return;
+  }
+
   const from = state.selected;
   const piece = board.tiles[from];
 
@@ -554,12 +953,30 @@ async function castSelfSkill() {
     return;
   }
 
+  board.lastAction = {
+    type: "skill",
+    from,
+    to: from,
+    pieceId: piece.id,
+    pieceType: piece.type,
+    color: piece.color,
+    at: Date.now()
+  };
+
   switchTurn(board);
   await updateGameBoard(board);
 }
 
 async function castTargetSkill(to) {
   const board = clone(getBoard());
+
+  applyTimerBeforeAction(board);
+
+  if (board.winner) {
+    await updateGameBoard(board);
+    return;
+  }
+
   const from = state.selected;
   const piece = board.tiles[from];
 
@@ -668,6 +1085,16 @@ async function castTargetSkill(to) {
     addLog(board, `${pieceLabel(piece)} cast Arcane Storm and hit ${hits} enemy piece(s).`);
   }
 
+  board.lastAction = {
+    type: "skill",
+    from,
+    to,
+    pieceId: piece.id,
+    pieceType: piece.type,
+    color: piece.color,
+    at: Date.now()
+  };
+
   if (!board.winner) {
     switchTurn(board);
   }
@@ -715,7 +1142,7 @@ function updateSelectedPanel() {
     els.selectedTitle.textContent = "None";
     els.selectedDescription.textContent = "Select one of your pieces to move or cast.";
     els.useSkillBtn.disabled = true;
-    els.useSkillBtn.textContent = "Use skill";
+    els.useSkillBtn.textContent = "Use Skill";
     return;
   }
 
@@ -779,8 +1206,18 @@ function renderBoard() {
   const board = getBoard();
   els.board.innerHTML = "";
 
-  for (let y = 0; y < 8; y++) {
-    for (let x = 0; x < 8; x++) {
+  const playingBlack = state.playerColor === "black";
+
+  const yOrder = playingBlack
+    ? [7, 6, 5, 4, 3, 2, 1, 0]
+    : [0, 1, 2, 3, 4, 5, 6, 7];
+
+  const xOrder = playingBlack
+    ? [7, 6, 5, 4, 3, 2, 1, 0]
+    : [0, 1, 2, 3, 4, 5, 6, 7];
+
+  for (const y of yOrder) {
+    for (const x of xOrder) {
       const squareKey = keyOf(x, y);
       const square = document.createElement("button");
       const piece = board?.tiles?.[squareKey];
@@ -804,6 +1241,11 @@ function renderBoard() {
       if (piece) {
         const pieceEl = document.createElement("div");
         pieceEl.className = `piece ${piece.color}`;
+
+        if (board?.lastAction?.to === squareKey && board?.lastAction?.pieceId === piece.id) {
+          pieceEl.classList.add("piece-move-animate");
+        }
+
         pieceEl.textContent = PIECE_ICONS[piece.color][piece.type];
 
         const meta = document.createElement("div");
@@ -824,6 +1266,18 @@ function renderBoard() {
   }
 }
 
+function renderPlayerLabels() {
+  if (!els.topPlayerLabel || !els.bottomPlayerLabel) return;
+
+  if (state.playerColor === "black") {
+    els.topPlayerLabel.textContent = "White";
+    els.bottomPlayerLabel.textContent = "Black";
+  } else {
+    els.topPlayerLabel.textContent = "Black";
+    els.bottomPlayerLabel.textContent = "White";
+  }
+}
+
 function renderGame() {
   const board = getBoard();
 
@@ -832,6 +1286,7 @@ function renderGame() {
     els.playerText.textContent = "You are not in a game.";
     els.copyRoomBtn.textContent = "------";
     els.battleLog.innerHTML = "";
+    renderTimers();
     renderBoard();
     return;
   }
@@ -862,11 +1317,15 @@ function renderGame() {
     els.winnerBanner.classList.remove("hidden");
     els.winnerTitle.textContent = `${board.winner.toUpperCase()} wins`;
     els.winnerText.textContent = "The king has fallen.";
+    handleGameResult();
   } else {
     els.winnerBanner.classList.add("hidden");
   }
 
+  renderPlayerLabels();
   updateSelectedPanel();
+  renderProfile();
+  renderTimers();
   renderBoard();
 }
 
@@ -879,17 +1338,29 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function requireAuth() {
+  if (!state.user || !state.playerId) {
+    showView("auth");
+    return false;
+  }
+
+  return true;
+}
+
 async function createGame({ privateRoom = false } = {}) {
+  if (!requireAuth()) return;
+
   setLobbyStatus("Creating room...");
 
   const roomCode = randomRoomCode();
-  const board = createInitialBoard();
+  const timerSeconds = Number(els.timerSelect?.value || 600);
+  const board = createInitialBoard(timerSeconds);
 
   const { data, error } = await supabase
     .from("magic_chess_games")
     .insert({
       room_code: roomCode,
-      status: privateRoom ? "waiting" : "waiting",
+      status: "waiting",
       white_player: state.playerId,
       black_player: null,
       current_turn: "white",
@@ -907,6 +1378,8 @@ async function createGame({ privateRoom = false } = {}) {
 }
 
 async function quickMatch() {
+  if (!requireAuth()) return;
+
   setLobbyStatus("Searching for open game...");
 
   const { data: waitingGames, error: searchError } = await supabase
@@ -927,7 +1400,8 @@ async function quickMatch() {
     const target = waitingGames[0];
     const board = target.board_state;
 
-    addLog(board, "Black joined. The battle begins.");
+    board.timerStartedAt = Date.now();
+    addLog(board, "Black joined. The battle begins. White timer started.");
 
     const { data, error } = await supabase
       .from("magic_chess_games")
@@ -955,6 +1429,8 @@ async function quickMatch() {
 }
 
 async function joinRoomByCode() {
+  if (!requireAuth()) return;
+
   const roomCode = els.roomCodeInput.value.trim().toUpperCase();
 
   if (!roomCode) {
@@ -992,7 +1468,8 @@ async function joinRoomByCode() {
 
   const board = game.board_state;
 
-  addLog(board, "Black joined. The battle begins.");
+  board.timerStartedAt = Date.now();
+  addLog(board, "Black joined. The battle begins. White timer started.");
 
   const { data, error } = await supabase
     .from("magic_chess_games")
@@ -1016,8 +1493,11 @@ async function joinRoomByCode() {
 }
 
 async function enterGame(game, color) {
+  console.log("You are:", color);
+
   state.game = game;
   state.playerColor = color;
+  state.resultProcessing = false;
   clearSelection();
 
   showView("game");
@@ -1127,26 +1607,85 @@ function scrollToRules() {
   setLobbyStatus("Create a room or join by code. Rules are below.");
 }
 
-els.openLobbyBtn.addEventListener("click", () => showView("lobby"));
-els.heroPlayBtn.addEventListener("click", () => showView("lobby"));
-els.heroRulesBtn.addEventListener("click", scrollToRules);
-els.backToLandingBtn.addEventListener("click", () => showView("landing"));
+async function handleGameResult() {
+  const board = getBoard();
 
-els.quickMatchBtn.addEventListener("click", quickMatch);
-els.createPrivateBtn.addEventListener("click", () => createGame({ privateRoom: true }));
-els.joinRoomBtn.addEventListener("click", joinRoomByCode);
+  if (!board?.winner || !state.user || !state.profile || !state.game || !state.playerColor) {
+    return;
+  }
 
-els.roomCodeInput.addEventListener("keydown", event => {
+  const storageKey = `magicChessResult:${state.game.id}:${state.user.id}`;
+
+  if (localStorage.getItem(storageKey) === "done") {
+    return;
+  }
+
+  if (state.resultProcessing) {
+    return;
+  }
+
+  state.resultProcessing = true;
+
+  const didWin = board.winner === state.playerColor;
+  const currentElo = Number(state.profile.elo || 0);
+  const currentWins = Number(state.profile.wins || 0);
+  const currentLosses = Number(state.profile.losses || 0);
+  const currentGames = Number(state.profile.games_played || 0);
+
+  const nextProfile = {
+    elo: didWin ? currentElo + 25 : Math.max(0, currentElo - 10),
+    wins: didWin ? currentWins + 1 : currentWins,
+    losses: didWin ? currentLosses : currentLosses + 1,
+    games_played: currentGames + 1,
+    updated_at: new Date().toISOString()
+  };
+
+  const { data, error } = await supabase
+    .from("magic_chess_profiles")
+    .update(nextProfile)
+    .eq("id", state.user.id)
+    .select()
+    .single();
+
+  if (!error && data) {
+    localStorage.setItem(storageKey, "done");
+    state.profile = data;
+    renderProfile();
+  }
+
+  state.resultProcessing = false;
+}
+
+els.loginTabBtn?.addEventListener("click", () => setAuthMode("login"));
+els.registerTabBtn?.addEventListener("click", () => setAuthMode("register"));
+els.authForm?.addEventListener("submit", handleAuthSubmit);
+els.logoutBtn?.addEventListener("click", logout);
+
+els.heroPlayBtn?.addEventListener("click", () => showView("lobby"));
+els.heroRulesBtn?.addEventListener("click", scrollToRules);
+els.backToLandingBtn?.addEventListener("click", () => showView("landing"));
+
+els.quickMatchBtn?.addEventListener("click", quickMatch);
+els.createPrivateBtn?.addEventListener("click", () => createGame({ privateRoom: true }));
+els.joinRoomBtn?.addEventListener("click", joinRoomByCode);
+
+els.roomCodeInput?.addEventListener("keydown", event => {
   if (event.key === "Enter") {
     joinRoomByCode();
   }
 });
 
-els.leaveGameBtn.addEventListener("click", leaveGame);
-els.returnLobbyBtn.addEventListener("click", leaveGame);
-els.copyRoomBtn.addEventListener("click", copyRoomCode);
+els.leaveGameBtn?.addEventListener("click", leaveGame);
+els.returnLobbyBtn?.addEventListener("click", leaveGame);
+els.copyRoomBtn?.addEventListener("click", copyRoomCode);
 
-els.useSkillBtn.addEventListener("click", startSkillMode);
-els.cancelSkillBtn.addEventListener("click", cancelSkillMode);
+els.useSkillBtn?.addEventListener("click", startSkillMode);
+els.cancelSkillBtn?.addEventListener("click", cancelSkillMode);
 
+setInterval(() => {
+  renderTimers();
+  checkTimerFlag();
+}, 250);
+
+initAuth();
 renderGame();
