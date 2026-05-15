@@ -93,9 +93,24 @@ const els = {
   declineDrawBtn: $("#declineDrawBtn"),
 };
 
+// URL SVG STANDAR WIKIMEDIA (STABIL & HIGH RESOLUTION)
 const PIECE_ICONS = {
-  white: { king: "♔", queen: "♕", rook: "♖", bishop: "♗", knight: "♘", pawn: "♙" },
-  black: { king: "♚", queen: "♛", rook: "♜", bishop: "♝", knight: "♞", pawn: "♟" }
+  white: { 
+    king: "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg", 
+    queen: "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg", 
+    rook: "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg", 
+    bishop: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg", 
+    knight: "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg", 
+    pawn: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg" 
+  },
+  black: { 
+    king: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg", 
+    queen: "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg", 
+    rook: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg", 
+    bishop: "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg", 
+    knight: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg", 
+    pawn: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg" 
+  }
 };
 
 const PIECE_HP = { king: 6, queen: 4, rook: 4, bishop: 3, knight: 3, pawn: 2 };
@@ -121,8 +136,42 @@ let state = {
   selected: null,
   moveHints: [],
   skillMode: false,
-  skillHints: []
+  skillHints: [],
+  lastSeenDrawAt: null
 };
+
+// --- CUSTOM UI HELPERS (TOAST & MODAL) ---
+function showToast(message) {
+  const container = document.getElementById("toastContainer");
+  if (!container) return;
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+let activeModalCallback = null;
+
+function showModal(title, text, onConfirm) {
+  const modal = document.getElementById("customModal");
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalText").textContent = text;
+  activeModalCallback = onConfirm;
+  modal.classList.remove("hidden");
+}
+
+function closeModal() {
+  document.getElementById("customModal").classList.add("hidden");
+  activeModalCallback = null;
+}
+
+document.getElementById("modalCancelBtn")?.addEventListener("click", closeModal);
+document.getElementById("modalConfirmBtn")?.addEventListener("click", () => {
+  if (activeModalCallback) activeModalCallback();
+  closeModal();
+});
+// -----------------------------------------
 
 function showView(name) {
   const views = [els.authView, els.landingView, els.lobbyView, els.gameView].filter(Boolean);
@@ -247,6 +296,7 @@ async function logout() {
   state.game = null;
   state.playerColor = null;
   state.channel = null;
+  state.lastSeenDrawAt = null;
   clearSelection();
 
   showView("auth");
@@ -339,7 +389,7 @@ function createPiece(type, color, x) {
   };
 }
 
-function createInitialBoard(timerSeconds = 600) {
+function createInitialBoard(timerSeconds = 600, whiteUsername = "White") {
   const tiles = {};
   const back = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
 
@@ -353,9 +403,11 @@ function createInitialBoard(timerSeconds = 600) {
   return {
     turn: "white",
     tiles,
+    players: { white: whiteUsername, black: "Waiting..." },
     log: ["Room created. Waiting for another player."],
     winner: null,
     drawOffer: null,
+    drawOfferAt: null,
     lastAction: null,
     timers: { white: timerSeconds, black: timerSeconds },
     timerStartedAt: null,
@@ -439,7 +491,6 @@ function switchTurn(board) {
   }
   startTurnTimer(board);
 
-  // Checkmate / Stalemate detection
   if (!hasValidMoves(board, board.turn)) {
     if (isKingInCheck(board, board.turn)) {
       board.winner = opposite(board.turn);
@@ -492,11 +543,10 @@ function pathClear(board, from, to) {
   return true;
 }
 
-// --- BASIC MOVEMENT LOGIC (No Check verification yet) ---
+// Basic Movement
 function canMovePieceBasic(board, from, to) {
   const piece = board.tiles[from];
-  if (!piece) return false;
-  if (from === to) return false;
+  if (!piece || from === to) return false;
 
   const target = board.tiles[to];
   if (target && target.color === piece.color) return false;
@@ -526,12 +576,10 @@ function canMovePieceBasic(board, from, to) {
   return false;
 }
 
-// --- CHECK MECHANICS ---
+// Check verification
 function isSquareAttacked(board, targetSquare, attackerColor) {
   for (const [key, piece] of Object.entries(board.tiles)) {
-    if (piece.color === attackerColor && canMovePieceBasic(board, key, targetSquare)) {
-      return true;
-    }
+    if (piece.color === attackerColor && canMovePieceBasic(board, key, targetSquare)) return true;
   }
   return false;
 }
@@ -549,7 +597,6 @@ function isKingInCheck(board, color) {
   return isSquareAttacked(board, kingSquare, opposite(color));
 }
 
-// Final Move Check (includes Check verification)
 function canMovePiece(board, from, to) {
   if (!canMovePieceBasic(board, from, to)) return false;
   const cloned = clone(board);
@@ -559,7 +606,6 @@ function canMovePiece(board, from, to) {
   return true;
 }
 
-// --- SKILL CHECK LOGIC ---
 function canUseSkillOnBasic(board, from, to) {
   const piece = board.tiles[from];
   if (!piece || piece.cooldown > 0) return false;
@@ -633,12 +679,10 @@ function canCastSelfSkill(board, from) {
   return true;
 }
 
-// Check for Checkmate/Stalemate
 function hasValidMoves(board, color) {
   for (const [from, piece] of Object.entries(board.tiles)) {
     if (piece.color !== color) continue;
     
-    // Normal moves
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const to = keyOf(x, y);
@@ -646,7 +690,6 @@ function hasValidMoves(board, color) {
       }
     }
     
-    // Target skills
     if (['pawn','bishop','knight','queen'].includes(piece.type)) {
       for (let y = 0; y < 8; y++) {
         for (let x = 0; x < 8; x++) {
@@ -655,7 +698,6 @@ function hasValidMoves(board, color) {
       }
     }
     
-    // Self skills
     if (['rook','king'].includes(piece.type) && canCastSelfSkill(board, from)) return true;
   }
   return false;
@@ -877,7 +919,7 @@ function updateSelectedPanel() {
   }
 
   const skill = SKILLS[piece.type];
-  els.selectedTitle.textContent = `${PIECE_ICONS[piece.color][piece.type]} ${piece.color} ${piece.type}`;
+  els.selectedTitle.innerHTML = `<img src="${PIECE_ICONS[piece.color][piece.type]}" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"> <span style="vertical-align: middle; text-transform: capitalize;">${piece.color} ${piece.type}</span>`;
   els.selectedDescription.textContent = `HP ${piece.hp}/${piece.maxHp} • Shield ${piece.shield} • ${skill.name}: ${skill.description}`;
   els.useSkillBtn.disabled = piece.cooldown > 0 || !isMyTurn();
   els.useSkillBtn.textContent = piece.cooldown > 0 ? `Cooldown: ${piece.cooldown}` : `Use ${skill.name}`;
@@ -921,7 +963,11 @@ function renderBoard() {
         const pieceEl = document.createElement("div");
         pieceEl.className = `piece ${piece.color}`;
         if (board?.lastAction?.to === squareKey && board?.lastAction?.pieceId === piece.id) pieceEl.classList.add("piece-move-animate");
-        pieceEl.textContent = PIECE_ICONS[piece.color][piece.type];
+        
+        const img = document.createElement("img");
+        img.src = PIECE_ICONS[piece.color][piece.type];
+        img.className = "piece-img";
+        pieceEl.appendChild(img);
 
         const meta = document.createElement("div");
         meta.className = "piece-meta";
@@ -941,12 +987,17 @@ function renderBoard() {
 
 function renderPlayerLabels() {
   if (!els.topPlayerLabel || !els.bottomPlayerLabel) return;
+  const board = getBoard();
+  const players = board?.players || { white: "White", black: "Black" };
+  const wName = players.white || "White";
+  const bName = players.black || "Black";
+
   if (state.playerColor === "black") {
-    els.topPlayerLabel.textContent = "White";
-    els.bottomPlayerLabel.textContent = "Black";
+    els.topPlayerLabel.textContent = wName;
+    els.bottomPlayerLabel.textContent = bName;
   } else {
-    els.topPlayerLabel.textContent = "Black";
-    els.bottomPlayerLabel.textContent = "White";
+    els.topPlayerLabel.textContent = bName;
+    els.bottomPlayerLabel.textContent = wName;
   }
 }
 
@@ -979,7 +1030,13 @@ function renderGame() {
 
   els.battleLog.innerHTML = (board.log || []).map(item => `<p>${escapeHtml(item)}</p>`).join("");
 
+  // Tampilkan Notifikasi Toast "X offered a draw" saat pertama kali ditawarkan
   if (board.drawOffer && board.drawOffer !== state.playerColor && !board.winner) {
+    if (state.lastSeenDrawAt !== board.drawOfferAt) {
+      const offererName = board.players?.[board.drawOffer] || board.drawOffer;
+      showToast(`${offererName} offered a draw.`);
+      state.lastSeenDrawAt = board.drawOfferAt;
+    }
     els.drawOfferBanner?.classList.remove("hidden");
   } else {
     els.drawOfferBanner?.classList.add("hidden");
@@ -1023,7 +1080,9 @@ async function createGame({ privateRoom = false } = {}) {
 
   const roomCode = randomRoomCode();
   const timerSeconds = Number(els.timerSelect?.value || 600);
-  const board = createInitialBoard(timerSeconds);
+  
+  // Menggunakan nama user sebagai White
+  const board = createInitialBoard(timerSeconds, state.user.username);
 
   const { data, error } = await supabase
     .from("magic_chess_games")
@@ -1052,6 +1111,11 @@ async function quickMatch() {
   if (waitingGames && waitingGames.length > 0) {
     const target = waitingGames[0];
     const board = target.board_state;
+    
+    // Setel Username ke Black saat bergabung
+    board.players = board.players || {};
+    board.players.black = state.user.username;
+    
     board.timerStartedAt = Date.now();
     addLog(board, "Black joined. The battle begins. White timer started.");
 
@@ -1085,6 +1149,11 @@ async function joinRoomByCode() {
   if (game.black_player) { setLobbyStatus("Room is already full."); return; }
 
   const board = game.board_state;
+  
+  // Setel Username ke Black saat bergabung
+  board.players = board.players || {};
+  board.players.black = state.user.username;
+
   board.timerStartedAt = Date.now();
   addLog(board, "Black joined. The battle begins. White timer started.");
 
@@ -1129,7 +1198,7 @@ async function enterGame(game, color) {
 
 async function leaveGame() {
   if (state.channel) await supabase.removeChannel(state.channel);
-  state.channel = null; state.game = null; state.playerColor = null;
+  state.channel = null; state.game = null; state.playerColor = null; state.lastSeenDrawAt = null;
   clearSelection();
   setOnline(false);
 
@@ -1218,20 +1287,30 @@ async function handleGameResult() {
   }
 }
 
-// MATCH ACTIONS
-async function resignGame() {
-  if (!confirm("Are you sure you want to resign?")) return;
-  const board = clone(getBoard());
-  board.winner = opposite(state.playerColor);
-  addLog(board, `${state.playerColor} resigned.`);
-  await updateGameBoard(board);
+// --- MATCH ACTIONS (DRAW / RESIGN) ---
+function resignGame() {
+  // MENGGUNAKAN CUSTOM MODAL UI
+  showModal("Confirm Resign", "Are you sure you want to resign and lose the game?", async () => {
+    const board = clone(getBoard());
+    board.winner = opposite(state.playerColor);
+    
+    const playerName = board.players?.[state.playerColor] || state.playerColor;
+    addLog(board, `${playerName} resigned.`);
+    
+    await updateGameBoard(board);
+  });
 }
 
 async function offerDraw() {
   const board = clone(getBoard());
   if (board.drawOffer === state.playerColor) return;
+  
   board.drawOffer = state.playerColor;
-  addLog(board, `${state.playerColor} offered a draw.`);
+  board.drawOfferAt = Date.now(); // Pemicu notifikasi Toast untuk player lawan
+  
+  const playerName = board.players?.[state.playerColor] || state.playerColor;
+  addLog(board, `${playerName} offered a draw.`);
+  
   await updateGameBoard(board);
 }
 
@@ -1239,14 +1318,22 @@ async function acceptDraw() {
   const board = clone(getBoard());
   board.winner = "draw";
   board.drawOffer = null;
-  addLog(board, `${state.playerColor} accepted the draw.`);
+  board.drawOfferAt = null;
+  
+  const playerName = board.players?.[state.playerColor] || state.playerColor;
+  addLog(board, `${playerName} accepted the draw.`);
+  
   await updateGameBoard(board);
 }
 
 async function declineDraw() {
   const board = clone(getBoard());
   board.drawOffer = null;
-  addLog(board, `${state.playerColor} declined the draw.`);
+  board.drawOfferAt = null;
+  
+  const playerName = board.players?.[state.playerColor] || state.playerColor;
+  addLog(board, `${playerName} declined the draw.`);
+  
   await updateGameBoard(board);
 }
 
