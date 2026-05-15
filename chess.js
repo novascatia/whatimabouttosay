@@ -196,7 +196,7 @@ function normalizeUsername(value) {
 }
 
 function usernameToInternalEmail(username) {
-  return `${username}@magicchess.local`;
+  return `${username}@magicchess-users.com`;
 }
 
 function setAuthStatus(message) {
