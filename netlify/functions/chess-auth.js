@@ -1,5 +1,5 @@
-import crypto from "node:crypto";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const crypto = require("crypto");
+const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -41,27 +41,20 @@ function publicProfile(profile) {
   };
 }
 
-export async function handler(event) {
+exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
-    return json(405, {
-      error: "Method not allowed."
-    });
+    return json(405, { error: "Method not allowed." });
   }
 
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
-    return json(500, {
-      error: "Missing Supabase server env."
-    });
+    return json(500, { error: "Missing Supabase server env." });
   }
 
   let payload;
-
   try {
     payload = JSON.parse(event.body || "{}");
   } catch {
-    return json(400, {
-      error: "Invalid JSON."
-    });
+    return json(400, { error: "Invalid JSON." });
   }
 
   const mode = payload.mode;
@@ -69,21 +62,15 @@ export async function handler(event) {
   const password = String(payload.password || "");
 
   if (!["login", "register"].includes(mode)) {
-    return json(400, {
-      error: "Invalid auth mode."
-    });
+    return json(400, { error: "Invalid auth mode." });
   }
 
   if (!username || username.length < 3) {
-    return json(400, {
-      error: "Username minimal 3 karakter. Pakai huruf, angka, atau underscore."
-    });
+    return json(400, { error: "Username minimal 3 karakter. Pakai huruf, angka, atau underscore." });
   }
 
   if (password.length < 6) {
-    return json(400, {
-      error: "Password minimal 6 karakter."
-    });
+    return json(400, { error: "Password minimal 6 karakter." });
   }
 
   if (mode === "register") {
@@ -94,9 +81,7 @@ export async function handler(event) {
       .maybeSingle();
 
     if (existing) {
-      return json(409, {
-        error: "Username sudah dipakai."
-      });
+      return json(409, { error: "Username sudah dipakai." });
     }
 
     const salt = crypto.randomBytes(16).toString("hex");
@@ -117,14 +102,10 @@ export async function handler(event) {
       .single();
 
     if (error) {
-      return json(500, {
-        error: error.message
-      });
+      return json(500, { error: error.message });
     }
 
-    return json(200, {
-      profile: publicProfile(profile)
-    });
+    return json(200, { profile: publicProfile(profile) });
   }
 
   const { data: profile, error } = await supabase
@@ -134,15 +115,11 @@ export async function handler(event) {
     .maybeSingle();
 
   if (error) {
-    return json(500, {
-      error: error.message
-    });
+    return json(500, { error: error.message });
   }
 
   if (!profile) {
-    return json(401, {
-      error: "Username atau password salah."
-    });
+    return json(401, { error: "Username atau password salah." });
   }
 
   const attemptedHash = hashPassword(password, profile.password_salt);
@@ -152,17 +129,11 @@ export async function handler(event) {
     const b = Buffer.from(profile.password_hash, "hex");
 
     if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
-      return json(401, {
-        error: "Username atau password salah."
-      });
+      return json(401, { error: "Username atau password salah." });
     }
   } catch {
-    return json(401, {
-      error: "Username atau password salah."
-    });
+    return json(401, { error: "Username atau password salah." });
   }
 
-  return json(200, {
-    profile: publicProfile(profile)
-  });
-}
+  return json(200, { profile: publicProfile(profile) });
+};
