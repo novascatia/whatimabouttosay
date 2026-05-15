@@ -19,10 +19,10 @@
       --accent-hover: #95c95a;
       --danger: #d95757;
       --warning: #f0c15c;
+      --blue: #5d8fd6;
 
       --light-square: #eeeed2;
       --dark-square: #769656;
-      --selected: #f7ec6e;
       --move-dot: rgba(20, 20, 20, 0.28);
     }
 
@@ -73,10 +73,27 @@
         opacity: 0;
         transform: translateY(4px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
       }
+    }
+
+    @keyframes pieceMoveIn {
+      from {
+        transform: scale(0.78);
+        opacity: 0.55;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .piece-move-animate {
+      animation: pieceMoveIn 180ms ease-out;
     }
 
     .topbar {
@@ -101,6 +118,22 @@
       color: var(--accent);
       font-size: 2rem;
       line-height: 1;
+    }
+
+    .user-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .user-chip strong {
+      color: var(--text);
     }
 
     .btn {
@@ -129,6 +162,11 @@
 
     .btn-secondary {
       background: #4a4742;
+    }
+
+    .btn-blue {
+      background: var(--blue);
+      color: white;
     }
 
     .btn-ghost {
@@ -169,6 +207,113 @@
       color: var(--warning);
       min-height: 1.3em;
       font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 11px;
+      color: var(--text);
+      background: var(--panel-3);
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .stack {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    /* AUTH */
+
+    .auth-layout {
+      min-height: calc(100vh - 80px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .auth-hero {
+      display: grid;
+      align-content: center;
+      gap: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: clamp(20px, 5vw, 42px);
+    }
+
+    .auth-hero h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(2.3rem, 6vw, 4.5rem);
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+    }
+
+    .auth-hero p {
+      max-width: 620px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .auth-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .auth-tab {
+      border-radius: 6px;
+      padding: 10px;
+      border: 0;
+      background: var(--panel-2);
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .auth-tab.active {
+      background: var(--accent);
+      color: #17210e;
+    }
+
+    .auth-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .auth-form label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .auth-note {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      background: var(--panel-2);
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
     }
 
     /* LANDING */
@@ -216,6 +361,29 @@
       display: grid;
       gap: 12px;
       align-content: start;
+    }
+
+    .profile-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .profile-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      background: var(--panel-2);
+    }
+
+    .profile-row span {
+      color: var(--muted);
+    }
+
+    .profile-row strong {
+      font-size: 1.15rem;
     }
 
     .preview-board {
@@ -269,12 +437,6 @@
       font-size: 1.7rem;
     }
 
-    .stack {
-      display: grid;
-      gap: 9px;
-      margin-top: 12px;
-    }
-
     .join-row {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -282,25 +444,8 @@
       margin-top: 12px;
     }
 
-    input,
-    select {
-      width: 100%;
-      min-height: 40px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 9px 11px;
-      color: var(--text);
-      background: var(--panel-3);
-      outline: none;
-    }
-
-    input {
+    #roomCodeInput {
       text-transform: uppercase;
-    }
-
-    input:focus,
-    select:focus {
-      border-color: var(--accent);
     }
 
     .rules-panel {
@@ -469,12 +614,13 @@
       place-items: center;
       width: 100%;
       height: 100%;
-      font-size: clamp(2.1rem, 7.2vmin, 5.1rem);
+      font-size: clamp(2.3rem, 7.5vmin, 5.2rem);
       line-height: 1;
       user-select: none;
       pointer-events: none;
       font-family: "Times New Roman", Georgia, serif;
       font-weight: 700;
+      transition: transform 160ms ease;
     }
 
     .piece.white {
@@ -487,7 +633,7 @@
     .piece.black {
       color: #111111;
       text-shadow:
-        0 1px 1px rgba(255, 255, 255, 0.5),
+        0 1px 1px rgba(255, 255, 255, 0.55),
         0 0 1px #fff;
     }
 
@@ -615,6 +761,7 @@
     }
 
     @media (max-width: 920px) {
+      .auth-layout,
       .landing-layout,
       .lobby-grid,
       .game-layout {
@@ -654,14 +801,17 @@
         font-size: 1.75rem;
       }
 
+      .auth-layout,
       .landing-layout {
         min-height: auto;
       }
 
+      .auth-hero,
       .hero {
         padding: 18px;
       }
 
+      .auth-hero h1,
       .hero h1 {
         font-size: clamp(2rem, 12vw, 3.2rem);
       }
@@ -736,14 +886,75 @@
 
 <body>
   <main class="app-shell">
-    <section id="landingView" class="view view-active landing">
+    <section id="authView" class="view view-active">
+      <nav class="topbar">
+        <a class="brand" href="/">
+          <span class="brand-mark">♞</span>
+          <span>Magic Chess</span>
+        </a>
+      </nav>
+
+      <div class="auth-layout">
+        <section class="auth-hero">
+          <p class="eyebrow">Account required</p>
+          <h1>Login dulu biar progress kamu kesimpan.</h1>
+          <p>
+            ELO, win, lose, dan match history basic akan ikut akun kamu. Jadi kalau buka
+            dari device lain, progress tetap kebawa.
+          </p>
+        </section>
+
+        <section class="panel auth-card">
+          <div class="auth-tabs">
+            <button id="loginTabBtn" class="auth-tab active" type="button">Login</button>
+            <button id="registerTabBtn" class="auth-tab" type="button">Register</button>
+          </div>
+
+          <h2 id="authTitle">Login</h2>
+          <p id="authSubtitle" class="muted">
+            Masuk dengan email dan password kamu.
+          </p>
+
+          <form id="authForm" class="auth-form">
+            <label>
+              Username
+              <input id="authUsernameInput" type="text" placeholder="Only for register" autocomplete="nickname" />
+            </label>
+
+            <label>
+              Email
+              <input id="authEmailInput" type="email" placeholder="you@email.com" autocomplete="email" required />
+            </label>
+
+            <label>
+              Password
+              <input id="authPasswordInput" type="password" placeholder="Minimum 6 characters" autocomplete="current-password" required />
+            </label>
+
+            <button id="authSubmitBtn" class="btn btn-primary full" type="submit">Login</button>
+          </form>
+
+          <p id="authStatus" class="status-text">Please login first.</p>
+
+          <div class="auth-note">
+            New account starts from <b>0 ELO</b>. Win gives +25 ELO, lose gives -10 ELO.
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="landingView" class="view landing">
       <nav class="topbar">
         <a class="brand" href="/">
           <span class="brand-mark">♞</span>
           <span>Magic Chess</span>
         </a>
 
-        <button id="openLobbyBtn" class="btn btn-primary">Play</button>
+        <div class="user-chip">
+          <span id="navUsername">Guest</span>
+          <strong id="navElo">0</strong>
+          <button id="logoutBtn" class="btn btn-ghost">Logout</button>
+        </div>
       </nav>
 
       <div class="landing-layout">
@@ -762,6 +973,30 @@
         </section>
 
         <aside class="panel info-card">
+          <div class="profile-card">
+            <p class="eyebrow">Your Profile</p>
+
+            <div class="profile-row">
+              <span>Name</span>
+              <strong id="profileUsername">Guest</strong>
+            </div>
+
+            <div class="profile-row">
+              <span>ELO</span>
+              <strong id="profileElo">0</strong>
+            </div>
+
+            <div class="profile-row">
+              <span>Wins</span>
+              <strong id="profileWins">0</strong>
+            </div>
+
+            <div class="profile-row">
+              <span>Losses</span>
+              <strong id="profileLosses">0</strong>
+            </div>
+          </div>
+
           <div class="preview-board" aria-hidden="true">
             <span>♜</span><span>♞</span><span>♝</span><span>♛</span>
             <span>♟</span><span></span><span>♟</span><span>♚</span>
@@ -773,7 +1008,7 @@
             <li><b>Goal:</b> defeat the enemy king.</li>
             <li><b>Turns:</b> move or cast one skill.</li>
             <li><b>Timer:</b> default 10 minutes.</li>
-            <li><b>Board:</b> your pieces are at the bottom.</li>
+            <li><b>Progress:</b> ELO is saved to your account.</li>
           </ul>
         </aside>
       </div>
@@ -786,6 +1021,11 @@
         <div class="brand">
           <span class="brand-mark">♞</span>
           <span>Lobby</span>
+        </div>
+
+        <div class="user-chip">
+          <span id="lobbyUsername">Guest</span>
+          <strong id="lobbyElo">0 ELO</strong>
         </div>
       </nav>
 
@@ -907,6 +1147,7 @@
                 <span class="timer-name">White</span>
                 <span id="whiteTimer" class="timer-time">10:00</span>
               </div>
+
               <div id="blackTimerRow" class="timer-row">
                 <span class="timer-name">Black</span>
                 <span id="blackTimer" class="timer-time">10:00</span>
@@ -931,6 +1172,20 @@
             <div class="stack">
               <button id="useSkillBtn" class="btn btn-primary full" disabled>Use Skill</button>
               <button id="cancelSkillBtn" class="btn btn-secondary full hidden">Cancel Skill</button>
+            </div>
+          </section>
+
+          <section class="panel compact">
+            <p class="eyebrow">Profile</p>
+
+            <div class="profile-row">
+              <span>You</span>
+              <strong id="gameUsername">Guest</strong>
+            </div>
+
+            <div class="profile-row">
+              <span>ELO</span>
+              <strong id="gameElo">0</strong>
             </div>
           </section>
 
