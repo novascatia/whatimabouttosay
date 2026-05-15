@@ -101,6 +101,20 @@
 
     .user-chip strong { color: var(--text); }
 
+    /* GM TAG CSS */
+    .gm-tag {
+      background: #b33939;
+      color: white;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      margin-right: 4px;
+      vertical-align: middle;
+      display: inline-block;
+      line-height: 1;
+    }
+
     .btn {
       border: 0;
       border-radius: 6px;
@@ -653,7 +667,7 @@
       <h3 id="modalTitle">Confirm</h3>
       <p id="modalText">Are you sure?</p>
       <div class="stack" style="grid-template-columns: 1fr 1fr;">
-        <button id="modalConfirmBtn" class="btn btn-primary" style="background: var(--danger); color: white;">Yes, Resign</button>
+        <button id="modalConfirmBtn" class="btn btn-primary" style="background: var(--danger); color: white;">Yes</button>
         <button id="modalCancelBtn" class="btn btn-secondary">Cancel</button>
       </div>
     </div>
@@ -671,10 +685,10 @@
       <div class="auth-layout">
         <section class="auth-hero">
           <p class="eyebrow">Account required</p>
-          <h1>Login dulu biar progress kamu kesimpan.</h1>
+          <h1>Log in to save your progress.</h1>
           <p>
-            Pakai username dan password saja. ELO, win, lose, dan progress
-            akan ikut akun kamu walaupun buka dari device lain.
+            Use your username and password. Your ELO, wins, losses, and game
+            progress will be saved across all your devices.
           </p>
         </section>
 
@@ -685,7 +699,7 @@
           </div>
 
           <h2 id="authTitle">Login</h2>
-          <p id="authSubtitle" class="muted">Masuk pakai username dan password.</p>
+          <p id="authSubtitle" class="muted">Log in with your username and password.</p>
 
           <form id="authForm" class="auth-form">
             <label>Username <input id="authUsernameInput" type="text" placeholder="username" autocomplete="username" required /></label>
@@ -694,7 +708,7 @@
           </form>
 
           <p id="authStatus" class="status-text">Please login first.</p>
-          <div class="auth-note">New account starts from <b>0 ELO</b>. Win gives +25 ELO, lose gives -10 ELO.</div>
+          <div class="auth-note">New accounts start at <b>0 ELO</b>. Win gives +25 ELO, lose gives -10 ELO.</div>
         </section>
       </div>
     </section>
@@ -789,12 +803,12 @@
         <section class="panel rules-panel">
           <p class="eyebrow">Skills & Rules (OP Mode)</p>
           <div class="rules-list">
-            <article><b>Pawn</b><span>Chain Eat: Slant jump up to 3 squares and eat all enemies in the path. Transform into a Queen when you reach the end!</span></article>
-            <article><b>Rook</b><span>Build Wall: Build an invulnerable wall (HP 99) <b>ONE FULL LINE</b> in front of the front pawn to block the enemy (automatic destruction).</span></article>
-            <article><b>Bishop</b><span>Pierce: Swipes a maximum of 5 squares, destroying enemy pawns/knights/rooks in its path.</span></article>
-            <article><b>Knight</b><span>Passive (Expand Walk): In addition to L-jumps, horses can now walk in an unlimited straight line to an empty square.</span></article>
-            <article><b>Queen</b><span>Obliterate (CD 15): Move anywhere on the path and then destroy ALL enemies around it (8 squares)!</span></article>
-            <article><b>King</b><span>Teleport: Escape checkmate by instantly moving to any empty square on the board.</span></article>
+            <article><b>Pawn</b><span>Chain Eat: Leaps diagonally up to 3 squares, devouring enemy pieces in its path. Promotes to Queen at the edge!</span></article>
+            <article><b>Rook</b><span>Build Wall: Summons an impenetrable wall across an entire row in front of your leading Pawn (lasts 2 rounds). Limit 1 active wall per player.</span></article>
+            <article><b>Bishop</b><span>Pierce: Dashes diagonally up to 5 squares, destroying enemy pieces in its path (blocked by Kings/Queens).</span></article>
+            <article><b>Knight</b><span>Passive (Expand Walk): Can walk straight endlessly into empty squares, in addition to its normal L-jump.</span></article>
+            <article><b>Queen</b><span>Obliterate (CD 15): Moves to a valid square and instantly annihilates ALL enemies in the surrounding 8 squares!</span></article>
+            <article><b>King</b><span>Teleport: Escapes danger by teleporting instantly to any empty square on the board.</span></article>
           </div>
         </section>
       </div>
