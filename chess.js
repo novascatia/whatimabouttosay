@@ -48,12 +48,12 @@ const PIECE_ICONS = {
 const PIECE_HP = { king: 6, queen: 5, rook: 4, bishop: 3, knight: 3, pawn: 2, wall: 99 };
 
 const SKILLS = {
-  pawn: { name: "Chain Eat", cooldown: 4, target: true, description: "Melompat miring maks 3 petak, melahap semua musuh di jalur." },
-  rook: { name: "Build Wall", cooldown: 5, target: false, description: "Membangun dinding kokoh di depan pawn paling depan (bertahan 2 putaran)." },
-  bishop: { name: "Pierce", cooldown: 4, target: true, description: "Melesat miring maks 5 petak, menghancurkan musuh di jalur (terblokir oleh King/Queen)." },
-  knight: { name: "Passive: Expand Walk", cooldown: 0, target: null, description: "Bisa jalan lurus tak terbatas seperti Rook, tapi tidak bisa makan musuh." },
-  queen: { name: "Obliterate", cooldown: 15, target: true, description: "Pindah ke jalur valid mana saja dan musnahkan semua musuh di sekelilingnya." },
-  king: { name: "Teleport", cooldown: 5, target: true, description: "Teleportasi instan ke petak kosong mana saja di papan." }
+  pawn: { name: "Chain Eat", cooldown: 4, target: true, description: "Jumps diagonally up to 3 squares, devouring all enemies on the path." },
+  rook: { name: "Build Wall", cooldown: 5, target: false, description: "Build a full row of walls in front of the front pawn (lasts 2 turns)." },
+  bishop: { name: "Pierce", cooldown: 4, target: true, description: "Slanted dash max 5 squares, destroying enemies on the path (blocked by King/Queen)." },
+  knight: { name: "Passive: Expand Walk", cooldown: 0, target: null, description: "Can walk straight indefinitely like Rook, but can't eat enemies." },
+  queen: { name: "Obliterate", cooldown: 15, target: true, description: "Move to any valid lane and destroy all enemies around it." },
+  king: { name: "Teleport", cooldown: 5, target: true, description: "Instant teleportation to any empty square on the board." }
 };
 
 let state = {
@@ -61,7 +61,6 @@ let state = {
   playerColor: null, game: null, channel: null, selected: null, moveHints: [], skillMode: false, skillHints: [], lastSeenDrawAt: null
 };
 
-// UI Helpers
 function showToast(message) {
   const container = document.getElementById("toastContainer");
   if (!container) return;
@@ -276,6 +275,8 @@ function checkTimerFlag() {
 
 function switchTurn(board) {
   board.turn = opposite(board.turn);
+  let wallDestroyed = false;
+
   for (const [key, piece] of Object.entries(board.tiles)) {
     if (piece.color === board.turn) {
       if (piece.cooldown > 0) piece.cooldown -= 1;
@@ -284,11 +285,16 @@ function switchTurn(board) {
         piece.duration -= 1;
         if (piece.duration <= 0) {
             delete board.tiles[key];
-            addLog(board, `Sebuah Dinding hancur karena durasi habis.`);
+            wallDestroyed = true;
         }
       }
     }
   }
+
+  if (wallDestroyed) {
+    addLog(board, `Barikade Wall hancur karena durasi habis.`);
+  }
+
   startTurnTimer(board);
 
   if (!hasValidMoves(board, board.turn)) {
@@ -539,12 +545,21 @@ async function castSelfSkill() {
     if (!advCoord) { setGameStatus("Tidak ada Pawn tersisa untuk dilindungi!"); return; }
     const dir = piece.color === 'white' ? -1 : 1; const wallY = advCoord.y + dir;
     if (!inBoard(advCoord.x, wallY)) { setGameStatus("Pawn sudah mentok di ujung!"); return; }
-    const wallPos = keyOf(advCoord.x, wallY);
-    if (board.tiles[wallPos]) { setGameStatus("Area di depan Pawn terhalang!"); return; }
     
-    board.tiles[wallPos] = { id: `wall-${crypto.randomUUID().slice(0, 6)}`, type: 'wall', color: piece.color, hp: 99, maxHp: 99, shield: 0, cooldown: 0, duration: 4 };
+    // Bangun dinding di seluruh baris x (0-7)
+    let wallsBuilt = 0;
+    for (let x = 0; x < 8; x++) {
+      const wallPos = keyOf(x, wallY);
+      if (!board.tiles[wallPos]) {
+        board.tiles[wallPos] = { id: `wall-${x}-${crypto.randomUUID().slice(0, 4)}`, type: 'wall', color: piece.color, hp: 99, maxHp: 99, shield: 0, cooldown: 0, duration: 4 };
+        wallsBuilt++;
+      }
+    }
+
+    if (wallsBuilt === 0) { setGameStatus("Barisan di depan Pawn sudah penuh, tidak bisa bangun dinding!"); return; }
+
     piece.cooldown = SKILLS.rook.cooldown;
-    addLog(board, `🧱 ${pieceLabel(piece)} membangun Wall kokoh di depan Pawn!`);
+    addLog(board, `🧱 ${pieceLabel(piece)} membangun Barikade Wall satu baris penuh!`);
   }
 
   board.lastAction = { type: "skill", from, to: from, pieceId: piece.id, pieceType: piece.type, color: piece.color, at: Date.now() };
