@@ -8,22 +8,22 @@
 
   <style>
     :root {
-      --bg: #0f1117;
-      --panel: #181c25;
-      --panel-2: #202636;
-      --border: #31384a;
-      --text: #f5f7fb;
-      --muted: #9ca6ba;
-      --accent: #7c5cff;
-      --accent-2: #5f45d8;
-      --danger: #f05267;
-      --good: #42d392;
-      --warning: #f8c44f;
+      --bg: #302e2b;
+      --panel: #262421;
+      --panel-2: #3c3934;
+      --panel-3: #242321;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f4f1ed;
+      --muted: #b9b4ad;
+      --accent: #81b64c;
+      --accent-hover: #95c95a;
+      --danger: #d95757;
+      --warning: #f0c15c;
 
-      --light-square: #e6d7c3;
-      --dark-square: #84684d;
-      --light-text: #20232d;
-      --dark-text: #f8f2e8;
+      --light-square: #eeeed2;
+      --dark-square: #769656;
+      --selected: #f7ec6e;
+      --move-dot: rgba(20, 20, 20, 0.28);
     }
 
     * {
@@ -54,50 +54,28 @@
     }
 
     .app-shell {
-      width: min(1180px, calc(100% - 24px));
+      width: min(1220px, calc(100% - 24px));
       margin: 0 auto;
-      padding: 16px 0;
+      padding: 14px 0;
     }
 
     .view {
       display: none;
-      opacity: 0;
-      transform: translateY(12px);
     }
 
     .view-active {
       display: block;
-      animation: pageIn 360ms ease forwards;
+      animation: fadeIn 180ms ease both;
     }
 
-    @keyframes pageIn {
+    @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(4px);
       }
       to {
         opacity: 1;
         transform: translateY(0);
-      }
-    }
-
-    @keyframes cardIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes softPulse {
-      0%, 100% {
-        box-shadow: 0 0 0 rgba(124, 92, 255, 0);
-      }
-      50% {
-        box-shadow: 0 0 28px rgba(124, 92, 255, 0.25);
       }
     }
 
@@ -106,68 +84,56 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
       color: var(--text);
       text-decoration: none;
       font-weight: 800;
-      font-size: 1rem;
+      font-size: 1.05rem;
     }
 
     .brand-mark {
-      display: grid;
-      place-items: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: var(--accent);
-      color: white;
-      font-size: 1.1rem;
-      animation: softPulse 2.8s ease infinite;
+      color: var(--accent);
+      font-size: 2rem;
+      line-height: 1;
     }
 
     .btn {
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      border: 0;
+      border-radius: 6px;
       padding: 10px 14px;
+      min-height: 40px;
       color: var(--text);
       background: var(--panel-2);
-      min-height: 42px;
-      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      font-weight: 700;
     }
 
     .btn:hover {
-      transform: translateY(-1px);
-      border-color: #56617a;
-    }
-
-    .btn:active {
-      transform: translateY(0);
+      filter: brightness(1.08);
     }
 
     .btn:disabled {
       opacity: 0.45;
       cursor: not-allowed;
-      transform: none;
     }
 
     .btn-primary {
-      border-color: var(--accent);
       background: var(--accent);
-      color: white;
+      color: #17210e;
     }
 
     .btn-secondary {
-      background: #262d3d;
+      background: #4a4742;
     }
 
     .btn-ghost {
       background: transparent;
+      color: var(--muted);
     }
 
     .full {
@@ -177,9 +143,8 @@
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px;
-      animation: cardIn 420ms ease both;
+      border-radius: 8px;
+      padding: 16px;
     }
 
     .compact {
@@ -187,9 +152,9 @@
     }
 
     .eyebrow {
-      margin: 0 0 8px;
+      margin: 0 0 7px;
       color: var(--accent);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -197,39 +162,39 @@
 
     .muted {
       color: var(--muted);
-      line-height: 1.5;
+      line-height: 1.45;
     }
 
     .status-text {
-      color: #d7c8ff;
-      font-weight: 700;
+      color: var(--warning);
       min-height: 1.3em;
+      font-weight: 700;
     }
+
+    /* LANDING */
 
     .landing-layout {
       display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 18px;
-      align-items: stretch;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
       min-height: calc(100vh - 80px);
     }
 
     .hero {
       display: grid;
       align-content: center;
-      gap: 18px;
-      padding: 28px;
-      background: linear-gradient(135deg, #181c25, #12151d);
+      gap: 16px;
+      background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      animation: cardIn 420ms ease both;
+      border-radius: 8px;
+      padding: clamp(20px, 5vw, 42px);
     }
 
     .hero h1 {
       margin: 0;
-      max-width: 720px;
-      font-size: clamp(2.2rem, 6vw, 4.5rem);
-      line-height: 1;
+      max-width: 760px;
+      font-size: clamp(2.2rem, 6vw, 4.4rem);
+      line-height: 0.98;
       letter-spacing: -0.05em;
     }
 
@@ -238,7 +203,7 @@
       margin: 0;
       color: var(--muted);
       font-size: 1rem;
-      line-height: 1.6;
+      line-height: 1.55;
     }
 
     .hero-actions {
@@ -250,50 +215,48 @@
     .info-card {
       display: grid;
       gap: 12px;
+      align-content: start;
     }
 
-    .simple-board-preview {
+    .preview-board {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       aspect-ratio: 1 / 1;
       overflow: hidden;
-      border-radius: 14px;
-      border: 1px solid var(--border);
+      border-radius: 6px;
     }
 
-    .simple-board-preview span {
+    .preview-board span {
       display: grid;
       place-items: center;
-      font-weight: 900;
-      font-size: 1.35rem;
-      min-width: 0;
-      min-height: 0;
+      font-size: 2.4rem;
+      line-height: 1;
     }
 
-    .simple-board-preview span:nth-child(odd) {
+    .preview-board span:nth-child(odd) {
       background: var(--light-square);
-      color: var(--light-text);
+      color: #222;
     }
 
-    .simple-board-preview span:nth-child(even) {
+    .preview-board span:nth-child(even) {
       background: var(--dark-square);
-      color: var(--dark-text);
+      color: #111;
     }
 
     .rules-small {
       display: grid;
-      gap: 8px;
+      gap: 9px;
       margin: 0;
       padding: 0;
       list-style: none;
       color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.35;
     }
 
     .rules-small b {
       color: var(--text);
     }
+
+    /* LOBBY */
 
     .lobby-grid {
       display: grid;
@@ -303,31 +266,31 @@
 
     .lobby-grid h1 {
       margin: 0 0 8px;
-      font-size: 1.8rem;
+      font-size: 1.7rem;
     }
 
     .stack {
       display: grid;
-      gap: 10px;
-      margin-top: 14px;
+      gap: 9px;
+      margin-top: 12px;
     }
 
     .join-row {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 10px;
-      margin-top: 14px;
+      gap: 9px;
+      margin-top: 12px;
     }
 
     input,
     select {
       width: 100%;
-      min-height: 42px;
+      min-height: 40px;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
+      border-radius: 6px;
+      padding: 9px 11px;
       color: var(--text);
-      background: #111620;
+      background: var(--panel-3);
       outline: none;
     }
 
@@ -352,9 +315,8 @@
 
     .rules-list article {
       padding: 12px;
-      border-radius: 12px;
+      border-radius: 7px;
       background: var(--panel-2);
-      border: 1px solid var(--border);
     }
 
     .rules-list b {
@@ -365,14 +327,16 @@
     .rules-list span {
       color: var(--muted);
       font-size: 0.9rem;
-      line-height: 1.4;
+      line-height: 1.35;
     }
+
+    /* GAME */
 
     .game-topbar {
       position: sticky;
       top: 0;
-      z-index: 10;
-      padding: 10px 0;
+      z-index: 20;
+      padding: 8px 0;
       background: var(--bg);
     }
 
@@ -385,8 +349,8 @@
     }
 
     .room-code {
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      border: 0;
+      border-radius: 6px;
       padding: 8px 10px;
       color: var(--text);
       background: var(--panel-2);
@@ -395,24 +359,45 @@
     }
 
     .pill {
-      border: 1px solid var(--border);
       border-radius: 999px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       color: var(--muted);
       background: var(--panel);
       font-size: 0.85rem;
     }
 
     .pill.online {
-      color: var(--good);
-      border-color: rgba(66, 211, 146, 0.5);
+      color: var(--accent-hover);
     }
 
     .game-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 310px;
-      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 14px;
       align-items: start;
+    }
+
+    .board-column {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+    }
+
+    .player-strip {
+      width: min(100%, 74vh, 760px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 34px;
+      padding: 7px 10px;
+      color: var(--muted);
+      background: var(--panel);
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .player-strip strong {
+      color: var(--text);
     }
 
     .board-wrap {
@@ -426,10 +411,9 @@
       display: grid;
       grid-template-columns: repeat(8, 1fr);
       grid-template-rows: repeat(8, 1fr);
-      width: min(100%, 70vh, 720px);
+      width: min(100%, 74vh, 760px);
       aspect-ratio: 1 / 1;
-      border: 2px solid var(--border);
-      border-radius: 12px;
+      border-radius: 4px;
       overflow: hidden;
       background: #000;
     }
@@ -445,23 +429,20 @@
       padding: 0;
       border: 0;
       border-radius: 0;
-      overflow: hidden;
       line-height: 1;
+      overflow: hidden;
     }
 
     .square.light {
       background: var(--light-square);
-      color: var(--light-text);
     }
 
     .square.dark {
       background: var(--dark-square);
-      color: var(--dark-text);
     }
 
     .square.selected {
-      outline: 4px solid var(--accent);
-      outline-offset: -4px;
+      box-shadow: inset 0 0 0 999px rgba(247, 236, 110, 0.55);
       z-index: 2;
     }
 
@@ -469,47 +450,45 @@
     .square.can-skill::after {
       content: "";
       position: absolute;
-      width: 24%;
-      height: 24%;
+      width: 28%;
+      height: 28%;
       border-radius: 999px;
-      background: rgba(66, 211, 146, 0.85);
+      background: var(--move-dot);
       pointer-events: none;
     }
 
     .square.can-skill::after {
-      background: rgba(255, 217, 102, 0.95);
+      width: 40%;
+      height: 40%;
+      background: rgba(240, 193, 92, 0.65);
+      border: 2px solid rgba(30, 30, 30, 0.2);
     }
 
     .piece {
       display: grid;
       place-items: center;
-      width: 70%;
-      height: 70%;
-      border-radius: 999px;
-      font-size: clamp(0.75rem, 2.4vmin, 1.25rem);
-      font-weight: 900;
-      letter-spacing: -0.03em;
+      width: 100%;
+      height: 100%;
+      font-size: clamp(2.1rem, 7.2vmin, 5.1rem);
       line-height: 1;
       user-select: none;
       pointer-events: none;
-      transition: transform 160ms ease;
-      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.28);
+      font-family: "Times New Roman", Georgia, serif;
+      font-weight: 700;
     }
 
     .piece.white {
-      color: #141821;
-      background: linear-gradient(135deg, #ffffff, #d8dce8);
-      border: 2px solid rgba(255, 255, 255, 0.8);
+      color: #ffffff;
+      text-shadow:
+        0 2px 2px rgba(0, 0, 0, 0.65),
+        0 0 1px #000;
     }
 
     .piece.black {
-      color: #f8f8fb;
-      background: linear-gradient(135deg, #252a36, #05070b);
-      border: 2px solid rgba(255, 255, 255, 0.12);
-    }
-
-    .square:hover .piece {
-      transform: scale(1.05);
+      color: #111111;
+      text-shadow:
+        0 1px 1px rgba(255, 255, 255, 0.5),
+        0 0 1px #fff;
     }
 
     .piece-meta {
@@ -532,6 +511,7 @@
       border-radius: 999px;
       color: white;
       font-size: 0.65rem;
+      font-family: Arial, Helvetica, sans-serif;
       font-weight: 800;
       line-height: 1;
     }
@@ -541,22 +521,22 @@
     }
 
     .cd {
-      background: var(--accent);
+      background: #6a5acd;
     }
 
     .shield {
-      background: var(--good);
-      color: #06170f;
+      background: var(--accent);
+      color: #16220f;
     }
 
     .side-panel {
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
     .side-panel h2 {
-      margin: 0 0 8px;
-      font-size: 1.25rem;
+      margin: 0 0 7px;
+      font-size: 1.18rem;
     }
 
     .timer-box {
@@ -570,13 +550,12 @@
       justify-content: space-between;
       gap: 10px;
       padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 7px;
       background: var(--panel-2);
     }
 
     .timer-row.active {
-      border-color: var(--warning);
+      outline: 2px solid var(--warning);
     }
 
     .timer-name {
@@ -585,14 +564,14 @@
     }
 
     .timer-time {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       font-weight: 900;
       font-variant-numeric: tabular-nums;
     }
 
     .battle-log {
       display: grid;
-      gap: 8px;
+      gap: 7px;
       max-height: 180px;
       overflow: auto;
     }
@@ -600,26 +579,25 @@
     .battle-log p {
       margin: 0;
       padding: 9px;
-      border-radius: 10px;
+      border-radius: 6px;
       background: var(--panel-2);
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       line-height: 1.35;
     }
 
     .winner-banner {
       position: absolute;
-      inset: 12px;
+      inset: 10px;
       z-index: 5;
       display: grid;
       place-items: center;
       align-content: center;
       gap: 8px;
       text-align: center;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(16, 19, 26, 0.92);
-      backdrop-filter: blur(8px);
+      border-radius: 6px;
+      background: rgba(38, 36, 33, 0.92);
+      backdrop-filter: blur(6px);
     }
 
     .winner-banner h2 {
@@ -636,20 +614,16 @@
       display: none !important;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 920px) {
       .landing-layout,
       .lobby-grid,
       .game-layout {
         grid-template-columns: 1fr;
       }
 
-      .info-card {
-        grid-template-columns: 220px 1fr;
-        align-items: stretch;
-      }
-
-      .board {
-        width: min(100%, 78vh, 720px);
+      .board,
+      .player-strip {
+        width: min(100%, 78vh, 760px);
       }
 
       .side-panel {
@@ -668,21 +642,20 @@
 
     @media (max-width: 600px) {
       .app-shell {
-        width: min(100% - 16px, 1180px);
-        padding: 8px 0 14px;
+        width: min(100% - 12px, 1220px);
+        padding: 8px 0;
       }
 
       .topbar {
-        margin-bottom: 10px;
-      }
-
-      .brand {
-        font-size: 0.95rem;
+        margin-bottom: 8px;
       }
 
       .brand-mark {
-        width: 32px;
-        height: 32px;
+        font-size: 1.75rem;
+      }
+
+      .landing-layout {
+        min-height: auto;
       }
 
       .hero {
@@ -696,18 +669,6 @@
       .hero-actions {
         display: grid;
         grid-template-columns: 1fr;
-      }
-
-      .info-card {
-        grid-template-columns: 1fr;
-      }
-
-      .simple-board-preview {
-        max-width: 260px;
-      }
-
-      .lobby-grid h1 {
-        font-size: 1.45rem;
       }
 
       .join-row {
@@ -734,30 +695,13 @@
         text-overflow: ellipsis;
       }
 
-      .board {
-        width: min(100%, calc(100vh - 300px));
-        min-width: 0;
-        border-radius: 8px;
+      .board,
+      .player-strip {
+        width: min(100%, calc(100vh - 320px));
       }
 
       .piece {
-        width: 72%;
-        height: 72%;
-        font-size: clamp(0.65rem, 3.5vw, 1rem);
-      }
-
-      .piece-meta {
-        right: 1px;
-        bottom: 1px;
-      }
-
-      .hp,
-      .cd,
-      .shield {
-        min-width: 14px;
-        height: 14px;
-        padding: 0 3px;
-        font-size: 0.55rem;
+        font-size: clamp(1.8rem, 10vw, 3.2rem);
       }
 
       .side-panel {
@@ -765,8 +709,7 @@
       }
 
       .panel {
-        padding: 14px;
-        border-radius: 12px;
+        padding: 13px;
       }
 
       .compact {
@@ -774,7 +717,18 @@
       }
 
       .battle-log {
-        max-height: 130px;
+        max-height: 120px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .board,
+      .player-strip {
+        width: min(100%, calc(100vh - 350px));
+      }
+
+      .piece {
+        font-size: clamp(1.5rem, 9vw, 2.7rem);
       }
     }
   </style>
@@ -785,7 +739,7 @@
     <section id="landingView" class="view view-active landing">
       <nav class="topbar">
         <a class="brand" href="/">
-          <span class="brand-mark">MC</span>
+          <span class="brand-mark">♞</span>
           <span>Magic Chess</span>
         </a>
 
@@ -794,11 +748,11 @@
 
       <div class="landing-layout">
         <section class="hero">
-          <p class="eyebrow">Multiplayer chess with skills</p>
-          <h1>Chess, but every piece has magic.</h1>
+          <p class="eyebrow">Multiplayer magic chess</p>
+          <h1>Chess, but every piece has a skill.</h1>
           <p class="hero-text">
-            Play with a friend using a room code or use quick match. Move pieces,
-            cast skills, protect your king, and defeat the enemy king.
+            Create a private room, invite a friend, or use quick match. Move pieces,
+            cast skills, and defeat the enemy king.
           </p>
 
           <div class="hero-actions">
@@ -808,18 +762,18 @@
         </section>
 
         <aside class="panel info-card">
-          <div class="simple-board-preview" aria-hidden="true">
-            <span>BR</span><span>BN</span><span>BB</span><span>BQ</span>
-            <span>BP</span><span>✦</span><span>BP</span><span>BK</span>
-            <span></span><span>WN</span><span></span><span>☄</span>
-            <span>WP</span><span>WQ</span><span>WK</span><span>WR</span>
+          <div class="preview-board" aria-hidden="true">
+            <span>♜</span><span>♞</span><span>♝</span><span>♛</span>
+            <span>♟</span><span></span><span>♟</span><span>♚</span>
+            <span></span><span>♘</span><span></span><span></span>
+            <span>♙</span><span>♕</span><span>♔</span><span>♖</span>
           </div>
 
           <ul class="rules-small">
             <li><b>Goal:</b> defeat the enemy king.</li>
-            <li><b>Turns:</b> move or cast one skill each turn.</li>
-            <li><b>Timer:</b> default 10 minutes each player.</li>
-            <li><b>Board:</b> your color always starts at the bottom.</li>
+            <li><b>Turns:</b> move or cast one skill.</li>
+            <li><b>Timer:</b> default 10 minutes.</li>
+            <li><b>Board:</b> your pieces are at the bottom.</li>
           </ul>
         </aside>
       </div>
@@ -830,7 +784,7 @@
         <button id="backToLandingBtn" class="btn btn-ghost">← Home</button>
 
         <div class="brand">
-          <span class="brand-mark">MC</span>
+          <span class="brand-mark">♞</span>
           <span>Lobby</span>
         </div>
       </nav>
@@ -923,14 +877,26 @@
       </nav>
 
       <div class="game-layout">
-        <section class="board-wrap">
-          <div id="winnerBanner" class="winner-banner hidden">
-            <h2 id="winnerTitle">White wins</h2>
-            <p id="winnerText">The king has fallen.</p>
-            <button id="returnLobbyBtn" class="btn btn-primary">Back to Lobby</button>
+        <section class="board-column">
+          <div id="topPlayerStrip" class="player-strip">
+            <span>Opponent</span>
+            <strong id="topPlayerLabel">Black</strong>
           </div>
 
-          <div id="board" class="board" aria-label="Magic chess board"></div>
+          <section class="board-wrap">
+            <div id="winnerBanner" class="winner-banner hidden">
+              <h2 id="winnerTitle">White wins</h2>
+              <p id="winnerText">The king has fallen.</p>
+              <button id="returnLobbyBtn" class="btn btn-primary">Back to Lobby</button>
+            </div>
+
+            <div id="board" class="board" aria-label="Magic chess board"></div>
+          </section>
+
+          <div id="bottomPlayerStrip" class="player-strip">
+            <span>You</span>
+            <strong id="bottomPlayerLabel">White</strong>
+          </div>
         </section>
 
         <aside class="side-panel">
