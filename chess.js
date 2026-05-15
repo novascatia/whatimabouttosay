@@ -48,18 +48,26 @@ const PIECE_ICONS = {
 const PIECE_HP = { king: 6, queen: 5, rook: 4, bishop: 3, knight: 3, pawn: 2, wall: 99 };
 
 const SKILLS = {
-  pawn: { name: "Chain Eat", cooldown: 4, target: true, description: "Jumps diagonally up to 3 squares, devouring all enemies on the path." },
-  rook: { name: "Build Wall", cooldown: 5, target: false, description: "Build a full row of walls in front of the front pawn (lasts 2 turns)." },
-  bishop: { name: "Pierce", cooldown: 4, target: true, description: "Slanted dash max 5 squares, destroying enemies on the path (blocked by King/Queen)." },
-  knight: { name: "Passive: Expand Walk", cooldown: 0, target: null, description: "Can walk straight indefinitely like Rook, but can't eat enemies." },
-  queen: { name: "Obliterate", cooldown: 15, target: true, description: "Move to any valid lane and destroy all enemies around it." },
-  king: { name: "Teleport", cooldown: 5, target: true, description: "Instant teleportation to any empty square on the board." }
+  pawn: { name: "Chain Eat", cooldown: 4, target: true, description: "Leap diagonally up to 3 squares, devouring enemies in path." },
+  rook: { name: "Build Wall", cooldown: 5, target: false, description: "Build an impenetrable wall in front of your leading Pawn (lasts 2 rounds). Limit 1 active wall." },
+  bishop: { name: "Pierce", cooldown: 4, target: true, description: "Dash diagonally up to 5 squares, destroying enemies in path (blocked by King/Queen)." },
+  knight: { name: "Passive: Expand Walk", cooldown: 0, target: null, description: "Can walk straight endlessly to empty squares." },
+  queen: { name: "Obliterate", cooldown: 15, target: true, description: "Teleport to a valid square and annihilate all enemies around it." },
+  king: { name: "Teleport", cooldown: 5, target: true, description: "Instantly teleport to any empty square on the board." }
 };
 
 let state = {
   user: null, profile: null, playerId: null, authMode: "login", resultProcessing: false,
   playerColor: null, game: null, channel: null, selected: null, moveHints: [], skillMode: false, skillHints: [], lastSeenDrawAt: null
 };
+
+// UI Helpers
+function escapeHtml(value) { return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
+
+function renderGmName(name, isGm) {
+  const safeName = escapeHtml(name || "Guest");
+  return isGm ? `<span class="gm-tag">GM</span>${safeName}` : safeName;
+}
 
 function showToast(message) {
   const container = document.getElementById("toastContainer");
@@ -96,7 +104,7 @@ function setAuthMode(mode) {
   const isLogin = mode === "login";
   els.loginTabBtn?.classList.toggle("active", isLogin); els.registerTabBtn?.classList.toggle("active", !isLogin);
   if (els.authTitle) els.authTitle.textContent = isLogin ? "Login" : "Register";
-  if (els.authSubtitle) els.authSubtitle.textContent = isLogin ? "Masuk pakai username dan password." : "Buat akun baru pakai username dan password.";
+  if (els.authSubtitle) els.authSubtitle.textContent = isLogin ? "Log in with your username and password." : "Create a new account with a username and password.";
   if (els.authSubmitBtn) els.authSubmitBtn.textContent = isLogin ? "Login" : "Register";
   setAuthStatus(isLogin ? "Please login first." : "Create your account.");
 }
@@ -122,19 +130,27 @@ function applyProfile(profile) {
 function renderProfile() {
   const profile = state.profile; if (!profile) return;
   const username = profile.username || "Player";
+  const isGm = profile.is_gm || false;
   const elo = Number(profile.elo || 0); const wins = Number(profile.wins || 0); const losses = Number(profile.losses || 0);
-  if (els.navUsername) els.navUsername.textContent = username; if (els.navElo) els.navElo.textContent = `${elo} ELO`;
-  if (els.profileUsername) els.profileUsername.textContent = username; if (els.profileElo) els.profileElo.textContent = elo;
-  if (els.profileWins) els.profileWins.textContent = wins; if (els.profileLosses) els.profileLosses.textContent = losses;
-  if (els.lobbyUsername) els.lobbyUsername.textContent = username; if (els.lobbyElo) els.lobbyElo.textContent = `${elo} ELO`;
-  if (els.gameUsername) els.gameUsername.textContent = username; if (els.gameElo) els.gameElo.textContent = elo;
+  
+  const uHtml = renderGmName(username, isGm);
+  if (els.navUsername) els.navUsername.innerHTML = uHtml; 
+  if (els.navElo) els.navElo.textContent = `${elo} ELO`;
+  if (els.profileUsername) els.profileUsername.innerHTML = uHtml; 
+  if (els.profileElo) els.profileElo.textContent = elo;
+  if (els.profileWins) els.profileWins.textContent = wins; 
+  if (els.profileLosses) els.profileLosses.textContent = losses;
+  if (els.lobbyUsername) els.lobbyUsername.innerHTML = uHtml; 
+  if (els.lobbyElo) els.lobbyElo.textContent = `${elo} ELO`;
+  if (els.gameUsername) els.gameUsername.innerHTML = uHtml; 
+  if (els.gameElo) els.gameElo.textContent = elo;
 }
 
 async function handleAuthSubmit(event) {
   event.preventDefault();
   const username = normalizeUsername(els.authUsernameInput?.value); const password = els.authPasswordInput?.value || "";
-  if (!username || username.length < 3) { setAuthStatus("Username minimal 3 karakter."); return; }
-  if (password.length < 6) { setAuthStatus("Password minimal 6 karakter."); return; }
+  if (!username || username.length < 3) { setAuthStatus("Username requires at least 3 characters."); return; }
+  if (password.length < 6) { setAuthStatus("Password requires at least 6 characters."); return; }
 
   els.authSubmitBtn.disabled = true;
   setAuthStatus(state.authMode === "login" ? "Logging in..." : "Registering...");
@@ -213,7 +229,7 @@ function createPiece(type, color, x) {
   };
 }
 
-function createInitialBoard(timerSeconds = 600, whiteUsername = "White") {
+function createInitialBoard(timerSeconds = 600, whiteUsername = "White", whiteIsGm = false) {
   const tiles = {};
   const back = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
   for (let x = 0; x < 8; x++) {
@@ -223,7 +239,8 @@ function createInitialBoard(timerSeconds = 600, whiteUsername = "White") {
     tiles[keyOf(x, 7)] = createPiece(back[x], "white", x);
   }
   return {
-    turn: "white", tiles, players: { white: whiteUsername, black: "Waiting..." },
+    turn: "white", tiles, 
+    players: { white: { name: whiteUsername, isGm: whiteIsGm }, black: { name: "Waiting...", isGm: false } },
     log: ["Room created. Waiting for another player."], winner: null, drawOffer: null, drawOfferAt: null,
     lastAction: null, timers: { white: timerSeconds, black: timerSeconds }, timerStartedAt: null, resultApplied: false
   };
@@ -259,7 +276,7 @@ function applyTimerBeforeAction(board) {
   const elapsed = (nowMs() - Number(board.timerStartedAt)) / 1000;
   board.timers[board.turn] = Math.max(0, Number(board.timers[board.turn]) - elapsed);
   board.timerStartedAt = nowMs();
-  if (board.timers[board.turn] <= 0) { board.winner = opposite(board.turn); addLog(board, `${board.turn} ran out of time.`); }
+  if (board.timers[board.turn] <= 0) { board.winner = opposite(board.turn); addLog(board, `${board.turn.toUpperCase()} ran out of time.`); }
 }
 
 function startTurnTimer(board) { board.timerStartedAt = nowMs(); }
@@ -291,17 +308,14 @@ function switchTurn(board) {
     }
   }
 
-  if (wallDestroyed) {
-    addLog(board, `Barikade Wall hancur karena durasi habis.`);
-  }
-
+  if (wallDestroyed) { addLog(board, `A solid Wall crumbled to dust.`); }
   startTurnTimer(board);
 
   if (!hasValidMoves(board, board.turn)) {
     if (isKingInCheck(board, board.turn)) {
       board.winner = opposite(board.turn); addLog(board, `Checkmate! ${opposite(board.turn).toUpperCase()} wins.`);
     } else {
-      board.winner = "draw"; addLog(board, `Stalemate! Game is a draw.`);
+      board.winner = "draw"; addLog(board, `Stalemate! The game is a draw.`);
     }
   } else if (isKingInCheck(board, board.turn)) {
     addLog(board, `${board.turn.toUpperCase()} is in CHECK!`);
@@ -310,6 +324,8 @@ function switchTurn(board) {
 
 function damagePiece(board, square, amount) {
   const piece = board.tiles[square]; if (!piece) return null;
+  if (piece.type === 'wall') return null; // Invincible
+  
   let remaining = amount;
   if (piece.shield > 0) { const blocked = Math.min(piece.shield, remaining); piece.shield -= blocked; remaining -= blocked; }
   if (remaining > 0) piece.hp -= remaining;
@@ -341,14 +357,16 @@ function checkPromotion(board, square) {
   const y = parseKey(square).y;
   if ((piece.color === 'white' && y === 0) || (piece.color === 'black' && y === 7)) {
     piece.type = 'queen'; piece.hp = PIECE_HP.queen; piece.maxHp = PIECE_HP.queen; piece.cooldown = 15;
-    addLog(board, `🌟 ${piece.color.toUpperCase()} PAWN BERUBAH MENJADI QUEEN!`);
+    addLog(board, `🌟 ${piece.color.toUpperCase()} PAWN PROMOTED TO QUEEN!`);
   }
 }
 
 // BASIC MOVEMENT
 function canMovePieceBasic(board, from, to) {
   const piece = board.tiles[from]; if (!piece || from === to) return false;
-  const target = board.tiles[to]; if (target && target.color === piece.color) return false;
+  const target = board.tiles[to]; 
+  if (target && (target.color === piece.color || target.type === 'wall')) return false; // Friendly & Wall blocks basic moves
+  
   const a = parseKey(from); const b = parseKey(to); if (!inBoard(b.x, b.y)) return false;
   const dx = b.x - a.x; const dy = b.y - a.y; const adx = Math.abs(dx); const ady = Math.abs(dy);
 
@@ -365,7 +383,7 @@ function canMovePieceBasic(board, from, to) {
   if (piece.type === "queen") return (dx === 0 || dy === 0 || adx === ady) && pathClear(board, from, to);
   if (piece.type === "knight") {
     const isKnightMove = (adx === 1 && ady === 2) || (adx === 2 && ady === 1);
-    const isRookMove = (dx === 0 || dy === 0) && !target && pathClear(board, from, to); // OP: Lurus bebas asal kosong
+    const isRookMove = (dx === 0 || dy === 0) && !target && pathClear(board, from, to); 
     return isKnightMove || isRookMove;
   }
   if (piece.type === "king") return adx <= 1 && ady <= 1;
@@ -416,19 +434,23 @@ function simulateSkillAndCheck(board, from, to) {
     let blocked = false;
     while(true) {
         const k = keyOf(cx, cy); const t = cloned.tiles[k];
-        if (piece.type === 'bishop' && t && (t.type === 'king' || t.type === 'queen')) { blocked = true; break; }
-        if (t && t.color !== piece.color) delete cloned.tiles[k]; // instakill
+        if (t) {
+            if (t.type === 'wall' || t.color === piece.color) { blocked = true; break; }
+            if (piece.type === 'bishop' && (t.type === 'king' || t.type === 'queen')) { blocked = true; break; }
+            if (t.color !== piece.color) delete cloned.tiles[k]; 
+        }
         if (cx === parseKey(to).x && cy === parseKey(to).y) break;
         cx += dirX; cy += dirY;
     }
-    if (!blocked) { cloned.tiles[to] = piece; delete cloned.tiles[from]; }
+    if (blocked) return true; // Treat as invalid/check to hide hint
+    cloned.tiles[to] = piece; delete cloned.tiles[from];
   } else if (piece.type === 'queen') {
     cloned.tiles[to] = piece; delete cloned.tiles[from];
     const center = parseKey(to);
     for (let y = center.y - 1; y <= center.y + 1; y++) {
         for (let x = center.x - 1; x <= center.x + 1; x++) {
             const k = keyOf(x,y); const t = cloned.tiles[k];
-            if (t && t.color !== piece.color) delete cloned.tiles[k];
+            if (t && t.color !== piece.color && t.type !== 'wall') delete cloned.tiles[k];
         }
     }
   } else if (piece.type === 'king') {
@@ -450,7 +472,6 @@ function canCastSelfSkillBasic(board, from) {
 
 function simulateSelfSkillAndCheck(board, from) {
   const cloned = clone(board); const piece = cloned.tiles[from];
-  // Rook cast doesn't affect check status initially
   return isKingInCheck(cloned, piece.color);
 }
 
@@ -534,6 +555,9 @@ async function castSelfSkill() {
   if (!canCastSelfSkill(board, from)) { setGameStatus("Invalid cast."); return; }
 
   if (piece.type === "rook") {
+    const existingWall = Object.values(board.tiles).find(p => p.type === 'wall' && p.color === piece.color);
+    if (existingWall) { setGameStatus("You already have an active Wall on the board!"); return; }
+
     let maxAdv = -1; let advCoord = null;
     for (const [pos, p] of Object.entries(board.tiles)) {
       if (p.color === piece.color && p.type === 'pawn') {
@@ -542,11 +566,10 @@ async function castSelfSkill() {
         if (adv > maxAdv) { maxAdv = adv; advCoord = coords; }
       }
     }
-    if (!advCoord) { setGameStatus("Tidak ada Pawn tersisa untuk dilindungi!"); return; }
+    if (!advCoord) { setGameStatus("No forward Pawn left to protect!"); return; }
     const dir = piece.color === 'white' ? -1 : 1; const wallY = advCoord.y + dir;
-    if (!inBoard(advCoord.x, wallY)) { setGameStatus("Pawn sudah mentok di ujung!"); return; }
+    if (!inBoard(advCoord.x, wallY)) { setGameStatus("Pawn is already at the edge!"); return; }
     
-    // Bangun dinding di seluruh baris x (0-7)
     let wallsBuilt = 0;
     for (let x = 0; x < 8; x++) {
       const wallPos = keyOf(x, wallY);
@@ -556,10 +579,10 @@ async function castSelfSkill() {
       }
     }
 
-    if (wallsBuilt === 0) { setGameStatus("Barisan di depan Pawn sudah penuh, tidak bisa bangun dinding!"); return; }
+    if (wallsBuilt === 0) { setGameStatus("The row is completely blocked!"); return; }
 
     piece.cooldown = SKILLS.rook.cooldown;
-    addLog(board, `🧱 ${pieceLabel(piece)} membangun Barikade Wall satu baris penuh!`);
+    addLog(board, `🧱 ${pieceLabel(piece)} built a solid Wall across the row!`);
   }
 
   board.lastAction = { type: "skill", from, to: from, pieceId: piece.id, pieceType: piece.type, color: piece.color, at: Date.now() };
@@ -572,19 +595,23 @@ async function castTargetSkill(to) {
 
   const from = state.selected; const piece = board.tiles[from]; if (!piece) return;
   if (!isMyTurn()) { setGameStatus("Not your turn."); return; }
-  if (!canUseSkillOn(board, from, to)) { setGameStatus("Target skill tidak valid / membuat King terancam."); return; }
+  if (!canUseSkillOn(board, from, to)) { setGameStatus("Invalid target or leaves King in check."); return; }
 
   if (piece.type === "pawn") {
     const dirX = Math.sign(parseKey(to).x - parseKey(from).x); const dirY = Math.sign(parseKey(to).y - parseKey(from).y);
-    let cx = parseKey(from).x + dirX; let cy = parseKey(from).y + dirY; let hits = 0;
+    let cx = parseKey(from).x + dirX; let cy = parseKey(from).y + dirY; let hits = 0; let blocked = false;
     while(true) {
         const k = keyOf(cx, cy); const t = board.tiles[k];
-        if (t && t.color !== piece.color) { damagePiece(board, k, 999); hits++; }
+        if (t) {
+            if (t.type === 'wall' || t.color === piece.color) { blocked = true; break; }
+            if (t.color !== piece.color) { damagePiece(board, k, 999); hits++; }
+        }
         if (cx === parseKey(to).x && cy === parseKey(to).y) break;
         cx += dirX; cy += dirY;
     }
-    board.tiles[to] = piece; delete board.tiles[from]; piece.cooldown = SKILLS.pawn.cooldown;
-    addLog(board, `⚡ Pawn melompat dan melahap ${hits} keping!`);
+    if (!blocked) { board.tiles[to] = piece; delete board.tiles[from]; }
+    piece.cooldown = SKILLS.pawn.cooldown;
+    addLog(board, `⚡ Pawn leaped and devoured ${hits} piece(s)!`);
     checkPromotion(board, to);
   }
 
@@ -594,7 +621,7 @@ async function castTargetSkill(to) {
     while(true) {
         const k = keyOf(cx, cy); const t = board.tiles[k];
         if (t) {
-            if (t.type === 'king' || t.type === 'queen') { blocked = true; addLog(board, `🛡️ Melesat terhalang oleh ${t.type}!`); break; }
+            if (t.type === 'king' || t.type === 'queen' || t.type === 'wall' || t.color === piece.color) { blocked = true; addLog(board, `🛑 Pierce blocked by ${t.type}!`); break; }
             if (t.color !== piece.color) { damagePiece(board, k, 999); hits++; }
         }
         if (cx === parseKey(to).x && cy === parseKey(to).y) break;
@@ -602,7 +629,7 @@ async function castTargetSkill(to) {
     }
     if (!blocked) { board.tiles[to] = piece; delete board.tiles[from]; }
     piece.cooldown = SKILLS.bishop.cooldown;
-    addLog(board, `🏹 Bishop menembus dan membinasakan ${hits} keping!`);
+    addLog(board, `🏹 Bishop pierced through and destroyed ${hits} piece(s)!`);
   }
 
   else if (piece.type === "queen") {
@@ -611,16 +638,16 @@ async function castTargetSkill(to) {
     for (let y = center.y - 1; y <= center.y + 1; y++) {
         for (let x = center.x - 1; x <= center.x + 1; x++) {
             const k = keyOf(x, y); const t = board.tiles[k];
-            if (t && t.color !== piece.color && t.id !== piece.id) { damagePiece(board, k, 999); hits++; }
+            if (t && t.color !== piece.color && t.type !== 'wall' && t.id !== piece.id) { damagePiece(board, k, 999); hits++; }
         }
     }
     piece.cooldown = SKILLS.queen.cooldown;
-    addLog(board, `💥 Queen Obliterate! Menghempaskan ${hits} musuh di sekitarnya!`);
+    addLog(board, `💥 Queen Obliterated ${hits} surrounding enemy piece(s)!`);
   }
 
   else if (piece.type === "king") {
     board.tiles[to] = piece; delete board.tiles[from]; piece.cooldown = SKILLS.king.cooldown;
-    addLog(board, `🌀 King Teleport ke posisi aman!`);
+    addLog(board, `🌀 King teleported to safety!`);
   }
 
   board.lastAction = { type: "skill", from, to, pieceId: piece.id, pieceType: piece.type, color: piece.color, at: Date.now() };
@@ -635,7 +662,7 @@ function clearSelection() {
 function selectSquare(square) {
   const piece = getPiece(square);
   if (!piece) { clearSelection(); renderBoard(); return; }
-  if (piece.color !== state.playerColor) { setGameStatus("Itu bukan bidak kamu."); return; }
+  if (piece.color !== state.playerColor) { setGameStatus("That is not your piece."); return; }
 
   state.selected = square; state.skillMode = false; state.moveHints = getMoveHints(square); state.skillHints = [];
   updateSelectedPanel(); renderBoard();
@@ -651,7 +678,7 @@ function updateSelectedPanel() {
   if(!skill) return;
 
   els.selectedTitle.innerHTML = `<img src="${PIECE_ICONS[piece.color][piece.type]}" style="height: 1.2em; vertical-align: middle; margin-right: 6px;"> <span style="vertical-align: middle; text-transform: capitalize;">${piece.color} ${piece.type}</span>`;
-  els.selectedDescription.textContent = piece.type === 'wall' ? `HP ${piece.hp} • Akan hancur otomatis.` : `HP ${piece.hp}/${piece.maxHp} • Shield ${piece.shield} • ${skill.name}: ${skill.description}`;
+  els.selectedDescription.textContent = piece.type === 'wall' ? `Invincible Wall • Crumbles automatically.` : `HP ${piece.hp}/${piece.maxHp} • Shield ${piece.shield} • ${skill.name}: ${skill.description}`;
   
   if (skill.target === null || piece.type === 'wall') {
     els.useSkillBtn.disabled = true; els.useSkillBtn.textContent = "Passive Skill";
@@ -695,7 +722,7 @@ function renderBoard() {
         
         const img = document.createElement("img"); img.src = PIECE_ICONS[piece.color][piece.type]; img.className = "piece-img"; pieceEl.appendChild(img);
         const meta = document.createElement("div"); meta.className = "piece-meta";
-        meta.innerHTML = `<span class="hp">${piece.hp}</span> ${piece.shield > 0 ? `<span class="shield">${piece.shield}</span>` : ""} ${piece.cooldown > 0 ? `<span class="cd">${piece.cooldown}</span>` : ""}`;
+        meta.innerHTML = `<span class="hp">${piece.hp === 99 ? '∞' : piece.hp}</span> ${piece.shield > 0 ? `<span class="shield">${piece.shield}</span>` : ""} ${piece.cooldown > 0 ? `<span class="cd">${piece.cooldown}</span>` : ""}`;
         square.append(pieceEl, meta);
       }
 
@@ -706,10 +733,15 @@ function renderBoard() {
 
 function renderPlayerLabels() {
   if (!els.topPlayerLabel || !els.bottomPlayerLabel) return;
-  const board = getBoard(); const players = board?.players || { white: "White", black: "Black" };
-  const wName = players.white || "White"; const bName = players.black || "Black";
-  if (state.playerColor === "black") { els.topPlayerLabel.textContent = wName; els.bottomPlayerLabel.textContent = bName; } 
-  else { els.topPlayerLabel.textContent = bName; els.bottomPlayerLabel.textContent = wName; }
+  const board = getBoard(); const players = board?.players || { white: { name: "White", isGm: false }, black: { name: "Black", isGm: false } };
+  
+  if (state.playerColor === "black") { 
+    els.topPlayerLabel.innerHTML = renderGmName(players.white.name, players.white.isGm); 
+    els.bottomPlayerLabel.innerHTML = renderGmName(players.black.name, players.black.isGm); 
+  } else { 
+    els.topPlayerLabel.innerHTML = renderGmName(players.black.name, players.black.isGm); 
+    els.bottomPlayerLabel.innerHTML = renderGmName(players.white.name, players.white.isGm); 
+  }
 }
 
 function renderGame() {
@@ -732,8 +764,8 @@ function renderGame() {
 
   if (board.drawOffer && board.drawOffer !== state.playerColor && !board.winner) {
     if (state.lastSeenDrawAt !== board.drawOfferAt) {
-      const offererName = board.players?.[board.drawOffer] || board.drawOffer;
-      showToast(`${offererName} offered a draw.`); state.lastSeenDrawAt = board.drawOfferAt;
+      const offerer = board.players?.[board.drawOffer];
+      showToast(`${offerer ? offerer.name : board.drawOffer} offered a draw.`); state.lastSeenDrawAt = board.drawOfferAt;
     }
     els.drawOfferBanner?.classList.remove("hidden");
   } else { els.drawOfferBanner?.classList.add("hidden"); }
@@ -748,13 +780,12 @@ function renderGame() {
   renderPlayerLabels(); updateSelectedPanel(); renderProfile(); renderTimers(); renderBoard();
 }
 
-function escapeHtml(value) { return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 function requireAuth() { if (!state.user || !state.playerId) { showView("auth"); return false; } return true; }
 
 async function createGame({ privateRoom = false } = {}) {
   if (!requireAuth()) return; setLobbyStatus("Creating room...");
   const roomCode = randomRoomCode(); const timerSeconds = Number(els.timerSelect?.value || 600);
-  const board = createInitialBoard(timerSeconds, state.user.username);
+  const board = createInitialBoard(timerSeconds, state.user.username, state.profile?.is_gm || false);
 
   const { data, error } = await supabase.from("magic_chess_games").insert({
       room_code: roomCode, status: "waiting", white_player: state.playerId, black_player: null, current_turn: "white", board_state: board
@@ -772,7 +803,7 @@ async function quickMatch() {
   if (searchError) { setLobbyStatus(searchError.message); return; }
   if (waitingGames && waitingGames.length > 0) {
     const target = waitingGames[0]; const board = target.board_state;
-    board.players = board.players || {}; board.players.black = state.user.username;
+    board.players = board.players || {}; board.players.black = { name: state.user.username, isGm: state.profile?.is_gm || false };
     board.timerStartedAt = Date.now(); addLog(board, "Black joined. The battle begins. White timer started.");
 
     const { data, error } = await supabase.from("magic_chess_games").update({
@@ -798,7 +829,7 @@ async function joinRoomByCode() {
   if (game.black_player) { setLobbyStatus("Room is already full."); return; }
 
   const board = game.board_state;
-  board.players = board.players || {}; board.players.black = state.user.username;
+  board.players = board.players || {}; board.players.black = { name: state.user.username, isGm: state.profile?.is_gm || false };
   board.timerStartedAt = Date.now(); addLog(board, "Black joined. The battle begins. White timer started.");
 
   const { data, error } = await supabase.from("magic_chess_games").update({
@@ -838,7 +869,7 @@ function startSkillMode() {
   if (!skill.target) { castSelfSkill(); return; }
 
   state.skillMode = true; state.moveHints = []; state.skillHints = getSkillHints(state.selected);
-  if (state.skillHints.length === 0) { setGameStatus("Tidak ada target valid yang aman untuk rajaku."); } 
+  if (state.skillHints.length === 0) { setGameStatus("No valid targets available safely."); } 
   else { setGameStatus(`Choose a target for ${skill.name}.`); }
   updateSelectedPanel(); renderBoard();
 }
@@ -879,28 +910,28 @@ async function handleGameResult() {
 function resignGame() {
   showModal("Confirm Resign", "Are you sure you want to resign and lose the game?", async () => {
     const board = clone(getBoard()); board.winner = opposite(state.playerColor);
-    const playerName = board.players?.[state.playerColor] || state.playerColor;
-    addLog(board, `${playerName} resigned.`); await updateGameBoard(board);
+    const p = board.players?.[state.playerColor];
+    addLog(board, `${p ? p.name : state.playerColor} resigned.`); await updateGameBoard(board);
   });
 }
 
 async function offerDraw() {
   const board = clone(getBoard()); if (board.drawOffer === state.playerColor) return;
   board.drawOffer = state.playerColor; board.drawOfferAt = Date.now(); 
-  const playerName = board.players?.[state.playerColor] || state.playerColor;
-  addLog(board, `${playerName} offered a draw.`); await updateGameBoard(board);
+  const p = board.players?.[state.playerColor];
+  addLog(board, `${p ? p.name : state.playerColor} offered a draw.`); await updateGameBoard(board);
 }
 
 async function acceptDraw() {
   const board = clone(getBoard()); board.winner = "draw"; board.drawOffer = null; board.drawOfferAt = null;
-  const playerName = board.players?.[state.playerColor] || state.playerColor;
-  addLog(board, `${playerName} accepted the draw.`); await updateGameBoard(board);
+  const p = board.players?.[state.playerColor];
+  addLog(board, `${p ? p.name : state.playerColor} accepted the draw.`); await updateGameBoard(board);
 }
 
 async function declineDraw() {
   const board = clone(getBoard()); board.drawOffer = null; board.drawOfferAt = null;
-  const playerName = board.players?.[state.playerColor] || state.playerColor;
-  addLog(board, `${playerName} declined the draw.`); await updateGameBoard(board);
+  const p = board.players?.[state.playerColor];
+  addLog(board, `${p ? p.name : state.playerColor} declined the draw.`); await updateGameBoard(board);
 }
 
 els.loginTabBtn?.addEventListener("click", () => setAuthMode("login"));
