@@ -20,7 +20,6 @@
       --danger: #d95757;
       --warning: #f0c15c;
       --blue: #5d8fd6;
-
       --light-square: #eeeed2;
       --dark-square: #769656;
       --move-dot: rgba(20, 20, 20, 0.28);
@@ -82,8 +81,8 @@
 
     @keyframes pieceMoveIn {
       from {
-        transform: scale(0.78);
-        opacity: 0.55;
+        transform: scale(0.72);
+        opacity: 0.5;
       }
 
       to {
@@ -232,8 +231,6 @@
       margin-top: 12px;
     }
 
-    /* AUTH */
-
     .auth-layout {
       min-height: calc(100vh - 80px);
       display: grid;
@@ -315,8 +312,6 @@
       font-size: 0.9rem;
       line-height: 1.4;
     }
-
-    /* LANDING */
 
     .landing-layout {
       display: grid;
@@ -424,8 +419,6 @@
       color: var(--text);
     }
 
-    /* LOBBY */
-
     .lobby-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -474,8 +467,6 @@
       font-size: 0.9rem;
       line-height: 1.35;
     }
-
-    /* GAME */
 
     .game-topbar {
       position: sticky;
@@ -778,7 +769,8 @@
       }
 
       .side-panel .panel:nth-child(3),
-      .side-panel .panel:nth-child(4) {
+      .side-panel .panel:nth-child(4),
+      .side-panel .panel:nth-child(5) {
         grid-column: 1 / -1;
       }
 
@@ -869,6 +861,12 @@
       .battle-log {
         max-height: 120px;
       }
+
+      .user-chip {
+        gap: 5px;
+        padding: 6px 8px;
+        font-size: 0.8rem;
+      }
     }
 
     @media (max-width: 380px) {
@@ -899,8 +897,8 @@
           <p class="eyebrow">Account required</p>
           <h1>Login dulu biar progress kamu kesimpan.</h1>
           <p>
-            ELO, win, lose, dan match history basic akan ikut akun kamu. Jadi kalau buka
-            dari device lain, progress tetap kebawa.
+            Pakai username dan password saja. ELO, win, lose, dan progress
+            akan ikut akun kamu walaupun buka dari device lain.
           </p>
         </section>
 
@@ -912,23 +910,18 @@
 
           <h2 id="authTitle">Login</h2>
           <p id="authSubtitle" class="muted">
-            Masuk dengan email dan password kamu.
+            Masuk pakai username dan password.
           </p>
 
           <form id="authForm" class="auth-form">
             <label>
               Username
-              <input id="authUsernameInput" type="text" placeholder="Only for register" autocomplete="nickname" />
-            </label>
-
-            <label>
-              Email
-              <input id="authEmailInput" type="email" placeholder="you@email.com" autocomplete="email" required />
+              <input id="authUsernameInput" type="text" placeholder="username" autocomplete="username" required />
             </label>
 
             <label>
               Password
-              <input id="authPasswordInput" type="password" placeholder="Minimum 6 characters" autocomplete="current-password" required />
+              <input id="authPasswordInput" type="password" placeholder="minimum 6 characters" autocomplete="current-password" required />
             </label>
 
             <button id="authSubmitBtn" class="btn btn-primary full" type="submit">Login</button>
@@ -952,7 +945,7 @@
 
         <div class="user-chip">
           <span id="navUsername">Guest</span>
-          <strong id="navElo">0</strong>
+          <strong id="navElo">0 ELO</strong>
           <button id="logoutBtn" class="btn btn-ghost">Logout</button>
         </div>
       </nav>
