@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -24,11 +24,11 @@ function publicProfile(profile) {
     wins: profile.wins,
     losses: profile.losses,
     games_played: profile.games_played,
-    is_gm: profile.is_gm || false // <-- FIX GM MUNCUL
+    is_gm: profile.is_gm || false
   };
 }
 
-export async function handler(event) {
+exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed." });
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) return json(500, { error: "Missing Supabase server env." });
 
@@ -66,4 +66,4 @@ export async function handler(event) {
   if (updateError) return json(500, { error: updateError.message });
 
   return json(200, { profile: publicProfile(updatedProfile) });
-}
+};
