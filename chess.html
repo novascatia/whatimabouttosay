@@ -57,11 +57,13 @@
 
     .gm-tag { background: #b33939; color: white; padding: 2px 4px; border-radius: 3px; font-size: 0.75rem; font-weight: 900; margin-right: 4px; vertical-align: middle; display: inline-block; line-height: 1; }
 
-    .btn { border: 0; border-radius: 6px; padding: 10px 14px; min-height: 40px; color: var(--text); background: var(--panel-2); font-weight: 700; }
+    .btn { border: 0; border-radius: 6px; padding: 10px 14px; min-height: 40px; color: var(--text); background: var(--panel-2); font-weight: 700; transition: all 0.2s ease;}
     .btn:hover { filter: brightness(1.08); }
     .btn:disabled { opacity: 0.45; cursor: not-allowed; }
     .btn-primary { background: var(--accent); color: #17210e; }
     .btn-secondary { background: #4a4742; }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text); }
     .full { width: 100%; }
 
     .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
@@ -90,41 +92,18 @@
     .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     
     .profile-card { display: grid; gap: 10px; }
-    
     .profile-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-radius: 6px; background: var(--panel-2); }
     .profile-row span { color: var(--muted); }
     .profile-row strong { font-size: 1.15rem; }
 
-    .info-card .profile-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-      padding: 12px;
-    }
-    .info-card .profile-row span {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .info-card .profile-row strong {
-      font-size: 1.25rem;
-      width: 100%;
-    }
+    .info-card .profile-row { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px; }
+    .info-card .profile-row span { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-card .profile-row strong { font-size: 1.25rem; width: 100%; }
 
-    /* FIX: MENAMBAHKAN MARGIN TOP AGAR PAPAN PAJANGAN TURUN KE BAWAH */
-    .preview-board { 
-      display: grid; 
-      grid-template-columns: repeat(4, 1fr); 
-      aspect-ratio: 1 / 1; 
-      overflow: hidden; 
-      border-radius: 6px; 
-      margin-top: 20px; /* <--- INI FIX NYA */
-    }
-    
+    .preview-board { display: grid; grid-template-columns: repeat(4, 1fr); aspect-ratio: 1 / 1; overflow: hidden; border-radius: 6px; margin-top: 20px; }
     .preview-board span { display: grid; place-items: center; font-size: 2.4rem; line-height: 1; }
     .preview-board span:nth-child(odd) { background: var(--light-square); color: #222; }
     .preview-board span:nth-child(even) { background: var(--dark-square); color: #111; }
-    
     .rules-small { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; color: var(--muted); }
     .rules-small b { color: var(--text); }
 
@@ -138,7 +117,6 @@
     .rules-list b { display: block; margin-bottom: 4px; }
     .rules-list span { color: var(--muted); font-size: 0.9rem; line-height: 1.35; }
 
-    /* PROFILE PAGE CSS */
     .profile-layout { display: grid; justify-content: center; align-content: start; gap: 20px; padding-top: 40px; }
     .profile-header { text-align: center; margin-bottom: 10px; }
     .profile-avatar { font-size: 5rem; line-height: 1; margin-bottom: 10px; }
@@ -160,48 +138,25 @@
     .player-strip { width: min(100%, 74vh, 760px); display: flex; align-items: center; justify-content: space-between; min-height: 34px; padding: 7px 10px; color: var(--muted); background: var(--panel); border-radius: 6px; font-size: 0.95rem; }
     .player-strip strong { color: var(--text); font-size: 1.05rem; }
     
-    /* COORDINATES WRAPPER */
-    .board-wrapper {
-      display: flex; flex-direction: column; align-items: center; width: min(100%, 74vh, 760px);
-    }
-    .file-labels {
-      display: grid; grid-template-columns: repeat(8, 1fr); width: calc(100% - 40px); margin: 0 20px; height: 20px; text-align: center; color: var(--muted); font-size: 0.8rem; font-weight: 800; align-items: center;
-    }
-    .board-middle {
-      display: flex; width: 100%;
-    }
-    .rank-labels {
-      display: grid; grid-template-rows: repeat(8, 1fr); width: 20px; text-align: center; color: var(--muted); font-size: 0.8rem; font-weight: 800; align-items: center;
-    }
-    .board-container {
-      position: relative; flex: 1; aspect-ratio: 1 / 1; border-radius: 4px; overflow: hidden; background: #000;
-    }
+    .board-wrapper { display: flex; flex-direction: column; align-items: center; width: min(100%, 74vh, 760px); }
+    .file-labels { display: grid; grid-template-columns: repeat(8, 1fr); width: calc(100% - 40px); margin: 0 20px; height: 20px; text-align: center; color: var(--muted); font-size: 0.8rem; font-weight: 800; align-items: center; }
+    .board-middle { display: flex; width: 100%; }
+    .rank-labels { display: grid; grid-template-rows: repeat(8, 1fr); width: 20px; text-align: center; color: var(--muted); font-size: 0.8rem; font-weight: 800; align-items: center; }
+    .board-container { position: relative; flex: 1; aspect-ratio: 1 / 1; border-radius: 4px; overflow: hidden; background: #000; }
 
-    .board {
-      display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-      width: 100%; height: 100%;
-    }
-
-    .square {
-      position: relative; display: grid; place-items: center; width: 100%; height: 100%;
-      padding: 0; border: 0; border-radius: 0; line-height: 1; overflow: hidden; outline: none;
-    }
+    .board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); width: 100%; height: 100%; }
+    .square { position: relative; display: grid; place-items: center; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 0; line-height: 1; overflow: hidden; outline: none; }
     .square.light { background: var(--light-square); }
     .square.dark { background: var(--dark-square); }
     .square.selected { box-shadow: inset 0 0 0 999px rgba(247, 236, 110, 0.55); z-index: 2; }
     
-    .square.can-move::after, .square.can-skill::after {
-      content: ""; position: absolute; width: 28%; height: 28%; border-radius: 999px; background: var(--move-dot); pointer-events: none;
-    }
+    .square.can-move::after, .square.can-skill::after { content: ""; position: absolute; width: 28%; height: 28%; border-radius: 999px; background: var(--move-dot); pointer-events: none; }
     .square.can-skill::after { width: 40%; height: 40%; background: rgba(240, 193, 92, 0.65); border: 2px solid rgba(30, 30, 30, 0.2); }
 
     .piece { display: grid; place-items: center; width: 100%; height: 100%; font-size: clamp(2.3rem, 7.5vmin, 5.2rem); line-height: 1; user-select: none; pointer-events: none; transition: transform 160ms ease; z-index: 3; }
     .piece-img { width: 88%; height: 88%; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45)); }
     .piece-meta { position: absolute; right: 3px; bottom: 3px; display: flex; gap: 2px; pointer-events: none; z-index: 4; }
-    .hp, .cd, .shield {
-      display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px;
-      border-radius: 999px; color: white; font-size: 0.65rem; font-family: Arial, Helvetica, sans-serif; font-weight: 800; line-height: 1;
-    }
+    .hp, .cd, .shield { display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; color: white; font-size: 0.65rem; font-family: Arial, Helvetica, sans-serif; font-weight: 800; line-height: 1; }
     .hp { background: var(--danger); }
     .cd { background: #6a5acd; }
     .shield { background: var(--accent); color: #16220f; }
@@ -230,6 +185,11 @@
     .elo-plus { color: var(--accent); }
     .elo-minus { color: var(--danger); }
     @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* REPLAY MOVES BAR (BARU) */
+    .review-bar { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px; transition: opacity 0.3s; }
+    .review-bar.disabled { opacity: 0.4; pointer-events: none; }
+    .rev-text { font-size: 0.8rem; font-weight: 800; color: var(--muted); min-width: 65px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
 
     /* TUTORIAL UI */
     .tutorial-container { max-width: 600px; margin: 0 auto; display: grid; gap: 16px; justify-items: center; padding: 20px 0; }
@@ -468,6 +428,14 @@
               <div class="rank-labels right" id="ranksRight"></div>
             </div>
             <div class="file-labels bottom" id="filesBottom"></div>
+            
+            <div id="reviewBar" class="review-bar disabled mt-2">
+               <button id="revFirstBtn" class="btn btn-ghost px-3 py-1 text-sm"><i class="fas fa-fast-backward"></i></button>
+               <button id="revPrevBtn" class="btn btn-ghost px-3 py-1 text-sm"><i class="fas fa-step-backward"></i></button>
+               <span id="revText" class="rev-text">Current</span>
+               <button id="revNextBtn" class="btn btn-ghost px-3 py-1 text-sm"><i class="fas fa-step-forward"></i></button>
+               <button id="revLastBtn" class="btn btn-ghost px-3 py-1 text-sm"><i class="fas fa-fast-forward"></i></button>
+            </div>
           </div>
 
           <div id="bottomPlayerStrip" class="player-strip"><span>You</span><strong id="bottomPlayerLabel">Loading...</strong></div>
@@ -514,12 +482,6 @@
                 </div>
               </div>
             </div>
-          </section>
-
-          <section class="panel compact">
-            <p class="eyebrow">Profile</p>
-            <div class="profile-row"><span>You</span><strong id="gameUsername">Guest</strong></div>
-            <div class="profile-row"><span>ELO</span><strong id="gameElo">0</strong></div>
           </section>
 
           <section class="panel compact">
