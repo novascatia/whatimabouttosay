@@ -43,8 +43,10 @@ const PIECE_ICONS = {
   black: { king: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg", queen: "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg", rook: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg", bishop: "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg", knight: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg", pawn: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg", wall: WALL_SVG }
 };
 const PIECE_HP = { king: 6, queen: 5, rook: 4, bishop: 3, knight: 3, pawn: 2, wall: 99 };
+
+// FIX: PENGUBAHAN DESKRIPSI PAWN HOP STRIKE DI SINI
 const SKILLS = {
-  pawn: { name: "Chain Eat", cooldown: 4, target: true, description: "Leap diagonally up to 3 squares, devouring enemies in path." },
+  pawn: { name: "Hop Strike", cooldown: 4, target: true, description: "Jump over an adjacent enemy (diagonally forward) to an empty square, destroying them." },
   rook: { name: "Build Wall", cooldown: 5, target: false, description: "Build an impenetrable wall in front of your leading Pawn (lasts 2 rounds). Limit 1 active wall." },
   bishop: { name: "Pierce", cooldown: 4, target: true, description: "Dash diagonally up to 5 squares, destroying enemies in path (blocked by King/Queen)." },
   knight: { name: "Passive: Expand Walk", cooldown: 0, target: null, description: "Can walk straight endlessly to empty squares." },
@@ -308,7 +310,17 @@ function canUseSkillOnBasic(board, from, to) {
   const a = parseKey(from); const b = parseKey(to); if (!inBoard(b.x, b.y)) return false;
   const dx = b.x - a.x; const dy = b.y - a.y; const adx = Math.abs(dx); const ady = Math.abs(dy);
 
-  if (piece.type === "pawn") return adx === ady && adx >= 1 && adx <= 3;
+  // FIX: PAWN HANYA BISA LOMPAT KE PETAK KOSONG DENGAN dx=2 ATAU dx=-2 DAN dy=dir*2
+  if (piece.type === "pawn") {
+      const dir = piece.color === "white" ? -1 : 1;
+      if (adx === 2 && dy === dir * 2 && !board.tiles[to]) {
+          const jx = a.x + dx/2;
+          const jy = a.y + dy/2;
+          const jp = board.tiles[keyOf(jx, jy)];
+          return !!jp && jp.color !== piece.color && jp.type !== 'wall';
+      }
+      return false;
+  }
   if (piece.type === "bishop") return adx === ady && adx >= 1 && adx <= 5;
   if (piece.type === "queen") return (dx === 0 || dy === 0 || adx === ady) && pathClear(board, from, to);
   if (piece.type === "king") return !board.tiles[to]; 
@@ -317,15 +329,22 @@ function canUseSkillOnBasic(board, from, to) {
 
 function simulateSkillAndCheck(board, from, to) {
   const cloned = clone(board); const piece = cloned.tiles[from];
-  if (piece.type === 'pawn' || piece.type === 'bishop') {
+  
+  // FIX: PAWN MEMAKAN BIDAK YANG DI LOMPATINYA
+  if (piece.type === 'pawn') {
+      const jx = parseKey(from).x + (parseKey(to).x - parseKey(from).x)/2;
+      const jy = parseKey(from).y + (parseKey(to).y - parseKey(from).y)/2;
+      delete cloned.tiles[keyOf(jx, jy)];
+      cloned.tiles[to] = piece; delete cloned.tiles[from];
+  } else if (piece.type === 'bishop') {
     const dirX = Math.sign(parseKey(to).x - parseKey(from).x); const dirY = Math.sign(parseKey(to).y - parseKey(from).y);
     let cx = parseKey(from).x + dirX; let cy = parseKey(from).y + dirY; let blocked = false;
     while(true) {
         const k = keyOf(cx, cy); const t = cloned.tiles[k];
         if (t) {
             if (t.type === 'wall' || t.color === piece.color) { blocked = true; break; }
-            if (piece.type === 'bishop' && (t.type === 'king' || t.type === 'queen')) { blocked = true; break; }
-            if (t.color !== piece.color) delete cloned.tiles[k]; 
+            if (t.type === 'king' || t.type === 'queen') { blocked = true; break; }
+            delete cloned.tiles[k]; 
         }
         if (cx === parseKey(to).x && cy === parseKey(to).y) break; cx += dirX; cy += dirY;
     }
@@ -411,15 +430,16 @@ async function castTargetSkill(to) {
   const from = state.selected; const piece = board.tiles[from]; if (!piece) return;
   if (!isMyTurn()) { setGameStatus("Not your turn."); return; } if (!canUseSkillOn(board, from, to)) { setGameStatus("Invalid target or leaves King in check."); return; }
 
+  // FIX: PAWN MEMAKAN LOMPAT
   if (piece.type === "pawn") {
-    const dirX = Math.sign(parseKey(to).x - parseKey(from).x); const dirY = Math.sign(parseKey(to).y - parseKey(from).y);
-    let cx = parseKey(from).x + dirX; let cy = parseKey(from).y + dirY; let hits = 0; let blocked = false;
-    while(true) {
-        const k = keyOf(cx, cy); const t = board.tiles[k];
-        if (t) { if (t.type === 'wall' || t.color === piece.color) { blocked = true; break; } if (t.color !== piece.color) { damagePiece(board, k, 999); hits++; } }
-        if (cx === parseKey(to).x && cy === parseKey(to).y) break; cx += dirX; cy += dirY;
-    }
-    if (!blocked) { board.tiles[to] = piece; delete board.tiles[from]; } piece.cooldown = SKILLS.pawn.cooldown; addLog(board, `⚡ Pawn leaped and devoured ${hits} enemy piece(s)!`); checkPromotion(board, to);
+      const jx = parseKey(from).x + (parseKey(to).x - parseKey(from).x)/2;
+      const jy = parseKey(from).y + (parseKey(to).y - parseKey(from).y)/2;
+      const k = keyOf(jx, jy);
+      damagePiece(board, k, 999);
+      board.tiles[to] = piece; delete board.tiles[from];
+      piece.cooldown = SKILLS.pawn.cooldown;
+      addLog(board, `⚡ Pawn leaped over and devoured the enemy!`);
+      checkPromotion(board, to);
   } else if (piece.type === "bishop") {
     const dirX = Math.sign(parseKey(to).x - parseKey(from).x); const dirY = Math.sign(parseKey(to).y - parseKey(from).y);
     let cx = parseKey(from).x + dirX; let cy = parseKey(from).y + dirY; let blocked = false; let hits = 0;
@@ -499,7 +519,6 @@ function renderBoard() {
   let tilesToRender = board?.tiles || {};
   let lastActionToRender = board?.lastAction;
 
-  // USE REPLAY HISTORY IF ACTIVE
   if (state.viewIndex !== -1 && board?.history && board.history[state.viewIndex]) {
       tilesToRender = board.history[state.viewIndex].tiles;
       lastActionToRender = board.history[state.viewIndex].lastAction;
@@ -581,7 +600,6 @@ function renderGame() {
     handleGameResult();
   } else { els.winnerBanner.classList.add("hidden"); }
 
-  // REPLAY UI UPDATE
   const histLen = board?.history?.length || 0;
   if (histLen <= 1) {
       els.revBar?.classList.add('disabled');
@@ -670,7 +688,6 @@ function cancelSkillMode() { if (!state.selected) return; state.skillMode = fals
 
 async function copyRoomCode() { if (!state.game) return; try { await navigator.clipboard.writeText(state.game.room_code); setGameStatus("Room code copied."); } catch { setGameStatus(`Room code: ${state.game.room_code}`); } }
 
-// --- OPTIMISTIC ELO UPDATE ---
 async function handleGameResult() {
   const board = getBoard(); if (!board?.winner || !state.user || !state.profile || !state.game || !state.playerColor) return;
   const storageKey = `magicChessResult:${state.game.id}:${state.user.id}`;
@@ -695,20 +712,19 @@ async function offerDraw() { const board = clone(getBoard()); if (board.drawOffe
 async function acceptDraw() { const board = clone(getBoard()); board.winner = "draw"; board.drawOffer = null; board.drawOfferAt = null; const pInfo = getPlayerInfo(board, state.playerColor); addLog(board, `${pInfo.name} accepted the draw.`); await updateGameBoard(board); }
 async function declineDraw() { const board = clone(getBoard()); board.drawOffer = null; board.drawOfferAt = null; const pInfo = getPlayerInfo(board, state.playerColor); addLog(board, `${pInfo.name} declined the draw.`); await updateGameBoard(board); }
 
-// --- REPLAY CONTROLS ---
 els.revFirstBtn?.addEventListener('click', () => { const b = getBoard(); if(!b || !b.history) return; state.viewIndex = 0; renderGame(); });
 els.revPrevBtn?.addEventListener('click', () => { const b = getBoard(); if(!b || !b.history) return; if (state.viewIndex === -1) state.viewIndex = b.history.length - 1; if (state.viewIndex > 0) state.viewIndex--; renderGame(); });
 els.revNextBtn?.addEventListener('click', () => { const b = getBoard(); if(!b || !b.history) return; if (state.viewIndex !== -1) { if (state.viewIndex < b.history.length - 1) state.viewIndex++; else state.viewIndex = -1; renderGame(); } });
 els.revLastBtn?.addEventListener('click', () => { state.viewIndex = -1; renderGame(); });
 
-// --- TUTORIAL ENGINE ---
+// FIX: PENGUBAHAN STEP TUTORIAL UNTUK MEKANIK HOP STRIKE (PAWN JUMP OVER)
 let tutState = { step: 0, sel: null, board: {} };
 function startTutorial() { window.showView("tutorial"); nextTutStep(0); }
 function endTutorial() { window.showView("lobby"); }
 
 function initTutBoard(step) {
   tutState.board = {}; tutState.sel = null;
-  if (step === 0) { tutState.board["3,6"]={c:"white",t:"pawn",hp:2}; tutState.board["2,5"]={c:"black",t:"pawn",hp:2}; tutState.board["1,4"]={c:"black",t:"pawn",hp:2}; }
+  if (step === 0) { tutState.board["3,6"]={c:"white",t:"pawn",hp:2}; tutState.board["2,5"]={c:"black",t:"pawn",hp:2}; }
   if (step === 4) { tutState.board["3,7"]={c:"white",t:"rook",hp:4}; tutState.board["3,5"]={c:"white",t:"pawn",hp:2}; }
   if (step === 7) { tutState.board["4,6"]={c:"white",t:"bishop",hp:3}; tutState.board["3,5"]={c:"black",t:"pawn",hp:2}; tutState.board["1,3"]={c:"black",t:"pawn",hp:2}; }
   if (step === 11) { tutState.board["4,6"]={c:"white",t:"knight",hp:3}; }
@@ -743,8 +759,10 @@ function renderTutBoard() {
       
       sq.onclick = () => {
         const s = tutState.step;
+        // FIX: TARGET HOP STRIKE ADALAH "1,4", LONCATI "2,5"
         if (s===0 && k==="3,6") { tutState.sel=k; nextTutStep(1); }
         if (s===2 && k==="1,4") { delete tutState.board["3,6"]; delete tutState.board["2,5"]; tutState.board["1,4"]={c:"white",t:"pawn",hp:2}; tutState.sel=null; nextTutStep(3); }
+        
         if (s===4 && k==="3,7") { tutState.sel=k; nextTutStep(5); }
         if (s===7 && k==="4,6") { tutState.sel=k; nextTutStep(8); }
         if (s===9 && k==="1,3") { delete tutState.board["4,6"]; delete tutState.board["3,5"]; tutState.board["1,3"]={c:"white",t:"bishop",hp:3}; tutState.sel=null; nextTutStep(10); }
@@ -763,9 +781,9 @@ function renderTutBoard() {
 function runTutStep() {
   renderTutBoard(); els.tutSkillBtn.classList.add("hidden"); els.tutSkillBtn.onclick = null;
   const msgs = [
-    "1. Pawn (Chain Eat): Select your White Pawn.",
+    "1. Pawn (Hop Strike): Select your White Pawn.",
     "Click 'Use Skill' below.",
-    "Click the furthest highlighted enemy to chain eat through them!",
+    "Click the empty square behind the enemy to jump over and devour it!",
     "Awesome! You devoured them. Click Next.",
     "2. Rook (Build Wall): Select your White Rook.",
     "Click 'Use Skill' to build an impenetrable wall.",
