@@ -16,7 +16,7 @@ const els = {
   navUsername: $("#navUsername"), navElo: $("#navElo"),
   profileCombined: $("#profileCombined"),
   lobbyUsername: $("#lobbyUsername"), lobbyElo: $("#lobbyElo"),
-  gameUsername: $("#gameUsername"), gameElo: $("#gameElo"), heroPlayBtn: $("#heroPlayBtn"), heroRulesBtn: $("#heroRulesBtn"),
+  heroPlayBtn: $("#heroPlayBtn"), heroRulesBtn: $("#heroRulesBtn"),
   backToLandingBtn: $("#backToLandingBtn"), quickMatchBtn: $("#quickMatchBtn"), createPrivateBtn: $("#createPrivateBtn"),
   joinRoomBtn: $("#joinRoomBtn"), roomCodeInput: $("#roomCodeInput"), lobbyStatus: $("#lobbyStatus"), timerSelect: $("#timerSelect"),
   board: $("#board"), leaveGameBtn: $("#leaveGameBtn"), returnLobbyBtn: $("#returnLobbyBtn"), copyRoomBtn: $("#copyRoomBtn"),
@@ -28,12 +28,13 @@ const els = {
   offerDrawBtn: $("#offerDrawBtn"), resignBtn: $("#resignBtn"), drawOfferBanner: $("#drawOfferBanner"),
   acceptDrawBtn: $("#acceptDrawBtn"), declineDrawBtn: $("#declineDrawBtn"),
   
-  // New UI Elements
   backFromProfileBtn: $("#backFromProfileBtn"),
   fullProfileUsername: $("#fullProfileUsername"), fullProfileElo: $("#fullProfileElo"), fullProfileWr: $("#fullProfileWr"),
   fullProfileWins: $("#fullProfileWins"), fullProfileLosses: $("#fullProfileLosses"), fullProfileGames: $("#fullProfileGames"),
   openTutorialBtn: $("#openTutorialBtn"), exitTutorialBtn: $("#exitTutorialBtn"), tutDialog: $("#tutDialog"), tutBoard: $("#tutBoard"), tutSkillBtn: $("#tutSkillBtn"),
-  filesTop: $("#filesTop"), filesBottom: $("#filesBottom"), ranksLeft: $("#ranksLeft"), ranksRight: $("#ranksRight")
+  filesTop: $("#filesTop"), filesBottom: $("#filesBottom"), ranksLeft: $("#ranksLeft"), ranksRight: $("#ranksRight"),
+
+  revBar: $("#reviewBar"), revFirstBtn: $("#revFirstBtn"), revPrevBtn: $("#revPrevBtn"), revText: $("#revText"), revNextBtn: $("#revNextBtn"), revLastBtn: $("#revLastBtn")
 };
 
 const WALL_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="15" y="20" width="70" height="60" fill="%23777" stroke="%23222" stroke-width="5"/><line x1="15" y1="50" x2="85" y2="50" stroke="%23222" stroke-width="5"/><line x1="50" y1="20" x2="50" y2="50" stroke="%23222" stroke-width="5"/><line x1="30" y1="50" x2="30" y2="80" stroke="%23222" stroke-width="5"/><line x1="70" y1="50" x2="70" y2="80" stroke="%23222" stroke-width="5"/></svg>`;
@@ -53,10 +54,10 @@ const SKILLS = {
 
 let state = {
   user: null, profile: null, playerId: null, authMode: "login", resultProcessing: false,
-  playerColor: null, game: null, channel: null, selected: null, moveHints: [], skillMode: false, skillHints: [], lastSeenDrawAt: null
+  playerColor: null, game: null, channel: null, selected: null, moveHints: [], skillMode: false, skillHints: [], lastSeenDrawAt: null,
+  viewIndex: -1 
 };
 
-// UI Helpers
 function escapeHtml(value) { return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 function renderGmName(name, isGm) { const safeName = escapeHtml(name || "Guest"); return isGm ? `<span class="gm-tag">GM</span>${safeName}` : safeName; }
 function getPlayerInfo(board, color) {
@@ -192,7 +193,8 @@ function createInitialBoard(timerSeconds = 600, pInfo) {
   }
   return {
     turn: "white", tiles, players: { white: { name: pInfo.name, isGm: pInfo.isGm, elo: pInfo.elo }, black: { name: "Waiting...", isGm: false, elo: 0 } },
-    log: ["Room created. Waiting for another player."], winner: null, drawOffer: null, drawOfferAt: null, lastAction: null, timers: { white: timerSeconds, black: timerSeconds }, timerStartedAt: null, resultApplied: false
+    log: ["Room created. Waiting for another player."], winner: null, drawOffer: null, drawOfferAt: null, lastAction: null, timers: { white: timerSeconds, black: timerSeconds }, timerStartedAt: null, resultApplied: false,
+    history: [{ tiles: clone(tiles), lastAction: null }]
   };
 }
 
@@ -354,6 +356,11 @@ function hasValidMoves(board, color) {
 function getMoveHints(square) { const board = getBoard(); if (!board) return []; const hints = []; for (let y = 0; y < 8; y++) { for (let x = 0; x < 8; x++) { const to = keyOf(x, y); if (canMovePiece(board, square, to)) hints.push(to); } } return hints; }
 function getSkillHints(square) { const board = getBoard(); if (!board) return []; const hints = []; for (let y = 0; y < 8; y++) { for (let x = 0; x < 8; x++) { const to = keyOf(x, y); if (canUseSkillOn(board, square, to)) hints.push(to); } } return hints; }
 
+function pushHistory(board) {
+  board.history = board.history || [];
+  board.history.push({ tiles: clone(board.tiles), lastAction: clone(board.lastAction) });
+}
+
 async function updateGameBoard(board) {
   if (!state.game) return;
   const { data, error } = await supabase.from("magic_chess_games").update({ board_state: board, current_turn: board.turn, winner: board.winner, status: board.winner ? "finished" : state.game.status === "waiting" ? "waiting" : "active", updated_at: new Date().toISOString() }).eq("id", state.game.id).select().single();
@@ -371,7 +378,8 @@ async function moveSelected(to) {
   else { addLog(board, `${pieceLabel(piece)} moved.`); }
 
   board.tiles[to] = piece; delete board.tiles[from]; board.lastAction = { type: "move", from, to, pieceId: piece.id, pieceType: piece.type, color: piece.color, at: Date.now() };
-  checkPromotion(board, to); if (!board.winner) switchTurn(board); await updateGameBoard(board);
+  checkPromotion(board, to); pushHistory(board);
+  if (!board.winner) switchTurn(board); await updateGameBoard(board);
 }
 
 async function castSelfSkill() {
@@ -394,7 +402,8 @@ async function castSelfSkill() {
     piece.cooldown = SKILLS.rook.cooldown; addLog(board, `🧱 ${pieceLabel(piece)} built a solid Wall across the row!`);
   }
 
-  board.lastAction = { type: "skill", from, to: from, pieceId: piece.id, pieceType: piece.type, color: piece.color, at: Date.now() }; switchTurn(board); await updateGameBoard(board);
+  board.lastAction = { type: "skill", from, to: from, pieceId: piece.id, pieceType: piece.type, color: piece.color, at: Date.now() }; 
+  pushHistory(board); switchTurn(board); await updateGameBoard(board);
 }
 
 async function castTargetSkill(to) {
@@ -429,7 +438,7 @@ async function castTargetSkill(to) {
   }
 
   board.lastAction = { type: "skill", from, to, pieceId: piece.id, pieceType: piece.type, color: piece.color, at: Date.now() };
-  if (!board.winner) switchTurn(board); await updateGameBoard(board);
+  pushHistory(board); if (!board.winner) switchTurn(board); await updateGameBoard(board);
 }
 
 function clearSelection() { state.selected = null; state.moveHints = []; state.skillMode = false; state.skillHints = []; updateSelectedPanel(); }
@@ -454,6 +463,7 @@ function updateSelectedPanel() {
 }
 
 function handleBoardClick(square) {
+  if (state.viewIndex !== -1) { setGameStatus("You are viewing past moves. Go to 'Current' to play."); return; }
   if (!state.game || getBoard()?.winner) return; const piece = getPiece(square);
   if (state.skillMode) { castTargetSkill(square); return; }
   if (!state.selected) { if (piece) selectSquare(square); return; }
@@ -485,19 +495,30 @@ function renderBoard() {
   const xOrder = playingBlack ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
 
   renderCoords();
+  
+  let tilesToRender = board?.tiles || {};
+  let lastActionToRender = board?.lastAction;
+
+  // USE REPLAY HISTORY IF ACTIVE
+  if (state.viewIndex !== -1 && board?.history && board.history[state.viewIndex]) {
+      tilesToRender = board.history[state.viewIndex].tiles;
+      lastActionToRender = board.history[state.viewIndex].lastAction;
+  }
 
   for (const y of yOrder) {
     for (const x of xOrder) {
-      const squareKey = keyOf(x, y); const square = document.createElement("button"); const piece = board?.tiles?.[squareKey];
+      const squareKey = keyOf(x, y); const square = document.createElement("button"); const piece = tilesToRender[squareKey];
       square.className = `square ${(x + y) % 2 === 0 ? "light" : "dark"}`; square.dataset.square = squareKey;
 
-      if (state.selected === squareKey) square.classList.add("selected");
-      if (state.moveHints.includes(squareKey)) square.classList.add("can-move");
-      if (state.skillHints.includes(squareKey)) square.classList.add("can-skill");
+      if (state.viewIndex === -1) {
+          if (state.selected === squareKey) square.classList.add("selected");
+          if (state.moveHints.includes(squareKey)) square.classList.add("can-move");
+          if (state.skillHints.includes(squareKey)) square.classList.add("can-skill");
+      }
 
       if (piece) {
         const pieceEl = document.createElement("div"); pieceEl.className = `piece ${piece.color}`;
-        if (board?.lastAction?.to === squareKey && board?.lastAction?.pieceId === piece.id) pieceEl.classList.add("piece-move-animate");
+        if (lastActionToRender?.to === squareKey && lastActionToRender?.pieceId === piece.id) pieceEl.classList.add("piece-move-animate");
         const img = document.createElement("img"); img.src = PIECE_ICONS[piece.color][piece.type]; img.className = "piece-img"; pieceEl.appendChild(img);
         const meta = document.createElement("div"); meta.className = "piece-meta";
         meta.innerHTML = `<span class="hp">${piece.hp === 99 ? '∞' : piece.hp}</span> ${piece.shield > 0 ? `<span class="shield">${piece.shield}</span>` : ""} ${piece.cooldown > 0 ? `<span class="cd">${piece.cooldown}</span>` : ""}`;
@@ -541,6 +562,10 @@ function renderGame() {
   else if (board.winner) { setGameStatus("Game finished."); } 
   else if (isKingInCheck(board, board.turn)) { setGameStatus(isMyTurn() ? "Your turn - CHECK!" : "Opponent's turn - CHECK!"); } 
   else if (isMyTurn()) { setGameStatus("Your turn."); } else { setGameStatus("Opponent's turn."); }
+  
+  if (state.viewIndex !== -1) {
+      els.gameStatus.textContent = "Viewing Past Moves (Read-Only)";
+  }
 
   els.battleLog.innerHTML = (board.log || []).map(item => `<p>${escapeHtml(item)}</p>`).join("");
 
@@ -555,6 +580,19 @@ function renderGame() {
     else { els.winnerTitle.textContent = `${board.winner.toUpperCase()} wins`; els.winnerText.textContent = "The king has fallen."; }
     handleGameResult();
   } else { els.winnerBanner.classList.add("hidden"); }
+
+  // REPLAY UI UPDATE
+  const histLen = board?.history?.length || 0;
+  if (histLen <= 1) {
+      els.revBar?.classList.add('disabled');
+  } else {
+      els.revBar?.classList.remove('disabled');
+  }
+  if (state.viewIndex === -1) {
+      if(els.revText) els.revText.textContent = `Current`;
+  } else {
+      if(els.revText) els.revText.textContent = `Move ${state.viewIndex}`;
+  }
 
   renderPlayerLabels(); updateSelectedPanel(); renderProfile(); renderTimers(); renderBoard();
 }
@@ -602,7 +640,7 @@ async function joinRoomByCode() {
 }
 
 async function enterGame(game, color) {
-  state.game = game; state.playerColor = color; state.resultProcessing = false; clearSelection();
+  state.game = game; state.playerColor = color; state.resultProcessing = false; state.viewIndex = -1; clearSelection();
   const newUrl = new URL(window.location); newUrl.searchParams.set("room", game.room_code); window.history.pushState({ room: game.room_code }, "", newUrl);
   window.showView("game"); setOnline(false); renderGame();
   if (state.channel) await supabase.removeChannel(state.channel);
@@ -656,6 +694,12 @@ function resignGame() { showModal("Confirm Resign", "Are you sure you want to re
 async function offerDraw() { const board = clone(getBoard()); if (board.drawOffer === state.playerColor) return; board.drawOffer = state.playerColor; board.drawOfferAt = Date.now(); const pInfo = getPlayerInfo(board, state.playerColor); addLog(board, `${pInfo.name} offered a draw.`); await updateGameBoard(board); }
 async function acceptDraw() { const board = clone(getBoard()); board.winner = "draw"; board.drawOffer = null; board.drawOfferAt = null; const pInfo = getPlayerInfo(board, state.playerColor); addLog(board, `${pInfo.name} accepted the draw.`); await updateGameBoard(board); }
 async function declineDraw() { const board = clone(getBoard()); board.drawOffer = null; board.drawOfferAt = null; const pInfo = getPlayerInfo(board, state.playerColor); addLog(board, `${pInfo.name} declined the draw.`); await updateGameBoard(board); }
+
+// --- REPLAY CONTROLS ---
+els.revFirstBtn?.addEventListener('click', () => { const b = getBoard(); if(!b || !b.history) return; state.viewIndex = 0; renderGame(); });
+els.revPrevBtn?.addEventListener('click', () => { const b = getBoard(); if(!b || !b.history) return; if (state.viewIndex === -1) state.viewIndex = b.history.length - 1; if (state.viewIndex > 0) state.viewIndex--; renderGame(); });
+els.revNextBtn?.addEventListener('click', () => { const b = getBoard(); if(!b || !b.history) return; if (state.viewIndex !== -1) { if (state.viewIndex < b.history.length - 1) state.viewIndex++; else state.viewIndex = -1; renderGame(); } });
+els.revLastBtn?.addEventListener('click', () => { state.viewIndex = -1; renderGame(); });
 
 // --- TUTORIAL ENGINE ---
 let tutState = { step: 0, sel: null, board: {} };
