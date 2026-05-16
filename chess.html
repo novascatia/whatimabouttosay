@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Magic Chess</title>
+  
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
   <style>
     :root {
@@ -138,6 +140,7 @@
     .player-strip { width: min(100%, 74vh, 760px); display: flex; align-items: center; justify-content: space-between; min-height: 34px; padding: 7px 10px; color: var(--muted); background: var(--panel); border-radius: 6px; font-size: 0.95rem; }
     .player-strip strong { color: var(--text); font-size: 1.05rem; }
     
+    /* COORDINATES WRAPPER */
     .board-wrapper { display: flex; flex-direction: column; align-items: center; width: min(100%, 74vh, 760px); }
     .file-labels { display: grid; grid-template-columns: repeat(8, 1fr); width: calc(100% - 40px); margin: 0 20px; height: 20px; text-align: center; color: var(--muted); font-size: 0.8rem; font-weight: 800; align-items: center; }
     .board-middle { display: flex; width: 100%; }
@@ -186,10 +189,21 @@
     .elo-minus { color: var(--danger); }
     @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* REPLAY MOVES BAR (BARU) */
-    .review-bar { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px; transition: opacity 0.3s; }
+    /* REPLAY MOVES BAR (FIX CSS KARENA TAILWIND TIDAK ADA DI FILE INI) */
+    .review-bar { 
+      display: flex; align-items: center; justify-content: center; gap: 8px; 
+      width: 100%; background: var(--panel); border: 1px solid var(--border); 
+      border-radius: 6px; padding: 8px; margin-top: 12px; transition: opacity 0.3s; 
+    }
     .review-bar.disabled { opacity: 0.4; pointer-events: none; }
-    .rev-text { font-size: 0.8rem; font-weight: 800; color: var(--muted); min-width: 65px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+    .rev-text { 
+      font-size: 0.8rem; font-weight: 800; color: var(--muted); 
+      min-width: 80px; text-align: center; text-transform: uppercase; letter-spacing: 1px; 
+    }
+    .rev-btn { 
+      min-height: 32px; padding: 4px 12px; font-size: 0.9rem; 
+      display: flex; align-items: center; justify-content: center; 
+    }
 
     /* TUTORIAL UI */
     .tutorial-container { max-width: 600px; margin: 0 auto; display: grid; gap: 16px; justify-items: center; padding: 20px 0; }
@@ -316,7 +330,9 @@
 
     <section id="profileView" class="view profile">
       <nav class="topbar">
-        <button id="backFromProfileBtn" class="btn btn-ghost">← Back</button>
+        <button id="backFromProfileBtn" class="btn btn-ghost">
+          <i class="fas fa-arrow-left mr-2"></i> Back
+        </button>
         <div class="brand"><span class="brand-mark">♞</span><span>Player Profile</span></div>
         <div style="width: 80px;"></div>
       </nav>
@@ -338,7 +354,9 @@
 
     <section id="lobbyView" class="view lobby">
       <nav class="topbar">
-        <button id="backToLandingBtn" class="btn btn-ghost">← Home</button>
+        <button id="backToLandingBtn" class="btn btn-ghost">
+          <i class="fas fa-arrow-left mr-2"></i> Home
+        </button>
         <div class="brand"><span class="brand-mark">♞</span><span>Lobby</span></div>
         <div class="user-chip" onclick="showView('profile')"><span id="lobbyUsername">Guest</span><strong id="lobbyElo">0 ELO</strong></div>
       </nav>
@@ -375,7 +393,9 @@
         <section class="panel rules-panel">
           <div style="display: flex; justify-content: space-between; align-items: flex-end;">
             <p class="eyebrow" style="margin:0;">Skills & Rules (OP Mode)</p>
-            <button id="openTutorialBtn" class="btn btn-primary" style="min-height: auto; padding: 6px 12px; font-size: 0.8rem;">Play Tutorial</button>
+            <button id="openTutorialBtn" class="btn btn-primary" style="min-height: auto; padding: 6px 12px; font-size: 0.8rem;">
+              <i class="fas fa-graduation-cap mr-1"></i> Play Tutorial
+            </button>
           </div>
           <div class="rules-list">
             <article><b>Pawn</b><span>Chain Eat: Leaps diagonally up to 3 squares, devouring enemies in path. Promotes to Queen at the edge!</span></article>
@@ -391,7 +411,9 @@
 
     <section id="tutorialView" class="view tutorial">
       <nav class="topbar">
-        <button id="exitTutorialBtn" class="btn btn-ghost">← Exit Tutorial</button>
+        <button id="exitTutorialBtn" class="btn btn-ghost">
+          <i class="fas fa-arrow-left mr-2"></i> Exit Tutorial
+        </button>
         <div class="brand"><span class="brand-mark">🎓</span><span>Tutorial Mode</span></div>
         <div style="width: 80px;"></div>
       </nav>
@@ -404,7 +426,9 @@
 
     <section id="gameView" class="view game">
       <nav class="topbar game-topbar">
-        <button id="leaveGameBtn" class="btn btn-ghost">← Leave</button>
+        <button id="leaveGameBtn" class="btn btn-ghost">
+          <i class="fas fa-arrow-left mr-2"></i> Leave
+        </button>
         <div class="game-room"><span>Room</span><button id="copyRoomBtn" class="room-code">------</button></div>
         <div id="connectionPill" class="pill">Offline</div>
       </nav>
@@ -429,12 +453,12 @@
             </div>
             <div class="file-labels bottom" id="filesBottom"></div>
             
-            <div id="reviewBar" class="review-bar disabled mt-2">
-               <button id="revFirstBtn" class="btn btn-ghost px-3 py-1 text-sm"><i class="fas fa-fast-backward"></i></button>
-               <button id="revPrevBtn" class="btn btn-ghost px-3 py-1 text-sm"><i class="fas fa-step-backward"></i></button>
+            <div id="reviewBar" class="review-bar disabled">
+               <button id="revFirstBtn" class="btn btn-ghost rev-btn" aria-label="First Move"><i class="fas fa-fast-backward"></i></button>
+               <button id="revPrevBtn" class="btn btn-ghost rev-btn" aria-label="Previous Move"><i class="fas fa-step-backward"></i></button>
                <span id="revText" class="rev-text">Current</span>
-               <button id="revNextBtn" class="btn btn-ghost px-3 py-1 text-sm"><i class="fas fa-step-forward"></i></button>
-               <button id="revLastBtn" class="btn btn-ghost px-3 py-1 text-sm"><i class="fas fa-fast-forward"></i></button>
+               <button id="revNextBtn" class="btn btn-ghost rev-btn" aria-label="Next Move"><i class="fas fa-step-forward"></i></button>
+               <button id="revLastBtn" class="btn btn-ghost rev-btn" aria-label="Current Move"><i class="fas fa-fast-forward"></i></button>
             </div>
           </div>
 
