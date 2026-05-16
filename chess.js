@@ -13,8 +13,9 @@ const els = {
   loginTabBtn: $("#loginTabBtn"), registerTabBtn: $("#registerTabBtn"), authTitle: $("#authTitle"), authSubtitle: $("#authSubtitle"),
   authForm: $("#authForm"), authUsernameInput: $("#authUsernameInput"), authPasswordInput: $("#authPasswordInput"),
   authSubmitBtn: $("#authSubmitBtn"), authStatus: $("#authStatus"), logoutBtn: $("#logoutBtn"), navProfileBtn: $("#navProfileBtn"),
-  navUsername: $("#navUsername"), navElo: $("#navElo"), profileUsername: $("#profileUsername"), profileElo: $("#profileElo"),
-  profileWins: $("#profileWins"), profileLosses: $("#profileLosses"), lobbyUsername: $("#lobbyUsername"), lobbyElo: $("#lobbyElo"),
+  navUsername: $("#navUsername"), navElo: $("#navElo"),
+  profileCombined: $("#profileCombined"),
+  lobbyUsername: $("#lobbyUsername"), lobbyElo: $("#lobbyElo"),
   gameUsername: $("#gameUsername"), gameElo: $("#gameElo"), heroPlayBtn: $("#heroPlayBtn"), heroRulesBtn: $("#heroRulesBtn"),
   backToLandingBtn: $("#backToLandingBtn"), quickMatchBtn: $("#quickMatchBtn"), createPrivateBtn: $("#createPrivateBtn"),
   joinRoomBtn: $("#joinRoomBtn"), roomCodeInput: $("#roomCodeInput"), lobbyStatus: $("#lobbyStatus"), timerSelect: $("#timerSelect"),
@@ -124,8 +125,8 @@ function renderProfile() {
   const uHtml = renderGmName(username, isGm);
   
   if (els.navUsername) els.navUsername.innerHTML = uHtml; if (els.navElo) els.navElo.textContent = `${elo} ELO`;
-  if (els.profileUsername) els.profileUsername.innerHTML = uHtml; if (els.profileElo) els.profileElo.textContent = elo;
-  if (els.profileWins) els.profileWins.textContent = wins; if (els.profileLosses) els.profileLosses.textContent = losses;
+  if (els.profileCombined) els.profileCombined.innerHTML = `${uHtml} <span style="font-size:0.85em; font-weight:normal; color:var(--muted);">(${elo} ELO)</span>`;
+  
   if (els.lobbyUsername) els.lobbyUsername.innerHTML = uHtml; if (els.lobbyElo) els.lobbyElo.textContent = `${elo} ELO`;
   
   if (els.fullProfileUsername) els.fullProfileUsername.innerHTML = uHtml;
@@ -152,7 +153,7 @@ async function handleAuthSubmit(event) {
 async function logout() {
   if (state.channel) await supabase.removeChannel(state.channel);
   clearSession(); state.user = null; state.profile = null; state.playerId = null; state.game = null; state.playerColor = null; state.channel = null; state.lastSeenDrawAt = null;
-  clearSelection(); showView("auth"); setAuthMode("login");
+  clearSelection(); window.showView("auth"); setAuthMode("login");
 }
 
 async function checkActiveGame() {
@@ -164,10 +165,10 @@ async function checkActiveGame() {
 async function checkUrlAndJoin() {
   const hasActive = await checkActiveGame(); if (hasActive) return;
   const params = new URLSearchParams(window.location.search); const roomCode = params.get("room");
-  if (roomCode) { showView("lobby"); els.roomCodeInput.value = roomCode; await joinRoomByCode(); } else { showView("landing"); }
+  if (roomCode) { window.showView("lobby"); els.roomCodeInput.value = roomCode; await joinRoomByCode(); } else { window.showView("landing"); }
 }
 
-function initAuth() { setAuthMode("login"); const profile = loadSession(); if (profile) { applyProfile(profile); checkUrlAndJoin(); } else { showView("auth"); } }
+function initAuth() { setAuthMode("login"); const profile = loadSession(); if (profile) { applyProfile(profile); checkUrlAndJoin(); } else { window.showView("auth"); } }
 function setLobbyStatus(message) { els.lobbyStatus.textContent = message; }
 function setGameStatus(message) { els.gameStatus.textContent = message; }
 function setOnline(isOnline) { els.connectionPill.textContent = isOnline ? "Online" : "Offline"; els.connectionPill.classList.toggle("online", isOnline); }
@@ -489,6 +490,7 @@ function renderBoard() {
     for (const x of xOrder) {
       const squareKey = keyOf(x, y); const square = document.createElement("button"); const piece = board?.tiles?.[squareKey];
       square.className = `square ${(x + y) % 2 === 0 ? "light" : "dark"}`; square.dataset.square = squareKey;
+
       if (state.selected === squareKey) square.classList.add("selected");
       if (state.moveHints.includes(squareKey)) square.classList.add("can-move");
       if (state.skillHints.includes(squareKey)) square.classList.add("can-skill");
@@ -509,27 +511,20 @@ function renderBoard() {
 function getEloDiffHtml(board, isMe) {
   if (!board.winner) return "";
   if (board.winner === "draw") return `<span class="elo-diff elo-minus" style="color:var(--muted);">(+0)</span>`;
-  
   const pColor = isMe ? state.playerColor : opposite(state.playerColor);
   const pInfo = getPlayerInfo(board, pColor);
   const didWin = board.winner === pColor;
-  
   if (didWin) return `<span class="elo-diff elo-plus">(+25)</span>`;
-  const deduct = Math.min(10, pInfo.elo);
-  return `<span class="elo-diff elo-minus">(-${deduct})</span>`;
+  const deduct = Math.min(10, pInfo.elo); return `<span class="elo-diff elo-minus">(-${deduct})</span>`;
 }
 
 function renderPlayerLabels() {
   if (!els.topPlayerLabel || !els.bottomPlayerLabel) return;
   const board = getBoard(); 
   const wInfo = getPlayerInfo(board, "white"); const bInfo = getPlayerInfo(board, "black");
-  
   let topInfo, botInfo;
   if (state.playerColor === "black") { topInfo = wInfo; botInfo = bInfo; } else { topInfo = bInfo; botInfo = wInfo; }
-
-  const topDiff = getEloDiffHtml(board, false);
-  const botDiff = getEloDiffHtml(board, true);
-
+  const topDiff = getEloDiffHtml(board, false); const botDiff = getEloDiffHtml(board, true);
   els.topPlayerLabel.innerHTML = `${renderGmName(topInfo.name, topInfo.isGm)} <span style="font-weight:normal; font-size:0.9em; margin-left:4px;">(${topInfo.elo})</span>${topDiff}`;
   els.bottomPlayerLabel.innerHTML = `${renderGmName(botInfo.name, botInfo.isGm)} <span style="font-weight:normal; font-size:0.9em; margin-left:4px;">(${botInfo.elo})</span>${botDiff}`;
 }
@@ -564,7 +559,7 @@ function renderGame() {
   renderPlayerLabels(); updateSelectedPanel(); renderProfile(); renderTimers(); renderBoard();
 }
 
-function requireAuth() { if (!state.user || !state.playerId) { showView("auth"); return false; } return true; }
+function requireAuth() { if (!state.user || !state.playerId) { window.showView("auth"); return false; } return true; }
 
 async function createGame({ privateRoom = false } = {}) {
   if (!requireAuth()) return; setLobbyStatus("Creating room...");
@@ -609,7 +604,7 @@ async function joinRoomByCode() {
 async function enterGame(game, color) {
   state.game = game; state.playerColor = color; state.resultProcessing = false; clearSelection();
   const newUrl = new URL(window.location); newUrl.searchParams.set("room", game.room_code); window.history.pushState({ room: game.room_code }, "", newUrl);
-  showView("game"); setOnline(false); renderGame();
+  window.showView("game"); setOnline(false); renderGame();
   if (state.channel) await supabase.removeChannel(state.channel);
   state.channel = supabase.channel(`magic-chess-${game.id}`).on("postgres_changes", { event: "UPDATE", schema: "public", table: "magic_chess_games", filter: `id=eq.${game.id}` }, payload => {
       state.game = payload.new; clearSelection(); setOnline(true); renderGame();
@@ -620,7 +615,7 @@ async function leaveGame() {
   if (state.channel) await supabase.removeChannel(state.channel);
   state.channel = null; state.game = null; state.playerColor = null; state.lastSeenDrawAt = null; clearSelection(); setOnline(false);
   const newUrl = new URL(window.location); newUrl.searchParams.delete("room"); window.history.pushState({}, "", newUrl);
-  showView("lobby");
+  window.showView("lobby");
 }
 
 function startSkillMode() {
@@ -642,21 +637,18 @@ async function handleGameResult() {
   const board = getBoard(); if (!board?.winner || !state.user || !state.profile || !state.game || !state.playerColor) return;
   const storageKey = `magicChessResult:${state.game.id}:${state.user.id}`;
   if (localStorage.getItem(storageKey) === "done") return;
-  
   if (board.winner === "draw") { localStorage.setItem(storageKey, "done"); return; }
   if (state.resultProcessing) return; state.resultProcessing = true;
 
-  // Optimistic UI Update
   const didWin = board.winner === state.playerColor;
   if (didWin) { state.profile.elo += 25; state.profile.wins += 1; } 
   else { const drop = Math.min(10, state.profile.elo); state.profile.elo -= drop; state.profile.losses += 1; }
-  state.profile.games_played += 1;
-  applyProfile(state.profile);
+  state.profile.games_played += 1; applyProfile(state.profile);
 
   try {
     const response = await fetch("/.netlify/functions/chess-result", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profileId: state.user.id, gameId: state.game.id, playerColor: state.playerColor }) });
     const result = await response.json(); if (!response.ok) throw new Error(result.error || "Failed to apply result.");
-    localStorage.setItem(storageKey, "done"); applyProfile(result.profile); // Sync with DB truth
+    localStorage.setItem(storageKey, "done"); applyProfile(result.profile);
   } catch (error) { console.error(error); } finally { state.resultProcessing = false; }
 }
 
@@ -666,9 +658,25 @@ async function acceptDraw() { const board = clone(getBoard()); board.winner = "d
 async function declineDraw() { const board = clone(getBoard()); board.drawOffer = null; board.drawOfferAt = null; const pInfo = getPlayerInfo(board, state.playerColor); addLog(board, `${pInfo.name} declined the draw.`); await updateGameBoard(board); }
 
 // --- TUTORIAL ENGINE ---
-let tutState = { step: 0, sel: null };
-function startTutorial() { showView("tutorial"); tutState = { step: 0, sel: null }; runTutStep(); }
-function endTutorial() { showView("lobby"); }
+let tutState = { step: 0, sel: null, board: {} };
+function startTutorial() { window.showView("tutorial"); nextTutStep(0); }
+function endTutorial() { window.showView("lobby"); }
+
+function initTutBoard(step) {
+  tutState.board = {}; tutState.sel = null;
+  if (step === 0) { tutState.board["3,6"]={c:"white",t:"pawn",hp:2}; tutState.board["2,5"]={c:"black",t:"pawn",hp:2}; tutState.board["1,4"]={c:"black",t:"pawn",hp:2}; }
+  if (step === 4) { tutState.board["3,7"]={c:"white",t:"rook",hp:4}; tutState.board["3,5"]={c:"white",t:"pawn",hp:2}; }
+  if (step === 7) { tutState.board["4,6"]={c:"white",t:"bishop",hp:3}; tutState.board["3,5"]={c:"black",t:"pawn",hp:2}; tutState.board["1,3"]={c:"black",t:"pawn",hp:2}; }
+  if (step === 11) { tutState.board["4,6"]={c:"white",t:"knight",hp:3}; }
+  if (step === 14) { tutState.board["4,6"]={c:"white",t:"queen",hp:5}; tutState.board["3,2"]={c:"black",t:"pawn",hp:2}; tutState.board["4,2"]={c:"black",t:"pawn",hp:2}; tutState.board["5,2"]={c:"black",t:"pawn",hp:2}; }
+  if (step === 18) { tutState.board["4,7"]={c:"white",t:"king",hp:6}; tutState.board["4,0"]={c:"black",t:"rook",hp:4}; }
+}
+
+function nextTutStep(n) {
+  if (n === 6) { for(let i=0;i<8;i++) tutState.board[`${i},4`] = {c:"white", t:"wall", hp:99}; tutState.sel=null; }
+  tutState.step = n; if ([0,4,7,11,14,18].includes(n)) initTutBoard(n); runTutStep();
+}
+
 function renderTutBoard() {
   els.tutBoard.innerHTML = "";
   for(let y=0; y<8; y++){
@@ -677,15 +685,12 @@ function renderTutBoard() {
       const k = `${x},${y}`;
       if (tutState.sel === k) sq.classList.add("selected");
       if (tutState.step === 2 && k === "1,4") sq.classList.add("can-skill");
+      if (tutState.step === 9 && k === "1,3") sq.classList.add("can-skill");
+      if (tutState.step === 12 && k === "4,2") sq.classList.add("can-move");
+      if (tutState.step === 16 && k === "4,3") sq.classList.add("can-skill");
+      if (tutState.step === 20 && k === "1,6") sq.classList.add("can-skill");
 
-      let p = null;
-      if (tutState.step < 3) {
-        if (k === "3,6") p = { c: "white", t: "pawn" };
-        if (k === "1,4") p = { c: "black", t: "pawn" };
-      } else {
-        if (k === "1,4") p = { c: "white", t: "pawn" };
-      }
-
+      const p = tutState.board[k];
       if(p) {
         const pEl = document.createElement("div"); pEl.className = `piece ${p.c}`;
         const img = document.createElement("img"); img.src = PIECE_ICONS[p.c][p.t]; img.className = "piece-img"; pEl.appendChild(img);
@@ -693,28 +698,68 @@ function renderTutBoard() {
       }
       
       sq.onclick = () => {
-        if(tutState.step === 0 && k === "3,6") { tutState.sel = k; tutState.step = 1; runTutStep(); }
-        if(tutState.step === 2 && k === "1,4") { tutState.sel = null; tutState.step = 3; runTutStep(); }
+        const s = tutState.step;
+        if (s===0 && k==="3,6") { tutState.sel=k; nextTutStep(1); }
+        if (s===2 && k==="1,4") { delete tutState.board["3,6"]; delete tutState.board["2,5"]; tutState.board["1,4"]={c:"white",t:"pawn",hp:2}; tutState.sel=null; nextTutStep(3); }
+        if (s===4 && k==="3,7") { tutState.sel=k; nextTutStep(5); }
+        if (s===7 && k==="4,6") { tutState.sel=k; nextTutStep(8); }
+        if (s===9 && k==="1,3") { delete tutState.board["4,6"]; delete tutState.board["3,5"]; tutState.board["1,3"]={c:"white",t:"bishop",hp:3}; tutState.sel=null; nextTutStep(10); }
+        if (s===11 && k==="4,6") { tutState.sel=k; nextTutStep(12); }
+        if (s===12 && k==="4,2") { delete tutState.board["4,6"]; tutState.board["4,2"]={c:"white",t:"knight",hp:3}; tutState.sel=null; nextTutStep(13); }
+        if (s===14 && k==="4,6") { tutState.sel=k; nextTutStep(15); }
+        if (s===16 && k==="4,3") { delete tutState.board["4,6"]; delete tutState.board["3,2"]; delete tutState.board["4,2"]; delete tutState.board["5,2"]; tutState.board["4,3"]={c:"white",t:"queen",hp:5}; tutState.sel=null; nextTutStep(17); }
+        if (s===18 && k==="4,7") { tutState.sel=k; nextTutStep(19); }
+        if (s===20 && k==="1,6") { delete tutState.board["4,7"]; tutState.board["1,6"]={c:"white",t:"king",hp:6}; tutState.sel=null; nextTutStep(21); }
       };
       els.tutBoard.appendChild(sq);
     }
   }
 }
+
 function runTutStep() {
-  renderTutBoard(); els.tutSkillBtn.classList.add("hidden");
-  if(tutState.step === 0) { els.tutDialog.textContent = "Welcome to Magic Chess! Let's learn to use Skills. Click your White Pawn."; }
-  if(tutState.step === 1) { els.tutDialog.textContent = "Great! Now click the 'Use Skill' button below to activate Chain Eat."; els.tutSkillBtn.classList.remove("hidden"); els.tutSkillBtn.onclick = () => { tutState.step = 2; runTutStep(); }; }
-  if(tutState.step === 2) { els.tutDialog.textContent = "Chain Eat leaps diagonally up to 3 squares. Click the highlighted enemy pawn to devour it!"; }
-  if(tutState.step === 3) { els.tutDialog.textContent = "BOOM! You've learned how to cast skills. Every piece has a unique ability. Read the rules and go destroy the enemy King!"; els.tutSkillBtn.classList.remove("hidden"); els.tutSkillBtn.textContent = "Finish Tutorial"; els.tutSkillBtn.onclick = endTutorial; }
+  renderTutBoard(); els.tutSkillBtn.classList.add("hidden"); els.tutSkillBtn.onclick = null;
+  const msgs = [
+    "1. Pawn (Chain Eat): Select your White Pawn.",
+    "Click 'Use Skill' below.",
+    "Click the furthest highlighted enemy to chain eat through them!",
+    "Awesome! You devoured them. Click Next.",
+    "2. Rook (Build Wall): Select your White Rook.",
+    "Click 'Use Skill' to build an impenetrable wall.",
+    "Wall built! This blocks enemies. Click Next.",
+    "3. Bishop (Pierce): Select the White Bishop.",
+    "Click 'Use Skill'.",
+    "Click the furthest enemy to pierce through them!",
+    "Pierced! They are destroyed. Click Next.",
+    "4. Knight (Expand Walk): Select the White Knight.",
+    "Passive: Knights can walk straight endlessly to empty squares. Click the hint.",
+    "Expanded Walk successful! Click Next.",
+    "5. Queen (Obliterate): Select the White Queen.",
+    "Click 'Use Skill'.",
+    "Click the empty space near the enemies to Obliterate them!",
+    "BOOM! Obliterated! Click Next.",
+    "6. King (Teleport): Select the White King.",
+    "Click 'Use Skill' to escape check.",
+    "Click the highlighted empty square to teleport!",
+    "Saved! You've mastered all skills. Have fun!"
+  ];
+  els.tutDialog.textContent = msgs[tutState.step];
+  
+  if ([1, 5, 8, 15, 19].includes(tutState.step)) {
+    els.tutSkillBtn.textContent = "Use Skill"; els.tutSkillBtn.classList.remove("hidden"); els.tutSkillBtn.onclick = () => nextTutStep(tutState.step + 1);
+  } else if ([3, 6, 10, 13, 17].includes(tutState.step)) {
+    els.tutSkillBtn.textContent = "Next"; els.tutSkillBtn.classList.remove("hidden"); els.tutSkillBtn.onclick = () => nextTutStep(tutState.step + 1);
+  } else if (tutState.step === 21) {
+    els.tutSkillBtn.textContent = "Finish Tutorial"; els.tutSkillBtn.classList.remove("hidden"); els.tutSkillBtn.onclick = endTutorial;
+  }
 }
 
 els.loginTabBtn?.addEventListener("click", () => setAuthMode("login"));
 els.registerTabBtn?.addEventListener("click", () => setAuthMode("register"));
 els.authForm?.addEventListener("submit", handleAuthSubmit);
 els.logoutBtn?.addEventListener("click", logout);
-els.heroPlayBtn?.addEventListener("click", () => showView("lobby"));
-els.heroRulesBtn?.addEventListener("click", () => showView("lobby"));
-els.backToLandingBtn?.addEventListener("click", () => showView("landing"));
+els.heroPlayBtn?.addEventListener("click", () => window.showView("lobby"));
+els.heroRulesBtn?.addEventListener("click", () => window.showView("lobby"));
+els.backToLandingBtn?.addEventListener("click", () => window.showView("landing"));
 els.quickMatchBtn?.addEventListener("click", quickMatch);
 els.createPrivateBtn?.addEventListener("click", () => createGame({ privateRoom: true }));
 els.joinRoomBtn?.addEventListener("click", joinRoomByCode);
@@ -728,8 +773,8 @@ els.offerDrawBtn?.addEventListener("click", offerDraw);
 els.resignBtn?.addEventListener("click", resignGame);
 els.acceptDrawBtn?.addEventListener("click", acceptDraw);
 els.declineDrawBtn?.addEventListener("click", declineDraw);
-els.navProfileBtn?.addEventListener("click", () => showView("profile"));
-els.backFromProfileBtn?.addEventListener("click", () => showView("landing"));
+els.navProfileBtn?.addEventListener("click", () => window.showView("profile"));
+els.backFromProfileBtn?.addEventListener("click", () => window.showView("landing"));
 els.openTutorialBtn?.addEventListener("click", startTutorial);
 els.exitTutorialBtn?.addEventListener("click", endTutorial);
 
