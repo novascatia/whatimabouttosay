@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Magic Chess</title>
-  
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
   <style>
     :root {
@@ -140,7 +138,6 @@
     .player-strip { width: min(100%, 74vh, 760px); display: flex; align-items: center; justify-content: space-between; min-height: 34px; padding: 7px 10px; color: var(--muted); background: var(--panel); border-radius: 6px; font-size: 0.95rem; }
     .player-strip strong { color: var(--text); font-size: 1.05rem; }
     
-    /* COORDINATES WRAPPER */
     .board-wrapper { display: flex; flex-direction: column; align-items: center; width: min(100%, 74vh, 760px); }
     .file-labels { display: grid; grid-template-columns: repeat(8, 1fr); width: calc(100% - 40px); margin: 0 20px; height: 20px; text-align: center; color: var(--muted); font-size: 0.8rem; font-weight: 800; align-items: center; }
     .board-middle { display: flex; width: 100%; }
@@ -189,23 +186,11 @@
     .elo-minus { color: var(--danger); }
     @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* REPLAY MOVES BAR (FIX CSS KARENA TAILWIND TIDAK ADA DI FILE INI) */
-    .review-bar { 
-      display: flex; align-items: center; justify-content: center; gap: 8px; 
-      width: 100%; background: var(--panel); border: 1px solid var(--border); 
-      border-radius: 6px; padding: 8px; margin-top: 12px; transition: opacity 0.3s; 
-    }
+    .review-bar { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin-top: 12px; transition: opacity 0.3s; }
     .review-bar.disabled { opacity: 0.4; pointer-events: none; }
-    .rev-text { 
-      font-size: 0.8rem; font-weight: 800; color: var(--muted); 
-      min-width: 80px; text-align: center; text-transform: uppercase; letter-spacing: 1px; 
-    }
-    .rev-btn { 
-      min-height: 32px; padding: 4px 12px; font-size: 0.9rem; 
-      display: flex; align-items: center; justify-content: center; 
-    }
+    .rev-text { font-size: 0.8rem; font-weight: 800; color: var(--muted); min-width: 80px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+    .rev-btn { min-height: 32px; padding: 4px 12px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
 
-    /* TUTORIAL UI */
     .tutorial-container { max-width: 600px; margin: 0 auto; display: grid; gap: 16px; justify-items: center; padding: 20px 0; }
     .tut-dialog { background: var(--blue); color: white; padding: 16px 20px; border-radius: 8px; font-weight: 700; width: 100%; text-align: center; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     .tut-board { width: 100%; max-width: 400px; aspect-ratio: 1/1; background: #000; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); border-radius: 4px; overflow: hidden; pointer-events: none; }
@@ -398,7 +383,7 @@
             </button>
           </div>
           <div class="rules-list">
-            <article><b>Pawn</b><span>Chain Eat: Leaps diagonally up to 3 squares, devouring enemies in path. Promotes to Queen at the edge!</span></article>
+            <article><b>Pawn</b><span>Hop Strike: Jump over an adjacent enemy (diagonally forward) to an empty square, destroying them. Promotes to Queen at the edge!</span></article>
             <article><b>Rook</b><span>Build Wall: Build an impenetrable wall in front of your leading Pawn (lasts 2 rounds). Limit 1 active wall per player.</span></article>
             <article><b>Bishop</b><span>Pierce: Dash diagonally up to 5 squares, destroying enemies in path (blocked by Kings/Queens).</span></article>
             <article><b>Knight</b><span>Passive (Expand Walk): Can walk straight endlessly into empty squares, in addition to its normal L-jump.</span></article>
