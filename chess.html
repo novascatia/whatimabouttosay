@@ -90,9 +90,27 @@
     .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     
     .profile-card { display: grid; gap: 10px; }
+    
     .profile-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-radius: 6px; background: var(--panel-2); }
     .profile-row span { color: var(--muted); }
     .profile-row strong { font-size: 1.15rem; }
+
+    /* FIX: MODIFIKASI KHUSUS UNTUK QUICK STATS CARD AGAR TIDAK BERDESAKAN (MENJADI ATAS-BAWAH) */
+    .info-card .profile-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 12px;
+    }
+    .info-card .profile-row span {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .info-card .profile-row strong {
+      font-size: 1.25rem;
+      width: 100%;
+    }
 
     .preview-board { display: grid; grid-template-columns: repeat(4, 1fr); aspect-ratio: 1 / 1; overflow: hidden; border-radius: 6px; }
     .preview-board span { display: grid; place-items: center; font-size: 2.4rem; line-height: 1; }
@@ -191,7 +209,7 @@
     .battle-log p { margin: 0; padding: 9px; border-radius: 6px; background: var(--panel-2); color: var(--muted); font-size: 0.84rem; line-height: 1.35; }
 
     .winner-banner {
-      position: absolute; inset: 10px; z-index: 50;
+      position: absolute; inset: 10px; z-index: 50; 
       display: grid; place-items: center; align-content: center; gap: 8px; text-align: center;
       border-radius: 6px; background: rgba(38, 36, 33, 0.92); backdrop-filter: blur(6px);
     }
@@ -273,12 +291,14 @@
       <nav class="topbar">
         <a class="brand" href="/"><span class="brand-mark">♞</span><span>Magic Chess</span></a>
       </nav>
+
       <div class="auth-layout">
         <section class="auth-hero">
           <p class="eyebrow">Account required</p>
           <h1>Log in to save your progress.</h1>
           <p>Use your username and password. Your ELO, wins, losses, and game progress will be saved across all your devices.</p>
         </section>
+
         <section class="panel auth-card">
           <div class="auth-tabs">
             <button id="loginTabBtn" class="auth-tab active" type="button">Login</button>
@@ -305,6 +325,7 @@
           <button id="logoutBtn" class="btn btn-ghost">Logout</button>
         </div>
       </nav>
+
       <div class="landing-layout">
         <section class="hero">
           <p class="eyebrow">Multiplayer magic chess</p>
@@ -315,6 +336,7 @@
             <button id="heroRulesBtn" class="btn btn-secondary">See Rules</button>
           </div>
         </section>
+
         <aside class="panel info-card">
           <div class="profile-card">
             <p class="eyebrow">Quick Stats</p>
