@@ -1,219 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>novascatia.my.id</title>
-    <link rel="icon" type="image/png" href="/logo.png">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        /* FIX: Mencegah overflow horizontal yang menyebabkan off-center di mobile */
-        html, body { 
-            overflow-x: hidden; 
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            background-color: #0f0f0f; 
-            color: #e5e5e5; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>novascatia.my.id</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
 
-        .reveal { opacity: 0; transform: translateY(20px); }
-        
-        /* Post Styling */
-        .post-card { 
-            background: #1a1a1a; 
-            border: 1px solid #2d2d2d; 
-            border-radius: 20px; 
-            transition: all 0.3s ease; 
-            width: 100%;
-        }
-        .post-card:hover { border-color: #4a4a4a; transform: translateY(-4px); }
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-        /* Spotify Player Bar - Responsive */
-        .spotify-player-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%; background-color: #181818;
-            border-top: 1px solid #282828; padding: 0.75rem 1.5rem; display: flex;
-            align-items: center; justify-content: space-between; z-index: 999;
-            transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .spotify-player-bar.visible { transform: translateY(0); }
-        
-        .progress-bar-bg { width: 100%; height: 4px; background-color: #4f4f4f; border-radius: 2px; margin-top: 4px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background-color: #1ed760; width: 0%; transition: width 1s linear; }
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      background: #0b0b0c;
+      color: #e8e8e8;
+      font-family: 'Inter', sans-serif;
+    }
 
-        /* Toast Notification */
-        .toast-notification {
-            position: fixed; top: 20px; right: 20px;
-            background-color: #1a1a1a; border: 1px solid #333;
-            padding: 12px 20px; border-radius: 12px; z-index: 10000;
-            transform: translateX(150%); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .toast-notification.show { transform: translateX(0); }
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+    }
 
-        /* Container Custom untuk centering yang presisi */
-        .content-wrapper {
-            width: 100%;
-            max-width: 1024px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
-    </style>
+    .wrap {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 1.4rem;
+    }
+
+    .card {
+      background: #141416;
+      border: 1px solid #242428;
+      border-radius: 22px;
+      transition: 0.25s ease;
+    }
+
+    .card:hover {
+      border-color: #3b3b42;
+      transform: translateY(-3px);
+    }
+
+    .tag {
+      border: 1px solid #2b2b31;
+      background: #111113;
+      color: #b8b8b8;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+
+    .spotify-player-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #181818;
+      border-top: 1px solid #282828;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 999;
+      transform: translateY(100%);
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .spotify-player-bar.visible {
+      transform: translateY(0);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 4px;
+      background: #4f4f4f;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: #1ed760;
+      width: 0%;
+      transition: width 1s linear;
+    }
+  </style>
 </head>
-<body class="py-8 md:py-12">
 
+<body class="grid-bg py-7 md:py-10">
 
-    <div class="content-wrapper">
-        <nav class="reveal flex justify-between items-center mb-16">
-            <div class="text-xl font-extrabold tracking-tighter text-white">nov4</div>
-            <div class="flex gap-6 md:gap-8 text-xs md:text-sm font-medium text-gray-400">
-                <a href="/spotify" class="hover:text-white transition">Spotify</a>
-                <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">Instagram</a>
-            </div>
-        </nav>
+  <div class="wrap">
+    <nav class="reveal flex items-center justify-between mb-20">
+      <a href="/" class="text-lg font-extrabold tracking-tight text-white">nov4</a>
 
-        <header class="mb-20">
-            <h1 class="reveal text-4xl md:text-7xl font-extrabold tracking-tight leading-tight md:leading-[1.1] mb-6 text-white">
-                Hello there! <br class="md:hidden"> <span class="text-gray-500">Nova</span> di sini :3
-            </h1>
-            <p class="reveal text-gray-400 text-base md:text-xl max-w-2xl leading-relaxed">
-                digital notebook i created :D
+      <div class="flex items-center gap-5 text-sm text-zinc-400">
+        <a href="#work" class="hover:text-white transition">Work</a>
+        <a href="#services" class="hover:text-white transition">Services</a>
+        <a href="/spotify" class="hover:text-white transition">Spotify</a>
+        <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">
+          Instagram
+        </a>
+      </div>
+    </nav>
+
+    <header class="reveal mb-20 md:mb-28">
+      <p class="text-sm text-zinc-500 mb-5">Developer / Automation / Web Tools</p>
+
+      <h1 class="text-5xl md:text-8xl font-extrabold tracking-[-0.06em] leading-[0.95] max-w-4xl text-white">
+        Building small tools that actually work.
+      </h1>
+
+      <p class="mt-7 text-base md:text-xl text-zinc-400 leading-relaxed max-w-2xl">
+        Hi, I'm Nova. I make bots, websites, dashboards, automation scripts,
+        and simple digital tools for real use cases.
+      </p>
+
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href="#work" class="px-5 py-3 rounded-full bg-white text-black text-sm font-semibold hover:bg-zinc-200 transition">
+          View work
+        </a>
+        <a href="mailto:contact@novascatia.my.id" class="px-5 py-3 rounded-full border border-zinc-700 text-sm font-semibold hover:border-zinc-400 transition">
+          Contact me
+        </a>
+      </div>
+    </header>
+
+    <section id="work" class="mb-20">
+      <div class="reveal flex items-center gap-5 mb-8">
+        <h2 class="text-xs uppercase tracking-[0.25em] text-zinc-500 font-bold">Selected Work</h2>
+        <div class="h-px flex-1 bg-zinc-800"></div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <article class="reveal card p-6 md:p-7">
+          <div class="flex items-start justify-between gap-4 mb-12">
+            <span class="text-zinc-500 text-sm">01</span>
+            <i class="fa-solid fa-robot text-zinc-500"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-3">Discord & Telegram Bots</h3>
+          <p class="text-zinc-400 leading-relaxed text-sm">
+            Custom bots for moderation, automation, commands, webhooks, and small community tools.
+          </p>
+        </article>
+
+        <article class="reveal card p-6 md:p-7">
+          <div class="flex items-start justify-between gap-4 mb-12">
+            <span class="text-zinc-500 text-sm">02</span>
+            <i class="fa-solid fa-code text-zinc-500"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-3">Web Tools</h3>
+          <p class="text-zinc-400 leading-relaxed text-sm">
+            Simple websites, dashboards, landing pages, and utility pages with clean frontend logic.
+          </p>
+        </article>
+
+        <article class="reveal card p-6 md:p-7">
+          <div class="flex items-start justify-between gap-4 mb-12">
+            <span class="text-zinc-500 text-sm">03</span>
+            <i class="fa-solid fa-plug text-zinc-500"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-3">API Integration</h3>
+          <p class="text-zinc-400 leading-relaxed text-sm">
+            Connecting services, fetching data, handling responses, and making things talk to each other.
+          </p>
+        </article>
+
+        <article class="reveal card p-6 md:p-7">
+          <div class="flex items-start justify-between gap-4 mb-12">
+            <span class="text-zinc-500 text-sm">04</span>
+            <i class="fa-solid fa-wand-magic-sparkles text-zinc-500"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-3">Automation</h3>
+          <p class="text-zinc-400 leading-relaxed text-sm">
+            Scripts and workflows that reduce repetitive work and make boring tasks faster.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="services" class="mb-20">
+      <div class="reveal flex items-center gap-5 mb-8">
+        <h2 class="text-xs uppercase tracking-[0.25em] text-zinc-500 font-bold">What I Do</h2>
+        <div class="h-px flex-1 bg-zinc-800"></div>
+      </div>
+
+      <div class="reveal card p-6 md:p-8">
+        <div class="grid md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-white font-bold mb-2">Bots</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed">
+              Discord bots, Telegram bots, commands, notifications, and webhook systems.
             </p>
-        </header>
+          </div>
 
-        <main>
-            <div class="reveal flex items-center justify-between mb-8">
-                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Posts</h2>
-                <div class="h-[1px] flex-grow ml-6 bg-zinc-800"></div>
-            </div>
-            
-            <div id="postsList" class="grid grid-cols-1 gap-4 md:gap-6">
-                <p class="reveal text-gray-500 italic text-sm">Mengambil data dari server...</p>
-            </div>
-        </main>
+          <div>
+            <h3 class="text-white font-bold mb-2">Websites</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed">
+              Landing pages, portfolio pages, dashboards, and small web apps.
+            </p>
+          </div>
 
-        <footer class="reveal mt-24 mb-32 pt-12 border-t border-zinc-800 flex justify-between items-center">
-            <div class="text-gray-500 text-[10px] uppercase tracking-widest font-bold">© 2026 Novascatia</div>
-            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]"></div>
-        </footer>
+          <div>
+            <h3 class="text-white font-bold mb-2">Tools</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed">
+              Custom utilities, API-based tools, automation scripts, and bug fixes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-24">
+      <div class="reveal flex items-center gap-5 mb-8">
+        <h2 class="text-xs uppercase tracking-[0.25em] text-zinc-500 font-bold">Stack</h2>
+        <div class="h-px flex-1 bg-zinc-800"></div>
+      </div>
+
+      <div class="reveal flex flex-wrap gap-3">
+        <span class="tag">Python</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">HTML</span>
+        <span class="tag">CSS</span>
+        <span class="tag">Discord.js</span>
+        <span class="tag">Telegram Bot</span>
+      </div>
+    </section>
+
+    <section class="reveal card p-7 md:p-10 mb-24">
+      <p class="text-zinc-500 text-sm mb-4">Available for small projects</p>
+      <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
+        Got an idea or need a custom tool?
+      </h2>
+      <p class="text-zinc-400 max-w-xl leading-relaxed mb-7">
+        Send me the details and I’ll help turn it into something usable.
+      </p>
+
+      <div class="flex flex-wrap gap-3">
+        <a href="mailto:contact@novascatia.my.id" class="px-5 py-3 rounded-full bg-white text-black text-sm font-semibold hover:bg-zinc-200 transition">
+          Email me
+        </a>
+        <a href="https://github.com/novascatia" target="_blank" class="px-5 py-3 rounded-full border border-zinc-700 text-sm font-semibold hover:border-zinc-400 transition">
+          GitHub
+        </a>
+      </div>
+    </section>
+
+    <footer class="reveal mb-32 pt-10 border-t border-zinc-800 flex items-center justify-between">
+      <p class="text-zinc-600 text-xs">© 2026 Novascatia</p>
+      <div class="flex gap-4 text-zinc-500 text-sm">
+        <a href="https://github.com/novascatia" target="_blank" class="hover:text-white transition">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="/spotify" class="hover:text-white transition">
+          <i class="fab fa-spotify"></i>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <div id="spotifyPlayer" class="spotify-player-bar">
+    <div class="flex items-center w-full md:w-[30%] overflow-hidden">
+      <img id="albumArt" src="" alt="" class="w-10 h-10 md:w-12 md:h-12 rounded-md mr-3 shadow-lg flex-shrink-0" />
+      <div class="flex flex-col justify-center overflow-hidden">
+        <h3 id="songTitle" class="text-xs font-bold text-white truncate pr-2"></h3>
+        <p id="artistName" class="text-[10px] text-gray-400 truncate pr-2"></p>
+      </div>
     </div>
 
-    <div id="spotifyPlayer" class="spotify-player-bar">
-        <div class="flex items-center w-full md:w-[30%] overflow-hidden">
-            <img id="albumArt" src="" alt="" class="w-10 h-10 md:w-12 md:h-12 rounded-md mr-3 shadow-lg flex-shrink-0">
-            <div class="flex flex-col justify-center overflow-hidden">
-                <h3 id="songTitle" class="text-xs font-bold text-white truncate pr-2"></h3>
-                <p id="artistName" class="text-[10px] text-gray-400 truncate pr-2"></p>
-            </div>
+    <div class="hidden sm:flex flex-col items-center w-[40%] px-4">
+      <div class="text-[9px] text-[#1ed760] font-bold tracking-widest uppercase mb-1">
+        Now Streaming
+      </div>
+      <div class="flex items-center w-full gap-3 text-[9px] text-gray-400 font-mono">
+        <span id="currentTime">0:00</span>
+        <div class="progress-bar-bg flex-grow">
+          <div id="progressBar" class="progress-bar-fill"></div>
         </div>
-
-        <div class="hidden sm:flex flex-col items-center w-[40%] px-4">
-            <div class="text-[9px] text-[#1ed760] font-bold tracking-widest uppercase mb-1">Now Streaming</div>
-            <div class="flex items-center w-full gap-3 text-[9px] text-gray-400 font-mono">
-                <span id="currentTime">0:00</span>
-                <div class="progress-bar-bg flex-grow">
-                    <div id="progressBar" class="progress-bar-fill"></div>
-                </div>
-                <span id="totalTime">0:00</span>
-            </div>
-        </div>
-
-        <div class="flex items-center justify-end md:w-[30%] flex-shrink-0 ml-2">
-            <i class="fab fa-spotify text-[#1ed760] text-xl"></i>
-        </div>
+        <span id="totalTime">0:00</span>
+      </div>
     </div>
 
-    <script>
-        // Animasi Pembuka
-        function triggerReveal() {
-            gsap.to(".reveal", {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: "power2.out"
-            });
+    <div class="flex items-center justify-end md:w-[30%] flex-shrink-0 ml-2">
+      <i class="fab fa-spotify text-[#1ed760] text-xl"></i>
+    </div>
+  </div>
+
+  <script>
+    function triggerReveal() {
+      gsap.to(".reveal", {
+        opacity: 1,
+        y: 0,
+        duration: 0.75,
+        stagger: 0.08,
+        ease: "power2.out"
+      });
+    }
+
+    function formatTime(ms) {
+      const seconds = Math.floor((ms / 1000) % 60);
+      const minutes = Math.floor((ms / 1000 / 60) % 60);
+      return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+
+    async function fetchNowPlaying() {
+      try {
+        const response = await fetch("/.netlify/functions/now-playing");
+        const data = await response.json();
+        const player = document.getElementById("spotifyPlayer");
+
+        if (data.isPlaying) {
+          document.getElementById("songTitle").textContent = data.title;
+          document.getElementById("artistName").textContent = data.artist;
+          document.getElementById("albumArt").src = data.albumArt;
+          document.getElementById("progressBar").style.width = `${(data.progress / data.duration) * 100}%`;
+          document.getElementById("currentTime").textContent = formatTime(data.progress);
+          document.getElementById("totalTime").textContent = formatTime(data.duration);
+          player.classList.add("visible");
+        } else {
+          player.classList.remove("visible");
         }
+      } catch (e) {}
+    }
 
-        // Format Waktu ke Detik (Menit:Detik)
-        function formatTime(ms) {
-            const seconds = Math.floor((ms / 1000) % 60);
-            const minutes = Math.floor((ms / 1000 / 60) % 60);
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        // Fetch Postingan dari Supabase
-        async function fetchPosts() {
-            const container = document.getElementById('postsList');
-            try {
-                const response = await fetch('/.netlify/functions/fetch-posts');
-                const posts = await response.json();
-                
-                if (posts && posts.length > 0) {
-                    container.innerHTML = posts.map(post => `
-                        <div onclick="window.location.href='/posts/${post.id}'" class="reveal post-card p-5 md:p-6 flex justify-between items-center group cursor-pointer">
-                            <div class="flex-1 overflow-hidden">
-                                <span class="text-[9px] md:text-[10px] text-zinc-600 uppercase tracking-[0.2em] mb-1 block">
-                                    ${new Date(post.created_at).toLocaleDateString('id-ID')}
-                                </span>
-                                <h3 class="text-lg md:text-xl font-bold group-hover:text-white transition italic truncate">
-                                    ${post.title}
-                                </h3>
-                            </div>
-                            <div class="text-zinc-700 group-hover:text-zinc-400 transition transform group-hover:translate-x-2 ml-4 flex-shrink-0">
-                                <i class="fas fa-chevron-right"></i>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = `<p class="text-gray-600 italic text-sm">Belum ada log yang tersedia.</p>`;
-                }
-            } catch (e) {
-                container.innerHTML = `<p class="text-red-500 text-sm">Gagal memuat data.</p>`;
-            }
-            triggerReveal();
-        }
-
-        // Spotify Listening Logic
-        async function fetchNowPlaying() {
-            try {
-                const response = await fetch('/.netlify/functions/now-playing');
-                const data = await response.json();
-                const player = document.getElementById('spotifyPlayer');
-
-                if (data.isPlaying) {
-                    document.getElementById('songTitle').textContent = data.title;
-                    document.getElementById('artistName').textContent = data.artist;
-                    document.getElementById('albumArt').src = data.albumArt;
-                    document.getElementById('progressBar').style.width = `${(data.progress / data.duration) * 100}%`;
-                    document.getElementById('currentTime').textContent = formatTime(data.progress);
-                    document.getElementById('totalTime').textContent = formatTime(data.duration);
-                    player.classList.add('visible');
-                } else {
-                    player.classList.remove('visible');
-                }
-            } catch (e) {}
-        }
-
-        // Initialize
-        window.onload = () => {
-            fetchPosts();
-            setInterval(fetchNowPlaying, 1000);
-
-            // Toast Notification Logic
-            const toast = document.getElementById('redirectToast');
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 2500);
-
-            toast.addEventListener('click', () => {
-                window.location.href = '/date';
-            });
-        };
-    </script>
+    window.onload = () => {
+      triggerReveal();
+      fetchNowPlaying();
+      setInterval(fetchNowPlaying, 1000);
+    };
+  </script>
 </body>
 </html>
