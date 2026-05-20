@@ -8,6 +8,7 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
@@ -17,205 +18,217 @@
       padding: 0;
       width: 100%;
       overflow-x: hidden;
-      background: #0b0b0c;
-      color: #e8e8e8;
+      background: #09090b;
+      color: #fafafa;
       font-family: 'Inter', sans-serif;
+      scroll-behavior: smooth;
     }
 
     .reveal {
       opacity: 0;
-      transform: translateY(18px);
+      transform: translateY(30px);
     }
 
     .wrap {
       width: 100%;
       max-width: 1080px;
       margin: 0 auto;
-      padding: 0 1.4rem;
+      padding: 0 1.5rem;
     }
 
     .card {
-      background: #141416;
-      border: 1px solid #242428;
-      border-radius: 22px;
-      transition: 0.25s ease;
+      background: #0f0f12;
+      border: 1px solid #1e1e24;
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .card:hover {
-      border-color: #3b3b42;
-      transform: translateY(-3px);
+      border-color: #3f3f46;
+      transform: translateY(-6px) scale(1.01);
+      background: #141418;
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3);
     }
 
     .tag {
-      border: 1px solid #2b2b31;
-      background: #111113;
-      color: #b8b8b8;
-      border-radius: 999px;
-      padding: 7px 12px;
-      font-size: 12px;
+      border: 1px solid #27272a;
+      background: #09090b;
+      color: #a1a1aa;
+      border-radius: 9999px;
+      padding: 8px 16px;
+      font-size: 13px;
       font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: default;
     }
 
-    .grid-bg {
-      background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 44px 44px;
+    .tag:hover {
+      color: #fafafa;
+      border-color: #52525b;
+      transform: translateY(-2px);
     }
 
-    .spotify-player-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: #181818;
-      border-top: 1px solid #282828;
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 999;
-      transform: translateY(100%);
-      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    .nav-link {
+      position: relative;
+      color: #a1a1aa;
+      transition: color 0.3s ease;
     }
 
-    .spotify-player-bar.visible {
-      transform: translateY(0);
+    .nav-link:hover {
+      color: #fafafa;
     }
 
-    .progress-bar-bg {
-      width: 100%;
-      height: 4px;
-      background: #4f4f4f;
-      border-radius: 2px;
-      overflow: hidden;
+    .btn-primary {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .progress-bar-fill {
-      height: 100%;
-      background: #1ed760;
-      width: 0%;
-      transition: width 1s linear;
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255,255,255,0.15);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.96);
+    }
+
+    .btn-secondary {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-secondary:hover {
+      border-color: #a1a1aa;
+      color: #fafafa;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary:active {
+      transform: scale(0.96);
+    }
+
+    .icon-link {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .icon-link:hover {
+      color: #fafafa;
+      transform: translateY(-3px) scale(1.1);
     }
   </style>
 </head>
 
-<body class="grid-bg py-7 md:py-10">
+<body class="py-10 md:py-16">
 
   <div class="wrap">
-    <nav class="reveal flex items-center justify-between mb-20">
-      <a href="/" class="text-lg font-extrabold tracking-tight text-white">nov4</a>
+    <nav class="reveal flex items-center justify-between mb-24">
+      <a href="/" class="text-xl font-extrabold tracking-tight text-white transition-transform hover:scale-105">nov4</a>
 
-      <div class="flex items-center gap-5 text-sm text-zinc-400">
-        <a href="#work" class="hover:text-white transition">Work</a>
-        <a href="#services" class="hover:text-white transition">Services</a>
-        <a href="/spotify" class="hover:text-white transition">Spotify</a>
-        <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">
-          Instagram
-        </a>
+      <div class="flex items-center gap-6 text-sm font-medium">
+        <a href="#work" class="nav-link">Work</a>
+        <a href="#services" class="nav-link">Services</a>
+        <a href="https://instagram.com/grayalldayog" target="_blank" class="nav-link">Instagram</a>
       </div>
     </nav>
 
-    <header class="reveal mb-20 md:mb-28">
-      <p class="text-sm text-zinc-500 mb-5">Developer / Automation / Web Tools</p>
+    <header class="mb-32">
+      <p class="reveal text-sm text-zinc-500 mb-6 font-semibold tracking-wide uppercase">Developer &middot; Automation</p>
 
-      <h1 class="text-5xl md:text-8xl font-extrabold tracking-[-0.06em] leading-[0.95] max-w-4xl text-white">
+      <h1 class="reveal text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] max-w-4xl text-white">
         Building small tools that actually work.
       </h1>
 
-      <p class="mt-7 text-base md:text-xl text-zinc-400 leading-relaxed max-w-2xl">
+      <p class="reveal mt-8 text-lg md:text-xl text-zinc-400 leading-relaxed max-w-2xl font-medium">
         Hi, I'm Nova. I make bots, websites, dashboards, automation scripts,
         and simple digital tools for real use cases.
       </p>
 
-      <div class="mt-9 flex flex-wrap gap-3">
-        <a href="#work" class="px-5 py-3 rounded-full bg-white text-black text-sm font-semibold hover:bg-zinc-200 transition">
+      <div class="reveal mt-10 flex flex-wrap gap-4">
+        <a href="#work" class="btn-primary px-7 py-3.5 rounded-full bg-white text-black text-sm font-semibold">
           View work
         </a>
-        <a href="mailto:contact@novascatia.my.id" class="px-5 py-3 rounded-full border border-zinc-700 text-sm font-semibold hover:border-zinc-400 transition">
+        <a href="mailto:contact@novascatia.my.id" class="btn-secondary px-7 py-3.5 rounded-full border border-zinc-700 text-zinc-300 text-sm font-semibold">
           Contact me
         </a>
       </div>
     </header>
 
-    <section id="work" class="mb-20">
-      <div class="reveal flex items-center gap-5 mb-8">
-        <h2 class="text-xs uppercase tracking-[0.25em] text-zinc-500 font-bold">Selected Work</h2>
+    <section id="work" class="mb-32">
+      <div class="reveal flex items-center gap-5 mb-10">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">Selected Work</h2>
         <div class="h-px flex-1 bg-zinc-800"></div>
       </div>
 
-      <div class="grid md:grid-cols-2 gap-5">
-        <article class="reveal card p-6 md:p-7">
-          <div class="flex items-start justify-between gap-4 mb-12">
-            <span class="text-zinc-500 text-sm">01</span>
-            <i class="fa-solid fa-robot text-zinc-500"></i>
+      <div class="grid md:grid-cols-2 gap-6">
+        <article class="reveal card p-8 md:p-10">
+          <div class="flex items-start justify-between gap-4 mb-14">
+            <span class="text-zinc-500 text-sm font-medium">01</span>
+            <i class="fa-solid fa-robot text-zinc-500 text-xl"></i>
           </div>
-          <h3 class="text-2xl font-bold text-white mb-3">Discord & Telegram Bots</h3>
-          <p class="text-zinc-400 leading-relaxed text-sm">
+          <h3 class="text-2xl font-bold text-white mb-4 tracking-tight">Discord & Telegram Bots</h3>
+          <p class="text-zinc-400 leading-relaxed text-sm font-medium">
             Custom bots for moderation, automation, commands, webhooks, and small community tools.
           </p>
         </article>
 
-        <article class="reveal card p-6 md:p-7">
-          <div class="flex items-start justify-between gap-4 mb-12">
-            <span class="text-zinc-500 text-sm">02</span>
-            <i class="fa-solid fa-code text-zinc-500"></i>
+        <article class="reveal card p-8 md:p-10">
+          <div class="flex items-start justify-between gap-4 mb-14">
+            <span class="text-zinc-500 text-sm font-medium">02</span>
+            <i class="fa-solid fa-code text-zinc-500 text-xl"></i>
           </div>
-          <h3 class="text-2xl font-bold text-white mb-3">Web Tools</h3>
-          <p class="text-zinc-400 leading-relaxed text-sm">
+          <h3 class="text-2xl font-bold text-white mb-4 tracking-tight">Web Tools</h3>
+          <p class="text-zinc-400 leading-relaxed text-sm font-medium">
             Simple websites, dashboards, landing pages, and utility pages with clean frontend logic.
           </p>
         </article>
 
-        <article class="reveal card p-6 md:p-7">
-          <div class="flex items-start justify-between gap-4 mb-12">
-            <span class="text-zinc-500 text-sm">03</span>
-            <i class="fa-solid fa-plug text-zinc-500"></i>
+        <article class="reveal card p-8 md:p-10">
+          <div class="flex items-start justify-between gap-4 mb-14">
+            <span class="text-zinc-500 text-sm font-medium">03</span>
+            <i class="fa-solid fa-plug text-zinc-500 text-xl"></i>
           </div>
-          <h3 class="text-2xl font-bold text-white mb-3">API Integration</h3>
-          <p class="text-zinc-400 leading-relaxed text-sm">
+          <h3 class="text-2xl font-bold text-white mb-4 tracking-tight">API Integration</h3>
+          <p class="text-zinc-400 leading-relaxed text-sm font-medium">
             Connecting services, fetching data, handling responses, and making things talk to each other.
           </p>
         </article>
 
-        <article class="reveal card p-6 md:p-7">
-          <div class="flex items-start justify-between gap-4 mb-12">
-            <span class="text-zinc-500 text-sm">04</span>
-            <i class="fa-solid fa-wand-magic-sparkles text-zinc-500"></i>
+        <article class="reveal card p-8 md:p-10">
+          <div class="flex items-start justify-between gap-4 mb-14">
+            <span class="text-zinc-500 text-sm font-medium">04</span>
+            <i class="fa-solid fa-wand-magic-sparkles text-zinc-500 text-xl"></i>
           </div>
-          <h3 class="text-2xl font-bold text-white mb-3">Automation</h3>
-          <p class="text-zinc-400 leading-relaxed text-sm">
+          <h3 class="text-2xl font-bold text-white mb-4 tracking-tight">Automation</h3>
+          <p class="text-zinc-400 leading-relaxed text-sm font-medium">
             Scripts and workflows that reduce repetitive work and make boring tasks faster.
           </p>
         </article>
       </div>
     </section>
 
-    <section id="services" class="mb-20">
-      <div class="reveal flex items-center gap-5 mb-8">
-        <h2 class="text-xs uppercase tracking-[0.25em] text-zinc-500 font-bold">What I Do</h2>
+    <section id="services" class="mb-32">
+      <div class="reveal flex items-center gap-5 mb-10">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">What I Do</h2>
         <div class="h-px flex-1 bg-zinc-800"></div>
       </div>
 
-      <div class="reveal card p-6 md:p-8">
-        <div class="grid md:grid-cols-3 gap-8">
+      <div class="reveal card p-8 md:p-12">
+        <div class="grid md:grid-cols-3 gap-10">
           <div>
-            <h3 class="text-white font-bold mb-2">Bots</h3>
-            <p class="text-sm text-zinc-400 leading-relaxed">
+            <h3 class="text-white font-bold mb-3 tracking-tight">Bots</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed font-medium">
               Discord bots, Telegram bots, commands, notifications, and webhook systems.
             </p>
           </div>
 
           <div>
-            <h3 class="text-white font-bold mb-2">Websites</h3>
-            <p class="text-sm text-zinc-400 leading-relaxed">
+            <h3 class="text-white font-bold mb-3 tracking-tight">Websites</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed font-medium">
               Landing pages, portfolio pages, dashboards, and small web apps.
             </p>
           </div>
 
           <div>
-            <h3 class="text-white font-bold mb-2">Tools</h3>
-            <p class="text-sm text-zinc-400 leading-relaxed">
+            <h3 class="text-white font-bold mb-3 tracking-tight">Tools</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed font-medium">
               Custom utilities, API-based tools, automation scripts, and bug fixes.
             </p>
           </div>
@@ -223,9 +236,9 @@
       </div>
     </section>
 
-    <section class="mb-24">
-      <div class="reveal flex items-center gap-5 mb-8">
-        <h2 class="text-xs uppercase tracking-[0.25em] text-zinc-500 font-bold">Stack</h2>
+    <section class="mb-32">
+      <div class="reveal flex items-center gap-5 mb-10">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">Stack</h2>
         <div class="h-px flex-1 bg-zinc-800"></div>
       </div>
 
@@ -234,114 +247,67 @@
         <span class="tag">JavaScript</span>
         <span class="tag">HTML</span>
         <span class="tag">CSS</span>
+        <span class="tag">Tailwind</span>
+        <span class="tag">Node.js</span>
+        <span class="tag">APIs</span>
         <span class="tag">Discord.js</span>
-        <span class="tag">Telegram Bot</span>
+        <span class="tag">Telegram Bot API</span>
+        <span class="tag">Netlify</span>
+        <span class="tag">Supabase</span>
       </div>
     </section>
 
-    <section class="reveal card p-7 md:p-10 mb-24">
-      <p class="text-zinc-500 text-sm mb-4">Available for small projects</p>
-      <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
+    <section class="reveal card p-10 md:p-16 mb-32 text-center flex flex-col items-center">
+      <p class="text-zinc-500 text-sm mb-5 font-semibold uppercase tracking-widest">Available for projects</p>
+      <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">
         Got an idea or need a custom tool?
       </h2>
-      <p class="text-zinc-400 max-w-xl leading-relaxed mb-7">
+      <p class="text-zinc-400 max-w-xl leading-relaxed mb-10 font-medium">
         Send me the details and I’ll help turn it into something usable.
       </p>
 
-      <div class="flex flex-wrap gap-3">
-        <a href="mailto:contact@novascatia.my.id" class="px-5 py-3 rounded-full bg-white text-black text-sm font-semibold hover:bg-zinc-200 transition">
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="mailto:contact@novascatia.my.id" class="btn-primary px-8 py-3.5 rounded-full bg-white text-black text-sm font-semibold">
           Email me
         </a>
-        <a href="https://github.com/novascatia" target="_blank" class="px-5 py-3 rounded-full border border-zinc-700 text-sm font-semibold hover:border-zinc-400 transition">
+        <a href="https://github.com/novascatia" target="_blank" class="btn-secondary px-8 py-3.5 rounded-full border border-zinc-700 text-zinc-300 text-sm font-semibold">
           GitHub
         </a>
       </div>
     </section>
 
-    <footer class="reveal mb-32 pt-10 border-t border-zinc-800 flex items-center justify-between">
-      <p class="text-zinc-600 text-xs">© 2026 Novascatia</p>
-      <div class="flex gap-4 text-zinc-500 text-sm">
-        <a href="https://github.com/novascatia" target="_blank" class="hover:text-white transition">
+    <footer class="reveal pb-10 pt-10 border-t border-zinc-900 flex items-center justify-between">
+      <p class="text-zinc-600 text-sm font-medium">© 2026 Novascatia</p>
+      <div class="flex gap-6 text-zinc-500 text-lg">
+        <a href="https://github.com/novascatia" target="_blank" class="icon-link">
           <i class="fab fa-github"></i>
         </a>
-        <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition">
+        <a href="https://instagram.com/grayalldayog" target="_blank" class="icon-link">
           <i class="fab fa-instagram"></i>
-        </a>
-        <a href="/spotify" class="hover:text-white transition">
-          <i class="fab fa-spotify"></i>
         </a>
       </div>
     </footer>
   </div>
 
-  <div id="spotifyPlayer" class="spotify-player-bar">
-    <div class="flex items-center w-full md:w-[30%] overflow-hidden">
-      <img id="albumArt" src="" alt="" class="w-10 h-10 md:w-12 md:h-12 rounded-md mr-3 shadow-lg flex-shrink-0" />
-      <div class="flex flex-col justify-center overflow-hidden">
-        <h3 id="songTitle" class="text-xs font-bold text-white truncate pr-2"></h3>
-        <p id="artistName" class="text-[10px] text-gray-400 truncate pr-2"></p>
-      </div>
-    </div>
-
-    <div class="hidden sm:flex flex-col items-center w-[40%] px-4">
-      <div class="text-[9px] text-[#1ed760] font-bold tracking-widest uppercase mb-1">
-        Now Streaming
-      </div>
-      <div class="flex items-center w-full gap-3 text-[9px] text-gray-400 font-mono">
-        <span id="currentTime">0:00</span>
-        <div class="progress-bar-bg flex-grow">
-          <div id="progressBar" class="progress-bar-fill"></div>
-        </div>
-        <span id="totalTime">0:00</span>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-end md:w-[30%] flex-shrink-0 ml-2">
-      <i class="fab fa-spotify text-[#1ed760] text-xl"></i>
-    </div>
-  </div>
-
   <script>
-    function triggerReveal() {
-      gsap.to(".reveal", {
-        opacity: 1,
-        y: 0,
-        duration: 0.75,
-        stagger: 0.08,
-        ease: "power2.out"
-      });
-    }
-
-    function formatTime(ms) {
-      const seconds = Math.floor((ms / 1000) % 60);
-      const minutes = Math.floor((ms / 1000 / 60) % 60);
-      return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-    }
-
-    async function fetchNowPlaying() {
-      try {
-        const response = await fetch("/.netlify/functions/now-playing");
-        const data = await response.json();
-        const player = document.getElementById("spotifyPlayer");
-
-        if (data.isPlaying) {
-          document.getElementById("songTitle").textContent = data.title;
-          document.getElementById("artistName").textContent = data.artist;
-          document.getElementById("albumArt").src = data.albumArt;
-          document.getElementById("progressBar").style.width = `${(data.progress / data.duration) * 100}%`;
-          document.getElementById("currentTime").textContent = formatTime(data.progress);
-          document.getElementById("totalTime").textContent = formatTime(data.duration);
-          player.classList.add("visible");
-        } else {
-          player.classList.remove("visible");
-        }
-      } catch (e) {}
-    }
+    gsap.registerPlugin(ScrollTrigger);
 
     window.onload = () => {
-      triggerReveal();
-      fetchNowPlaying();
-      setInterval(fetchNowPlaying, 1000);
+      gsap.utils.toArray('.reveal').forEach((elem, i) => {
+        gsap.fromTo(elem, 
+          { y: 40, opacity: 0 },
+          {
+            scrollTrigger: {
+              trigger: elem,
+              start: "top 85%",
+            },
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "power3.out"
+          }
+        );
+      });
     };
   </script>
 </body>
