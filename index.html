@@ -8,6 +8,7 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
@@ -22,24 +23,55 @@
       scroll-behavior: smooth;
     }
 
-    .reveal {
+    .scroll-reveal {
       opacity: 0;
-      transform: translateY(15px);
+      transform: translateY(20px);
+      will-change: transform, opacity;
     }
 
-    .custom-card {
-      background: #141416;
-      border: 1px solid #202024;
+    /* Grid Card Match Style */
+    .skill-card {
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
       border-radius: 12px;
-      transition: all 0.25s ease;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      min-h: [120px];
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .custom-card:hover {
-      border-color: #3f3f46;
-      background: #18181c;
+    .skill-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.05);
     }
 
-    /* Animasi Hover Halus untuk Button */
+    .skill-title {
+      color: #09090b;
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .skill-level {
+      color: #71717a;
+      font-size: 0.875rem;
+      font-weight: 400;
+      margin-top: 0.5rem;
+    }
+
+    .dots-menu {
+      color: #71717a;
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .dots-menu:hover {
+      color: #09090b;
+    }
+
     .btn {
       transition: all 0.2s ease;
     }
@@ -56,100 +88,130 @@
 
   <div class="w-full max-w-3xl mx-auto px-6">
     
-    <!-- Navigation -->
-    <nav class="reveal flex items-center justify-between mb-24">
+    <nav class="scroll-reveal flex items-center justify-between mb-24">
       <a href="/" class="text-base font-bold text-white tracking-tight">novascatia</a>
       <div class="flex items-center gap-6 text-sm text-zinc-400">
-        <a href="#projects" class="hover:text-white transition">Projects</a>
+        <a href="mailto:contact@novascatia.my.id" class="hover:text-white transition">Email</a>
+        <a href="https://fiverr.com" target="_blank" class="hover:text-white transition">Fiverr</a>
       </div>
     </nav>
 
-    <!-- Main Bio -->
     <header class="mb-24">
-      <h1 class="reveal text-3xl md:text-4xl font-bold tracking-tight text-white mb-6">
+      <h1 class="scroll-reveal text-3xl md:text-4xl font-bold tracking-tight text-white mb-6">
         Hi, I'm Nova.
       </h1>
       
-      <p class="reveal text-zinc-400 text-base md:text-lg leading-relaxed max-w-2xl mb-8">
+      <p class="scroll-reveal text-zinc-400 text-base md:text-lg leading-relaxed max-w-2xl mb-8">
         I build bots, simple web dashboards, and automation scripts. I prefer writing clean, straightforward code to solve everyday tasks or make things run automatically without hassle.
       </p>
 
-      <div class="reveal flex flex-wrap gap-3 text-sm">
+      <div class="scroll-reveal flex flex-wrap gap-3 text-sm">
         <a href="mailto:contact@novascatia.my.id" class="btn px-5 py-2.5 rounded-lg bg-zinc-100 text-zinc-900 font-medium hover:bg-white">
-          Email me
+          Hire Me via Email
         </a>
-        <a href="https://github.com/novascatia" target="_blank" class="btn px-5 py-2.5 rounded-lg border border-zinc-800 text-zinc-300 font-medium hover:bg-zinc-900">
-          GitHub
+        <a href="https://fiverr.com" target="_blank" class="btn px-5 py-2.5 rounded-lg border border-zinc-800 text-zinc-300 font-medium hover:bg-zinc-900">
+          Order on Fiverr
         </a>
       </div>
     </header>
 
-    <!-- Project List -->
-    <section id="projects" class="mb-24">
-      <h2 class="reveal text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-6">What I do</h2>
-      
-      <div class="grid grid-cols-1 gap-4">
-        
-        <div class="reveal custom-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h3 class="text-base font-semibold text-white mb-1">Telegram & Discord Bots</h3>
-            <p class="text-zinc-400 text-sm">Custom backend logic, messaging queues, and automated webhook handlers.</p>
-          </div>
-          <span class="text-xs font-mono text-zinc-600 self-start md:self-center">Python / Node.js</span>
-        </div>
-
-        <div class="reveal custom-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h3 class="text-base font-semibold text-white mb-1">Web Tools & Dashboards</h3>
-            <p class="text-zinc-400 text-sm">Simple and lightweight interfaces built for managing data or scripts.</p>
-          </div>
-          <span class="text-xs font-mono text-zinc-600 self-start md:self-center">JavaScript / Tailwind</span>
-        </div>
-
-        <div class="reveal custom-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h3 class="text-base font-semibold text-white mb-1">Automation Scripts</h3>
-            <p class="text-zinc-400 text-sm">Scraping data, handling API requests, and reducing repetitive tasks.</p>
-          </div>
-          <span class="text-xs font-mono text-zinc-600 self-start md:self-center">Python / Luau</span>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Technologies -->
     <section class="mb-24">
-      <h2 class="reveal text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-6">Tech Stack</h2>
-      <div class="reveal flex flex-wrap gap-2 text-xs text-zinc-400">
-        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">Python</span>
-        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">JavaScript</span>
-        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">Node.js</span>
-        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">Tailwind CSS</span>
-        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">Supabase</span>
-        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">APIs</span>
+      <h2 class="scroll-reveal text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-6">Capabilities & Stack</h2>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        
+        <div class="scroll-reveal skill-card">
+          <div class="flex justify-between items-start w-full">
+            <span class="skill-title">Python</span>
+            <i class="fa-solid fa-ellipsis dots-menu"></i>
+          </div>
+          <span class="skill-level">Intermediate</span>
+        </div>
+
+        <div class="scroll-reveal skill-card">
+          <div class="flex justify-between items-start w-full">
+            <span class="skill-title">JavaScript</span>
+            <i class="fa-solid fa-ellipsis dots-menu"></i>
+          </div>
+          <span class="skill-level">Intermediate</span>
+        </div>
+
+        <div class="scroll-reveal skill-card">
+          <div class="flex justify-between items-start w-full">
+            <span class="skill-title">HTML</span>
+            <i class="fa-solid fa-ellipsis dots-menu"></i>
+          </div>
+          <span class="skill-level">Pro</span>
+        </div>
+
+        <div class="scroll-reveal skill-card">
+          <div class="flex justify-between items-start w-full">
+            <span class="skill-title">CSS</span>
+            <i class="fa-solid fa-ellipsis dots-menu"></i>
+          </div>
+          <span class="skill-level">Pro</span>
+        </div>
+
+        <div class="scroll-reveal skill-card">
+          <div class="flex justify-between items-start w-full">
+            <span class="skill-title">Discord bot deve...</span>
+            <i class="fa-solid fa-ellipsis dots-menu"></i>
+          </div>
+          <span class="skill-level">Pro</span>
+        </div>
+
+        <div class="scroll-reveal skill-card">
+          <div class="flex justify-between items-start w-full">
+            <span class="skill-title">Telegram bot</span>
+            <i class="fa-solid fa-ellipsis dots-menu"></i>
+          </div>
+          <span class="skill-level">Pro</span>
+        </div>
+
+        <div class="scroll-reveal skill-card">
+          <div class="flex justify-between items-start w-full">
+            <span class="skill-title">Web development</span>
+            <i class="fa-solid fa-ellipsis dots-menu"></i>
+          </div>
+          <span class="skill-level">Intermediate</span>
+        </div>
+
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="reveal pt-8 border-t border-zinc-900 flex items-center justify-between text-xs text-zinc-500">
+    <footer class="scroll-reveal pt-8 border-t border-zinc-900 flex items-center justify-between text-xs text-zinc-500">
       <p>&copy; 2026 Novascatia</p>
-      <div class="flex gap-4 text-sm">
-        <a href="https://github.com/novascatia" target="_blank" class="hover:text-white transition">
-          <i class="fab fa-github"></i>
-        </a>
+      <div class="flex gap-5 text-zinc-400">
+        <a href="mailto:contact@novascatia.my.id" class="hover:text-white transition">Email</a>
+        <a href="https://fiverr.com" target="_blank" class="hover:text-white transition">Fiverr</a>
       </div>
     </footer>
 
   </div>
 
   <script>
+    gsap.registerPlugin(ScrollTrigger);
+
     window.onload = () => {
-      gsap.to(".reveal", {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-        stagger: 0.06,
-        ease: "power2.out"
+      gsap.utils.toArray('.scroll-reveal').forEach((element) => {
+        gsap.fromTo(element, 
+          { 
+            opacity: 0, 
+            y: 20 
+          },
+          {
+            scrollTrigger: {
+              trigger: element,
+              start: "top 92%",
+              end: "bottom 8%",
+              toggleActions: "play reverse play reverse" 
+            },
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            ease: "power2.out"
+          }
+        );
       });
     };
   </script>
