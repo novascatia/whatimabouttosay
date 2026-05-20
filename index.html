@@ -3,292 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>novascatia // dev</title>
+  <title>Nova</title>
   <link rel="icon" type="image/png" href="/logo.png" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
-      overflow-x: hidden;
-      background: #030303;
-      color: #f4f4f5;
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #09090b;
+      color: #e4e4e7;
+      font-family: 'Inter', sans-serif;
       scroll-behavior: smooth;
-    }
-
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* Custom Dot Matrix Background */
-    .bg-dots {
-      background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
-      background-size: 24px 24px;
     }
 
     .reveal {
       opacity: 0;
-      transform: translateY(40px);
+      transform: translateY(15px);
     }
 
-    /* High-end Bento Card Effect */
-    .bento-card {
-      background: rgba(10, 10, 12, 0.7);
-      border: 1px solid rgba(39, 39, 42, 0.5);
-      backdrop-filter: blur(8px);
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    .custom-card {
+      background: #141416;
+      border: 1px solid #202024;
+      border-radius: 12px;
+      transition: all 0.25s ease;
     }
 
-    .bento-card:hover {
-      border-color: rgba(113, 113, 122, 0.6);
-      background: rgba(18, 18, 22, 0.8);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    .custom-card:hover {
+      border-color: #3f3f46;
+      background: #18181c;
     }
 
-    /* Interactive UI Elements */
-    .interactive-btn {
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Animasi Hover Halus untuk Button */
+    .btn {
+      transition: all 0.2s ease;
     }
-    .interactive-btn:hover {
-      transform: scale(1.02) translateY(-2px);
+    .btn:hover {
+      transform: translateY(-1px);
     }
-    .interactive-btn:active {
-      transform: scale(0.98);
-    }
-
-    .pill-tag {
-      background: rgba(23, 23, 27, 0.6);
-      border: 1px solid rgba(39, 39, 42, 0.8);
-      transition: all 0.3s ease;
-    }
-    .pill-tag:hover {
-      border-color: rgba(244, 244, 245, 0.4);
-      color: #fff;
+    .btn:active {
+      transform: translateY(1px);
     }
   </style>
 </head>
 
-<body class="bg-dots py-8 md:py-16">
+<body class="py-12 md:py-20">
 
-  <div class="w-full max-w-5xl mx-auto px-6">
+  <div class="w-full max-w-3xl mx-auto px-6">
     
-    <!-- Top Bar Navigation -->
-    <nav class="reveal flex items-center justify-between mb-28">
-      <div class="flex items-center gap-3">
-        <span class="font-mono text-xs font-bold tracking-widest text-zinc-500">//</span>
-        <a href="/" class="font-mono text-sm font-bold tracking-tighter text-white">novascatia.my.id</a>
-      </div>
-
-      <div class="flex items-center gap-6 font-mono text-xs tracking-tight text-zinc-400">
-        <a href="#architecture" class="hover:text-white transition duration-300">/systems</a>
-        <a href="#stack" class="hover:text-white transition duration-300">/stack</a>
-        <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition duration-300">/ig</a>
+    <!-- Navigation -->
+    <nav class="reveal flex items-center justify-between mb-24">
+      <a href="/" class="text-base font-bold text-white tracking-tight">novascatia</a>
+      <div class="flex items-center gap-6 text-sm text-zinc-400">
+        <a href="#projects" class="hover:text-white transition">Projects</a>
       </div>
     </nav>
 
-    <!-- Header / Intro Core -->
-    <header class="mb-32 max-w-4xl">
-      <div class="reveal flex items-center gap-2 mb-6">
-        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="font-mono text-xs text-zinc-500 uppercase tracking-widest">Available for custom core engineering</span>
-      </div>
-
-      <h1 class="reveal text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-white">
-        Weaponizing code to bypass repetitive tasks.
+    <!-- Main Bio -->
+    <header class="mb-24">
+      <h1 class="reveal text-3xl md:text-4xl font-bold tracking-tight text-white mb-6">
+        Hi, I'm Nova.
       </h1>
-
-      <p class="reveal mt-8 text-base md:text-lg text-zinc-400 leading-relaxed max-w-2xl font-normal">
-        I build high-concurrency bots, asynchronous event pipelines, custom internal automation, 
-        and raw digital environments that don't break under load. No over-engineered bloat. Just direct execution.
+      
+      <p class="reveal text-zinc-400 text-base md:text-lg leading-relaxed max-w-2xl mb-8">
+        I build bots, simple web dashboards, and automation scripts. I prefer writing clean, straightforward code to solve everyday tasks or make things run automatically without hassle.
       </p>
 
-      <div class="reveal mt-10 flex flex-wrap gap-4 font-mono text-xs">
-        <a href="mailto:contact@novascatia.my.id" class="interactive-btn px-6 py-3.5 rounded-xl bg-zinc-100 text-black font-bold">
-          [ Initiate Project ]
+      <div class="reveal flex flex-wrap gap-3 text-sm">
+        <a href="mailto:contact@novascatia.my.id" class="btn px-5 py-2.5 rounded-lg bg-zinc-100 text-zinc-900 font-medium hover:bg-white">
+          Email me
         </a>
-        <a href="#architecture" class="interactive-btn px-6 py-3.5 rounded-xl border border-zinc-800 text-zinc-400 font-medium hover:bg-zinc-900/50">
-          // Inspect Systems
+        <a href="https://github.com/novascatia" target="_blank" class="btn px-5 py-2.5 rounded-lg border border-zinc-800 text-zinc-300 font-medium hover:bg-zinc-900">
+          GitHub
         </a>
       </div>
     </header>
 
-    <!-- Bento Grid Section -->
-    <section id="architecture" class="mb-32">
-      <div class="reveal flex items-center justify-between mb-12">
-        <div class="flex items-center gap-4">
-          <span class="font-mono text-xs text-zinc-600">SECTION_01</span>
-          <h2 class="text-sm font-bold uppercase tracking-widest text-zinc-400">Core Architecture</h2>
-        </div>
-        <div class="hidden sm:block h-px flex-1 max-w-[200px] bg-zinc-800/60 ml-4"></div>
-      </div>
-
-      <!-- Bento Grid Root Layout -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        
-        <!-- Large Box: High-Concurrency Bots -->
-        <div class="reveal bento-card md:col-span-2 p-8 md:p-10 rounded-2xl flex flex-col justify-between min-h-[300px]">
-          <div class="flex justify-between items-start mb-8">
-            <div class="p-3 bg-zinc-900/80 border border-zinc-800 rounded-xl text-zinc-400">
-              <i class="fa-solid fa-bolt-lightning text-lg"></i>
-            </div>
-            <span class="font-mono text-xs text-zinc-600">01 // CONCURRENCY</span>
-          </div>
-          <div>
-            <h3 class="text-2xl font-bold text-white mb-3 tracking-tight">Asynchronous Bot Engines</h3>
-            <p class="text-zinc-400 text-sm leading-relaxed max-w-xl">
-              Engineered Telegram and Discord application frameworks built on stateful, event-driven queues. 
-              Optimized for instant webhook reactions, parallel process allocation, and zero leakage handling.
-            </p>
-          </div>
-        </div>
-
-        <!-- Medium Box: Scripting -->
-        <div class="reveal bento-card p-8 rounded-2xl flex flex-col justify-between min-h-[300px]">
-          <div class="flex justify-between items-start mb-8">
-            <div class="p-3 bg-zinc-900/80 border border-zinc-800 rounded-xl text-zinc-400">
-              <i class="fa-solid fa-terminal text-lg"></i>
-            </div>
-            <span class="font-mono text-xs text-zinc-600">02 // SCRIPTING</span>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-white mb-2 tracking-tight">Otomasi & Scraping</h3>
-            <p class="text-zinc-500 text-xs leading-relaxed">
-              Custom logic structures designed to systematically scrape, extract, and convert data matrices into highly structured endpoints.
-            </p>
-          </div>
-        </div>
-
-        <!-- Small Box: Dashboards -->
-        <div class="reveal bento-card p-8 rounded-2xl flex flex-col justify-between min-h-[280px]">
-          <div class="flex justify-between items-start mb-8">
-            <div class="p-3 bg-zinc-900/80 border border-zinc-800 rounded-xl text-zinc-400">
-              <i class="fa-solid fa-layer-group text-lg"></i>
-            </div>
-            <span class="font-mono text-xs text-zinc-600">03 // INTERFACES</span>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-white mb-2 tracking-tight">Clean Dashboards</h3>
-            <p class="text-zinc-500 text-xs leading-relaxed">
-              Lightweight, fast frontend systems mapped out strictly for data transparency and control. Zero boilerplate UI libraries.
-            </p>
-          </div>
-        </div>
-
-        <!-- Large Box: API integration and internal tool pipelines -->
-        <div class="reveal bento-card md:col-span-2 p-8 md:p-10 rounded-2xl flex flex-col justify-between min-h-[280px]">
-          <div class="flex justify-between items-start mb-8">
-            <div class="p-3 bg-zinc-900/80 border border-zinc-800 rounded-xl text-zinc-400">
-              <i class="fa-solid fa-network-wired text-lg"></i>
-            </div>
-            <span class="font-mono text-xs text-zinc-600">04 // INTEGRATION</span>
-          </div>
-          <div>
-            <h3 class="text-2xl font-bold text-white mb-3 tracking-tight">Structured Pipeline Integrations</h3>
-            <p class="text-zinc-400 text-sm leading-relaxed">
-              Linking incompatible APIs, cleaning disparate runtime objects, and standardizing asynchronous internal protocols 
-              so your tooling communicates without friction.
-            </p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Runtime Environment / Stack -->
-    <section id="stack" class="mb-32">
-      <div class="reveal flex items-center justify-between mb-12">
-        <div class="flex items-center gap-4">
-          <span class="font-mono text-xs text-zinc-600">SECTION_02</span>
-          <h2 class="text-sm font-bold uppercase tracking-widest text-zinc-400">Runtime Stack</h2>
-        </div>
-      </div>
-
-      <div class="reveal flex flex-wrap gap-2.5 font-mono text-xs">
-        <span class="pill-tag px-4 py-2.5 rounded-xl text-zinc-400">Python (Asyncio)</span>
-        <span class="pill-tag px-4 py-2.5 rounded-xl text-zinc-400">JavaScript / Node.js</span>
-        <span class="pill-tag px-4 py-2.5 rounded-xl text-zinc-400">Tailwind Engine</span>
-        <span class="pill-tag px-4 py-2.5 rounded-xl text-zinc-400">Telegram Bot Architecture</span>
-        <span class="pill-tag px-4 py-2.5 rounded-xl text-zinc-400">Discord.js Ecosystem</span>
-        <span class="pill-tag px-4 py-2.5 rounded-xl text-zinc-400">Supabase Infrastructure</span>
-        <span class="pill-tag px-4 py-2.5 rounded-xl text-zinc-400">RESTful Data Pipelines</span>
-        <span class="pill-tag px-4 py-2.5 rounded-xl text-zinc-400">Luau Scripting Environment</span>
-      </div>
-    </section>
-
-    <!-- Project Pipeline Callout Box -->
-    <section class="reveal bento-card p-10 md:p-16 rounded-3xl mb-32 relative overflow-hidden">
-      <div class="absolute -right-10 -bottom-10 opacity-[0.02] text-white pointer-events-none">
-        <i class="fa-solid fa-code-branch text-[200px]"></i>
-      </div>
+    <!-- Project List -->
+    <section id="projects" class="mb-24">
+      <h2 class="reveal text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-6">What I do</h2>
       
-      <div class="max-w-xl">
-        <p class="font-mono text-xs text-zinc-500 mb-4 uppercase tracking-widest">// DEPLOYMENT DISPATCH</p>
-        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-4">
-          Have an internal workflow bottleneck?
-        </h2>
-        <p class="text-zinc-400 text-sm leading-relaxed mb-8 font-medium">
-          Send over your architectural design rules or manual routines, and I will write the automation framework to sweep it away.
-        </p>
-
-        <div class="flex flex-wrap gap-4 font-mono text-xs">
-          <a href="mailto:contact@novascatia.my.id" class="interactive-btn px-6 py-3.5 rounded-xl bg-white text-black font-bold">
-            [ Contact via Mail ]
-          </a>
-          <a href="https://github.com/novascatia" target="_blank" class="interactive-btn px-6 py-3.5 rounded-xl border border-zinc-800 text-zinc-400 font-semibold hover:bg-zinc-900/40">
-            git://github
-          </a>
+      <div class="grid grid-cols-1 gap-4">
+        
+        <div class="reveal custom-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-semibold text-white mb-1">Telegram & Discord Bots</h3>
+            <p class="text-zinc-400 text-sm">Custom backend logic, messaging queues, and automated webhook handlers.</p>
+          </div>
+          <span class="text-xs font-mono text-zinc-600 self-start md:self-center">Python / Node.js</span>
         </div>
+
+        <div class="reveal custom-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-semibold text-white mb-1">Web Tools & Dashboards</h3>
+            <p class="text-zinc-400 text-sm">Simple and lightweight interfaces built for managing data or scripts.</p>
+          </div>
+          <span class="text-xs font-mono text-zinc-600 self-start md:self-center">JavaScript / Tailwind</span>
+        </div>
+
+        <div class="reveal custom-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-semibold text-white mb-1">Automation Scripts</h3>
+            <p class="text-zinc-400 text-sm">Scraping data, handling API requests, and reducing repetitive tasks.</p>
+          </div>
+          <span class="text-xs font-mono text-zinc-600 self-start md:self-center">Python / Luau</span>
+        </div>
+
       </div>
     </section>
 
-    <!-- Structural Footer -->
-    <footer class="reveal pb-12 pt-8 border-t border-zinc-900/60 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
-      <p class="text-zinc-600">&copy; 2026 Novascatia. System operational.</p>
-      <div class="flex gap-6 text-zinc-500">
-        <a href="https://github.com/novascatia" target="_blank" class="hover:text-white transition duration-300">
-          <i class="fab fa-github text-sm"></i>
-        </a>
-        <a href="https://instagram.com/grayalldayog" target="_blank" class="hover:text-white transition duration-300">
-          <i class="fab fa-instagram text-sm"></i>
+    <!-- Technologies -->
+    <section class="mb-24">
+      <h2 class="reveal text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-6">Tech Stack</h2>
+      <div class="reveal flex flex-wrap gap-2 text-xs text-zinc-400">
+        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">Python</span>
+        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">JavaScript</span>
+        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">Node.js</span>
+        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">Tailwind CSS</span>
+        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">Supabase</span>
+        <span class="px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800">APIs</span>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="reveal pt-8 border-t border-zinc-900 flex items-center justify-between text-xs text-zinc-500">
+      <p>&copy; 2026 Novascatia</p>
+      <div class="flex gap-4 text-sm">
+        <a href="https://github.com/novascatia" target="_blank" class="hover:text-white transition">
+          <i class="fab fa-github"></i>
         </a>
       </div>
     </footer>
+
   </div>
 
   <script>
-    gsap.registerPlugin(ScrollTrigger);
-
     window.onload = () => {
-      // 3D Stagger Reveal Effect for Premium Feel
-      gsap.utils.toArray('.reveal').forEach((elem) => {
-        gsap.fromTo(elem, 
-          { 
-            y: 35, 
-            opacity: 0,
-            rotationX: -5 
-          },
-          {
-            scrollTrigger: {
-              trigger: elem,
-              start: "top 90%",
-              toggleActions: "play none none none"
-            },
-            y: 0,
-            opacity: 1,
-            rotationX: 0,
-            duration: 0.9,
-            ease: "power4.out"
-          }
-        );
+      gsap.to(".reveal", {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.06,
+        ease: "power2.out"
       });
     };
   </script>
