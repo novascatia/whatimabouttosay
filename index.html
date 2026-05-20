@@ -29,47 +29,41 @@
       will-change: transform, opacity;
     }
 
-    /* Grid Card Match Style */
+    /* Dark Skill Card Layout */
     .skill-card {
-      background: #ffffff;
-      border: 1px solid #e4e4e7;
+      background: #141416;
+      border: 1px solid #202024;
       border-radius: 12px;
       padding: 1.5rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: relative;
-      min-h: [120px];
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      min-height: 140px;
+      transition: border-color 0.2s ease, background 0.2s ease;
     }
 
     .skill-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.05);
+      border-color: #3f3f46;
+      background: #18181c;
     }
 
     .skill-title {
-      color: #09090b;
-      font-size: 1.125rem;
+      color: #ffffff;
+      font-size: 1.05rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.01em;
     }
 
-    .skill-level {
-      color: #71717a;
-      font-size: 0.875rem;
+    .skill-summary {
+      color: #a1a1aa;
+      font-size: 0.85rem;
       font-weight: 400;
-      margin-top: 0.5rem;
+      line-height: 1.5;
+      margin-top: 0.75rem;
     }
 
     .dots-menu {
-      color: #71717a;
-      cursor: pointer;
-      transition: color 0.15s ease;
-    }
-
-    .dots-menu:hover {
-      color: #09090b;
+      color: #52525b;
     }
 
     .btn {
@@ -125,7 +119,7 @@
             <span class="skill-title">Python</span>
             <i class="fa-solid fa-ellipsis dots-menu"></i>
           </div>
-          <span class="skill-level">Intermediate</span>
+          <p class="skill-summary">Writing backends, asynchronous data processing, and handling internal logic operations.</p>
         </div>
 
         <div class="scroll-reveal skill-card">
@@ -133,7 +127,7 @@
             <span class="skill-title">JavaScript</span>
             <i class="fa-solid fa-ellipsis dots-menu"></i>
           </div>
-          <span class="skill-level">Intermediate</span>
+          <p class="skill-summary">Building lightweight full-stack scripts, dynamic interactions, and fast API tools.</p>
         </div>
 
         <div class="scroll-reveal skill-card">
@@ -141,7 +135,7 @@
             <span class="skill-title">HTML</span>
             <i class="fa-solid fa-ellipsis dots-menu"></i>
           </div>
-          <span class="skill-level">Pro</span>
+          <p class="skill-summary">Structuring clean, compliant, and semantic elements for web tools and dashboard applications.</p>
         </div>
 
         <div class="scroll-reveal skill-card">
@@ -149,15 +143,15 @@
             <span class="skill-title">CSS</span>
             <i class="fa-solid fa-ellipsis dots-menu"></i>
           </div>
-          <span class="skill-level">Pro</span>
+          <p class="skill-summary">Designing responsive, fast-loading layouts with modern utilities and clean styling tokens.</p>
         </div>
 
         <div class="scroll-reveal skill-card">
           <div class="flex justify-between items-start w-full">
-            <span class="skill-title">Discord bot deve...</span>
+            <span class="skill-title">Discord bot dev</span>
             <i class="fa-solid fa-ellipsis dots-menu"></i>
           </div>
-          <span class="skill-level">Pro</span>
+          <p class="skill-summary">Creating automation setups, management utility panels, and integrated internal webhooks.</p>
         </div>
 
         <div class="scroll-reveal skill-card">
@@ -165,7 +159,7 @@
             <span class="skill-title">Telegram bot</span>
             <i class="fa-solid fa-ellipsis dots-menu"></i>
           </div>
-          <span class="skill-level">Pro</span>
+          <p class="skill-summary">Developing asynchronous file systems, processing queues, and custom instant-response messaging commands.</p>
         </div>
 
         <div class="scroll-reveal skill-card">
@@ -173,7 +167,7 @@
             <span class="skill-title">Web development</span>
             <i class="fa-solid fa-ellipsis dots-menu"></i>
           </div>
-          <span class="skill-level">Intermediate</span>
+          <p class="skill-summary">Constructing minimal, direct, and distraction-free user interfaces built purely for functional control.</p>
         </div>
 
       </div>
@@ -204,7 +198,7 @@
               trigger: element,
               start: "top 92%",
               end: "bottom 8%",
-              toggleActions: "play reverse play reverse" 
+              toggleActions: "play reverse play reverse"
             },
             opacity: 1,
             y: 0,
