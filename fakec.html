@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fake iMessage Pro (iOS)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    gap: 30px;
+    padding: 30px;
+    background: #1c1c1e;
+    color: #ffffff;
+    overflow-x: hidden;
+}
+.panel {
+    background: #2c2c2e;
+    padding: 20px;
+    border-radius: 14px;
+    width: 320px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    height: fit-content;
+    border: 1px solid #3a3a3c;
+}
+.panel h3, .panel h4 {
+    margin-top: 0;
+    color: #ffffff;
+}
+.panel label {
+    display: block;
+    font-size: 13px;
+    color: #eaeaea;
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+.panel input, .panel select, .panel button {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid #3a3a3c;
+    background: #1c1c1e;
+    color: #ffffff;
+    font-size: 14px;
+}
+.panel button {
+    background: #007aff;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 5px;
+}
+.panel button:hover {
+    background: #0063cc;
+}
+.divider {
+    border: 0.5px solid #3a3a3c;
+    margin: 15px 0;
+}
+.sub-divider {
+    border: 0.5px dashed #48484a;
+    margin: 10px 0;
+}
+
+/* Phone Mockup Styling */
+.phone {
+    width: 375px;
+    height: 812px;
+    background: #000000;
+    position: relative;
+    border: 12px solid #1c1c1e;
+    border-radius: 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+}
+.header {
+    background: #121212;
+    padding: 45px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 0.5px solid #222222;
+    z-index: 2;
+    flex-shrink: 0;
+}
+.navleft {
+    color: #007aff;
+    font-size: 28px;
+    cursor: pointer;
+    width: 25px;
+    font-weight: 300;
+    line-height: 1;
+}
+.navcenter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+.profpic-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #333;
+    object-fit: cover;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+.contactname {
+    font-weight: 400;
+    font-size: 11px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+.contactname span {
+    color: #ffffff;
+    font-size: 12px;
+}
+.contactname .chevron {
+    color: #8e8e93;
+    font-size: 10px;
+}
+.navright {
+    width: 25px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.facetime-icon {
+    width: 24px;
+    height: 16px;
+    fill: none;
+    stroke: #007aff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Chat Area and Scrolling */
+.chatarea {
+    flex: 1;
+    padding: 16px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    background: #000000;
+    background-size: cover;
+    background-position: center;
+}
+.chatarea::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+/* Time Header */
+.timeheader {
+    align-self: center;
+    font-size: 11px;
+    color: #8e8e93;
+    font-weight: 500;
+    margin: 14px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+}
+
+/* Bubbles and Content */
+.bubble {
+    max-width: 72%;
+    border-radius: 20px;
+    margin-bottom: 6px;
+    font-size: 16px;
+    line-height: 1.35;
+    word-wrap: break-word;
+    color: #ffffff;
+    position: relative;
+    flex-shrink: 0;
+}
+.bubble.received {
+    background: #262629;
+    align-self: flex-start;
+    border-bottom-left-radius: 5px;
+}
+.bubble.sent {
+    background: #007aff;
+    align-self: flex-end;
+    border-bottom-right-radius: 5px;
+}
+
+.bubble-text {
+    padding: 10px 16px;
+}
+.bubble-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 18px;
+    object-fit: contain;
+}
+
+/* Footer Styling */
+.footer {
+    background: #121212;
+    padding: 10px 16px 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 0.5px solid #222222;
+    flex-shrink: 0;
+}
+.inputbar {
+    flex: 1;
+    background: #141414;
+    border: 1px solid #262629;
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: #3a3a3c;
+    font-size: 15px;
+}
+.footer-icon-left {
+    color: #8e8e93;
+    font-size: 24px;
+    cursor: pointer;
+}
+.footer-icon-right {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.audio-icon {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: #8e8e93;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+</style>
+</head>
+<body>
+
+<div class="panel">
+    <h3>iMessage Settings</h3>
+    
+    <label>Nama Kontak</label>
+    <input type="text" id="nameinput" value="Devan">
+    
+    <label>Profile Picture</label>
+    <input type="file" id="picinput" accept="image/*">
+    
+    <label>Wallpaper (Opsional)</label>
+    <input type="file" id="bginput" accept="image/*">
+    
+    <div class="divider"></div>
+    
+    <h4>Komponen Chat</h4>
+    
+    <label>Waktu Chat (Manual)</label>
+    <input type="text" id="msgtime" placeholder="Contoh: Today 10:15 AM">
+    <button id="timebtn" style="background: #545456;">Tambah Waktu</button>
+    
+    <div class="sub-divider"></div>
+    
+    <label>Tipe Pesan</label>
+    <select id="msgtype">
+        <option value="received">Diterima (Abu-abu)</option>
+        <option value="sent">Dikirim (Biru)</option>
+    </select>
+    
+    <label>Isi Pesan Teks</label>
+    <input type="text" id="msgtext" placeholder="Ketik pesan di sini...">
+    <button id="addtextbtn">Tambah Pesan Teks</button>
+    
+    <div class="sub-divider"></div>
+    
+    <label>Kirim Foto di Chat</label>
+    <input type="file" id="msgimageinput" accept="image/*">
+    
+    <div class="divider"></div>
+    <button id="savebtn" style="background:#34c759; padding: 12px;">Save Full Screenshot</button>
+</div>
+
+<div class="phone" id="phoneframe">
+    <div class="header">
+        <div class="navleft">‹</div>
+        <div class="navcenter">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23333333'/></svg>" class="profpic-circle" id="pfp">
+            <div class="contactname"><span id="cname">Devan</span> <span class="chevron">›</span></div>
+        </div>
+        <div class="navright">
+            <svg class="facetime-icon" viewBox="0 0 24 24">
+                <rect x="2" y="5" width="13" height="14" rx="3" />
+                <polygon points="15,12 22,7 22,17 15,12" />
+            </svg>
+        </div>
+    </div>
+    
+    <div class="chatarea" id="chatbox">
+    </div>
+    
+    <div class="footer">
+        <div class="footer-icon-left">⨁</div>
+        <div class="inputbar">@seyraphineyap</div>
+        <div class="footer-icon-right">
+            <svg class="audio-icon" viewBox="0 0 24 24">
+                <path d="M12 2v12M9 5v6M15 5v6M6 7v2M18 7v2" />
+            </svg>
+        </div>
+    </div>
+</div>
+
+<script>
+let nameinput = document.getElementById('nameinput');
+let picinput = document.getElementById('picinput');
+let bginput = document.getElementById('bginput');
+let msgtype = document.getElementById('msgtype');
+let msgtext = document.getElementById('msgtext');
+let msgtime = document.getElementById('msgtime');
+let msgimageinput = document.getElementById('msgimageinput');
+
+let timebtn = document.getElementById('timebtn');
+let addtextbtn = document.getElementById('addtextbtn');
+let savebtn = document.getElementById('savebtn');
+
+let cname = document.getElementById('cname');
+let pfp = document.getElementById('pfp');
+let chatbox = document.getElementById('chatbox');
+let phoneframe = document.getElementById('phoneframe');
+
+function scrollToBottom() {
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+nameinput.addEventListener('input', function() {
+    cname.textContent = nameinput.value;
+});
+
+picinput.addEventListener('change', function(e) {
+    let file = e.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = function(event) {
+        pfp.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+bginput.addEventListener('change', function(e) {
+    let file = e.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = function(event) {
+        chatbox.style.backgroundImage = 'url(' + event.target.result + ')';
+    };
+    reader.readAsDataURL(file);
+});
+
+timebtn.addEventListener('click', function() {
+    if (msgtime.value.trim() === '') return;
+    
+    let timediv = document.createElement('div');
+    timediv.className = 'timeheader';
+    timediv.textContent = msgtime.value;
+    chatbox.appendChild(timediv);
+    scrollToBottom();
+});
+
+addtextbtn.addEventListener('click', function() {
+    if (msgtext.value.trim() === '') return;
+    
+    let bubble = document.createElement('div');
+    bubble.className = 'bubble ' + msgtype.value;
+    
+    let textspan = document.createElement('div');
+    textspan.className = 'bubble-text';
+    textspan.textContent = msgtext.value;
+    
+    bubble.appendChild(textspan);
+    chatbox.appendChild(bubble);
+    
+    scrollToBottom();
+    msgtext.value = '';
+});
+
+msgimageinput.addEventListener('change', function(e) {
+    let file = e.target.files[0];
+    if (!file) return;
+    
+    let reader = new FileReader();
+    reader.onload = function(event) {
+        let bubble = document.createElement('div');
+        bubble.className = 'bubble ' + msgtype.value;
+        bubble.style.padding = '0'; 
+        
+        let img = document.createElement('img');
+        img.className = 'bubble-image';
+        img.src = event.target.result;
+        
+        bubble.appendChild(img);
+        chatbox.appendChild(bubble);
+        
+        setTimeout(scrollToBottom, 50); 
+        msgimageinput.value = ''; 
+    };
+    reader.readAsDataURL(file);
+});
+
+savebtn.addEventListener('click', function() {
+    html2canvas(phoneframe, {
+        scale: 2,
+        backgroundColor: '#000000',
+        useCORS: true
+    }).then(function(canvas) {
+        let link = document.createElement('a');
+        link.download = 'imessage-chat-hd.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+});
+</script>
+
+</body>
+</html>
