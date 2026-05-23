@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X Combined Tweet & Reply Generator Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    gap: 30px;
+    padding: 30px;
+    background: #15202b;
+    color: #ffffff;
+    overflow-x: hidden;
+}
+.panel {
+    background: #1e2732;
+    padding: 20px;
+    border-radius: 14px;
+    width: 360px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    height: 90vh;
+    border: 1px solid #38444d;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+.panel::-webkit-scrollbar {
+    width: 6px;
+}
+.panel::-webkit-scrollbar-thumb {
+    background: #38444d;
+    border-radius: 3px;
+}
+.panel h3, .panel h4 {
+    margin-top: 0;
+    color: #ffffff;
+}
+.panel label {
+    display: block;
+    font-size: 13px;
+    color: #8899a6;
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+.panel input, .panel textarea, .panel button {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid #38444d;
+    background: #15202b;
+    color: #ffffff;
+    font-size: 14px;
+}
+.panel textarea {
+    resize: vertical;
+    height: 65px;
+    font-family: inherit;
+}
+.panel button {
+    background: #1d9bf0;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: background 0.2s;
+}
+.panel button:hover {
+    background: #1a8cd8;
+}
+.metrics-group {
+    display: flex;
+    gap: 10px;
+}
+.divider {
+    border: 0.5px solid #38444d;
+    margin: 15px 0;
+}
+.sub-divider {
+    border: 0.5px dashed #38444d;
+    margin: 15px 0;
+}
+
+/* CONTAINER HP - LAYOUT TWEETGEN */
+.phone {
+    width: 598px;
+    height: auto;
+    min-height: 500px;
+    background: #000000;
+    position: relative;
+    border: 1px solid #2f3336;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    align-self: flex-start;
+}
+
+.thread-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #000000;
+}
+
+/* SINGLE TWEET STYLE */
+.main-tweet {
+    padding: 12px 16px;
+    border-bottom: 1px solid #2f3336;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+.main-tweet-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.pfp-wrapper {
+    position: relative;
+    margin-right: 12px;
+}
+.profpic {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #333;
+    object-fit: cover;
+    display: block;
+}
+.v-thread-line {
+    position: absolute;
+    top: 52px;
+    left: 24px;
+    bottom: -28px;
+    width: 2px;
+    background: #333639;
+    z-index: 1;
+}
+.main-user-info {
+    display: flex;
+    flex-direction: column;
+}
+.display-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #f7f9fa;
+    line-height: 1.3;
+}
+.username {
+    color: #6e767d;
+    font-size: 15px;
+}
+.tweet-text {
+    font-size: 22px;
+    color: #f7f9fa;
+    line-height: 1.3;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    margin-top: 4px;
+}
+.attached-image {
+    width: 100%;
+    border-radius: 16px;
+    margin-top: 12px;
+    border: 1px solid #2f3336;
+    display: block;
+}
+.main-tweet-meta {
+    color: #6e767d;
+    font-size: 15px;
+    margin-top: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #2f3336;
+}
+.main-tweet-metrics {
+    padding: 16px 0;
+    border-bottom: 1px solid #2f3336;
+    font-size: 15px;
+    display: flex;
+    gap: 20px;
+}
+.metric-item {
+    color: #6e767d;
+}
+.metric-item strong {
+    color: #f7f9fa;
+}
+
+/* ACTION BAR STYLE FIX */
+.action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 48px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #2f3336;
+}
+.action-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.action-icon-wrapper i {
+    font-size: 18px;
+    color: #6e767d;
+}
+
+/* REPLY CHAIN STYLE */
+.reply-tweet {
+    padding: 12px 16px;
+    border-bottom: 1px solid #2f3336;
+    display: flex;
+    position: relative;
+    box-sizing: border-box;
+}
+.reply-pfp-wrapper {
+    position: relative;
+    margin-right: 12px;
+    width: 48px;
+    flex-shrink: 0;
+}
+.reply-v-line {
+    position: absolute;
+    top: 52px;
+    left: 24px;
+    bottom: -24px;
+    width: 2px;
+    background: #333639;
+    z-index: 1;
+}
+.reply-main-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.reply-user-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.reply-dot {
+    color: #6e767d;
+    font-size: 15px;
+}
+.reply-context {
+    color: #6e767d;
+    font-size: 15px;
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+.reply-context span {
+    color: #1d9bf0;
+}
+.reply-tweet .tweet-text {
+    font-size: 15px;
+    color: #f7f9fa;
+    line-height: 1.3;
+    margin-top: 2px;
+}
+.reply-action-bar {
+    display: flex;
+    justify-content: space-between;
+    max-width: 425px;
+    margin-top: 12px;
+}
+.reply-icon-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.reply-icon-item i {
+    font-size: 15px;
+    color: #6e767d;
+}
+</style>
+</head>
+<body>
+
+<div class="panel">
+    <h3>X Thread Generator Pro</h3>
+    
+    <label>Display Name</label>
+    <input type="text" id="p-name" value="">
+    
+    <label>Username</label>
+    <input type="text" id="p-user" value="@">
+    
+    <label>Profile Picture</label>
+    <input type="file" id="p-pfp" accept="image/*">
+    
+    <div class="divider"></div>
+    
+    <h4>1. Tweet Utama (Single Tweet)</h4>
+    <label>Isi Tweet</label>
+    <textarea id="p-main-text"></textarea>
+    
+    <label>Foto Tweet Utama (Opsional)</label>
+    <input type="file" id="p-main-img" accept="image/*">
+    
+    <label>Waktu, Tanggal & Client</label>
+    <input type="text" id="p-main-meta" value="07:24 PM · 16 Sep 25 · @seyraphineyap">
+    
+    <div class="metrics-group">
+        <div>
+            <label>Retweets</label>
+            <input type="text" id="p-main-rt" value="142">
+        </div>
+        <div>
+            <label>Likes</label>
+            <input type="text" id="p-main-like" value="1,842">
+        </div>
+    </div>
+    
+    <div class="sub-divider"></div>
+    
+    <h4>2. Rantai Balasan (Reply Chain)</h4>
+    <label>Isi Teks Balasan</label>
+    <textarea id="p-reply-text" placeholder="Ketik isi tweet balasan di sini..."></textarea>
+    
+    <label>Foto Balasan (Opsional)</label>
+    <input type="file" id="p-reply-img" accept="image/*">
+    
+    <label>Waktu Balasan (Misal: 23m atau 2h)</label>
+    <input type="text" id="p-reply-time" value="23m">
+    
+    <button id="add-reply-btn" style="background: #34c759;">Tambah ke Rantai Balasan</button>
+    <button id="clear-reply-btn" style="background: #e0245e; margin-top:0;">Hapus Semua Balasan</button>
+    
+    <div class="divider"></div>
+    <button id="save-screenshot-btn" style="background:#ffffff; color:#000000; padding: 12px; margin-top:10px;">Save Full Screenshot</button>
+</div>
+
+<div class="phone" id="phoneframe">
+    <div class="thread-container" id="threadbox">
+        </div>
+</div>
+
+<script>
+let state = {
+    name: "",
+    username: "@",
+    pfp: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23333333'/></svg>",
+    mainText: "",
+    mainImage: null,
+    mainMeta: "07:24 PM · 16 Sep 25 · @seyraphineyap",
+    retweets: "142",
+    likes: "1,842",
+    replies: []
+};
+
+let tempReplyImage = null;
+
+// Menggunakan Class Ikon Resmi Font-Awesome v6 yang Presisi untuk X/Twitter
+const mainBarIcons = `
+    <div class="action-icon-wrapper"><i class="fa-regular fa-comment"></i></div>
+    <div class="action-icon-wrapper"><i class="fa-solid fa-retweet"></i></div>
+    <div class="action-icon-wrapper"><i class="fa-regular fa-heart"></i></div>
+    <div class="action-icon-wrapper"><i class="fa-solid fa-chart-simple"></i></div>
+    <div class="action-icon-wrapper"><i class="fa-regular fa-share-from-square"></i></div>
+`;
+
+const replyBarIcons = `
+    <div class="reply-icon-item"><i class="fa-regular fa-comment"></i></div>
+    <div class="reply-icon-item"><i class="fa-solid fa-retweet"></i></div>
+    <div class="reply-icon-item"><i class="fa-regular fa-heart"></i></div>
+    <div class="reply-icon-item"><i class="fa-solid fa-chart-simple"></i></div>
+    <div class="reply-icon-item"><i class="fa-regular fa-share-from-square"></i></div>
+`;
+
+function renderThread(hideLines = false) {
+    const container = document.getElementById('threadbox');
+    container.innerHTML = '';
+
+    // Render Tweet Utama
+    const mainTweetDiv = document.createElement('div');
+    mainTweetDiv.className = 'main-tweet';
+    
+    let mainImgHtml = state.mainImage ? `<img src="${state.mainImage}" class="attached-image">` : '';
+    let showMainLine = state.replies.length > 0 && !hideLines;
+
+    mainTweetDiv.innerHTML = `
+        <div class="main-tweet-header">
+            <div class="pfp-wrapper">
+                <img src="${state.pfp}" class="profpic">
+                <div class="v-thread-line" style="display: ${showMainLine ? 'block' : 'none'}"></div>
+            </div>
+            <div class="main-user-info">
+                <span class="display-name">${state.name}</span>
+                <span class="username">${state.username}</span>
+            </div>
+        </div>
+        <div class="tweet-text">${state.mainText}</div>
+        ${mainImgHtml}
+        <div class="main-tweet-meta">${state.mainMeta}</div>
+        <div class="main-tweet-metrics">
+            <div class="metric-item"><strong>${state.retweets}</strong> Retweets</div>
+            <div class="metric-item"><strong>${state.likes}</strong> Likes</div>
+        </div>
+        <div class="action-bar">${mainBarIcons}</div>
+    `;
+    container.appendChild(mainTweetDiv);
+
+    // Render Rantai Balasan
+    state.replies.forEach((reply, index) => {
+        const replyDiv = document.createElement('div');
+        replyDiv.className = 'reply-tweet';
+
+        let replyImgHtml = reply.image ? `<img src="${reply.image}" class="attached-image">` : '';
+        let isLast = index === state.replies.length - 1;
+        let showReplyLine = !isLast && !hideLines;
+
+        replyDiv.innerHTML = `
+            <div class="reply-pfp-wrapper">
+                <img src="${state.pfp}" class="profpic">
+                <div class="reply-v-line" style="display: ${showReplyLine ? 'block' : 'none'}"></div>
+            </div>
+            <div class="reply-main-content">
+                <div class="reply-user-row">
+                    <span class="display-name">${state.name}</span>
+                    <span class="username">${state.username}</span>
+                    <span class="reply-dot">·</span>
+                    <span class="username">${reply.time}</span>
+                </div>
+                <div class="reply-context">Replying to <span class="context-user">${state.username}</span></div>
+                <div class="tweet-text">${reply.text}</div>
+                ${replyImgHtml}
+                <div class="reply-action-bar">${replyBarIcons}</div>
+            </div>
+        `;
+        container.appendChild(replyDiv);
+    });
+}
+
+function syncInputs() {
+    state.name = document.getElementById('p-name').value;
+    state.username = document.getElementById('p-user').value;
+    state.mainText = document.getElementById('p-main-text').value;
+    state.mainMeta = document.getElementById('p-main-meta').value;
+    state.retweets = document.getElementById('p-main-rt').value;
+    state.likes = document.getElementById('p-main-like').value;
+    renderThread();
+}
+
+document.getElementById('p-name').addEventListener('input', syncInputs);
+document.getElementById('p-user').addEventListener('input', syncInputs);
+document.getElementById('p-main-text').addEventListener('input', syncInputs);
+document.getElementById('p-main-meta').addEventListener('input', syncInputs);
+document.getElementById('p-main-rt').addEventListener('input', syncInputs);
+document.getElementById('p-main-like').addEventListener('input', syncInputs);
+
+document.getElementById('p-pfp').addEventListener('change', function(e) {
+    let file = e.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = function(event) {
+        state.pfp = event.target.result;
+        renderThread();
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('p-main-img').addEventListener('change', function(e) {
+    let file = e.target.files[0];
+    if (!file) {
+        state.mainImage = null;
+        renderThread();
+        return;
+    }
+    let reader = new FileReader();
+    reader.onload = function(event) {
+        state.mainImage = event.target.result;
+        renderThread();
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('p-reply-img').addEventListener('change', function(e) {
+    let file = e.target.files[0];
+    if (!file) {
+        tempReplyImage = null;
+        return;
+    }
+    let reader = new FileReader();
+    reader.onload = function(event) {
+        tempReplyImage = event.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('add-reply-btn').addEventListener('click', function() {
+    let textNode = document.getElementById('p-reply-text');
+    let timeNode = document.getElementById('p-reply-time');
+    
+    if (textNode.value.trim() === '') return;
+
+    state.replies.push({
+        text: textNode.value,
+        time: timeNode.value || '23m',
+        image: tempReplyImage
+    });
+
+    textNode.value = '';
+    tempReplyImage = null;
+    document.getElementById('p-reply-img').value = '';
+    
+    renderThread();
+});
+
+document.getElementById('clear-reply-btn').addEventListener('click', function() {
+    state.replies = [];
+    renderThread();
+});
+
+document.getElementById('save-screenshot-btn').addEventListener('click', function() {
+    renderThread(true);
+
+    html2canvas(document.getElementById('phoneframe'), {
+        scale: 2,
+        backgroundColor: '#000000',
+        useCORS: true
+    }).then(function(canvas) {
+        let link = document.createElement('a');
+        link.download = 'x-perfect-thread.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        renderThread(false);
+    });
+});
+
+renderThread();
+</script>
+
+</body>
+</html>
