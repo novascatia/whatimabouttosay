@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AU Story Text Note Editor</title>
+<style>
+    /* Styling Dasar Halaman */
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #fcfcfc; /* Warna latar belakang kertas putih gading bersih */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    /* Container Utama Tempat Menulis */
+    .note-container {
+        width: 100%;
+        max-width: 650px; /* Lebar optimal membaca teks cerita */
+        background-color: #ffffff;
+        min-height: 100vh;
+        box-sizing: border-box;
+        padding: 40px 24px 80px 24px; /* Padding sisi atas, samping, bawah */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.03); /* Bayangan super tipis di kanan-kiri */
+    }
+
+    /* Area Mengetik (Editor) */
+    .story-editor {
+        width: 100%;
+        min-height: 80vh;
+        border: none;
+        outline: none;
+        resize: none;
+        background: transparent;
+        
+        /* Font khusus bacaan tebal & nyaman mirip contoh gambarmu */
+        font-family: "Georgia", "Times New Roman", Times, serif;
+        font-size: 20px;
+        color: #333333; /* Warna abu-abu gelap agar mata tidak lelah */
+        line-height: 1.8; /* Jarak antar baris yang renggang dan rapi */
+        
+        /* Mengatur spasi antar paragraf otomatis saat menekan Enter */
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /* Petunjuk awal saat editor kosong */
+    .story-editor:empty:before {
+        content: "Mulai ketik cerita atau catatanmu di sini...\n\nGunakan tanda petik untuk dialog, misalnya:\n\"Lohh ya jelas sama lah bang! Kalo beda bukan kita namanya.\" Seru Hendery.";
+        color: #aaaaaa;
+        font-style: italic;
+        font-size: 18px;
+    }
+
+    /* Info Status Tambahan di Pojok Bawah (Opsional) */
+    .footer-counter {
+        position: fixed;
+        bottom: 15px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #ffffff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        pointer-events: none;
+        font-family: sans-serif;
+        opacity: 0.8;
+    }
+</style>
+</head>
+<body>
+
+<div class="note-container">
+    <div class="story-editor" id="editor" contenteditable="true">@seyraphineyap.</div>
+</div>
+
+<div class="footer-counter" id="counter">Karakter: 236</div>
+
+<script>
+    const editor = document.getElementById('editor');
+    const counter = document.getElementById('counter');
+
+    // Fitur menghitung jumlah karakter secara real-time saat kamu mengetik
+    editor.addEventListener('input', () => {
+        let text = editor.innerText || "";
+        // Jika kosong total, reset tulisan placeholder
+        if (text.trim() === "") {
+            editor.innerHTML = "";
+            text = "";
+        }
+        counter.innerText = `Karakter: ${text.length}`;
+    });
+</script>
+
+</body>
+</html>
