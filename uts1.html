@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Filsafat Manusia - Dark Mode</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            /* Vercel/Linear inspired dark mode palette */
+            --bg-body: #000000;
+            --bg-card: #0a0a0a;
+            --border: #27272a;
+            --border-hover: #3f3f46;
+            --text-main: #ededed;
+            --text-muted: #a1a1aa;
+            
+            /* Primary button: White on dark for high contrast */
+            --primary: #ededed;
+            --primary-text: #0a0a0a;
+            --primary-hover: #d4d4d8;
+            
+            /* Status colors */
+            --correct-bg: rgba(16, 185, 129, 0.1);
+            --correct-border: #10b981;
+            --correct-text: #34d399;
+            
+            --wrong-bg: rgba(239, 68, 68, 0.1);
+            --wrong-border: #ef4444;
+            --wrong-text: #f87171;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Subtle grid background for premium feel */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), 
+                              linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.2;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 10px 30px -10px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .counter {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            font-weight: 500;
+            background: #18181b;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .question {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            font-weight: 500;
+            margin-bottom: 32px;
+            color: var(--text-main);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            line-height: 1.5;
+            opacity: 0; /* For animation */
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--border-hover);
+            color: var(--text-main);
+            background: #18181b;
+            transform: translateY(-2px);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .option-btn.correct {
+            background: var(--correct-bg);
+            border-color: var(--correct-border);
+            color: var(--correct-text);
+            font-weight: 500;
+        }
+
+        .option-btn.wrong {
+            background: var(--wrong-bg);
+            border-color: var(--wrong-border);
+            color: var(--wrong-text);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-text);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Smooth Animations */
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Screens */
+        .screen {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .start-screen, .result-screen {
+            text-align: center;
+            align-items: center;
+            padding: 32px 0;
+        }
+
+        .start-screen h1 {
+            font-size: 1.75rem;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .start-screen p {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        .score {
+            font-size: 5rem;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+            margin: 24px 0;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .score span {
+            font-size: 2rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        #next-btn {
+            align-self: flex-end;
+            width: auto;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        #next-btn.show {
+            display: block !important;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container animate-fade-in">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen start-screen">
+            <h1 class="animate-slide-up" style="animation-delay: 0.1s; opacity: 0;">Filsafat Manusia</h1>
+            <p class="animate-slide-up" style="animation-delay: 0.2s; opacity: 0;">40 Soal random dari bab 1 sampe 10</p>
+            <button class="btn-primary animate-slide-up" style="animation-delay: 0.3s; opacity: 0; max-width: 200px;" onclick="startQuiz()">Mulai Ujian</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen hidden">
+            <header>
+                <div class="header-title">Mid-Term Practice</div>
+                <div class="counter"><span id="current-q">1</span> / 40</div>
+            </header>
+            
+            <div class="question" id="question">Question here</div>
+            
+            <div class="options" id="options">
+                <!-- Pilihan jawaban di-generate via JS -->
+            </div>
+
+            <button class="btn-primary hidden" id="next-btn" onclick="nextQuestion()">Selanjutnya &rarr;</button>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen result-screen hidden">
+            <h2 class="animate-slide-up" style="animation-delay: 0.1s; font-size: 1.25rem; font-weight: 500; color: var(--text-muted); opacity: 0;">Skor Akhir</h2>
+            <div class="score animate-slide-up" id="final-score" style="animation-delay: 0.2s; opacity: 0;">0<span>/40</span></div>
+            <p class="animate-slide-up" id="result-message" style="animation-delay: 0.3s; color: var(--text-main); margin-bottom: 40px; font-size: 1rem; opacity: 0;"></p>
+            <button class="btn-primary animate-slide-up" style="animation-delay: 0.4s; max-width: 200px; opacity: 0;" onclick="startQuiz()">Ulangi Ujian</button>
+        </div>
+
+    </div>
+
+    <script>
+        const database = [
+            {q: "Ungkapan Gnoti Seauton (bahasa Yunani) berarti:", options: ["Saya berpikir maka saya ada", "Kenalilah dirimu", "Cintailah sesamamu", "Manusia adalah ukuran segalanya"], answer: "Kenalilah dirimu"},
+            {q: "Obyek material Filsafat Manusia adalah:", options: ["Realitas", "Alam semesta", "Materi", "Manusia"], answer: "Manusia"},
+            {q: "Obyek formal Filsafat Manusia adalah:", options: ["Realitas", "Man as man (Segala aspek manusia)", "Fisika Manusia", "Alam semesta"], answer: "Man as man (Segala aspek manusia)"},
+            {q: "Perbedaan Filsafat Manusia dan Psikologi terletak dalam hal:", options: ["Obyek material", "Obyek formal", "Metode", "Tujuan"], answer: "Obyek formal"},
+            {q: "Pertanyaan 'what is man?' meneropong manusia berdasarkan:", options: ["Tempatnya dalam seluruh realitas", "Asal usulnya", "Hasil karyanya", "Peringkatnya dalam Tangga Alam"], answer: "Tempatnya dalam seluruh realitas"},
+            {q: "Kata-kata Protagoras yang kemudian menjadi motto filsafat manusia adalah:", options: ["Gnoti seauton", "Man is the measure of all things", "Segalanya adalah air", "Panta rei"], answer: "Man is the measure of all things"},
+            {q: "Pra-eksistensi jiwa adalah pandangan Plato bahwa:", options: ["Jiwa kekal", "Jiwa sudah ada lebih dulu sebelum bersatu dengan tubuh", "Tubuh adalah penjara jiwa", "Tubuh adalah kuburan bagi jiwa"], answer: "Jiwa sudah ada lebih dulu sebelum bersatu dengan tubuh"},
+            {q: "Menurut Aristoteles jiwa dan tubuh merupakan:", options: ["Kesatuan mutlak", "Dua substansi berbeda", "Satu substansi", "Kebetulan saja"], answer: "Kesatuan mutlak"},
+            {q: "Menurut Pascal, agama merupakan logika absurditas, yang berarti:", options: ["Agama itu absurd", "Agama itu tidak masuk akal", "Hanya agama yang dapat menangkap absurditas manusia", "Semua agama sama"], answer: "Hanya agama yang dapat menangkap absurditas manusia"},
+            {q: "Cassirer mendefinisikan manusia sebagai:", options: ["Symbolic animal", "Symbol-making animal", "Religious animal", "Animal simbolicum"], answer: "Animal simbolicum"},
+            {q: "Dalam semua organisme hidup terdapat metabolisme. Metabolisme berarti:", options: ["Stimulus luar", "Reaksi kimia dalam sel-sel organisme", "Pencernaan", "Pembuangan"], answer: "Reaksi kimia dalam sel-sel organisme"},
+            {q: "Menurut pandangan mekanisme, aktivitas kehidupan bersifat:", options: ["Teleologis", "Mekanistik", "Empiris", "Teologis"], answer: "Mekanistik"},
+            {q: "Salah satu cabang ilmu biologi yaitu exobiologi (astrobiologi) mempelajari:", options: ["Penyebab kanker", "Kehidupan di planet lain di luar planet bumi", "Makluk biologis purba", "UFO"], answer: "Kehidupan di planet lain di luar planet bumi"},
+            {q: "Manusia didefinisikan sebagai rational animal. Ungkapan ini berarti:", options: ["Manusia yang memiliki rasio", "Hewan yang memiliki rasio", "Rasio manusia itu terbatas", "Rasio dan emosi"], answer: "Hewan yang memiliki rasio"},
+            {q: "Hylemorfisme adalah konsep tentang:", options: ["Materi dan bentuk", "Materi dan forma", "Jiwa dan tubuh", "Jiwa, tubuh, dan roh"], answer: "Materi dan forma"},
+            {q: "Menurut Descartes, manusia bukan rational animal melainkan:", options: ["Cogito ergo sum", "A thinking thing", "A mind", "Homo absconditus"], answer: "A thinking thing"},
+            {q: "Ungkapan Cogito Ergo Sum berasal dari filsuf:", options: ["Aristoteles", "Diderot", "Jean-Paul Sartre", "Rene Descartes"], answer: "Rene Descartes"},
+            {q: "Definisi manusia sebagai religious animal mendominasi kurun waktu:", options: ["Masa klasik Yunani", "Abad pertengahan", "Masa Modern", "Masa Renesans"], answer: "Abad pertengahan"},
+            {q: "Argumen Thomas Aquinas untuk membuktikan eksistensi Allah dinamakan:", options: ["Quinquae Viae", "Lima Jalan", "Argumentum ad Verecundiam", "Veritas aeterna"], answer: "Quinquae Viae"},
+            {q: "Istilah Scalla Naturae (bahasa Latin) berarti:", options: ["Angin surga", "Skala lingkungan", "Skala alam", "Tangga alam"], answer: "Tangga alam"},
+            {q: "Puncak dari Scalla Naturae ialah:", options: ["Manusia", "Malaikat", "Tuhan sang Pencipta", "Roh"], answer: "Tuhan sang Pencipta"},
+            {q: "Konsep manusia sebagai symbolic animal dicetuskan oleh:", options: ["Alexis Carrel", "Ernst Cassirer", "Rene Descartes", "Nicolaus Copernicus"], answer: "Ernst Cassirer"},
+            {q: "Perbedaan antara manusia dan hewan dalam hal simbol dan tanda adalah:", options: ["Manusia dapat mengerti tanda, hewan tidak", "Manusia dapat mengerti simbol, hewan tidak", "Manusia dapat menciptakan tanda, hewan tidak", "Manusia dapat menciptakan simbol, hewan tidak"], answer: "Manusia dapat menciptakan simbol, hewan tidak"},
+            {q: "Arti ungkapan bahasa Latin mens sana in corpore sano adalah:", options: ["Aku berpikir maka aku ada", "Jiwa yang sehat dalam tubuh yang sehat", "Di sini senang di sana senang", "Profit adalah tujuan korporasi"], answer: "Jiwa yang sehat dalam tubuh yang sehat"},
+            {q: "Karakteristik spesifik tubuh manusia yang memungkinkan berkembangnya aktivitas kultural adalah:", options: ["Tidak mempunyai sayap", "Posisi tubuh tegak", "Otak yang kurang berbobot", "Memiliki lima indra"], answer: "Posisi tubuh tegak"},
+            {q: "Ungkapan tabula rasa berasal dari filsuf:", options: ["Rene Descartes", "Thomas Aquinas", "John Locke", "Francis Bacon"], answer: "John Locke"},
+            {q: "Konsep jiwa sebagai Id, Ego, Superego diajarkan oleh:", options: ["Rene Descartes", "Hypocrates", "Sigmund Freud", "Ernst Cassirer"], answer: "Sigmund Freud"},
+            {q: "Berdasarkan konsep Id, Ego, Superego, di manakah tempatnya/sarang libido dan agresi?", options: ["Id", "Ego", "Superego", "Suara hati"], answer: "Id"},
+            {q: "Yang dimaksudkan dengan Hominisasi adalah:", options: ["Masalah kapan manusia (jiwa) muncul?", "Masalah perkawinan manusia berjenis kelamin sama", "Masalah kemanakah perginya jiwa sesudah berpisah dengan tubuh?", "Masalah subsistensi jiwa"], answer: "Masalah kapan manusia (jiwa) muncul?"},
+            {q: "Jiwa bersifat sederhana (simplex) berarti:", options: ["Jiwa tak dapat dilihat", "Jiwa itu kekal", "Jiwa tidak mempunyai bagian-bagian yang berbeda", "Jiwa bukan kuantitas yang mempunyai keluasan"], answer: "Jiwa tidak mempunyai bagian-bagian yang berbeda"},
+            {q: "Yang dimaksudkan dengan Mind-Body Problem ialah masalah:", options: ["Bagaimana jiwa hidup tanpa tubuh", "Bagaimana persisnya interaksi antara jiwa dan tubuh", "Kemana perginya jiwa sesudah kematian tubuh", "Kapan munculnya jiwa"], answer: "Bagaimana persisnya interaksi antara jiwa dan tubuh"},
+            {q: "Tokoh berikut pernah berdiskusi panjang lebar dengan Rene Descartes tentang Mind-Body Problem:", options: ["Plato", "Ratu Elisabeth dari Bohemia", "Jean-Paul Sartre", "Friedrich Nietzsche"], answer: "Ratu Elisabeth dari Bohemia"},
+            {q: "Pandangan materialisme mengajarkan bahwa:", options: ["Manusia identik dengan otak", "Manusia identik dengan tubuh", "Yang ada hanya tubuh, jiwa tidak ada", "Yang riil hanya tubuh, jiwa hanyalah aspek tubuh"], answer: "Yang ada hanya tubuh, jiwa tidak ada"},
+            {q: "Dalam filsafat manusia dipertahankan konsep Mind Over Matter yang berarti:", options: ["Jiwalah yang memengaruhi tubuh", "Tubuhlah yang memengaruhi jiwa", "Jiwa dan tubuh sama kuat", "Tuhan ada di balik jiwa dan tubuh"], answer: "Jiwalah yang memengaruhi tubuh"},
+            {q: "Pilihlah satu pernyataan yang benar tentang Free will:", options: ["Free will merupakan syarat bagi tanggung jawab moral", "Free will bukan merupakan syarat bagi tanggung jawab moral", "Tanggung jawab moral merupakan syarat bagi free will", "Free will lebih penting dari tanggung jawab moral"], answer: "Free will merupakan syarat bagi tanggung jawab moral"},
+            {q: "Kompatibilisme mengajarkan bahwa:", options: ["Kehendak bebas tidak bertentangan dengan determinisme", "Manusia memiliki kehendak bebas meskipun ada determinisme", "Kehendak bebas bertentangan dengan determinisme", "Jiwa itu kekal"], answer: "Kehendak bebas tidak bertentangan dengan determinisme"},
+            {q: "Indeterminisme mengajarkan bahwa:", options: ["Determinisme harus ditolak", "Ada kebebasan di dunia fisik", "Ada kausalitas di alam raya", "Manusia adalah rational animal"], answer: "Ada kebebasan di dunia fisik"},
+            {q: "Apa itu kloning?", options: ["Reproduksi alamiah", "Teknik pembelahan sel", "Reproduksi melalui rekayasa genetis", "Teknik perkawinan campuran"], answer: "Reproduksi melalui rekayasa genetis"},
+            {q: "Dalam kaitan dengan filsafat manusia, alasan utama menolak kloning manusia adalah:", options: ["Ketimpangan ekonomi", "Dehumanisasi", "Hominisasi", "Perubahan iklim"], answer: "Dehumanisasi"},
+            {q: "Extraterrestrial life berarti:", options: ["Kehidupan di planit Mars", "Kehidupan di bulan", "Kehidupan di bintang-bintang", "Kehidupan di planit lain di luar planit bumi"], answer: "Kehidupan di planit lain di luar planit bumi"}
+        ];
+
+        let questions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        function getElement(id) { return document.getElementById(id); }
+
+        function shuffleArray(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        function triggerReflow(element) {
+            element.classList.remove('animate-fade-in');
+            void element.offsetWidth; // Trigger reflow
+            element.classList.add('animate-fade-in');
+        }
+
+        function startQuiz() {
+            questions = shuffleArray(JSON.parse(JSON.stringify(database)));
+            currentIndex = 0;
+            score = 0;
+            
+            getElement('start-screen').classList.add('hidden');
+            getElement('result-screen').classList.add('hidden');
+            
+            const quizScreen = getElement('quiz-screen');
+            quizScreen.classList.remove('hidden');
+            triggerReflow(quizScreen);
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            
+            const nextBtn = getElement('next-btn');
+            nextBtn.classList.remove('show');
+            setTimeout(() => nextBtn.classList.add('hidden'), 300); // Wait for transition
+            
+            getElement('current-q').innerText = currentIndex + 1;
+            
+            const questionEl = getElement('question');
+            const currentData = questions[currentIndex];
+            questionEl.innerText = currentData.q;
+            
+            // Animate question text
+            questionEl.style.opacity = '0';
+            questionEl.classList.remove('animate-fade-in');
+            void questionEl.offsetWidth;
+            questionEl.classList.add('animate-fade-in');
+            
+            let optionsData = shuffleArray([...currentData.options]);
+            const optionsContainer = getElement('options');
+            optionsContainer.innerHTML = '';
+            
+            // Staggered slide-up for options
+            optionsData.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn animate-slide-up';
+                btn.style.animationDelay = `${index * 0.08}s`;
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(btn, opt, currentData.answer);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(btn, selected, correct) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => {
+                b.disabled = true;
+                if (b.innerText === correct) {
+                    b.classList.add('correct');
+                }
+            });
+
+            if (selected === correct) {
+                score++;
+            } else {
+                btn.classList.add('wrong');
+            }
+
+            const nextBtn = getElement('next-btn');
+            nextBtn.classList.remove('hidden');
+            setTimeout(() => nextBtn.classList.add('show'), 10); // small delay to trigger transition
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            getElement('quiz-screen').classList.add('hidden');
+            
+            const resultScreen = getElement('result-screen');
+            resultScreen.classList.remove('hidden');
+            
+            getElement('final-score').innerHTML = `${score}<span>/40</span>`;
+            
+            const msg = getElement('result-message');
+            if (score === 40) msg.innerText = "Kok bisa bener semua.. chatgpt y?";
+            else if (score >= 30) msg.innerText = "Oklh";
+            else if (score >= 20) msg.innerText = "Erm.. kurangin main game";
+            else msg.innerText = "Balik tk aj ngtod";
+            
+            // Restart animations for result screen elements
+            const animatedElements = resultScreen.querySelectorAll('.animate-slide-up');
+            animatedElements.forEach(el => {
+                el.classList.remove('animate-slide-up');
+                void el.offsetWidth;
+                el.classList.add('animate-slide-up');
+            });
+        }
+    </script>
+</body>
+</html>
