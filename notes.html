@@ -43,6 +43,14 @@
                 transform: translateY(0) scale(1);
             }
         }
+
+        /* Additional styles for content formatting */
+        .highlight-box {
+            @apply bg-slate-900 border border-slate-800 p-4 rounded-xl;
+        }
+        .term {
+            @apply text-emerald-400 font-bold;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-emerald-500 selection:text-slate-950">
@@ -104,7 +112,7 @@
             </div>
             
             <div class="mt-8 pt-4 border-t border-slate-800 text-[11px] text-slate-500">
-                Made with <3 by Rama.
+                Made with &lt;3 by Rama.
             </div>
         </aside>
 
@@ -124,41 +132,45 @@
                 <section class="space-y-4">
                     <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Learned Helplessness (Ketidakberdayaan yang Dipelajari)</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Kondisi psikologis di mana individu merasa bahwa mereka tidak memiliki kontrol atas peristiwa buruk yang menimpa mereka. Kondisi ini bersifat <strong>pasif</strong> dan terjadi akibat proses belajar di masa lalu di mana tindakan terbukti tidak menghasilkan perubahan. Seligman membuktikannya lewat eksperimen laboratorium, yang kemudian ditarik sebagai analogi klinis utama penyebab terjadinya <strong>depresi</strong> pada manusia.
+                        <span class="term">Definisi Inti:</span> Kondisi psikologis di mana organisme (manusia/hewan) belajar bahwa perilaku dan tindakannya tidak memiliki pengaruh terhadap hasil yang diterima (terutama hasil yang menyakitkan). Ini menciptakan keyakinan pasif bahwa segala upaya adalah sia-sia.
                     </p>
+                    <ul class="list-disc list-inside text-sm text-slate-400 space-y-2 ml-2">
+                        <li><strong>Eksperimen Klasik:</strong> Seligman melakukan eksperimen pada anjing yang diberi kejutan listrik. Anjing yang sebelumnya diikat dan tidak bisa lari dari kejutan listrik, pada tahap selanjutnya (saat mereka sebenarnya bisa melompat kabur) memilih untuk diam, pasrah, dan menerima rasa sakit. Mereka telah "belajar" untuk menjadi tidak berdaya.</li>
+                        <li><strong>Aplikasi Klinis:</strong> Konsep ini adalah akar dari model kognitif <strong>Depresi Mayor</strong> pada manusia. Seseorang yang sering mengalami kegagalan bertubi-tubi akan mematikan motivasinya dan merasa depresi karena merasa hilangnya kontrol hidup.</li>
+                    </ul>
                 </section>
 
                 <section class="space-y-4">
                     <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Explanatory Style (Gaya Penjelasan)</h3>
-                    <p class="text-sm text-slate-300 mb-3">Cara kognitif individu dalam menjelaskan kepada diri sendiri mengapa suatu peristiwa kemalangan terjadi. Terbagi atas 3 dimensi krusial:</p>
+                    <p class="text-sm text-slate-300 mb-3">Cara kognitif (habitual) individu dalam menjelaskan kepada dirinya sendiri mengenai sebab-akibat suatu peristiwa kemalangan atau kesuksesan. Terdiri atas 3 dimensi (3P):</p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                        <div class="highlight-box">
                             <h4 class="text-sm font-bold text-white mb-1">1. Permanence (Waktu)</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">Apakah masalah dirasa Permanen (selamanya terjadi) atau Temporary (sementara waktu saja).</p>
+                            <p class="text-xs text-slate-400 leading-relaxed">Apakah masalah ini <span class="text-red-400">Permanen (selamanya, "selalu", "tidak pernah")</span> atau <span class="text-emerald-400">Temporer (sementara, "terkadang", "akhir-akhir ini")</span>.</p>
                         </div>
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                        <div class="highlight-box">
                             <h4 class="text-sm font-bold text-white mb-1">2. Pervasiveness (Ruang Lingkup)</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">Apakah masalah dirasa Universal (merusak semua lini kehidupan) atau Spesifik (hanya di satu area).</p>
+                            <p class="text-xs text-slate-400 leading-relaxed">Apakah masalah ini <span class="text-red-400">Universal (merusak semua area hidup)</span> atau <span class="text-emerald-400">Spesifik (hanya berdampak pada satu hal/area tertentu)</span>.</p>
                         </div>
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                        <div class="highlight-box">
                             <h4 class="text-sm font-bold text-white mb-1">3. Personalization (Sumber)</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">Apakah penyebab dirasa Internal (mutlak salah saya) atau External (karena faktor situasi luar).</p>
+                            <p class="text-xs text-slate-400 leading-relaxed">Apakah penyebabnya <span class="text-red-400">Internal (salah saya mutlak, kebodohan saya)</span> atau <span class="text-emerald-400">Eksternal (faktor luar, kebetulan, salah orang lain)</span>.</p>
                         </div>
                     </div>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Komparasi Gaya Kognitif</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Model ABCDE (Intervensi Learned Optimism)</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Individu Pesimis memandang kegagalan sebagai sesuatu yang permanen, universal, dan internal. Sebaliknya, individu Optimis memandang kegagalan sebagai hal yang sementara, spesifik, dan eksternal.
+                        Optimisme bukan sekadar "berpikir positif", melainkan keterampilan menyanggah pikiran otomatis negatif. Seligman memodifikasi teori Ellis menjadi model ABCDE:
                     </p>
-                </section>
-
-                <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Learned Optimism & Flexible Optimism</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Optimisme adalah keterampilan kognitif yang bisa dilatih (Learned Optimism) lewat intervensi kognitif: Disputation (membantah pikiran negatif), Reattribution (mengubah atribusi penyebab), dan Distraction (mengalihkan perhatian). Seligman menyarankan Flexible Optimism: gunakan optimisme saat ingin memotivasi diri pada situasi yang bisa diubah, namun pakailah realisme/pesimisme ringan saat menghadapi situasi dengan risiko fatal yang sangat tinggi.
-                    </p>
+                    <ul class="list-none text-sm text-slate-400 space-y-2">
+                        <li><span class="term">A - Adversity (Kesulitan):</span> Peristiwa faktual yang memicu stres (Misal: Gagal ujian Stat).</li>
+                        <li><span class="term">B - Belief (Keyakinan):</span> Interpretasi otomatis atas peristiwa tersebut (Misal: "Saya emang bodoh").</li>
+                        <li><span class="term">C - Consequence (Konsekuensi):</span> Dampak emosi dan perilaku (Misal: Menangis, menyerah belajar).</li>
+                        <li><span class="term">D - Disputation (Sanggahan):</span> <strong>KUNCI OPTIMISME.</strong> Berdebat dengan diri sendiri mencari bukti yang melawan <em>Belief</em> negatif (Misal: "Tunggu, saya gak bodoh, nilai Psikodiagnostika saya A kok. Kemarin saya cuma kurang tidur").</li>
+                        <li><span class="term">E - Energization (Energi Baru):</span> Perasaan lega, motivasi, dan optimisme yang muncul setelah sukses melakukan sanggahan.</li>
+                    </ul>
                 </section>
             </div>
 
@@ -174,30 +186,47 @@
                 </div>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Asumsi Utama Holistik-Dinamik</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Konsep D-Needs dan B-Needs</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Manusia termotivasi secara keseluruhan (holistik) oleh satu kebutuhan atau kebutuhan lainnya. Teori ini dinamik karena pemenuhan satu kebutuhan membuat individu langsung bergerak maju menuju pemenuhan tingkat kebutuhan berikutnya. Maslow memelopori aliran Humanistik (Kekuatan Ketiga) yang menitikberatkan pada kesehatan mental dan kreativitas alami manusia.
+                        Maslow membagi motivasi manusia ke dalam dua kategori besar:
+                        <br>1. <span class="term">D-Needs (Deficiency Needs / Kebutuhan Defisit):</span> Meliputi 4 tingkat terbawah (Fisiologis, Aman, Cinta, Penghargaan). Jika tidak dipenuhi, individu akan merasa "kekurangan" dan memicu penyakit mental/fisik. Jika terpenuhi, motivasi untuk mencarinya akan berhenti.
+                        <br>2. <span class="term">B-Needs (Being Needs / Kebutuhan Pertumbuhan):</span> Berada di tingkat Aktualisasi Diri. Pemenuhannya tidak pernah "puas", justru semakin dipenuhi, individu semakin termotivasi untuk terus tumbuh.
                     </p>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Aturan Prepotensi (Prepotency Principle)</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Kebutuhan pada tingkat yang lebih rendah memiliki prioritas dan desakan yang jauh lebih besar untuk dipenuhi terlebih dahulu. Kebutuhan tingkat rendah (Fisiologis & Keamanan) disebut juga Deficit Needs (D-Needs) karena jika tidak terpenuhi akan memicu gangguan kesehatan jasmani/rohani. Sementara tingkat tertinggi disebut Being Needs (B-Needs) yang berorientasi pada pemenuhan potensi diri.
-                    </p>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Rincian 5 Hierarki Kebutuhan Dasar (Conative Needs)</h3>
+                    <div class="space-y-3">
+                        <div class="highlight-box border-l-4 border-emerald-500">
+                            <h4 class="text-sm font-bold text-emerald-400">1. Kebutuhan Fisiologis (Paling Prepoten)</h4>
+                            <p class="text-xs text-slate-400 mt-1">Satu-satunya kebutuhan yang bisa terpenuhi 100% atau bahkan <em>over-satisfied</em> (misal: makan terlalu kenyang). Jika lapar ekstrem, manusia kehilangan kesadaran moral.</p>
+                        </div>
+                        <div class="highlight-box border-l-4 border-emerald-500">
+                            <h4 class="text-sm font-bold text-emerald-400">2. Kebutuhan Rasa Aman (Safety)</h4>
+                            <p class="text-xs text-slate-400 mt-1">Stabilitas, perlindungan hukum, bebas dari ketakutan. Kebutuhan ini <strong>tidak pernah bisa terpenuhi secara mutlak 100%</strong> karena manusia tidak pernah tahu musibah apa yang akan datang.</p>
+                        </div>
+                        <div class="highlight-box border-l-4 border-emerald-500">
+                            <h4 class="text-sm font-bold text-emerald-400">3. Cinta & Keberadaan (Love & Belongingness)</h4>
+                            <p class="text-xs text-slate-400 mt-1">Afeksi, persahabatan, seks yang dilandasi cinta (bukan sekadar seks biologis tingkat 1). Orang yang sejak kecil cukup cinta tidak akan hancur jika sesekali ditolak.</p>
+                        </div>
+                        <div class="highlight-box border-l-4 border-emerald-500">
+                            <h4 class="text-sm font-bold text-emerald-400">4. Penghargaan (Esteem)</h4>
+                            <p class="text-xs text-slate-400 mt-1">Terbagi dua: <em>Reputasi</em> (penghargaan dari luar/prestise) dan <em>Self-Esteem</em> (rasa kompeten dan percaya diri dari dalam). Self-esteem yang sehat bertumpu pada kompetensi nyata, bukan pujian palsu.</p>
+                        </div>
+                        <div class="highlight-box border-l-4 border-emerald-500">
+                            <h4 class="text-sm font-bold text-emerald-400">5. Aktualisasi Diri (Self-Actualization)</h4>
+                            <p class="text-xs text-slate-400 mt-1">Puncak perkembangan. Syarat mencapainya: Bebas dari D-Needs, tidak memiliki patologi psikologis, dan merangkul <strong>B-Values (Nilai-Nilai B)</strong> seperti kebenaran, keadilan, keindahan, kelengkapan.</p>
+                        </div>
+                    </div>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Struktur Hierarki Kebutuhan Dasar</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kategori Kebutuhan Ekstra & Jonah Complex</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Tersusun dari bawah ke atas: (1) Kebutuhan Fisiologis: sandang, pangan, papan, biologis. (2) Kebutuhan Rasa Aman: hukum, stabilitas, proteksi. (3) Kebutuhan Cinta dan Keberadaan: afeksi kelompok, relasi intim. (4) Kebutuhan Penghargaan: status, reputasi, serta rasa percaya diri mandiri. (5) Aktualisasi Diri: mewujudkan potensi bawaan tertinggi individu secara hakiki.
-                    </p>
-                </section>
-
-                <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kebutuhan Tambahan & Jonah Complex</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Maslow mengidentifikasi kebutuhan lain seperti Kebutuhan Kognitif (rasa ingin tahu mendalam), Kebutuhan Estetika (keindahan dan keteraturan visual), dan Kebutuhan Neurotik (patologis sebagai kompensasi kegagalan D-Needs). Sementara itu, hambatan internal terbesar aktualisasi diri disebut Jonah Complex: ketakutan atau kecemasan individu akan kebesaran dirinya sendiri untuk memikul tanggung jawab penuh jika mewujudkan potensi maksimal.
+                        • <span class="term">Kebutuhan Estetika:</span> Dorongan universal akan keindahan dan keteraturan simetris. Orang yang tinggal di tempat kotor/berantakan bisa menjadi sakit secara spiritual.<br>
+                        • <span class="term">Kebutuhan Kognitif:</span> Dorongan epistemik untuk tahu (curiosity), memecahkan misteri, mengorganisasi data. Merupakan prasyarat bagi aktualisasi diri.<br>
+                        • <span class="term">Kebutuhan Neurotik:</span> Selalu mengarah pada stagnasi dan patologi. Bersifat kompensatoris. Contoh: Orang yang kekurangan rasa aman kronis menjadi penimbun harta ekstrem (hoarder).<br><br>
+                        <span class="term">Jonah Complex:</span> Fenomena menghindari takdir atau lari dari potensi maksimal diri. Manusia sering kali gemetar, cemas, dan merasa "tidak pantas" memikul tanggung jawab besar jika ia sukses, sehingga secara tidak sadar menyabotase kesuksesannya sendiri dan memilih hidup medioker (biasa-biasa saja).
                     </p>
                 </section>
             </div>
@@ -214,30 +243,36 @@
                 </div>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Definisi Kepribadian</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Pendekatan Idiografis vs Nomotetis</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Kepribadian adalah organisasi dinamis dari sistem psikofisik dalam diri individu yang menentukan penyesuaian dirinya yang unik terhadap lingkungannya. Allport menekankan keunikan mutlak setiap individu serta peran kesadaran masa kini dibanding masa lalu.
+                        Allport sangat kritis terhadap metode pengukuran statistik konvensional. Ia membedakan metode <span class="term">Nomotetis</span> (mempelajari hukum umum yang berlaku bagi semua orang, seperti alat tes MBTI/Big Five) dengan metode <span class="term">Idiografis / Morfogenik</span> (mempelajari individu secara mendalam dan unik melalui catatan harian, surat, dokumen pribadi). Allport lebih mendukung pendekatan Idiografis karena menganggap setiap manusia itu unik secara absolut.
                     </p>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Struktur Trait (Sifat Kepribadian)</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Dibagi menjadi tiga tingkatan hierarki dominasi: (1) Cardinal Traits: sifat yang sangat kuat, dominan, mengarahkan hampir seluruh perbuatan sepanjang hidup, dan jarang dimiliki semua orang. (2) Central Traits: karakteristik inti (5-10 sifat utama) yang menyusun kepribadian dasar seseorang. (3) Secondary Traits: sifat tambahan yang kurang perifer, tidak konsisten, dan muncul hanya pada situasi spesifik.
-                    </p>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Hierarki Disposisi Personal (Struktur Trait)</h3>
+                    <p class="text-sm text-slate-300 mb-3">Allport menyebut sifat unik individu sebagai <em>Personal Dispositions</em>, dibagi 3 tingkat visibilitas:</p>
+                    <ul class="list-disc list-inside text-sm text-slate-400 space-y-2 ml-2">
+                        <li><span class="term">Cardinal Dispositions (Sifat Kardinal):</span> Sangat mendominasi hidup seseorang hingga identik dengan namanya. Contoh: Machiavellian (manipulatif), Narcissistic, Quixotic, Sadistic. <strong>Hanya sedikit orang yang memiliki sifat kardinal.</strong></li>
+                        <li><span class="term">Central Dispositions (Sifat Sentral):</span> Karakteristik yang mencolok, stabil, berjumlah sekitar 5 sampai 10 sifat per individu. Inilah sifat yang Anda tulis jika diminta mendeskripsikan sahabat Anda (misal: cerdas, pemalu, rajin, pesimis).</li>
+                        <li><span class="term">Secondary Dispositions (Sifat Sekunder):</span> Sifat yang tidak sentral, kurang konsisten, dan muncul hanya dalam situasi tertentu. (Misal: sangat penyabar tapi akan marah besar jika diganggu saat sedang makan).</li>
+                    </ul>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Functional Autonomy (Otonomi Fungsional)</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Otonomi Fungsional (Functional Autonomy)</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Konsep yang menyatakan bahwa motivasi manusia dewasa dapat berjalan secara mandiri (otonom) dan terlepas dari akar historis masa kanak-kanaknya. Terbagi dua: Perseverative Functional Autonomy (rutinitas biologis/mekanis tingkat rendah) dan Propriate Functional Autonomy (otonomi tingkat tinggi terkait minat, nilai hidup, dan sasaran masa depan yang dipilih secara sadar).
+                        Teori Allport yang menentang psikoanalisis Freud (yang percaya masa lalu mengontrol masa kini). Otonomi fungsional menyatakan bahwa motif masa dewasa beroperasi secara independen dari motif masa anak-anak yang memicu perilaku tersebut di awal.
+                        <br><br><strong>Terbagi dua:</strong>
+                        <br>1. <span class="term">Perseverative Functional Autonomy:</span> Tindakan repetitif tanpa reward lagi (Misal: kecanduan ringan, kebiasaan menyelesaikan puzzle).
+                        <br>2. <span class="term">Propriate Functional Autonomy:</span> Berkaitan dengan nilai, minat, dan gaya hidup inti individu. (Misal: Awalnya mahasiswa belajar mati-matian agar tidak dimarahi orang tua. Setelah dewasa, ia tetap belajar mati-matian karena ia menemukan gairah ilmiah dalam ilmu psikologi).
                     </p>
                 </section>
 
                 <section class="space-y-4">
                     <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Konsep Proprium</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Istilah Allport untuk menyebut "Diri" (Self) atau Ego yang disadari penuh. Proprium berkembang melewati 7 tahapan sejak masa bayi hingga dewasa, yang puncaknya ditandai dengan Propriate Striving (penetapan tujuan dan cita-cita hidup jangka panjang).
+                        Proprium adalah istilah Allport untuk "Ego" atau "Self" yang mencakup fungsi sadar, sentral, dan dirasa hangat/penting oleh individu. Proprium bukan benda, melainkan proses perkembangan 7 tahap: (1) Sense of Bodily Me, (2) Self-Identity, (3) Self-Esteem, (4) Self-Extension, (5) Self-Image, (6) Rational Coper, (7) Propriate Striving (puncak kematangan: memiliki cita-cita dan intensi jangka panjang).
                     </p>
                 </section>
             </div>
@@ -254,20 +289,37 @@
                 </div>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Hierarki Organisasi Perilaku</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kriteria Ekstraksi Faktor Eysenck</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Eysenck memandang kepribadian tersusun dari empat tingkat struktural: level terendah adalah Tindakan Spesifik (perilaku sesaat), berkembang menjadi Tindakan Kebiasaan (perilaku diulang), meningkat ke Sifat/Traits (kumpulan kebiasaan berkorelasi), hingga mencapai tingkat tertinggi yaitu Tipe atau Superfaktor.
+                        Eysenck sangat ketat secara empiris. Untuk bisa disebut sebagai dimensi kepribadian yang valid, sebuah faktor harus memenuhi 4 syarat: (1) <strong>Bukti Psikometri</strong> (harus bisa diukur secara statistik), (2) <strong>Hereditas/Genetik</strong> (harus memiliki dasar biologis, bukan sekadar budaya), (3) <strong>Masuk akal secara Teoritis</strong> (sejalan dengan teori psikologi lain), dan (4) <strong>Bukti Sosial</strong> (berkorelasi dengan kejadian nyata di masyarakat, misal kasus kriminalitas).
                     </p>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>3 Superfaktor Utama (Model PEN) & Penjelasan Biologisnya</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Eysenck mengekstraksi 3 superfaktor utama yang berbasis genetik dan fisiologis kuat:<br>
-                        • <strong>Extraversion vs Introversion (E):</strong> Ditentukan oleh tingkat rangsangan kortikal bawaan pada ARAS (Ascending Reticular Activating System). Introvert memiliki rangsangan dasar tinggi sehingga menghindari stimulasi berlebih, sementara ekstrovert memiliki rangsangan dasar rendah sehingga aktif mencari stimulasi luar.<br>
-                        • <strong>Neuroticism vs Stability (N):</strong> Berkaitan dengan ambang reaktivitas emosional pada Sistem Limbik (Amigdala & Hipotalamus). Skor N tinggi menandakan sistem limbik yang sangat reaktif sehingga individu mudah cemas dan emosional.<br>
-                        • <strong>Psychoticism vs Superego Function (P):</strong> Secara biologis dipengaruhi oleh kadar hormon Testosteron dan level enzim monoamine oxidase (MAO). Skor P tinggi cenderung egosentris, impulsif, dingin, tidak berempati, dan antisosial.
-                    </p>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Model PEN & Kedalaman Biologisnya</h3>
+                    <div class="space-y-4">
+                        <div class="highlight-box">
+                            <h4 class="text-sm font-bold text-emerald-400">1. Extraversion (E) vs Introversion</h4>
+                            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                                <strong>Anatomi:</strong> Korteks Serebral melalui ARAS (Ascending Reticular Activating System).<br>
+                                <strong>Mekanisme:</strong> Introvert memiliki gairah kortikal basal (bawaan) yang TINGGI. Mereka cepat over-stimulasi, sehingga menjauhi keramaian. Ekstrovert memiliki gairah kortikal basal RENDAH. Otak mereka "lapar", sehingga butuh keramaian, musik keras, dan pesta untuk mencapai gairah optimal.
+                            </p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4 class="text-sm font-bold text-emerald-400">2. Neuroticism (N) vs Kestabilan Emosi</h4>
+                            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                                <strong>Anatomi:</strong> Sistem Saraf Otonom / Sistem Limbik (Amigdala, Hipokampus, Hipotalamus).<br>
+                                <strong>Mekanisme:</strong> Skor N tinggi berarti sistem limbik sangat reaktif/sensitif (ambang aktivasi rendah). Hal sepele memicu detak jantung cepat, keringat, dan kecemasan tinggi. N adalah dasar utama penyakit neurosis (phobia, OCD). Eysenck menghubungkannya dengan <strong>Diathesis-Stress Model</strong> (Kerentanan genetik + Stresor lingkungan = Sakit mental).
+                            </p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4 class="text-sm font-bold text-emerald-400">3. Psychoticism (P) vs Superego</h4>
+                            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                                <strong>Anatomi:</strong> Endokrinologis (Hormon Testosteron) dan Enzim MAO (Monoamine Oxidase).<br>
+                                <strong>Mekanisme:</strong> Skor P tinggi mengindikasikan sifat dingin, non-konformis, bermusuhan, impulsif, egosentris, dan curiga. Pria cenderung memiliki skor P lebih tinggi dari wanita. Individu P tinggi sangat rentan terhadap gangguan psikotik (skizofrenia) saat di bawah stres ekstrem, atau menjadi sosiopat/kriminal.
+                            </p>
+                        </div>
+                    </div>
                 </section>
             </div>
 
@@ -275,7 +327,7 @@
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Materi 05</span>
-                        <h2 class="text-3xl font-extrabold text-white mt-1">Julian B. Rotter: Teori Kognitif Sosial</h2>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Julian B. Rotter: Teori Belajar Sosial Kognitif</h2>
                     </div>
                     <button id="btn-copy-topic5" onclick="copyTopicText('topic5')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
                         <span>Copy Materi Ini</span>
@@ -283,24 +335,36 @@
                 </div>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>4 Variabel Prediksi Perilaku Spesifik</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Empat Variabel Dasar Prediksi Perilaku Spesifik</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-2">Rotter meyakini perilaku tidak murni mekanis, melainkan digerakkan oleh kognisi rasional tentang ekspektasi masa depan. Rumusnya: <code>BP = f(E + RV)</code></p>
+                    <ul class="list-none space-y-3 text-sm text-slate-400 ml-2">
+                        <li><span class="term">1. Behavior Potential (BP):</span> Potensi probabilitas suatu perilaku spesifik akan dieksekusi. BP selalu relatif terhadap pilihan perilaku lain.</li>
+                        <li><span class="term">2. Expectancy (E):</span> Harapan subjektif (probabilitas kognitif) individu bahwa penguatan tertentu akan muncul menyusul perilakunya. <em>Generalized Expectancy</em> berlaku lintas situasi (misal: "Saya selalu gagal masuk kelompok elit"), <em>Specific Expectancy</em> hanya pada 1 kasus (misal: "Saya pasti menang main ML pake hero ini").</li>
+                        <li><span class="term">3. Reinforcement Value (RV):</span> Nilai atau daya tarik dari penguatan (reward) itu sendiri. Jika probabilitas sukses (E) sama-sama 100%, individu akan memilih RV yang paling tinggi nilainya.</li>
+                        <li><span class="term">4. Psychological Situation (S):</span> Konteks internal dan eksternal. Lingkungan objektif sama, tapi interpretasi psikologisnya beda tiap orang.</li>
+                    </ul>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Enam Kategori Kebutuhan (Needs)</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Perilaku manusia dipahami lewat interaksi dengan lingkungannya yang dipengaruhi proses kognitif. Empat variabel utamanya: (1) Behavior Potential: potensi munculnya perilaku dalam situasi spesifik. (2) Expectancy: keyakinan subjektif akan terjadinya penguatan. (3) Reinforcement Value: tingkat preferensi penguat. (4) Psychological Situation: situasi luar/dalam yang dipersepsikan secara unik oleh individu.
+                        Dalam prediksi perilaku umum (NP = f(FM + NV)), perilaku dipengaruhi oleh kebutuhan besar. Enam kebutuhan Rotter:
+                        (1) <strong>Recognition-Status</strong> (diakui/gengsi), 
+                        (2) <strong>Dominance</strong> (mengontrol orang lain), 
+                        (3) <strong>Independence</strong> (bebas buat keputusan sendiri), 
+                        (4) <strong>Protection-Dependency</strong> (butuh pelindung/diasuh), 
+                        (5) <strong>Love & Affection</strong> (diterima secara intim), 
+                        (6) <strong>Physical Comfort</strong> (kesehatan biologis).
                     </p>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Rumus Prediksi Perilaku</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Locus of Control (Pusat Kendali - Konsep Terpopuler Rotter)</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        • Rumus Spesifik: BP = f(E + RV). Potensi perilaku merupakan fungsi dari harapan akan penguatan ditambah nilai intrinsik penguatan tersebut dalam situasi psikologis.<br>
-                        • Rumus Umum: NP = f(FM + NV). Potensi kebutuhan (Need Potential) merupakan fungsi dari kebebasan bergerak (Freedom of Movement / rata-rata ekspektasi sukses) dan nilai kebutuhan (Need Value).
-                    </p>
-                </section>
-
-                <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Locus of Control (Pusat Kendali)</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Keyakinan individu mengenai sumber kendali atas hasil hidup mereka. Internal Locus of Control: percaya hasil ditentukan oleh usaha, kemampuan, dan keputusan diri sendiri. External Locus of Control: percaya hasil dikendalikan kekuatan luar seperti keberuntungan, takdir, nasib, atau manipulasi orang lain.
+                        Skala I-E (Internal-External) Rotter mengukur ekspektasi umum tentang siapa yang memegang kendali.
+                        <br><br>
+                        • <span class="term">Internal LoC:</span> Keyakinan bahwa sumber <em>reinforcement</em> ada di dalam kendali diri (skill, usaha, inteligensi). Jika gagal, mereka akan instrospeksi. Kinerja lebih tinggi di lingkungan yang butuh kemandirian.
+                        <br>• <span class="term">External LoC:</span> Keyakinan bahwa sumber <em>reinforcement</em> dipegang oleh nasib, keberuntungan, takdir, dosen sentimen, atau orang kuat. Rentan apatis dan menyerah jika menemui jalan buntu.
                     </p>
                 </section>
             </div>
@@ -317,26 +381,30 @@
                 </div>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Manusia sebagai Ilmuwan & Konstruk Pribadi</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Constructive Alternativism & Man-The-Scientist</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Teori ini memandang manusia bertindak aktif seperti seorang ilmuwan (man-the-scientist) yang mengamati, menafsirkan, dan menguji hipotesis hidup. Konstruk pribadi adalah cara atau pola kognitif yang dibangun secara unik oleh seseorang untuk memaknai dan mengantisipasi dunianya. Postulat Dasarnya menyatakan proses psikologis individu diarahkan secara linier oleh cara mereka mengantisipasi peristiwa masa depan.
+                        <span class="term">Constructive Alternativism:</span> Filsafat dasar Kelly yang menyatakan bahwa tidak ada realitas objektif yang mutlak. Alam semesta selalu terbuka untuk di-rekonstruksi atau dimaknai ulang dengan alternatif-alternatif baru.<br>
+                        <span class="term">Man-the-Scientist:</span> Analogi bahwa setiap manusia berperilaku layaknya ilmuwan. Kita mengamati dunia (data), menyusun teori/konstruk (hipotesis), lalu mengujinya melalui perilaku kita (eksperimen) untuk mengantisipasi masa depan.
                     </p>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Sistem Konstruk & Corollary Utama</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        • Dichotomy Corollary: konstruk pribadi bersifat bipolar/dikotomi (hitam-putih).<br>
-                        • Individuality Corollary: setiap individu berbeda dalam mengonstruksi peristiwa yang sama.<br>
-                        • Organization Corollary: konstruk diatur dalam sistem hierarki untuk menekan konflik batin.<br>
-                        • Choice Corollary: individu memilih alternatif dikotomi yang paling menjanjikan penegasan sistem prediksinya.
-                    </p>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Postulat Dasar dan 11 Corollary (Dalil)</h3>
+                    <p class="text-sm text-slate-300 mb-2"><strong>Postulat Dasar:</strong> "Proses seseorang diarahkan secara psikologis oleh cara-cara di mana ia mengantisipasi peristiwa." Konstruk berorientasi ke MASA DEPAN, bukan meratapi masa lalu. Dalil penting (dari 11):</p>
+                    <div class="space-y-2 text-xs text-slate-400 ml-2">
+                        <p><span class="term">1. Construction:</span> Kita mengantisipasi peristiwa dengan menyadari replikasi/tema berulang (hari ini panas, besok kemungkinan panas).</p>
+                        <p><span class="term">2. Individuality:</span> Orang berbeda satu sama lain dalam konstruksi peristiwa (1 kejadian diinterpretasi jadi 100 sudut pandang berbeda).</p>
+                        <p><span class="term">3. Dichotomy:</span> Sistem konstruk bersifat terbatas dan MUTLAK dikotomis/bipolar. "Baik" vs "Buruk", "Ramah" vs "Sombong". (Wajib hafal untuk UTS).</p>
+                        <p><span class="term">4. Choice:</span> Kita selalu memilih kutub dari konstruk dikotomis yang menjanjikan perluasan sistem kita (memilih yang paling aman/paling menguntungkan sistem).</p>
+                        <p><span class="term">5. Range:</span> Sebuah konstruk hanya nyaman dipakai untuk ranah antisipasi tertentu. Konstruk "Cantik vs Jelek" cocok untuk manusia/benda, tapi tidak relevan (out of range) untuk mengukur "Cuaca".</p>
+                        <p><span class="term">6. Sociality:</span> Kita bisa memahami orang lain jika kita mampu "membaca" sistem konstruk orang tersebut (Role-playing).</p>
+                    </div>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kompleksitas Kognitif & Rep Test</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Role Construct Repertory Test (Rep Test)</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Kompleksitas Kognitif adalah kemampuan melihat banyak sudut pandang dan dimensi perbedaan saat menilai orang lain; skor tinggi menandakan fleksibilitas mental yang adaptif. Alat ukur utamanya adalah Role Construct Repertory Test (Rep Test), digunakan untuk mengungkap peta konstruk pribadi tersembunyi dengan membandingkan tiga orang penting dalam hidup individu.
+                        Tes non-standar (kualitatif) buatan Kelly. Klien diminta menuliskan nama 20 orang yang paling berperan dalam hidupnya (Ibu, Ayah, Mantan pacar, Bos, dll). Klien lalu disuruh memilih 3 orang secara acak, dan ditanya: "Dalam hal apa 2 orang ini MIRIP, dan BERBEDA dari 1 orang lainnya?". Tes ini murni membongkar cara (konstruk) klien melihat dunia, tanpa intervensi konsep milik terapis.
                     </p>
                 </section>
             </div>
@@ -345,7 +413,7 @@
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Materi 07</span>
-                        <h2 class="text-3xl font-extrabold text-white mt-1">Albert Bandura: Teori Kognitif Sosial</h2>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Albert Bandura: Teori Kognitif Sosial (Efikasi Diri)</h2>
                     </div>
                     <button id="btn-copy-topic7" onclick="copyTopicText('topic7')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
                         <span>Copy Materi Ini</span>
@@ -353,23 +421,37 @@
                 </div>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Triadic Reciprocal Determinism</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Triadic Reciprocal Determinism & Human Agency</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Model interaksi kausalitas timbal balik yang terus-menerus antara tiga komponen utama: faktor individu/kognitif (P - Person), faktor perilaku nyata (B - Behavior), dan faktor lingkungan luar (E - Environment).
+                        <span class="term">Determinisme Resiprokal Triadik:</span> Bandura menolak behaviorisme ekstrem. Ia merumuskan bahwa perilaku (Behavior), lingkungan (Environment), dan faktor personal/kognitif (Person) saling berinteraksi bolak-balik mengubah satu sama lain.
+                        <br><br>
+                        <span class="term">Human Agency (Agensi Manusia):</span> Manusia adalah produsen dan produk lingkungannya. Manusia memiliki agensi (kendali sadar) lewat: 
+                        (1) <em>Intentionality</em> (menyusun rencana proaktif), 
+                        (2) <em>Forethought</em> (menetapkan tujuan & memprediksi hasil masa depan), 
+                        (3) <em>Self-Reactiveness</em> (meregulasi langkah untuk mencapai tujuan), 
+                        (4) <em>Self-Reflectiveness</em> (mengevaluasi motivasi, nilai, & efikasi diri sendiri).
                     </p>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>4 Tahapan Belajar Observasional (Modeling)</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Proses belajar dengan mengamati model tanpa perlu penguat langsung, berjalan lewat 4 fase: (1) Attention: memperhatikan perilaku model secara mendalam. (2) Retention: menyimpan kode memori perilaku secara verbal/imaginal. (3) Behavioral Production: mereproduksi memori menjadi tindakan motorik fisik nyata. (4) Motivation: eksekusi perilaku dipicu dorongan insentif atau ekspektasi reward.
-                    </p>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Observational Learning (Pembelajaran Observasional)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-2">Belajar dengan modeling/imitasi terjadi murni melalui observasi, melibatkan 4 proses kognitif berurutan:</p>
+                    <ol class="list-decimal list-inside text-xs text-slate-400 space-y-1 ml-2">
+                        <li><strong>Attention (Perhatian):</strong> Memusatkan atensi pada model. Orang yang berstatus tinggi, mirip dengan kita, atau menarik akan lebih diperhatikan.</li>
+                        <li><strong>Retention (Retensi):</strong> Informasi perilaku diterjemahkan secara simbolis ke dalam memori (verbal atau representasi imajinasi/visual).</li>
+                        <li><strong>Behavioral Production (Reproduksi Motorik):</strong> Mengubah ide kognitif menjadi tindakan fisik nyata. Membutuhkan kecakapan motorik, evaluasi diri, dan penyesuaian/koreksi gerakan.</li>
+                        <li><strong>Motivation (Motivasi):</strong> Kinerja aktual baru akan muncul jika ada insentif atau dorongan. Tanpa motivasi, pelajaran hanya tersimpan di memori.</li>
+                    </ol>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Self-Efficacy (Efikasi Diri) & Human Agency</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Self-Efficacy (Efikasi Diri) - 4 Sumber Utama</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Self-Efficacy adalah keyakinan subjektif seseorang terhadap kemampuannya dalam menyelesaikan tugas demi mencapai target performa tertentu. Sumber utamanya: Mastery Experiences (sukses masa lalu - terkuat), Vicarious Experiences (modeling sosial), Social Persuasion (dorongan verbal), dan Physical/Emotional States (kondisi fisiologis tenang/panik). Sementara Human Agency adalah kapasitas sadar individu mengontrol hidupnya melalui intensi, pemikiran ke depan, reaktivitas diri, dan refleksi diri.
+                        Efikasi diri adalah keyakinan kapabilitas spesifik. (Beda dengan <em>Self-Esteem</em> yang merupakan perasaan berharga secara umum). Sumber pembentuk efikasi diri dari yang paling kuat hingga terlemah:
+                        <br>1. <span class="term">Mastery Experiences:</span> Pengalaman keberhasilan masa lalu saat menyelesaikan tugas sejenis. Gagal menurunkan efikasi, sukses menaikkannya.
+                        <br>2. <span class="term">Social Modeling (Vicarious):</span> Melihat teman sebaya yang kemampuannya SETARA berhasil menyelesaikan tugas tersebut.
+                        <br>3. <span class="term">Social Persuasion:</span> Bujukan, sugesti, atau kalimat afirmasi dari sosok otoritas/terpercaya ("Kamu pasti bisa, Rama!").
+                        <br>4. <span class="term">Physical & Emotional States:</span> Sensasi fisiologis tubuh. Detak jantung kencang sebelum presentasi bisa dinilai sebagai "panik" (menurunkan efikasi) atau "gairah siap tempur" (meningkatkan efikasi).
                     </p>
                 </section>
             </div>
@@ -386,24 +468,33 @@
                 </div>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kecenderungan Aktualisasi & Struktur Diri</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Actualizing Tendency vs Self-Actualization</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Actualizing Tendency merupakan dorongan biologis bawaan tunggal manusia untuk tumbuh, berkembang, merawat, dan menyempurnakan seluruh potensi organisme dirinya. Struktur diri terbagi atas Konsep Diri (Self-Concept: persepsi nyata individu atas dirinya) dan Diri Ideal (Ideal Self: pandangan sosok diri ideal yang dicita-citakan).
+                        <span class="term">Formative Tendency:</span> Kecenderungan evolusioner semua materi (organik & inorganik) untuk berevolusi dari bentuk sederhana ke kompleks.<br>
+                        <span class="term">Actualizing Tendency:</span> Dorongan organisme genetik (biologis & psikologis) yang beroperasi pada tingkat biologis untuk memelihara dan mengembangkan seluruh potensi keutuhannya (misal: rasa lapar, dorongan menyembuhkan luka fisik).<br>
+                        <span class="term">Self-Actualization:</span> Aspek psikologis dari kecenderungan aktualisasi yang berupa kecenderungan untuk mengaktualisasikan struktur SELURUH DIRI (Konsep Diri) saat ia terbentuk.
                     </p>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Inkongruensi & Mekanisme Pertahanan Ego</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Inkongruensi terjadi akibat kesenjangan lebar antara Konsep Diri riil dengan Diri Ideal atau Pengalaman Organismik nyata, yang memicu konflik batin dan kecemasan akut. Untuk melindunginya, ego melakukan teknik defensif berupa Distorsi (salah menafsirkan pengalaman agar cocok dengan konsep diri lama) atau Penyangkal/Denial (menolak mentah-mentah menyadari pengalaman buruk eksternal).
-                    </p>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Struktur Diri, Inkongruensi, dan Defensif Ego</h3>
+                    <div class="space-y-3 text-sm text-slate-400">
+                        <p><strong>Struktur Diri:</strong> Terdiri dari <span class="term">Self-Concept</span> (segala aspek pengalaman diri yang secara sadar diakui individu) dan <span class="term">Ideal Self</span> (pandangan individu tentang sosok yang sangat ingin dicapainya).</p>
+                        <p><strong>Inkongruensi & Penyakit Mental:</strong> Kerentanan psikologis terjadi ketika terdapat <strong>kesenjangan besar (Incongruence)</strong> antara Konsep Diri yang diyakini secara sadar dengan Pengalaman Organismik mentah. Kesenjangan ini menciptakan rasa <em>Threat</em> (ancaman) dan <em>Anxiety</em> (kecemasan).</p>
+                        <p><strong>Perlindungan Defensif:</strong> Untuk menjaga struktur konsep dirinya dari kehancuran, orang menggunakan:
+                        <br>- <em>Distortion (Distorsi):</em> Menerima pengalaman tapi mengubah/memelintir maknanya ("Dosen puji saya jenius, itu pasti karena dia kasihan").
+                        <br>- <em>Denial (Penyangkalan):</em> Menolak sama sekali pengalaman untuk masuk kesadaran ("Saya tidak marah, saya cuma pusing").</p>
+                    </div>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>3 Kondisi Utama Konseling Efektif</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Rogers menegaskan kepribadian klien berubah positif jika psikoterapis menyediakan atmosfer: (1) Congruence/Genuineness: keaslian terapis yang tampil jujur tanpa topeng klinis. (2) Unconditional Positive Regard: penerimaan mutlak dan hangat tanpa penilaian moral. (3) Empathic Understanding: kemampuan meresapi ruang persepsi internal subjektif milik klien tanpa kehilangan objektivitas klinis.
-                    </p>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kondisi Konseling yang Terbuka & Efektif</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-2">Rogers merevolusi psikoterapi dengan menyatakan perubahan kepribadian klien hanya terjadi jika terapis memfasilitasi 3 kondisi atmosfer esensial (Ini sering masuk Esai Ujian):</p>
+                    <ol class="list-decimal list-inside text-xs text-slate-400 space-y-2 ml-2">
+                        <li><span class="term">Congruence (Kongruensi/Keaslian):</span> Terapis melepas topeng ahli, bersikap asli, nyata, transparan, dan mengekspresikan perasaannya secara jujur kepada klien di momen itu. (Kondisi paling kritis dan utama).</li>
+                        <li><span class="term">Unconditional Positive Regard (Penghargaan Positif Tanpa Syarat):</span> Terapis menerima klien sepenuhnya tanpa syarat "jika". Tidak mengevaluasi perbuatan klien secara moral, tidak men-judge. Memberi kehangatan layaknya orang tua pada bayi.</li>
+                        <li><span class="term">Empathic Understanding (Pemahaman Empatik):</span> Terapis "merasakan" pengalaman dunia fenomenologis subjektif klien (seolah-olah masuk ke dalam sepatu klien) tanpa kehilangan identitas dirinya sendiri, lalu mengkomunikasikan rasa empati tersebut kembali ke klien.</li>
+                    </ol>
                 </section>
             </div>
 
@@ -419,21 +510,52 @@
                 </div>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>5 Dimensi Besar Taksonomi Kepribadian (Model OCEAN)</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        • <strong>Openness to Experience (O):</strong> mengukur imajinasi, kreativitas, keterbukaan intelektual, dan sensitivitas estetika.<br>
-                        • <strong>Conscientiousness (C):</strong> mengukur kontrol diri, kedisiplinan, keteraturan organisasi, tanggung jawab, dan orientasi tujuan.<br>
-                        • <strong>Extraversion (E):</strong> menilai kuantitas dan intensitas interaksi interpersonal, keaktifan bersosialisasi, dan keceriaan.<br>
-                        • <strong>Agreeableness (A):</strong> menilai kualitas orientasi interpersonal dari belas kasih, empati, altruisme, hingga sikap antagonis.<br>
-                        • <strong>Neuroticism (N):</strong> mengidentifikasi kerentanan terhadap distres psikologis, kecemasan berlebih, stabilitas emosi, dan respons stres maladaptif.
-                    </p>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Dimensi OCEAN (Big Five Taxonomy)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-3">Sebuah taksonomi berbasis faktorial (penelitian bahasa leksikal) yang terbukti universal lintas budaya dan age-stable. Kelima dimensi bersifat kontinum (bipolar):</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="highlight-box border-l-4 border-indigo-500">
+                            <span class="font-bold text-white block mb-1">O - Openness to Experience</span>
+                            <p class="text-slate-400">Fokus pada estetika, perasaan, ide, nilai-nilai fleksibel. <br><em>Tinggi:</em> Kreatif, liberal, artistik, imajinatif. <br><em>Rendah:</em> Konvensional, praktis, rutinitas kaku, konservatif.</p>
+                        </div>
+                        <div class="highlight-box border-l-4 border-blue-500">
+                            <span class="font-bold text-white block mb-1">C - Conscientiousness</span>
+                            <p class="text-slate-400">Fokus pada kedisiplinan, organisasi, dan arah pencapaian. <br><em>Tinggi:</em> Tepat waktu, perfeksionis, teratur, keras kepala. <br><em>Rendah:</em> Ceroboh, santai, tak terorganisir, lalai.</p>
+                        </div>
+                        <div class="highlight-box border-l-4 border-red-500">
+                            <span class="font-bold text-white block mb-1">E - Extraversion</span>
+                            <p class="text-slate-400">Fokus pada intensitas dan kuantitas energi sosialisasi. <br><em>Tinggi:</em> Afeksionis, suka gabung kelompok, aktif bicara, pencari kesenangan. <br><em>Rendah (Introvert):</em> Soliter, pendiam, mandiri.</p>
+                        </div>
+                        <div class="highlight-box border-l-4 border-yellow-500">
+                            <span class="font-bold text-white block mb-1">A - Agreeableness</span>
+                            <p class="text-slate-400">Fokus pada orientasi interpersonal (dari welas asih hingga antagonisme). <br><em>Tinggi:</em> Mudah percaya, lurus hati, altruis, patuh. <br><em>Rendah:</em> Sinis, curiga, kompetitif, agresif/kasar.</p>
+                        </div>
+                        <div class="highlight-box border-l-4 border-slate-500 md:col-span-2">
+                            <span class="font-bold text-white block mb-1">N - Neuroticism</span>
+                            <p class="text-slate-400">Fokus pada ketidakstabilan dan kerentanan emosional negatif. <br><em>Tinggi:</em> Mudah cemas, depresi, temperamental, impulsif, rentan stres. <br><em>Rendah:</em> Sangat tenang, tabah, emosi datar, puas diri.</p>
+                        </div>
+                    </div>
                 </section>
 
                 <section class="space-y-4">
-                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Sistem Kepribadian: Komponen Inti vs Perifer</h3>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Sistem Dinamis Kepribadian Teori Lima Faktor</h3>
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        Teori Big Five menjelaskan operasional kepribadian melalui struktur dinamis komponen: (1) Basic Tendencies: bakat dan kapasitas bawaan berbasis biologis/genetik (faktor OCEAN itu sendiri) yang stabil. (2) Characteristic Adaptations: struktur yang berkembang akibat interaksi faktor bawaan dengan lingkungan, berupa keterampilan, kebiasaan, peran, dan sikap. (3) Self-Concept: narasi evaluasi diri. (4) Biological Bases: sirkuit saraf, gen, anatomi otak, dan hormon sebagai basis periferal dasar.
+                        Teori ini merinci bagaimana faktor genetik OCEAN berinteraksi dengan dunia nyata membentuk nasib manusia. Dibagi menjadi dua set komponen:
                     </p>
+                    <div class="bg-slate-900 p-4 rounded-xl text-sm text-slate-300 space-y-3">
+                        <p><span class="term text-indigo-400">A. Tiga Komponen Inti (Core Components):</span></p>
+                        <ul class="list-disc list-inside text-xs text-slate-400 ml-4 space-y-1">
+                            <li><strong>Basic Tendencies (Kecenderungan Dasar):</strong> Lima faktor genetik bawaan (OCEAN) itu sendiri. Universal dan ditentukan oleh gen.</li>
+                            <li><strong>Characteristic Adaptations (Adaptasi Karakteristik):</strong> Ciri kepribadian yang terbentuk akibat interaksi genetik dengan lingkungan (Contoh: skill bahasa Inggris, kebiasaan nyemil saat stres, peran jadi mahasiswa psikologi). Termasuk nilai & sikap.</li>
+                            <li><strong>Self-Concept (Konsep Diri):</strong> Sebuah subset adaptasi karakteristik yang mendefinisikan narasi diri individu (pandangan hidup tentang "siapa saya").</li>
+                        </ul>
+                        
+                        <p class="mt-4"><span class="term text-indigo-400">B. Tiga Komponen Perifer (Peripheral Components):</span></p>
+                        <ul class="list-disc list-inside text-xs text-slate-400 ml-4 space-y-1">
+                            <li><strong>Biological Bases (Basis Biologis):</strong> Anatomi gen, hormon, otak, sirkuit saraf yang melandasi Basic Tendencies.</li>
+                            <li><strong>Objective Biography (Biografi Objektif):</strong> Segala perbuatan objektif/nyata yang pernah dilakukan orang tersebut dalam jalur waktu emosionalnya (karir nyata, riwayat sakit, prestasi faktual).</li>
+                            <li><strong>External Influences (Pengaruh Eksternal):</strong> Faktor budaya, situasi sosial, teman, orang tua, dan institusi pendidikan yang berinteraksi dalam hidupnya.</li>
+                        </ul>
+                    </div>
                 </section>
             </div>
 
