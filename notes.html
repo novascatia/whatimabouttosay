@@ -1,99 +1,510 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AU Story Text Note Editor</title>
-<style>
-    /* Styling Dasar Halaman */
-    body {
-        margin: 0;
-        padding: 0;
-        background-color: #fcfcfc; /* Warna latar belakang kertas putih gading bersih */
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        min-height: 100vh;
-    }
-
-    /* Container Utama Tempat Menulis */
-    .note-container {
-        width: 100%;
-        max-width: 650px; /* Lebar optimal membaca teks cerita */
-        background-color: #ffffff;
-        min-height: 100vh;
-        box-sizing: border-box;
-        padding: 40px 24px 80px 24px; /* Padding sisi atas, samping, bawah */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.03); /* Bayangan super tipis di kanan-kiri */
-    }
-
-    /* Area Mengetik (Editor) */
-    .story-editor {
-        width: 100%;
-        min-height: 80vh;
-        border: none;
-        outline: none;
-        resize: none;
-        background: transparent;
-        
-        /* Font khusus bacaan tebal & nyaman mirip contoh gambarmu */
-        font-family: "Georgia", "Times New Roman", Times, serif;
-        font-size: 20px;
-        color: #333333; /* Warna abu-abu gelap agar mata tidak lelah */
-        line-height: 1.8; /* Jarak antar baris yang renggang dan rapi */
-        
-        /* Mengatur spasi antar paragraf otomatis saat menekan Enter */
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
-
-    /* Petunjuk awal saat editor kosong */
-    .story-editor:empty:before {
-        content: "Mulai ketik cerita atau catatanmu di sini...\n\nGunakan tanda petik untuk dialog, misalnya:\n\"Lohh ya jelas sama lah bang! Kalo beda bukan kita namanya.\" Seru Hendery.";
-        color: #aaaaaa;
-        font-style: italic;
-        font-size: 18px;
-    }
-
-    /* Info Status Tambahan di Pojok Bawah (Opsional) */
-    .footer-counter {
-        position: fixed;
-        bottom: 15px;
-        right: 20px;
-        background: rgba(0, 0, 0, 0.7);
-        color: #ffffff;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        pointer-events: none;
-        font-family: sans-serif;
-        opacity: 0.8;
-    }
-</style>
-</head>
-<body>
-
-<div class="note-container">
-    <div class="story-editor" id="editor" contenteditable="true">@seyraphineyap.</div>
-</div>
-
-<div class="footer-counter" id="counter">Karakter: 236</div>
-
-<script>
-    const editor = document.getElementById('editor');
-    const counter = document.getElementById('counter');
-
-    // Fitur menghitung jumlah karakter secara real-time saat kamu mengetik
-    editor.addEventListener('input', () => {
-        let text = editor.innerText || "";
-        // Jika kosong total, reset tulisan placeholder
-        if (text.trim() === "") {
-            editor.innerHTML = "";
-            text = "";
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Doc: Catatan UTS Lengkap Psikologi Kepribadian 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        counter.innerText = `Karakter: ${text.length}`;
-    });
-</script>
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        
+        /* Base hidden state for tabs */
+        .tab-content {
+            display: none;
+            opacity: 0;
+        }
+        
+        /* Interactive Animation when tab becomes active */
+        .tab-content.active {
+            display: block;
+            animation: enterFrame 0.5s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+        }
 
+        @keyframes enterFrame {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-emerald-500 selection:text-slate-950">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-80 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 p-6 flex flex-col justify-between shrink-0">
+            <div>
+                <div class="mb-8">
+                    <span class="text-xs font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/50 px-2.5 py-1 rounded border border-emerald-800/50">RANGKUMAN MASTER UTS</span>
+                    <h1 class="text-xl font-black mt-3 text-white tracking-tight">Psi. Kepribadian II</h1>
+                    <p class="text-xs text-slate-400 mt-1">Edisi Lengkap & Berbobot • Universitas Gunadarma</p>
+                </div>
+                
+                <nav class="space-y-1" id="sidebar-menu">
+                    <button onclick="switchTab('topic1')" id="btn-topic1" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 border border-emerald-500/30 flex items-center space-x-3">
+                        <span class="bg-emerald-800 text-emerald-200 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                        <span class="truncate">Martin E. P. Seligman</span>
+                    </button>
+                    
+                    <button onclick="switchTab('topic2')" id="btn-topic2" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3">
+                        <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                        <span class="truncate">Abraham Maslow</span>
+                    </button>
+                    
+                    <button onclick="switchTab('topic3')" id="btn-topic3" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3">
+                        <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                        <span class="truncate">Gordon Allport</span>
+                    </button>
+                    
+                    <button onclick="switchTab('topic4')" id="btn-topic4" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3">
+                        <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
+                        <span class="truncate">Hans J. Eysenck</span>
+                    </button>
+                    
+                    <button onclick="switchTab('topic5')" id="btn-topic5" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3">
+                        <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">5</span>
+                        <span class="truncate">Julian B. Rotter</span>
+                    </button>
+                    
+                    <button onclick="switchTab('topic6')" id="btn-topic6" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3">
+                        <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">6</span>
+                        <span class="truncate">George Kelly</span>
+                    </button>
+                    
+                    <button onclick="switchTab('topic7')" id="btn-topic7" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3">
+                        <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">7</span>
+                        <span class="truncate">Albert Bandura</span>
+                    </button>
+                    
+                    <button onclick="switchTab('topic8')" id="btn-topic8" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3">
+                        <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">8</span>
+                        <span class="truncate">Carl Rogers</span>
+                    </button>
+                    
+                    <button onclick="switchTab('topic9')" id="btn-topic9" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3">
+                        <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">9</span>
+                        <span class="truncate">McCrae & Costa (Big Five)</span>
+                    </button>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-slate-800 text-[11px] text-slate-500">
+                Gunakan menu navigasi untuk memicu animasi transisi. Gunakan tombol khusus untuk menyalin teks.
+            </div>
+        </aside>
+
+        <main class="flex-1 bg-slate-950 p-6 md:p-12 overflow-y-auto max-w-5xl">
+            
+            <div id="topic1" class="tab-content active space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 01</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Martin E. P. Seligman: Teori Psikologi Positif</h2>
+                    </div>
+                    <button id="btn-copy-topic1" onclick="copyTopicText('topic1')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Learned Helplessness (Ketidakberdayaan yang Dipelajari)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Kondisi psikologis di mana individu merasa bahwa mereka tidak memiliki kontrol atas peristiwa buruk yang menimpa mereka. Kondisi ini bersifat <strong>pasif</strong> dan terjadi akibat proses belajar di masa lalu di mana tindakan terbukti tidak menghasilkan perubahan. Seligman membuktikannya lewat eksperimen laboratorium, yang kemudian ditarik sebagai analogi klinis utama penyebab terjadinya <strong>depresi</strong> pada manusia.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Explanatory Style (Gaya Penjelasan)</h3>
+                    <p class="text-sm text-slate-300 mb-3">Cara kognitif individu dalam menjelaskan kepada diri sendiri mengapa suatu peristiwa kemalangan terjadi. Terbagi atas 3 dimensi krusial:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                            <h4 class="text-sm font-bold text-white mb-1">1. Permanence (Waktu)</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">Apakah masalah dirasa Permanen (selamanya terjadi) atau Temporary (sementara waktu saja).</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                            <h4 class="text-sm font-bold text-white mb-1">2. Pervasiveness (Ruang Lingkup)</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">Apakah masalah dirasa Universal (merusak semua lini kehidupan) atau Spesifik (hanya di satu area).</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                            <h4 class="text-sm font-bold text-white mb-1">3. Personalization (Sumber)</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">Apakah penyebab dirasa Internal (mutlak salah saya) atau External (karena faktor situasi luar).</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Komparasi Gaya Kognitif</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Individu Pesimis memandang kegagalan sebagai sesuatu yang permanen, universal, dan internal. Sebaliknya, individu Optimis memandang kegagalan sebagai hal yang sementara, spesifik, dan eksternal.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Learned Optimism & Flexible Optimism</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Optimisme adalah keterampilan kognitif yang bisa dilatih (Learned Optimism) lewat intervensi kognitif: Disputation (membantah pikiran negatif), Reattribution (mengubah atribusi penyebab), dan Distraction (mengalihkan perhatian). Seligman menyarankan Flexible Optimism: gunakan optimisme saat ingin memotivasi diri pada situasi yang bisa diubah, namun pakailah realisme/pesimisme ringan saat menghadapi situasi dengan risiko fatal yang sangat tinggi.
+                    </p>
+                </section>
+            </div>
+
+            <div id="topic2" class="tab-content space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 02</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Abraham Maslow: Perspektif Holistik-Dinamik</h2>
+                    </div>
+                    <button id="btn-copy-topic2" onclick="copyTopicText('topic2')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Asumsi Utama Holistik-Dinamik</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Manusia termotivasi secara keseluruhan (holistik) oleh satu kebutuhan atau kebutuhan lainnya. Teori ini dinamik karena pemenuhan satu kebutuhan membuat individu langsung bergerak maju menuju pemenuhan tingkat kebutuhan berikutnya. Maslow memelopori aliran Humanistik (Kekuatan Ketiga) yang menitikberatkan pada kesehatan mental dan kreativitas alami manusia.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Aturan Prepotensi (Prepotency Principle)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Kebutuhan pada tingkat yang lebih rendah memiliki prioritas dan desakan yang jauh lebih besar untuk dipenuhi terlebih dahulu. Kebutuhan tingkat rendah (Fisiologis & Keamanan) disebut juga Deficit Needs (D-Needs) karena jika tidak terpenuhi akan memicu gangguan kesehatan jasmani/rohani. Sementara tingkat tertinggi disebut Being Needs (B-Needs) yang berorientasi pada pemenuhan potensi diri.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Struktur Hierarki Kebutuhan Dasar</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Tersusun dari bawah ke atas: (1) Kebutuhan Fisiologis: sandang, pangan, papan, biologis. (2) Kebutuhan Rasa Aman: hukum, stabilitas, proteksi. (3) Kebutuhan Cinta dan Keberadaan: afeksi kelompok, relasi intim. (4) Kebutuhan Penghargaan: status, reputasi, serta rasa percaya diri mandiri. (5) Aktualisasi Diri: mewujudkan potensi bawaan tertinggi individu secara hakiki.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kebutuhan Tambahan & Jonah Complex</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Maslow mengidentifikasi kebutuhan lain seperti Kebutuhan Kognitif (rasa ingin tahu mendalam), Kebutuhan Estetika (keindahan dan keteraturan visual), dan Kebutuhan Neurotik (patologis sebagai kompensasi kegagalan D-Needs). Sementara itu, hambatan internal terbesar aktualisasi diri disebut Jonah Complex: ketakutan atau kecemasan individu akan kebesaran dirinya sendiri untuk memikul tanggung jawab penuh jika mewujudkan potensi maksimal.
+                    </p>
+                </section>
+            </div>
+
+            <div id="topic3" class="tab-content space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 03</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Gordon Allport: Teori Psikologi Individual</h2>
+                    </div>
+                    <button id="btn-copy-topic3" onclick="copyTopicText('topic3')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Definisi Kepribadian</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Kepribadian adalah organisasi dinamis dari sistem psikofisik dalam diri individu yang menentukan penyesuaian dirinya yang unik terhadap lingkungannya. Allport menekankan keunikan mutlak setiap individu serta peran kesadaran masa kini dibanding masa lalu.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Struktur Trait (Sifat Kepribadian)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Dibagi menjadi tiga tingkatan hierarki dominasi: (1) Cardinal Traits: sifat yang sangat kuat, dominan, mengarahkan hampir seluruh perbuatan sepanjang hidup, dan jarang dimiliki semua orang. (2) Central Traits: karakteristik inti (5-10 sifat utama) yang menyusun kepribadian dasar seseorang. (3) Secondary Traits: sifat tambahan yang kurang perifer, tidak konsisten, dan muncul hanya pada situasi spesifik.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Functional Autonomy (Otonomi Fungsional)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Konsep yang menyatakan bahwa motivasi manusia dewasa dapat berjalan secara mandiri (otonom) dan terlepas dari akar historis masa kanak-kanaknya. Terbagi dua: Perseverative Functional Autonomy (rutinitas biologis/mekanis tingkat rendah) dan Propriate Functional Autonomy (otonomi tingkat tinggi terkait minat, nilai hidup, dan sasaran masa depan yang dipilih secara sadar).
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Konsep Proprium</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Istilah Allport untuk menyebut "Diri" (Self) atau Ego yang disadari penuh. Proprium berkembang melewati 7 tahapan sejak masa bayi hingga dewasa, yang puncaknya ditandai dengan Propriate Striving (penetapan tujuan dan cita-cita hidup jangka panjang).
+                    </p>
+                </section>
+            </div>
+
+            <div id="topic4" class="tab-content space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 04</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Hans J. Eysenck: Pendekatan Trait & Faktor Berbasis Biologis</h2>
+                    </div>
+                    <button id="btn-copy-topic4" onclick="copyTopicText('topic4')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Hierarki Organisasi Perilaku</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Eysenck memandang kepribadian tersusun dari empat tingkat struktural: level terendah adalah Tindakan Spesifik (perilaku sesaat), berkembang menjadi Tindakan Kebiasaan (perilaku diulang), meningkat ke Sifat/Traits (kumpulan kebiasaan berkorelasi), hingga mencapai tingkat tertinggi yaitu Tipe atau Superfaktor.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>3 Superfaktor Utama (Model PEN) & Penjelasan Biologisnya</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Eysenck mengekstraksi 3 superfaktor utama yang berbasis genetik dan fisiologis kuat:<br>
+                        • <strong>Extraversion vs Introversion (E):</strong> Ditentukan oleh tingkat rangsangan kortikal bawaan pada ARAS (Ascending Reticular Activating System). Introvert memiliki rangsangan dasar tinggi sehingga menghindari stimulasi berlebih, sementara ekstrovert memiliki rangsangan dasar rendah sehingga aktif mencari stimulasi luar.<br>
+                        • <strong>Neuroticism vs Stability (N):</strong> Berkaitan dengan ambang reaktivitas emosional pada Sistem Limbik (Amigdala & Hipotalamus). Skor N tinggi menandakan sistem limbik yang sangat reaktif sehingga individu mudah cemas dan emosional.<br>
+                        • <strong>Psychoticism vs Superego Function (P):</strong> Secara biologis dipengaruhi oleh kadar hormon Testosteron dan level enzim monoamine oxidase (MAO). Skor P tinggi cenderung egosentris, impulsif, dingin, tidak berempati, dan antisosial.
+                    </p>
+                </section>
+            </div>
+
+            <div id="topic5" class="tab-content space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 05</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Julian B. Rotter: Teori Kognitif Sosial</h2>
+                    </div>
+                    <button id="btn-copy-topic5" onclick="copyTopicText('topic5')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>4 Variabel Prediksi Perilaku Spesifik</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Perilaku manusia dipahami lewat interaksi dengan lingkungannya yang dipengaruhi proses kognitif. Empat variabel utamanya: (1) Behavior Potential: potensi munculnya perilaku dalam situasi spesifik. (2) Expectancy: keyakinan subjektif akan terjadinya penguatan. (3) Reinforcement Value: tingkat preferensi penguat. (4) Psychological Situation: situasi luar/dalam yang dipersepsikan secara unik oleh individu.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Rumus Prediksi Perilaku</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        • Rumus Spesifik: BP = f(E + RV). Potensi perilaku merupakan fungsi dari harapan akan penguatan ditambah nilai intrinsik penguatan tersebut dalam situasi psikologis.<br>
+                        • Rumus Umum: NP = f(FM + NV). Potensi kebutuhan (Need Potential) merupakan fungsi dari kebebasan bergerak (Freedom of Movement / rata-rata ekspektasi sukses) dan nilai kebutuhan (Need Value).
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Locus of Control (Pusat Kendali)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Keyakinan individu mengenai sumber kendali atas hasil hidup mereka. Internal Locus of Control: percaya hasil ditentukan oleh usaha, kemampuan, dan keputusan diri sendiri. External Locus of Control: percaya hasil dikendalikan kekuatan luar seperti keberuntungan, takdir, nasib, atau manipulasi orang lain.
+                    </p>
+                </section>
+            </div>
+
+            <div id="topic6" class="tab-content space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 06</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">George Kelly: Personal Construct Theory</h2>
+                    </div>
+                    <button id="btn-copy-topic6" onclick="copyTopicText('topic6')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Manusia sebagai Ilmuwan & Konstruk Pribadi</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Teori ini memandang manusia bertindak aktif seperti seorang ilmuwan (man-the-scientist) yang mengamati, menafsirkan, dan menguji hipotesis hidup. Konstruk pribadi adalah cara atau pola kognitif yang dibangun secara unik oleh seseorang untuk memaknai dan mengantisipasi dunianya. Postulat Dasarnya menyatakan proses psikologis individu diarahkan secara linier oleh cara mereka mengantisipasi peristiwa masa depan.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Sistem Konstruk & Corollary Utama</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        • Dichotomy Corollary: konstruk pribadi bersifat bipolar/dikotomi (hitam-putih).<br>
+                        • Individuality Corollary: setiap individu berbeda dalam mengonstruksi peristiwa yang sama.<br>
+                        • Organization Corollary: konstruk diatur dalam sistem hierarki untuk menekan konflik batin.<br>
+                        • Choice Corollary: individu memilih alternatif dikotomi yang paling menjanjikan penegasan sistem prediksinya.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kompleksitas Kognitif & Rep Test</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Kompleksitas Kognitif adalah kemampuan melihat banyak sudut pandang dan dimensi perbedaan saat menilai orang lain; skor tinggi menandakan fleksibilitas mental yang adaptif. Alat ukur utamanya adalah Role Construct Repertory Test (Rep Test), digunakan untuk mengungkap peta konstruk pribadi tersembunyi dengan membandingkan tiga orang penting dalam hidup individu.
+                    </p>
+                </section>
+            </div>
+
+            <div id="topic7" class="tab-content space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 07</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Albert Bandura: Teori Kognitif Sosial</h2>
+                    </div>
+                    <button id="btn-copy-topic7" onclick="copyTopicText('topic7')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Triadic Reciprocal Determinism</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Model interaksi kausalitas timbal balik yang terus-menerus antara tiga komponen utama: faktor individu/kognitif (P - Person), faktor perilaku nyata (B - Behavior), dan faktor lingkungan luar (E - Environment).
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>4 Tahapan Belajar Observasional (Modeling)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Proses belajar dengan mengamati model tanpa perlu penguat langsung, berjalan lewat 4 fase: (1) Attention: memperhatikan perilaku model secara mendalam. (2) Retention: menyimpan kode memori perilaku secara verbal/imaginal. (3) Behavioral Production: mereproduksi memori menjadi tindakan motorik fisik nyata. (4) Motivation: eksekusi perilaku dipicu dorongan insentif atau ekspektasi reward.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Self-Efficacy (Efikasi Diri) & Human Agency</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Self-Efficacy adalah keyakinan subjektif seseorang terhadap kemampuannya dalam menyelesaikan tugas demi mencapai target performa tertentu. Sumber utamanya: Mastery Experiences (sukses masa lalu - terkuat), Vicarious Experiences (modeling sosial), Social Persuasion (dorongan verbal), dan Physical/Emotional States (kondisi fisiologis tenang/panik). Sementara Human Agency adalah kapasitas sadar individu mengontrol hidupnya melalui intensi, pemikiran ke depan, reaktivitas diri, dan refleksi diri.
+                    </p>
+                </section>
+            </div>
+
+            <div id="topic8" class="tab-content space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 08</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Carl Rogers: Person-Centered Theory</h2>
+                    </div>
+                    <button id="btn-copy-topic8" onclick="copyTopicText('topic8')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Kecenderungan Aktualisasi & Struktur Diri</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Actualizing Tendency merupakan dorongan biologis bawaan tunggal manusia untuk tumbuh, berkembang, merawat, dan menyempurnakan seluruh potensi organisme dirinya. Struktur diri terbagi atas Konsep Diri (Self-Concept: persepsi nyata individu atas dirinya) dan Diri Ideal (Ideal Self: pandangan sosok diri ideal yang dicita-citakan).
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Inkongruensi & Mekanisme Pertahanan Ego</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Inkongruensi terjadi akibat kesenjangan lebar antara Konsep Diri riil dengan Diri Ideal atau Pengalaman Organismik nyata, yang memicu konflik batin dan kecemasan akut. Untuk melindunginya, ego melakukan teknik defensif berupa Distorsi (salah menafsirkan pengalaman agar cocok dengan konsep diri lama) atau Penyangkal/Denial (menolak mentah-mentah menyadari pengalaman buruk eksternal).
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>3 Kondisi Utama Konseling Efektif</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Rogers menegaskan kepribadian klien berubah positif jika psikoterapis menyediakan atmosfer: (1) Congruence/Genuineness: keaslian terapis yang tampil jujur tanpa topeng klinis. (2) Unconditional Positive Regard: penerimaan mutlak dan hangat tanpa penilaian moral. (3) Empathic Understanding: kemampuan meresapi ruang persepsi internal subjektif milik klien tanpa kehilangan objektivitas klinis.
+                    </p>
+                </section>
+            </div>
+
+            <div id="topic9" class="tab-content space-y-8">
+                <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Teori Kunci 09</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">McCrae & Costa: Teori Lima Faktor (The Big Five)</h2>
+                    </div>
+                    <button id="btn-copy-topic9" onclick="copyTopicText('topic9')" class="copy-btn shrink-0 self-start sm:self-center bg-slate-900 hover:bg-slate-800 text-xs text-emerald-400 font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>[Copy materi ini]</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>5 Dimensi Besar Taksonomi Kepribadian (Model OCEAN)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        • <strong>Openness to Experience (O):</strong> mengukur imajinasi, kreativitas, keterbukaan intelektual, dan sensitivitas estetika.<br>
+                        • <strong>Conscientiousness (C):</strong> mengukur kontrol diri, kedisiplinan, keteraturan organisasi, tanggung jawab, dan orientasi tujuan.<br>
+                        • <strong>Extraversion (E):</strong> menilai kuantitas dan intensitas interaksi interpersonal, keaktifan bersosialisasi, dan keceriaan.<br>
+                        • <strong>Agreeableness (A):</strong> menilai kualitas orientasi interpersonal dari belas kasih, empati, altruisme, hingga sikap antagonis.<br>
+                        • <strong>Neuroticism (N):</strong> mengidentifikasi kerentanan terhadap distres psikologis, kecemasan berlebih, stabilitas emosi, dan respons stres maladaptif.
+                    </p>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center"><span class="w-1.5 h-4 bg-emerald-500 rounded mr-2"></span>Sistem Kepribadian: Komponen Inti vs Perifer</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Teori Big Five menjelaskan operasional kepribadian melalui struktur dinamis komponen: (1) Basic Tendencies: bakat dan kapasitas bawaan berbasis biologis/genetik (faktor OCEAN itu sendiri) yang stabil. (2) Characteristic Adaptations: struktur yang berkembang akibat interaksi faktor bawaan dengan lingkungan, berupa keterampilan, kebiasaan, peran, dan sikap. (3) Self-Concept: narasi evaluasi diri. (4) Biological Bases: sirkuit saraf, gen, anatomi otak, dan hormon sebagai basis periferal dasar.
+                    </p>
+                </section>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function switchTab(topicId) {
+            // 1. Get all content blocks and hide them
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 2. Get all sidebar buttons and reset styles to normal dark state
+            const buttons = document.querySelectorAll('#sidebar-menu button');
+            buttons.forEach(btn => {
+                btn.className = "w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3";
+                // Reset indicator circle
+                const circle = btn.querySelector('span');
+                if (circle) {
+                    circle.className = "bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0";
+                }
+            });
+
+            // 3. Show selected tab content (this triggers the custom CSS keyframe animation)
+            const activeContent = document.getElementById(topicId);
+            activeContent.classList.add('active');
+            
+            // Scroll main content pane back to top immediately upon switch
+            document.querySelector('main').scrollTop = 0;
+
+            // 4. Style the active button to match vibrant emerald highlights
+            const activeBtn = document.getElementById('btn-' + topicId);
+            activeBtn.className = "w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 border border-emerald-500/30 flex items-center space-x-3";
+            const activeCircle = activeBtn.querySelector('span');
+            if (activeCircle) {
+                activeCircle.className = "bg-emerald-800 text-emerald-200 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0";
+            }
+        }
+
+        function copyTopicText(topicId) {
+            // Clone the original topic node to extract text cleanly
+            const container = document.getElementById(topicId).cloneNode(true);
+            
+            // Strip out copy buttons inside the clone so they are not included in the text clip
+            const copyButtons = container.querySelectorAll('.copy-btn');
+            copyButtons.forEach(btn => btn.remove());
+            
+            // Normalize internal text spacing
+            const cleanText = container.innerText.replace(/\s+/g, ' ').trim();
+            
+            // Write text content directly to clipboard
+            navigator.clipboard.writeText(cleanText).then(() => {
+                const targetBtn = document.querySelector(`#btn-copy-${topicId}`);
+                const originalHTML = targetBtn.innerHTML;
+                
+                // Active status feedback UI transition
+                targetBtn.innerHTML = `<span>✓ Tersalin!</span>`;
+                targetBtn.classList.remove('text-emerald-400', 'border-slate-700', 'bg-slate-900');
+                targetBtn.classList.add('text-slate-950', 'bg-emerald-400', 'border-emerald-400');
+                
+                // Revert state back after delay
+                setTimeout(() => {
+                    targetBtn.innerHTML = originalHTML;
+                    targetBtn.classList.remove('text-slate-950', 'bg-emerald-400', 'border-emerald-400');
+                    targetBtn.classList.add('text-emerald-400', 'bg-slate-900', 'border-slate-700');
+                }, 2000);
+            });
+        }
+    </script>
 </body>
 </html>
