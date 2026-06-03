@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Psikodiagnostik: Observasi</title>
+    <title>Kuis Psikologi Teknologi & Internet</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
         :root {
-            /* Vercel/Linear inspired dark mode palette */
             --bg-body: #000000;
             --bg-card: #0a0a0a;
             --border: #27272a;
@@ -16,12 +15,10 @@
             --text-main: #ededed;
             --text-muted: #a1a1aa;
             
-            /* Primary button: White on dark for high contrast */
             --primary: #ededed;
             --primary-text: #0a0a0a;
             --primary-hover: #d4d4d8;
             
-            /* Status colors */
             --correct-bg: rgba(16, 185, 129, 0.1);
             --correct-border: #10b981;
             --correct-text: #34d399;
@@ -48,7 +45,6 @@
             padding: 20px;
         }
 
-        /* Subtle grid background for premium feel */
         body::before {
             content: '';
             position: absolute;
@@ -63,7 +59,7 @@
 
         .container {
             width: 100%;
-            max-width: 640px;
+            max-width: 680px;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -252,86 +248,62 @@
     <div class="container animate-fade-in">
         
         <div id="start-screen" class="screen start-screen">
-            <h1 class="animate-slide-up" style="animation-delay: 0.1s; opacity: 0;">Psikodiagnostik: Observasi</h1>
-            <p class="animate-slide-up" style="animation-delay: 0.2s; opacity: 0;"><span id="total-q-start"></span> Soal latihan dari dokumen UTS</p>
-            <button class="btn-primary animate-slide-up" style="animation-delay: 0.3s; opacity: 0; max-width: 200px;" onclick="startQuiz()">Mulai Ujian</button>
+            <h1 class="animate-slide-up" style="animation-delay: 0.1s; opacity: 0;">Psikologi Teknologi & Internet</h1>
+            <p class="animate-slide-up" style="animation-delay: 0.2s; opacity: 0;">Simulasi Ujian Berdasarkan Kisi-Kisi</p>
+            <button class="btn-primary animate-slide-up" style="animation-delay: 0.3s; opacity: 0; max-width: 200px;" onclick="startQuiz()">Mulai Latihan</button>
         </div>
 
         <div id="quiz-screen" class="screen hidden">
             <header>
-                <div class="header-title">Mid-Term Practice</div>
+                <div class="header-title">Exam Prep Mode</div>
                 <div class="counter"><span id="current-q">1</span> / <span id="total-q"></span></div>
             </header>
             
             <div class="question" id="question">Question here</div>
             
-            <div class="options" id="options">
-                </div>
+            <div class="options" id="options"></div>
 
             <button class="btn-primary hidden" id="next-btn" onclick="nextQuestion()">Selanjutnya &rarr;</button>
         </div>
 
         <div id="result-screen" class="screen result-screen hidden">
-            <h2 class="animate-slide-up" style="animation-delay: 0.1s; font-size: 1.25rem; font-weight: 500; color: var(--text-muted); opacity: 0;">Skor Akhir</h2>
+            <h2 class="animate-slide-up" style="animation-delay: 0.1s; font-size: 1.25rem; font-weight: 500; color: var(--text-muted); opacity: 0;">Skor Simulasi</h2>
             <div class="score animate-slide-up" id="final-score" style="animation-delay: 0.2s; opacity: 0;">0<span>/0</span></div>
             <p class="animate-slide-up" id="result-message" style="animation-delay: 0.3s; color: var(--text-main); margin-bottom: 40px; font-size: 1rem; opacity: 0;"></p>
-            <button class="btn-primary animate-slide-up" style="animation-delay: 0.4s; max-width: 200px; opacity: 0;" onclick="startQuiz()">Ulangi Ujian</button>
+            <button class="btn-primary animate-slide-up" style="animation-delay: 0.4s; max-width: 200px; opacity: 0;" onclick="startQuiz()">Coba Lagi</button>
         </div>
 
     </div>
 
     <script>
         const database = [
-            {q: "Apa yang dimaksud dengan tes berbasis norma dalam konteks asesmen psikologis?", options: ["Membandingkan skor individu dengan skor kelompok standar (norma)", "Mengukur keahlian spesifik tanpa standar banding", "Menilai kepribadian melalui tes proyektif", "Mengukur tingkat kecerdasan absolut"], answer: "Membandingkan skor individu dengan skor kelompok standar (norma)"},
-            {q: "Manfaat utama dari tes berbasis norma adalah?", options: ["Mengetahui posisi relatif individu dibandingkan populasi", "Menentukan kelulusan subjek secara mutlak", "Mendiagnosis gangguan kejiwaan akut", "Mengubah perilaku yang tidak adaptif"], answer: "Mengetahui posisi relatif individu dibandingkan populasi"},
-            {q: "Apa karakteristik utama dari wawancara dalam asesmen psikologis?", options: ["Interaksi dua arah yang bertujuan mengumpulkan informasi mendalam", "Penyebaran kuesioner tertulis secara massal", "Pengamatan diam-diam dari jarak jauh", "Pemberian stimulasi fisik di laboratorium"], answer: "Interaksi dua arah yang bertujuan mengumpulkan informasi mendalam"},
-            {q: "Apa yang dimaksud dengan observasi dalam konteks psikodiagnostik menurut definisi Betzen (2000)?", options: ["Pengamatan sistematis terhadap perilaku untuk tujuan asesmen", "Diskusi terbuka antara terapis dan klien", "Pengerjaan tes tertulis dengan batasan waktu", "Interpretasi dari mimpi klien"], answer: "Pengamatan sistematis terhadap perilaku untuk tujuan asesmen"},
-            {q: "Menurut Cartwright & Cartwright (1984), observasi bertujuan untuk:", options: ["Mengumpulkan data perilaku subjek yang objektif", "Mengubah kepribadian klien", "Memberikan diagnosis medis secara langsung", "Menghitung tingkat IQ subjek"], answer: "Mengumpulkan data perilaku subjek yang objektif"},
-            {q: "Apa yang dimaksud dengan objek observasi dalam psikodiagnostik?", options: ["Perilaku individu yang dapat diamati dan dicatat", "Pikiran alam bawah sadar individu", "Latar belakang masa lalu individu", "Kondisi genetik bawaan"], answer: "Perilaku individu yang dapat diamati dan dicatat"},
-            {q: "Karakteristik penting dari tingkah laku adalah:", options: ["Dapat diamati, diukur, dan didefinisikan", "Bersifat abstrak dan kognitif murni", "Mustahil diprediksi", "Selalu terjadi di alam bawah sadar"], answer: "Dapat diamati, diukur, dan didefinisikan"},
-            {q: "Fungsi observasi sebagai metode utama dalam psikodiagnostik adalah saat:", options: ["Perilaku tidak dapat diukur dengan tes tertulis atau subjek tidak kooperatif (seperti anak kecil)", "Subjek sangat antusias mengikuti tes tertulis", "Ingin mengukur potensi kognitif bawaan", "Mencari tahu trauma terpendam"], answer: "Perilaku tidak dapat diukur dengan tes tertulis atau subjek tidak kooperatif (seperti anak kecil)"},
-            {q: "Prinsip dasar dari observasi adalah:", options: ["Sistematis, objektif, dan memiliki tujuan yang jelas", "Spontan dan bebas tanpa rencana", "Sangat subjektif tergantung pengamat", "Rahasia dan manipulatif"], answer: "Sistematis, objektif, dan memiliki tujuan yang jelas"},
-            {q: "Ciri khas dari naturalistic observation adalah:", options: ["Dilakukan di lingkungan asli tanpa manipulasi variabel", "Dilakukan di laboratorium tertutup", "Subjek diberi perlakuan atau stimulus khusus", "Menggunakan tes standar baku"], answer: "Dilakukan di lingkungan asli tanpa manipulasi variabel"},
-            {q: "Dalam konteks observasi di ruang kelas TK, apa yang menjadi fokus pengamatan?", options: ["Interaksi sosial dan perilaku belajar anak di lingkungan aslinya", "Tingkat intelegensi anak melalui tes tertulis", "Faktor ekonomi keluarga anak", "Kondisi fisik bangunan TK"], answer: "Interaksi sosial dan perilaku belajar anak di lingkungan aslinya"},
-            {q: "Apa yang dimaksud dengan informal observation?", options: ["Observasi yang tidak terstruktur ketat dan terjadi dalam setting sehari-hari", "Observasi di dalam laboratorium klinis", "Observasi menggunakan instrumen tes yang valid", "Observasi dengan memanipulasi situasi eksperimen"], answer: "Observasi yang tidak terstruktur ketat dan terjadi dalam setting sehari-hari"},
-            {q: "Salah satu teknik dalam formal observation untuk merekam perilaku target adalah:", options: ["Time sampling atau event recording", "Wawancara tidak terstruktur", "Self-report", "Bermain peran secara bebas"], answer: "Time sampling atau event recording"},
-            {q: "Contoh tempat dilakukannya naturalistic observation antara lain:", options: ["Sekolah, rumah, atau taman bermain", "Ruang eksperimen berinsulasi suara", "Klinik psikiatri", "Ruang interogasi"], answer: "Sekolah, rumah, atau taman bermain"},
-            {q: "Kelebihan analogue observation adalah:", options: ["Lingkungan dan variabel bisa dikontrol secara spesifik", "Bisa dilakukan tanpa izin", "Subjek merasa 100% natural tanpa beban", "Tidak memerlukan pengamat manusia"], answer: "Lingkungan dan variabel bisa dikontrol secara spesifik"},
-            {q: "Analogue observation dirancang untuk:", options: ["Mensimulasikan situasi spesifik demi memicu perilaku target", "Mengamati subjek secara diam-diam di alam bebas", "Menggantikan peran psikoterapi", "Mencatat kejadian bersejarah"], answer: "Mensimulasikan situasi spesifik demi memicu perilaku target"},
-            {q: "Permasalahan dalam self-monitoring terutama terjadi ketika:", options: ["Subjek bias, tidak objektif, atau melakukan faking (faking good/bad)", "Pengamat salah mencatat waktu kejadian", "Alat rekam video kehabisan baterai", "Penelitian dilakukan di luar ruangan"], answer: "Subjek bias, tidak objektif, atau melakukan faking (faking good/bad)"},
-            {q: "Salah satu solusi untuk meningkatkan validitas self-monitoring adalah:", options: ["Validasi silang (cross-check) dengan observasi dari pihak lain", "Memberikan bayaran lebih mahal pada subjek", "Meminta subjek merevisi jawabannya sendiri", "Menggunakan ruangan yang lebih gelap"], answer: "Validasi silang (cross-check) dengan observasi dari pihak lain"},
-            {q: "Pada observasi berdasarkan setting, contrived/simulated setting berarti:", options: ["Lingkungan observasi yang sengaja diatur atau diciptakan peneliti", "Lingkungan yang sepenuhnya natural", "Observasi yang dilakukan murni via internet", "Lingkungan eksperimen acak"], answer: "Lingkungan observasi yang sengaja diatur atau diciptakan peneliti"},
-            {q: "Observasi partisipan memiliki ciri utama:", options: ["Observer ikut terlibat langsung dalam aktivitas subjek", "Observer bersembunyi agar tidak terlihat", "Observer hanya mengamati rekaman CCTV", "Observer menyuruh subjek melakukan aktivitas sendirian"], answer: "Observer ikut terlibat langsung dalam aktivitas subjek"},
-            {q: "Perbedaan antara pencatatan menyeluruh dan terfokus adalah:", options: ["Menyeluruh mencatat semua perilaku, terfokus hanya pada perilaku target tertentu", "Menyeluruh butuh waktu lama, terfokus butuh alat canggih", "Menyeluruh dilakukan partisipan, terfokus non-partisipan", "Tidak ada bedanya, hanya istilah belaka"], answer: "Menyeluruh mencatat semua perilaku, terfokus hanya pada perilaku target tertentu"},
-            {q: "Data mentah dalam observasi terbuka (overt) mencakup:", options: ["Catatan deskriptif faktual tentang perilaku yang tampak (apa yang dilihat/didengar)", "Asumsi mendalam psikolog tentang motif klien", "Hasil interpretasi psikoanalisa", "Angka-angka hasil tes intelegensi"], answer: "Catatan deskriptif faktual tentang perilaku yang tampak (apa yang dilihat/didengar)"},
-            {q: "Contoh perilaku dalam data mentah 'tertawa' dapat dicatat sebagai:", options: ["A. Mulut terbuka, mata menyipit, suara 'hahaha'", "B. Hahahaha", "C. Subjek senang", "D. Menunjukkan rasa bahagia"], answer: "A. Mulut terbuka, mata menyipit, suara 'hahaha'"},
-            {q: "Low inferential judgment berarti:", options: ["Penilaian atau kesimpulan observasi dengan interpretasi pribadi yang sangat minim", "Penarikan kesimpulan yang sangat subjektif", "Menilai rendah kemampuan subjek", "Mengabaikan perilaku fisik murni"], answer: "Penilaian atau kesimpulan observasi dengan interpretasi pribadi yang sangat minim"},
-            {q: "Yang termasuk dalam kombinasi dimensi observasi adalah:", options: ["A. Natural setting – partisipan – menyeluruh", "B. Observasi bebas & berbayar", "C. Observasi online – tertutup – tidak sistematis", "D. Eksperimen – wawancara – self-report"], answer: "A. Natural setting – partisipan – menyeluruh"},
-            {q: "Apa yang menjadi tahapan awal dalam proses observasi ilmiah?", options: ["Menentukan tujuan penelitian/observasi", "Menganalisis data lapangan", "Menulis laporan akhir", "Menyebarkan kuesioner"], answer: "Menentukan tujuan penelitian/observasi"},
-            {q: "Yang termasuk dalam kategori tingkah laku statis adalah:", options: ["Tinggi badan, bentuk tubuh, ras, atau warna mata", "Ekspresi marah saat diganggu", "Berjalan mondar-mandir", "Berbicara dengan nada tinggi"], answer: "Tinggi badan, bentuk tubuh, ras, atau warna mata"},
-            {q: "Behavior tallying termasuk dalam:", options: ["Event recording", "Narrative recording", "Self-monitoring", "Time sampling"], answer: "Event recording"},
-            {q: "Apa manfaat dari studi pendahuluan dalam observasi?", options: ["Memperjelas fokus pengamatan dan menguji kelayakan metode/alat ukur", "Langsung mendapatkan kesimpulan diagnostik", "Menghilangkan kebutuhan akan landasan teori", "Membuat subjek lebih patuh"], answer: "Memperjelas fokus pengamatan dan menguji kelayakan metode/alat ukur"},
-            {q: "Saat pengambilan data, observer wajib memperhatikan:", options: ["Objektivitas, akurasi pencatatan, dan etika", "Tingkat subjektivitas personal", "Penampilan diri agar menarik di depan subjek", "Komentar orang-orang di sekitar lapangan"], answer: "Objektivitas, akurasi pencatatan, dan etika"},
-            {q: "Pencatatan langsung (immediate recording) dilakukan:", options: ["Segera pada saat perilaku subjek sedang berlangsung", "Setelah observasi selesai", "Satu hari sebelum observasi dimulai", "Hanya saat menyusun laporan akhir"], answer: "Segera pada saat perilaku subjek sedang berlangsung"},
-            {q: "Contoh tingkah laku dinamis antara lain:", options: ["C. Ekspresi wajah dan gesture", "A. Tinggi badan", "B. Warna suara", "D. Bentuk rambut"], answer: "C. Ekspresi wajah dan gesture"},
-            {q: "Tujuan merumuskan definisi operasional perilaku target adalah:", options: ["Agar perilaku dapat diidentifikasi, diamati, dan diukur dengan parameter yang jelas", "Agar laporannya terlihat lebih ilmiah", "Supaya subjek tidak mengerti apa yang sedang diamati", "Menggantikan peran hipotesis utama"], answer: "Agar perilaku dapat diidentifikasi, diamati, dan diukur dengan parameter yang jelas"},
-            {q: "Landasan teoritik membantu dalam:", options: ["Memberikan kerangka acuan untuk observasi yang akan dilakukan", "Mempercepat durasi observasi di lapangan", "Membuat observer bebas dari masalah etika", "Mengabaikan perilaku minor yang muncul"], answer: "Memberikan kerangka acuan untuk observasi yang akan dilakukan"},
-            {q: "Observasi tanpa diketahui oleh observee hanya boleh dilakukan jika:", options: ["C. Mendapatkan izin tertulis dari tempat yang dituju", "A. Menguntungkan peneliti", "B. Menarik secara visual", "D. Diperintahkan oleh atasan"], answer: "C. Mendapatkan izin tertulis dari tempat yang dituju"},
-            {q: "Dalam observasi, waktu pencatatan yang dilakukan setelah observasi selesai disebut:", options: ["Delayed / Retrospective recording", "Immediate recording", "Time-event mapping", "Interval tagging"], answer: "Delayed / Retrospective recording"},
-            {q: "Apa yang harus dihindari dalam penarikan kesimpulan observasi?", options: ["Bias subjektif pengamat dan generalisasi berlebihan (overgeneralization)", "Objektivitas data", "Penggunaan landasan teori", "Konsistensi pencatatan"], answer: "Bias subjektif pengamat dan generalisasi berlebihan (overgeneralization)"},
-            {q: "Kelelahan, menurunnya konsentrasi, dan minat observer dapat menyebabkan:", options: ["Observer drift (penurunan standar/akurasi pengamatan)", "Hawthorne effect", "Leniency error", "Halo effect"], answer: "Observer drift (penurunan standar/akurasi pengamatan)"},
-            {q: "Yang termasuk etika profesional observer adalah:", options: ["Menjaga kerahasiaan identitas dan data subjek (Confidentiality)", "Membocorkan kebiasaan buruk subjek di media", "Memaksa subjek jika mereka tidak bersedia", "Memanipulasi data agar hasil penelitian bagus"], answer: "Menjaga kerahasiaan identitas dan data subjek (Confidentiality)"},
-            {q: "Selective attention pada observer berarti:", options: ["Kecenderungan hanya memperhatikan hal tertentu yang sejalan dengan ekspektasi/minat observer", "Fokus sempurna pada seluruh aspek subjek", "Hilangnya fokus akibat suara bising", "Ketidakmampuan melihat subjek secara langsung"], answer: "Kecenderungan hanya memperhatikan hal tertentu yang sejalan dengan ekspektasi/minat observer"},
-            {q: "Apa yang menjadi tujuan dari Narrative Recording dalam observasi?", options: ["Mendapatkan deskripsi detail, kronologis, dan komprehensif tentang peristiwa/perilaku", "Mencatat total frekuensi perilaku agresif harian", "Mengubah data kualitatif menjadi angka statistik mutlak", "Membatasi perilaku subjek yang diamati"], answer: "Mendapatkan deskripsi detail, kronologis, dan komprehensif tentang peristiwa/perilaku"},
-            {q: "Yang termasuk dalam perilaku molar (bermakna kompleks) adalah:", options: ["B. Membaca", "A. Menggerakkan tangan", "C. Mengunyah makanan", "D. Menyentuh benda"], answer: "B. Membaca"},
-            {q: "Kalimat seperti “ia frustasi” termasuk dalam:", options: ["C. High inferential judgment", "A. Deskripsi perilaku objektif", "B. Low inferential judgment", "D. Observasi molar"], answer: "C. High inferential judgment"},
-            {q: "Apa kelebihan dari Interval Recording?", options: ["Sangat efisien dan cocok untuk merekam perilaku yang sering berulang atau berdurasi panjang", "Memungkinkan deskripsi berbentuk cerita panjang", "Tidak membutuhkan panduan sama sekali", "Bisa menghitung kecepatan refleks secara akurat"], answer: "Sangat efisien dan cocok untuk merekam perilaku yang sering berulang atau berdurasi panjang"},
-            {q: "Time Sampling merujuk pada:", options: ["Pengamatan yang hanya dilakukan pada slot/periode waktu tertentu yang telah ditetapkan", "Mengamati subjek 24 jam penuh tanpa jeda", "Mencatat lamanya (durasi) keseluruhan sebuah perilaku", "Menghitung perilaku subjek di masa lalunya"], answer: "Pengamatan yang hanya dilakukan pada slot/periode waktu tertentu yang telah ditetapkan"},
-            {q: "Manakah dari perilaku berikut yang kurang cocok untuk Event Recording?", options: ["B. Berlari dan mengetuk benda secara cepat (terlalu beruntun)", "A. Menyelesaikan tugas matematika", "C. Menggunakan kata kasar", "D. Terlambat masuk kelas"], answer: "B. Berlari dan mengetuk benda secara cepat (terlalu beruntun)"},
-            {q: "Apa perbedaan utama antara Event Recording dan Interval Recording?", options: ["Event berfokus menghitung total kemunculan, Interval berfokus mencatat ada/tidaknya perilaku dalam irisan waktu", "Event harus dilakukan siang hari, Interval pada malam hari", "Event butuh kertas kosong, Interval butuh video recorder", "Tidak ada bedanya, hanya soal preferensi format"], answer: "Event berfokus menghitung total kemunculan, Interval berfokus mencatat ada/tidaknya perilaku dalam irisan waktu"},
-            {q: "Perilaku seperti “mengucapkan halo” atau “mengajukan pertanyaan” cocok diamati menggunakan:", options: ["Event recording (karena ada titik mula & akhir yang jelas)", "Interval recording", "Rating scale", "Continuous narrative"], answer: "Event recording (karena ada titik mula & akhir yang jelas)"},
-            {q: "Rating Recording memiliki kelemahan utama berupa:", options: ["Rentan terhadap bias/subjektivitas pengamat (rater)", "Terlalu mahal untuk direplikasi", "Hanya bisa digunakan untuk objek statis", "Terlalu memakan banyak kertas lembar kerja"], answer: "Rentan terhadap bias/subjektivitas pengamat (rater)"},
-            {q: "Ciri khas dari Narrative Recording adalah:", options: ["Disusun secara kronologis dalam bentuk deskripsi/narasi cerita utuh", "Menggunakan tabel ceklis dan tally marks", "Menggunakan alat pengukur waktu stopwatch khusus", "Hasilnya langsung berupa grafik kuantitatif"], answer: "Disusun secara kronologis dalam bentuk deskripsi/narasi cerita utuh"}
+            {q: "1. Peran Informasional Influence dalam polarisasi kelompok terjadi ketika...", options: ["Anggota kelompok terpapar argumen baru yang masuk akal dan mendukung pandangan awal mereka", "Anggota mengubah pendapat murni karena ingin diterima oleh mayoritas kelompok", "Adanya tekanan dari sosok pemimpin yang karismatik", "Anggota bertindak secara anonim untuk menghindari kritik"], answer: "Anggota kelompok terpapar argumen baru yang masuk akal dan mendukung pandangan awal mereka"},
+            {q: "2. Fenomena awal yang menjadi dasar penemuan konsep polarisasi kelompok adalah...", options: ["Risky shift phenomenon (Pergeseran Risiko)", "Bystander effect", "Social loafing", "Groupthink"], answer: "Risky shift phenomenon (Pergeseran Risiko)"},
+            {q: "3. Apa yang dimaksud dengan polarisasi kelompok?", options: ["Kecenderungan kelompok untuk membuat keputusan yang lebih ekstrem dibandingkan kecenderungan awal anggotanya", "Pecahnya satu kelompok besar menjadi faksi-faksi kecil yang saling bermusuhan", "Hilangnya identitas personal saat berada di dalam kerumunan", "Proses asimilasi budaya di dalam suatu komunitas maya"], answer: "Kecenderungan kelompok untuk membuat keputusan yang lebih ekstrem dibandingkan kecenderungan awal anggotanya"},
+            {q: "4. Menurut Riggio (2009), konformitas didefinisikan sebagai...", options: ["Perubahan perilaku atau keyakinan individu agar sesuai dengan norma kelompok sebagai akibat dari tekanan kelompok", "Tindakan agresi yang dilakukan karena merasa tidak terlihat (anonim)", "Kepatuhan mutlak terhadap figur otoritas", "Proses penolakan individu terhadap aturan mayoritas"], answer: "Perubahan perilaku atau keyakinan individu agar sesuai dengan norma kelompok sebagai akibat dari tekanan kelompok"},
+            {q: "5. Unsur utama yang mutlak harus ada agar sekumpulan orang dapat disebut sebagai 'kelompok' adalah...", options: ["Adanya interaksi, saling ketergantungan (interdependensi), dan tujuan bersama", "Adanya pemimpin yang formal dan struktur hierarki", "Terdiri dari setidaknya 10 orang dengan usia seragam", "Memiliki nama dan logo resmi"], answer: "Adanya interaksi, saling ketergantungan (interdependensi), dan tujuan bersama"},
+            {q: "6. Manakah di bawah ini yang merupakan salah satu karakteristik utama dari kecanduan internet (Internet Addiction)?", options: ["Mengalami gejala penarikan diri (withdrawal) saat tidak online dan kehilangan kendali atas waktu", "Bisa membatasi waktu penggunaan media sosial dengan ketat", "Hanya menggunakan internet untuk keperluan akademis", "Meningkatnya kepuasan hidup di dunia nyata"], answer: "Mengalami gejala penarikan diri (withdrawal) saat tidak online dan kehilangan kendali atas waktu"},
+            {q: "7. Secara psikologis, faktor yang sering menjadi penyebab seseorang rentan mengalami Internet Addiction adalah...", options: ["Kecemasan sosial, kesepian, dan pelarian dari masalah di dunia nyata (escapism)", "Memiliki banyak teman dekat dan dukungan sosial yang kuat", "Tingkat kecerdasan IQ yang di atas rata-rata", "Kurangnya akses terhadap perangkat teknologi"], answer: "Kecemasan sosial, kesepian, dan pelarian dari masalah di dunia nyata (escapism)"},
+            {q: "8. Definisi umum dari Internet Addiction adalah...", options: ["Penggunaan internet yang berlebihan, kompulsi yang tidak terkontrol, hingga mengganggu fungsi kehidupan sehari-hari", "Hobi menggunakan komputer untuk membangun aplikasi dan jaringan", "Kebiasaan mencari informasi akademik secara terus-menerus", "Aktivitas berbelanja online seminggu sekali"], answer: "Penggunaan internet yang berlebihan, kompulsi yang tidak terkontrol, hingga mengganggu fungsi kehidupan sehari-hari"},
+            {q: "9. Perbedaan mendasar antara Anonymity dan Pseudonymity di dunia maya adalah...", options: ["Anonymity berarti interaksi tanpa identitas sama sekali, sedangkan Pseudonymity menggunakan nama samaran yang dapat dilacak secara konsisten", "Anonymity menggunakan nama asli, Pseudonymity tidak pakai nama", "Keduanya memiliki arti yang persis sama dalam hukum siber", "Anonymity hanya di Deep Web, Pseudonymity di media sosial"], answer: "Anonymity berarti interaksi tanpa identitas sama sekali, sedangkan Pseudonymity menggunakan nama samaran yang dapat dilacak secara konsisten"},
+            {q: "10. Salah satu trait (aspek kepribadian) dalam Big Five yang sering dikaitkan dengan tingginya kecenderungan kecanduan internet adalah...", options: ["Neuroticism yang tinggi (mudah cemas) atau Extraversion yang rendah (introvert)", "Conscientiousness yang sangat tinggi", "Openness to Experience yang rendah", "Agreeableness yang maksimal"], answer: "Neuroticism yang tinggi (mudah cemas) atau Extraversion yang rendah (introvert)"},
+            {q: "11. Konsep Online Disinhibition Effect yang digagas oleh John Suler menjelaskan fenomena di mana...", options: ["Orang merasa lebih bebas bertindak atau berekspresi secara online, yang terkadang memicu perilaku agresif atau pembukaan diri yang berlebihan", "Orang menjadi sangat takut untuk berinteraksi di forum online", "Berkurangnya koneksi internet karena terlalu banyak pengguna", "Meningkatnya rasa empati saat membaca komentar negatif"], answer: "Orang merasa lebih bebas bertindak atau berekspresi secara online, yang terkadang memicu perilaku agresif atau pembukaan diri yang berlebihan"},
+            {q: "12. Tindakan mengirimkan pesan penuh amarah, kasar, atau vulgar secara sengaja di forum publik termasuk dalam jenis cyberbullying yang disebut...", options: ["Flaming", "Impersonation", "Outing", "Cyberstalking"], answer: "Flaming"},
+            {q: "13. Berdasarkan riset secara umum, perbedaan karakteristik pria dan wanita dalam belanja online (e-commerce) adalah...", options: ["Pria cenderung berorientasi pada efisiensi/tujuan (utilitarian), wanita lebih mementingkan eksplorasi dan interaksi emosional (hedonik)", "Pria lebih suka menawar harga, wanita langsung membeli", "Wanita lebih memikirkan spesifikasi teknis, pria fokus pada warna", "Tidak ada perbedaan pola belanja antara pria dan wanita"], answer: "Pria cenderung berorientasi pada efisiensi/tujuan (utilitarian), wanita lebih mementingkan eksplorasi dan interaksi emosional (hedonik)"},
+            {q: "14. Menurut Hinduja & Patchin (2009), Cyberbullying didefinisikan sebagai...", options: ["Perilaku menyakiti orang lain yang dilakukan secara sengaja dan berulang-ulang melalui perangkat elektronik dan komputer", "Kejahatan meretas akun bank seseorang secara diam-diam", "Tindakan penipuan berkedok investasi online", "Kritik membangun yang diberikan dalam forum akademik maya"], answer: "Perilaku menyakiti orang lain yang dilakukan secara sengaja dan berulang-ulang melalui perangkat elektronik dan komputer"},
+            {q: "15. Contoh penerapan Nettiquete (etika internet) yang baik dan tepat adalah...", options: ["Menghindari penggunaan HURUF KAPITAL secara keseluruhan karena terkesan sedang berteriak marah", "Meneruskan (forward) pesan berantai ke semua kontak", "Menggunakan identitas palsu untuk mengkritik orang", "Mengambil gambar tanpa mencantumkan kredit pencipta"], answer: "Menghindari penggunaan HURUF KAPITAL secara keseluruhan karena terkesan sedang berteriak marah"},
+            {q: "16. Hubungan antara Nettiquete dengan fenomena Cyberbullying adalah...", options: ["Penerapan netiquette yang lemah/buruk dalam komunitas online memiliki korelasi yang kuat dengan tingginya insiden cyberbullying", "Semakin ketat netiquette, semakin tinggi angka cyberbullying", "Keduanya tidak saling berkaitan", "Netiquette adalah penyebab utama terjadinya cyberbullying"], answer: "Penerapan netiquette yang lemah/buruk dalam komunitas online memiliki korelasi yang kuat dengan tingginya insiden cyberbullying"},
+            {q: "17. Apa yang dimaksud dengan Technological Gap (Kesenjangan Teknologi / Digital Divide)?", options: ["Kesenjangan antara kelompok yang memiliki akses dan kemampuan memanfaatkan teknologi dengan kelompok yang tidak memilikinya", "Perbedaan merk teknologi yang dipakai oleh dua institusi berbeda", "Jarak fisik antara server pusat dengan komputer klien", "Kesenjangan harga antara perangkat keras dan lunak"], answer: "Kesenjangan antara kelompok yang memiliki akses dan kemampuan memanfaatkan teknologi dengan kelompok yang tidak memilikinya"},
+            {q: "18. Dalam aspek demografis, kondisi anonymity di internet seringkali mengakibatkan...", options: ["Bias dan prasangka awal terkait gender, ras, dan usia menjadi berkurang karena identitas fisik tidak terlihat", "Munculnya konflik antar ras secara besar-besaran di setiap forum", "Meningkatnya kesadaran akan kelas sosial seseorang", "Usia seseorang akan sangat mudah terdeteksi dari gaya bahasanya"], answer: "Bias dan prasangka awal terkait gender, ras, dan usia menjadi berkurang karena identitas fisik tidak terlihat"},
+            {q: "19. Salah satu tipe Anonymity di mana pengguna tidak diketahui identitasnya oleh publik, namun pihak penyedia layanan/sistem tetap dapat melacaknya disebut...", options: ["Traceable anonymity", "Absolute anonymity", "Pseudonymity", "Visual anonymity"], answer: "Traceable anonymity"},
+            {q: "20. Menulis subjek yang jelas (clear subject line) dan membalas pesan secara tepat waktu merupakan contoh dari jenis Nettiquete dalam...", options: ["One-to-one communication (Komunikasi personal, misal email)", "Many-to-many communication (Mailing list/Forum)", "Information retrieval (Pencarian informasi)", "Gaming etiquette (Etika bermain game)"], answer: "One-to-one communication (Komunikasi personal, misal email)"},
+            {q: "21. Fungsi utama dari search engine (mesin pencari) adalah...", options: ["Mengindeks, mencari, dan menampilkan informasi dari miliaran halaman web berdasarkan query/kata kunci", "Menyimpan seluruh data pribadi pengguna di internet", "Sebagai perangkat lunak untuk membuat website", "Menangkal virus komputer dan malware"], answer: "Mengindeks, mencari, dan menampilkan informasi dari miliaran halaman web berdasarkan query/kata kunci"},
+            {q: "22. Manakah di bawah ini yang merupakan bentuk komunikasi langsung (synchronous) di internet?", options: ["Chatting (Instant Messaging) dan Video Conference", "Email dan Forum Diskusi", "Blog dan Artikel Website", "Mailing list dan Podcast"], answer: "Chatting (Instant Messaging) dan Video Conference"},
+            {q: "23. Jenis layanan email yang memungkinkan penggunanya untuk membaca, mengirim, dan mengelola email langsung melalui browser tanpa harus mengunduh aplikasinya disebut...", options: ["Webmail (contoh: Gmail, Yahoo Mail)", "POP3 mail", "IMAP client", "Forwarding mail"], answer: "Webmail (contoh: Gmail, Yahoo Mail)"},
+            {q: "24. Fungsi utama dari email (electronic mail) adalah...", options: ["Menerima dan mengirimkan pesan berupa teks atau file digital secara asinkron (tidak langsung)", "Melakukan panggilan video tatap muka", "Mencari informasi artikel akademis di web", "Mendesain gambar atau mengedit video online"], answer: "Menerima dan mengirimkan pesan berupa teks atau file digital secara asinkron (tidak langsung)"},
+            {q: "25. Jaringan komputer yang digunakan untuk menghubungkan komputer-komputer dalam jangkauan area geografis yang kecil, seperti gedung kantor atau kampus disebut...", options: ["LAN (Local Area Network)", "WAN (Wide Area Network)", "MAN (Metropolitan Area Network)", "PAN (Personal Area Network)"], answer: "LAN (Local Area Network)"},
+            {q: "26. Dampak negatif internet bagi kesehatan mental dan psikologis individu bisa meliputi...", options: ["Cyberchondria, FOMO (Fear Of Missing Out), dan paparan Cyberbullying", "Meningkatkan kemampuan memori jangka panjang", "Membuat kualitas tidur menjadi sangat baik", "Mengurangi tingkat kemalasan fisik"], answer: "Cyberchondria, FOMO (Fear Of Missing Out), dan paparan Cyberbullying"},
+            {q: "27. Secara sejarah, jaringan komputer pertama yang dikembangkan pada tahun 1969 oleh Departemen Pertahanan AS dan menjadi cikal bakal internet bernama...", options: ["ARPANET", "INTRANET", "USENET", "ETHERNET"], answer: "ARPANET"}
         ];
 
         let questions = [];
@@ -355,13 +327,11 @@
 
         function triggerReflow(element) {
             element.classList.remove('animate-fade-in');
-            void element.offsetWidth; // Trigger reflow
+            void element.offsetWidth;
             element.classList.add('animate-fade-in');
         }
 
-        // Initialize total questions UI
         document.addEventListener('DOMContentLoaded', () => {
-            getElement('total-q-start').innerText = database.length;
             getElement('total-q').innerText = database.length;
         });
 
@@ -385,7 +355,7 @@
             
             const nextBtn = getElement('next-btn');
             nextBtn.classList.remove('show');
-            setTimeout(() => nextBtn.classList.add('hidden'), 300); // Wait for transition
+            setTimeout(() => nextBtn.classList.add('hidden'), 300);
             
             getElement('current-q').innerText = currentIndex + 1;
             
@@ -393,7 +363,6 @@
             const currentData = questions[currentIndex];
             questionEl.innerText = currentData.q;
             
-            // Animate question text
             questionEl.style.opacity = '0';
             questionEl.classList.remove('animate-fade-in');
             void questionEl.offsetWidth;
@@ -403,7 +372,6 @@
             const optionsContainer = getElement('options');
             optionsContainer.innerHTML = '';
             
-            // Staggered slide-up for options
             optionsData.forEach((opt, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn animate-slide-up';
@@ -434,7 +402,7 @@
 
             const nextBtn = getElement('next-btn');
             nextBtn.classList.remove('hidden');
-            setTimeout(() => nextBtn.classList.add('show'), 10); // small delay to trigger transition
+            setTimeout(() => nextBtn.classList.add('show'), 10);
         }
 
         function nextQuestion() {
@@ -457,12 +425,11 @@
             const msg = getElement('result-message');
             const percentage = score / database.length;
             
-            if (percentage === 1) msg.innerText = "ngecit lu y";
-            else if (percentage >= 0.75) msg.innerText = "ywdh";
-            else if (percentage >= 0.5) msg.innerText = "balik tk lg ngtd";
-            else msg.innerText = "PULANG MAEN ML AJA BEGOO";
+            if (percentage === 1) msg.innerText = "Sempurna! Udah sangat menguasai materi nih buat ujian.";
+            else if (percentage >= 0.75) msg.innerText = "Mantap! Sedikit lagi perfect, tinggal asah pemahaman teorinya.";
+            else if (percentage >= 0.5) msg.innerText = "Cukup baik, tapi sepertinya harus baca-baca ulang modulnya ya.";
+            else msg.innerText = "Ayo semangat! Jangan lupa direview lagi ya konsep-konsep kuncinya.";
             
-            // Restart animations for result screen elements
             const animatedElements = resultScreen.querySelectorAll('.animate-slide-up');
             animatedElements.forEach(el => {
                 el.classList.remove('animate-slide-up');
