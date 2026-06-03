@@ -56,7 +56,7 @@
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-emerald-500 selection:text-slate-950">
 
     <div class="flex flex-col md:flex-row min-h-screen">
-        <aside class="w-full md:w-80 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 p-6 flex flex-col justify-between shrink-0">
+        <aside class="w-full md:w-80 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 p-6 flex flex-col justify-between shrink-0 h-screen sticky top-0 overflow-y-auto">
             <div>
                 <div class="mb-8">
                     <span class="text-xs font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/50 px-2.5 py-1 rounded border border-emerald-800/50">RANGKUMAN MASTER UTS</span>
@@ -108,6 +108,12 @@
                         <span class="bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">9</span>
                         <span class="truncate">McCrae & Costa (Big Five)</span>
                     </button>
+
+                    <!-- NEW TOPIC 10: RANGKUMAN TOTAL -->
+                    <button onclick="switchTab('topic10')" id="btn-topic10" class="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-amber-400 border border-amber-900/50 bg-amber-950/20 hover:bg-amber-900/40 hover:text-amber-300 flex items-center space-x-3 mt-4">
+                        <span class="bg-amber-800/50 text-amber-300 border border-amber-700/50 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">10</span>
+                        <span class="truncate font-bold">Rangkuman Total</span>
+                    </button>
                 </nav>
             </div>
             
@@ -118,6 +124,7 @@
 
         <main class="flex-1 bg-slate-950 p-6 md:p-12 overflow-y-auto max-w-5xl">
             
+            <!-- TOPIC 1: SELIGMAN -->
             <div id="topic1" class="tab-content active space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -174,6 +181,7 @@
                 </section>
             </div>
 
+            <!-- TOPIC 2: MASLOW -->
             <div id="topic2" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -231,6 +239,7 @@
                 </section>
             </div>
 
+            <!-- TOPIC 3: ALLPORT -->
             <div id="topic3" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -277,6 +286,7 @@
                 </section>
             </div>
 
+            <!-- TOPIC 4: EYSENCK -->
             <div id="topic4" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -323,6 +333,7 @@
                 </section>
             </div>
 
+            <!-- TOPIC 5: ROTTER -->
             <div id="topic5" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -369,6 +380,7 @@
                 </section>
             </div>
 
+            <!-- TOPIC 6: KELLY -->
             <div id="topic6" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -409,6 +421,7 @@
                 </section>
             </div>
 
+            <!-- TOPIC 7: BANDURA -->
             <div id="topic7" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -456,6 +469,7 @@
                 </section>
             </div>
 
+            <!-- TOPIC 8: ROGERS -->
             <div id="topic8" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -498,6 +512,7 @@
                 </section>
             </div>
 
+            <!-- TOPIC 9: MCCRAE AND COSTA -->
             <div id="topic9" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
@@ -559,70 +574,141 @@
                 </section>
             </div>
 
+            <!-- TOPIC 10: RANGKUMAN TOTAL -->
+            <div id="topic10" class="tab-content space-y-8">
+                <div class="border-b border-amber-900/50 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Materi 10</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-1">Rangkuman Total & Sintesis Teori</h2>
+                    </div>
+                    <button id="btn-copy-topic10" onclick="copyTopicText('topic10')" class="copy-btn shrink-0 self-start sm:self-center bg-amber-950/30 hover:bg-amber-900/50 text-xs text-amber-400 font-semibold px-4 py-2 rounded-lg border border-amber-800/50 transition-all duration-150 flex items-center space-x-1.5">
+                        <span>Copy Rangkuman Ini</span>
+                    </button>
+                </div>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-amber-400 flex items-center"><span class="w-1.5 h-4 bg-amber-500 rounded mr-2"></span>1. Aliran Positif & Humanistik (Fokus: Pertumbuhan & Potensi Diri)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-2">Aliran ini memandang manusia pada dasarnya baik, sehat, proaktif, dan selalu berorientasi pada pencapaian tertinggi dari potensinya (bukan sekadar dikontrol masa lalu atau penyakit).</p>
+                    <div class="space-y-2 text-xs text-slate-400">
+                        <p><strong>Martin Seligman:</strong> Mengembangkan teori psikologi positif. Berangkat dari <em class="text-slate-300">Learned Helplessness</em> (akar depresi) menuju <em class="text-slate-300">Learned Optimism</em> (optimisme yang bisa dilatih). Optimis melihat kegagalan sebagai sesuatu yang sementara, spesifik, dan eksternal.</p>
+                        <p><strong>Abraham Maslow:</strong> Mengusulkan <em class="text-slate-300">Holistik-Dinamik</em> dan hierarki kebutuhan (Fisiologis, Aman, Cinta, Harga Diri, Aktualisasi Diri). Manusia bergerak dari <em>Deficit Needs (D-Needs)</em> menuju <em>Being Needs (B-Needs)</em>. Hambatannya adalah <em>Jonah Complex</em> (takut akan kebesaran diri).</p>
+                        <p><strong>Carl Rogers:</strong> Mengusulkan <em class="text-slate-300">Person-Centered Theory</em>. Masalah mental timbul karena ada <em>Inkongruensi</em> (ketidakcocokan antara Diri Nyata dan Diri Ideal). Terapi yang sehat harus memiliki 3 elemen: <em>Congruence</em> (jujur), <em>Unconditional Positive Regard</em> (penerimaan tanpa syarat), dan <em>Empathic Understanding</em>.</p>
+                    </div>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-amber-400 flex items-center"><span class="w-1.5 h-4 bg-amber-500 rounded mr-2"></span>2. Aliran Trait & Biologis (Fokus: Struktur, Sifat Bawaan & Genetik)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-2">Aliran ini memandang kepribadian sebagai struktur yang menetap, konsisten, dan sangat dipengaruhi oleh komponen genetik, susunan saraf, serta hormon tubuh.</p>
+                    <div class="space-y-2 text-xs text-slate-400">
+                        <p><strong>Gordon Allport:</strong> Mengedepankan metode idiografis (keunikan mutlak manusia). Membagi trait menjadi <em class="text-slate-300">Cardinal</em> (sangat dominan), <em class="text-slate-300">Central</em> (inti karakter), dan <em class="text-slate-300">Secondary</em>. Menggagas <em class="text-slate-300">Functional Autonomy</em> (motivasi masa kini terlepas dari masa lalu) dan konsep <em>Proprium</em> (Ego).</p>
+                        <p><strong>Hans J. Eysenck:</strong> Menggagas teori <em class="text-slate-300">Model PEN</em> (Psychoticism, Extraversion, Neuroticism). Menjelaskan bahwa sifat ekstrovert/introvert berakar pada perbedaan tingkat rangsangan ARAS di otak, sementara neurotisisme berakar pada ambang reaktivitas sistem limbik.</p>
+                        <p><strong>McCrae & Costa:</strong> Menyatukan kebingungan sifat manusia ke dalam <em class="text-slate-300">The Big Five (OCEAN)</em>: Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism. Sifat dasar ini (*Basic Tendencies*) bersifat genetik, yang lalu berinteraksi dengan lingkungan membentuk *Characteristic Adaptations*.</p>
+                    </div>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-amber-400 flex items-center"><span class="w-1.5 h-4 bg-amber-500 rounded mr-2"></span>3. Aliran Kognitif Sosial & Fenomenologis (Fokus: Kognisi, Belajar & Makna)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-2">Aliran ini memandang manusia sebagai pemroses informasi yang rasional. Kepribadian terbentuk dari cara kita berpikir, belajar dari lingkungan, dan membangun prediksi masa depan.</p>
+                    <div class="space-y-2 text-xs text-slate-400">
+                        <p><strong>Julian B. Rotter:</strong> Menjelaskan bahwa potensi perilaku bergantung pada ekspektasi (harapan keberhasilan) dan nilai penguatan (daya tarik hasil). Menciptakan konsep <em class="text-slate-300">Locus of Control</em> (Internal vs Eksternal).</p>
+                        <p><strong>George Kelly:</strong> Mengusulkan <em class="text-slate-300">Personal Construct Theory</em>. Manusia bertindak seperti ilmuwan (*man-the-scientist*). Kita memahami dunia melalui "konstruk" (sistem penilaian dikotomis/bipolar). Proses psikologis kita murni diarahkan oleh antisipasi kita terhadap masa depan.</p>
+                        <p><strong>Albert Bandura:</strong> Menyatukan kognisi dan lingkungan melalui <em class="text-slate-300">Triadic Reciprocal Determinism</em> (interaksi Orang, Perilaku, Lingkungan). Mengemukakan pentingnya Belajar Observasional (Modeling) dan <em class="text-slate-300">Self-Efficacy</em> (keyakinan akan kemampuan diri menyelesaikan tugas).</p>
+                    </div>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-lg font-bold text-amber-400 flex items-center"><span class="w-1.5 h-4 bg-amber-500 rounded mr-2"></span>Kesimpulan Akhir (Benang Merah)</h3>
+                    <div class="bg-amber-950/20 border border-amber-900/50 p-4 rounded-xl">
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Kepribadian manusia tidak bisa dijelaskan secara tunggal. Manusia adalah makhluk kompleks yang dibentuk oleh fondasi <strong>genetik & neurologis</strong> yang solid (Eysenck, McCrae & Costa, Allport), dipengaruhi oleh <strong>cara berpikir dan ekspektasinya terhadap lingkungan sosial</strong> (Rotter, Bandura, Kelly), namun secara alamiah selalu terdorong untuk <strong>tumbuh sehat dan mencari makna aktualisasi diri yang paling optimal</strong> (Maslow, Rogers, Seligman).
+                        </p>
+                    </div>
+                </section>
+            </div>
+
         </main>
     </div>
 
     <script>
         function switchTab(topicId) {
-            // 1. Get all content blocks and hide them
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => {
                 content.classList.remove('active');
             });
 
-            // 2. Get all sidebar buttons and reset styles to normal dark state
             const buttons = document.querySelectorAll('#sidebar-menu button');
             buttons.forEach(btn => {
-                btn.className = "w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3";
-                // Reset indicator circle
-                const circle = btn.querySelector('span');
-                if (circle) {
-                    circle.className = "bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0";
+                // Reset standard buttons (1-9)
+                if (btn.id !== 'btn-topic10') {
+                    btn.className = "w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 flex items-center space-x-3";
+                    const circle = btn.querySelector('span');
+                    if (circle) {
+                        circle.className = "bg-slate-800 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0";
+                    }
+                } 
+                // Reset summary button (10)
+                else {
+                    btn.className = "w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-amber-400 border border-amber-900/50 bg-amber-950/20 hover:bg-amber-900/40 hover:text-amber-300 flex items-center space-x-3 mt-4";
+                    const circle = btn.querySelector('span');
+                    if (circle) {
+                        circle.className = "bg-amber-800/50 text-amber-300 border border-amber-700/50 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0";
+                    }
                 }
             });
 
-            // 3. Show selected tab content (this triggers the custom CSS keyframe animation)
             const activeContent = document.getElementById(topicId);
             activeContent.classList.add('active');
             
-            // Scroll main content pane back to top immediately upon switch
             document.querySelector('main').scrollTop = 0;
 
-            // 4. Style the active button to match vibrant emerald highlights
             const activeBtn = document.getElementById('btn-' + topicId);
-            activeBtn.className = "w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 border border-emerald-500/30 flex items-center space-x-3";
-            const activeCircle = activeBtn.querySelector('span');
-            if (activeCircle) {
-                activeCircle.className = "bg-emerald-800 text-emerald-200 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0";
+            if (topicId !== 'topic10') {
+                activeBtn.className = "w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 border border-emerald-500/30 flex items-center space-x-3";
+                const activeCircle = activeBtn.querySelector('span');
+                if (activeCircle) {
+                    activeCircle.className = "bg-emerald-800 text-emerald-200 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0";
+                }
+            } else {
+                activeBtn.className = "w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-amber-600 text-white shadow-lg shadow-amber-900/20 border border-amber-500/30 flex items-center space-x-3 mt-4";
+                const activeCircle = activeBtn.querySelector('span');
+                if (activeCircle) {
+                    activeCircle.className = "bg-amber-800 text-amber-200 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0";
+                }
             }
         }
 
         function copyTopicText(topicId) {
-            // Clone the original topic node to extract text cleanly
             const container = document.getElementById(topicId).cloneNode(true);
             
-            // Strip out copy buttons inside the clone so they are not included in the text clip
             const copyButtons = container.querySelectorAll('.copy-btn');
             copyButtons.forEach(btn => btn.remove());
             
-            // Normalize internal text spacing
             const cleanText = container.innerText.replace(/\s+/g, ' ').trim();
             
-            // Write text content directly to clipboard
             navigator.clipboard.writeText(cleanText).then(() => {
                 const targetBtn = document.querySelector(`#btn-copy-${topicId}`);
                 const originalHTML = targetBtn.innerHTML;
+                const isTopic10 = topicId === 'topic10';
                 
-                // Active status feedback UI transition
                 targetBtn.innerHTML = `<span>✓ Tersalin!</span>`;
-                targetBtn.classList.remove('text-emerald-400', 'border-slate-700', 'bg-slate-900');
-                targetBtn.classList.add('text-slate-950', 'bg-emerald-400', 'border-emerald-400');
                 
-                // Revert state back after delay
+                if (isTopic10) {
+                    targetBtn.classList.remove('text-amber-400', 'border-amber-800/50', 'bg-amber-950/30');
+                    targetBtn.classList.add('text-slate-950', 'bg-amber-400', 'border-amber-400');
+                } else {
+                    targetBtn.classList.remove('text-emerald-400', 'border-slate-700', 'bg-slate-900');
+                    targetBtn.classList.add('text-slate-950', 'bg-emerald-400', 'border-emerald-400');
+                }
+                
                 setTimeout(() => {
                     targetBtn.innerHTML = originalHTML;
-                    targetBtn.classList.remove('text-slate-950', 'bg-emerald-400', 'border-emerald-400');
-                    targetBtn.classList.add('text-emerald-400', 'bg-slate-900', 'border-slate-700');
+                    if (isTopic10) {
+                        targetBtn.classList.remove('text-slate-950', 'bg-amber-400', 'border-amber-400');
+                        targetBtn.classList.add('text-amber-400', 'bg-amber-950/30', 'border-amber-800/50');
+                    } else {
+                        targetBtn.classList.remove('text-slate-950', 'bg-emerald-400', 'border-emerald-400');
+                        targetBtn.classList.add('text-emerald-400', 'bg-slate-900', 'border-slate-700');
+                    }
                 }, 2000);
             });
         }
