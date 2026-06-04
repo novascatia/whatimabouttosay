@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Psikologi Industri & Organisasi (PIO)</title>
+    <title>Kuis Psikologi Kepribadian 2</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
         :root {
-            --bg-body: #000000;
-            --bg-card: #0a0a0a;
-            --border: #27272a;
-            --border-hover: #3f3f46;
-            --text-main: #ededed;
-            --text-muted: #a1a1aa;
+            --bg-body: #020617; /* slate-950 */
+            --bg-card: #0f172a; /* slate-900 */
+            --border: #1e293b; /* slate-800 */
+            --border-hover: #334155; /* slate-700 */
+            --text-main: #f1f5f9; /* slate-100 */
+            --text-muted: #94a3b8; /* slate-400 */
             
-            --primary: #ededed;
-            --primary-text: #0a0a0a;
-            --primary-hover: #d4d4d8;
+            --primary: #10b981; /* emerald-500 */
+            --primary-text: #ffffff;
+            --primary-hover: #059669; /* emerald-600 */
             
             --correct-bg: rgba(16, 185, 129, 0.1);
             --correct-border: #10b981;
@@ -52,19 +52,19 @@
             background-image: linear-gradient(var(--border) 1px, transparent 1px), 
                               linear-gradient(90deg, var(--border) 1px, transparent 1px);
             background-size: 50px 50px;
-            opacity: 0.2;
+            opacity: 0.3;
             z-index: -1;
             pointer-events: none;
         }
 
         .container {
             width: 100%;
-            max-width: 680px;
+            max-width: 720px;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 32px;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 10px 30px -10px rgba(0,0,0,0.5);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.02), 0 20px 40px -10px rgba(0,0,0,0.7);
             position: relative;
             z-index: 1;
         }
@@ -79,9 +79,9 @@
         }
 
         .header-title {
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.95rem;
-            color: var(--text-muted);
+            color: var(--primary);
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
@@ -89,15 +89,15 @@
         .counter {
             font-size: 0.85rem;
             color: var(--text-main);
-            font-weight: 500;
-            background: #18181b;
-            padding: 6px 12px;
+            font-weight: 600;
+            background: #020617;
+            padding: 6px 14px;
             border-radius: 20px;
             border: 1px solid var(--border);
         }
 
         .question {
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             line-height: 1.6;
             font-weight: 500;
             margin-bottom: 32px;
@@ -117,7 +117,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             padding: 16px 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
             color: var(--text-muted);
             cursor: pointer;
@@ -129,8 +129,9 @@
         .option-btn:hover:not(:disabled) {
             border-color: var(--border-hover);
             color: var(--text-main);
-            background: #18181b;
+            background: #1e293b;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .option-btn:disabled {
@@ -141,7 +142,7 @@
             background: var(--correct-bg);
             border-color: var(--correct-border);
             color: var(--correct-text);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .option-btn.wrong {
@@ -154,18 +155,20 @@
             background: var(--primary);
             color: var(--primary-text);
             border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 0.95rem;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             width: 100%;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
         }
 
         .btn-primary:hover {
             background: var(--primary-hover);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
         }
 
         .hidden {
@@ -198,34 +201,36 @@
         .start-screen, .result-screen {
             text-align: center;
             align-items: center;
-            padding: 32px 0;
+            padding: 40px 0;
         }
 
         .start-screen h1 {
-            font-size: 1.75rem;
+            font-size: 2rem;
+            font-weight: 800;
             margin-bottom: 12px;
             letter-spacing: -0.5px;
+            color: #ffffff;
         }
 
         .start-screen p {
             color: var(--text-muted);
             margin-bottom: 40px;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
         .score {
-            font-size: 5rem;
-            font-weight: 600;
+            font-size: 5.5rem;
+            font-weight: 800;
             letter-spacing: -0.05em;
             margin: 24px 0;
-            color: var(--text-main);
+            color: var(--primary);
             line-height: 1;
         }
 
         .score span {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: var(--text-muted);
-            font-weight: 400;
+            font-weight: 500;
         }
 
         #next-btn {
@@ -248,14 +253,14 @@
     <div class="container animate-fade-in">
         
         <div id="start-screen" class="screen start-screen">
-            <h1 class="animate-slide-up" style="animation-delay: 0.1s; opacity: 0;">Psikologi Industri & Organisasi</h1>
-            <p class="animate-slide-up" style="animation-delay: 0.2s; opacity: 0;">Simulasi Ujian - <span id="total-q-start"></span> Soal</p>
-            <button class="btn-primary animate-slide-up" style="animation-delay: 0.3s; opacity: 0; max-width: 200px;" onclick="startQuiz()">Mulai Latihan</button>
+            <h1 class="animate-slide-up" style="animation-delay: 0.1s; opacity: 0;">Kuis Psi. Kepribadian 2</h1>
+            <p class="animate-slide-up" style="animation-delay: 0.2s; opacity: 0;">Simulasi Ujian UTS - <span id="total-q-start"></span> Soal Objektif</p>
+            <button class="btn-primary animate-slide-up" style="animation-delay: 0.3s; opacity: 0; max-width: 250px;" onclick="startQuiz()">Mulai Tes Sekarang</button>
         </div>
 
         <div id="quiz-screen" class="screen hidden">
             <header>
-                <div class="header-title">PIO Exam Prep</div>
+                <div class="header-title">Ujian Kepribadian 2</div>
                 <div class="counter"><span id="current-q">1</span> / <span id="total-q"></span></div>
             </header>
             
@@ -267,55 +272,83 @@
         </div>
 
         <div id="result-screen" class="screen result-screen hidden">
-            <h2 class="animate-slide-up" style="animation-delay: 0.1s; font-size: 1.25rem; font-weight: 500; color: var(--text-muted); opacity: 0;">Skor PIO Kamu</h2>
+            <h2 class="animate-slide-up" style="animation-delay: 0.1s; font-size: 1.25rem; font-weight: 600; color: var(--text-muted); opacity: 0;">Skor UTS Kamu</h2>
             <div class="score animate-slide-up" id="final-score" style="animation-delay: 0.2s; opacity: 0;">0<span>/0</span></div>
-            <p class="animate-slide-up" id="result-message" style="animation-delay: 0.3s; color: var(--text-main); margin-bottom: 40px; font-size: 1rem; opacity: 0;"></p>
-            <button class="btn-primary animate-slide-up" style="animation-delay: 0.4s; max-width: 200px; opacity: 0;" onclick="startQuiz()">Coba Lagi</button>
+            <p class="animate-slide-up" id="result-message" style="animation-delay: 0.3s; color: var(--text-main); margin-bottom: 40px; font-size: 1.1rem; opacity: 0;"></p>
+            <button class="btn-primary animate-slide-up" style="animation-delay: 0.4s; max-width: 250px; opacity: 0;" onclick="startQuiz()">Coba Ulang Kuis</button>
         </div>
 
     </div>
 
     <script>
         const database = [
-            {q: "Pada sejarah awal PIO (Perang Dunia I), dikembangkan tes Army Alpha dan Army Beta. Apa perbedaan utama keduanya?", options: ["Army Alpha berbentuk tes tertulis/verbal, Army Beta berbentuk tes non-verbal untuk yang buta huruf/tidak bisa bahasa Inggris", "Army Alpha untuk rekrutmen perwira, Beta untuk prajurit biasa", "Alpha untuk tes fisik, Beta untuk tes psikologis", "Alpha digunakan di PD I, Beta digunakan di PD II"], answer: "Army Alpha berbentuk tes tertulis/verbal, Army Beta berbentuk tes non-verbal untuk yang buta huruf/tidak bisa bahasa Inggris"},
-            {q: "Manakah dari situasi berikut yang merupakan contoh dari Hawthorne Effect?", options: ["Karyawan bekerja lebih giat karena tahu mereka sedang diamati oleh peneliti", "Karyawan mogok kerja karena gaji diturunkan", "Karyawan mengalami stres akibat target yang tidak realistis", "Produktivitas menurun karena suhu ruangan terlalu panas"], answer: "Karyawan bekerja lebih giat karena tahu mereka sedang diamati oleh peneliti"},
-            {q: "Ruang lingkup utama dari Psikologi Industri dan Organisasi (PIO) mencakup...", options: ["Psikologi Personalia, Psikologi Organisasi, dan Human Factors (Ergonomi)", "Psikologi Klinis, Psikologi Perkembangan, dan Psikologi Sosial", "Psikodiagnostik, Psikoanalisis, dan Behaviorisme", "Psikoterapi, Konseling, dan Rehabilitasi Medik"], answer: "Psikologi Personalia, Psikologi Organisasi, dan Human Factors (Ergonomi)"},
-            {q: "Berikut ini adalah objek kajian dari Psikologi Industri dan Organisasi, KECUALI...", options: ["Penanganan gangguan mental berat (skizofrenia) pada individu", "Perilaku konsumen", "Dinamika kelompok di tempat kerja", "Kepuasan kerja dan motivasi karyawan"], answer: "Penanganan gangguan mental berat (skizofrenia) pada individu"},
-            {q: "Apa perbedaan utama pendekatan PIO sebagai sains (ilmu) dan profesi (praktik)?", options: ["Sains berfokus pada riset dan penemuan teori baru, sedangkan profesi berfokus pada penerapan teori tersebut untuk menyelesaikan masalah di tempat kerja", "Sains hanya dipelajari di kampus, profesi hanya dipelajari di kantor", "Sains tidak menggunakan metode kuantitatif, profesi menggunakannya", "Keduanya tidak memiliki perbedaan dan selalu berjalan terpisah"], answer: "Sains berfokus pada riset dan penemuan teori baru, sedangkan profesi berfokus pada penerapan teori tersebut untuk menyelesaikan masalah di tempat kerja"},
-            {q: "Dalam PIO, perbedaan mendasar antara seleksi dan penempatan (placement) adalah...", options: ["Seleksi adalah proses memilih orang yang tepat untuk suatu jabatan, penempatan adalah mengalokasikan individu yang sudah diterima ke posisi yang paling sesuai", "Seleksi dilakukan oleh HR, penempatan dilakukan oleh psikolog", "Seleksi untuk karyawan baru, penempatan untuk karyawan lama", "Keduanya adalah istilah yang sama persis tanpa perbedaan"], answer: "Seleksi adalah proses memilih orang yang tepat untuk suatu jabatan, penempatan adalah mengalokasikan individu yang sudah diterima ke posisi yang paling sesuai"},
-            {q: "Berdasarkan kode etik psikologi, prinsip utama yang harus dipegang oleh praktisi PIO saat mengelola data karyawan adalah...", options: ["Menjaga kerahasiaan data (confidentiality) dan menggunakannya hanya untuk kepentingan profesional", "Mempublikasikan hasil tes karyawan di papan pengumuman agar transparan", "Memanipulasi data agar perusahaan terlihat baik di mata investor", "Menjual database karyawan ke perusahaan pesaing"], answer: "Menjaga kerahasiaan data (confidentiality) dan menggunakannya hanya untuk kepentingan profesional"},
-            {q: "Ilmu yang mempelajari desain alat kerja, mesin, dan lingkungan fisik agar nyaman dan sesuai dengan kapasitas manusia adalah...", options: ["Human Factors / Ergonomi", "Psikologi Klinis", "Patologi Sosial", "Psikometri"], answer: "Human Factors / Ergonomi"},
-            {q: "Pelaksanaan program 'team building' (membangun kerjasama tim) termasuk ke dalam ranah intervensi...", options: ["Pengembangan Organisasi (Organizational Development)", "Rekrutmen Eksternal", "Perencanaan Finansial Perusahaan", "Evaluasi Kinerja Karyawan"], answer: "Pengembangan Organisasi (Organizational Development)"},
-            {q: "Upaya perusahaan yang berfokus pada keseimbangan, kesehatan fisik/mental, serta produktivitas karyawan merupakan contoh dari penerapan...", options: ["Occupational Health Psychology (Psikologi Kesehatan Kerja)", "Marketing Psychology", "Consumer Behavior", "Financial Management"], answer: "Occupational Health Psychology (Psikologi Kesehatan Kerja)"},
-            {q: "Apa perbedaan antara Job Description (Deskripsi Kerja) dan Job Specification (Spesifikasi Kerja)?", options: ["Jobdesc berisi daftar tugas dan tanggung jawab pekerjaan, Jobspec berisi syarat/kualifikasi (KSAO) manusia yang dibutuhkan untuk pekerjaan itu", "Jobdesc ditulis oleh pelamar, Jobspec ditulis oleh atasan", "Jobdesc untuk karyawan kontrak, Jobspec untuk karyawan tetap", "Keduanya sama-sama berisi nominal gaji yang akan diterima"], answer: "Jobdesc berisi daftar tugas dan tanggung jawab pekerjaan, Jobspec berisi syarat/kualifikasi (KSAO) manusia yang dibutuhkan untuk pekerjaan itu"},
-            {q: "Apa yang kemungkinan besar akan terjadi jika HR menyusun Job Description tanpa benar-benar mengetahui tugas riil karyawan di lapangan?", options: ["Terjadi ketidaksesuaian beban kerja, kebingungan peran (role ambiguity), dan penilaian kinerja yang tidak valid", "Karyawan akan otomatis bekerja lebih rajin", "Perusahaan akan lebih hemat biaya", "Target penjualan akan langsung meningkat tajam"], answer: "Terjadi ketidaksesuaian beban kerja, kebingungan peran (role ambiguity), dan penilaian kinerja yang tidak valid"},
-            {q: "Jika sebuah perusahaan ingin menentukan standar kinerja (performance standard) yang objektif, maka langkah awal yang paling krusial untuk dilakukan adalah...", options: ["Melakukan Job Analysis (Analisis Jabatan)", "Mengurangi gaji karyawan", "Mengganti semua manajer lama", "Melakukan rekrutmen massal"], answer: "Melakukan Job Analysis (Analisis Jabatan)"},
-            {q: "KSAO merupakan elemen penting dalam Job Analysis. KSAO singkatan dari...", options: ["Knowledge, Skills, Abilities, and Other characteristics", "Key Standard, Assessment, and Output", "Knowledge, Strategy, Attitude, and Order", "Kinetics, Symptoms, Attributes, and Organization"], answer: "Knowledge, Skills, Abilities, and Other characteristics"},
-            {q: "Manakah di bawah ini yang BUKAN merupakan kegunaan langsung dari Job Analysis?", options: ["Menentukan strategi pemasaran produk baru ke konsumen", "Menyusun Job Description dan Job Specification", "Dasar untuk rekrutmen, seleksi, dan penempatan", "Menyusun kriteria untuk penilaian kinerja"], answer: "Menentukan strategi pemasaran produk baru ke konsumen"},
-            {q: "Informasi dasar apa saja yang biasanya dikumpulkan dalam proses Job Analysis?", options: ["Aktivitas kerja, alat yang digunakan, konteks pekerjaan, dan persyaratan personel (KSAO)", "Sejarah berdirinya perusahaan dan nama pendirinya", "Data keuangan pribadi milik para direksi", "Jumlah pesaing bisnis di pasar global"], answer: "Aktivitas kerja, alat yang digunakan, konteks pekerjaan, dan persyaratan personel (KSAO)"},
-            {q: "Berikut ini yang merupakan contoh metode rekrutmen dari sumber internal perusahaan adalah...", options: ["Promosi, rotasi jabatan, dan referensi karyawan internal", "Memasang iklan di LinkedIn", "Mengikuti Job Fair di universitas", "Menggunakan jasa headhunter eksternal"], answer: "Promosi, rotasi jabatan, dan referensi karyawan internal"},
-            {q: "Konsep 'Person-Job Fit' merujuk pada...", options: ["Tingkat kesesuaian antara karakteristik individu (KSAO) dengan karakteristik dan tuntutan dari pekerjaan tersebut", "Kesesuaian antara pakaian karyawan dengan seragam perusahaan", "Cocoknya seseorang dengan budaya seluruh perusahaan secara umum", "Kecocokan pelamar kerja dengan pewawancara secara personal"], answer: "Tingkat kesesuaian antara karakteristik individu (KSAO) dengan karakteristik dan tuntutan dari pekerjaan tersebut"},
-            {q: "Tahapan mendasar dalam Perencanaan SDM (Human Resource Planning) secara berurutan biasanya meliputi...", options: ["Memperkirakan kebutuhan SDM, memperkirakan ketersediaan SDM, dan merancang program/strategi SDM", "Langsung merekrut orang, memecat orang lama, lalu memberi pelatihan", "Wawancara awal, orientasi, lalu seleksi", "Mengiklankan lowongan, negosiasi gaji, lalu Job Analysis"], answer: "Memperkirakan kebutuhan SDM, memperkirakan ketersediaan SDM, dan merancang program/strategi SDM"},
-            {q: "Manakah di bawah ini yang merupakan sumber rekrutmen eksternal?", options: ["Job portal (JobStreet, LinkedIn), Job Fair, dan biro penyalur tenaga kerja", "Mutasi karyawan dari cabang lain", "Kenaikan jabatan (promosi)", "Sistem rujukan dari manajer operasional ke direktur"], answer: "Job portal (JobStreet, LinkedIn), Job Fair, dan biro penyalur tenaga kerja"},
-            {q: "Secara umum, tahapan standar yang dilakukan setelah proses Rekrutmen selesai adalah...", options: ["Proses Seleksi (screening CV, tes tertulis, wawancara)", "Langsung memberikan gaji bulan pertama", "Melakukan pemecatan karyawan lama", "Memberikan program pensiun dini"], answer: "Proses Seleksi (screening CV, tes tertulis, wawancara)"},
-            {q: "Tahap krusial apa yang terjadi tepat sebelum calon pekerja memulai masa Onboarding/Orientasi karyawan baru?", options: ["Offering (Penawaran kerja) dan Penandatanganan Kontrak Kerja", "Analisis Kebutuhan Pelatihan (Training Needs Analysis)", "Evaluasi Kinerja Tahunan (Performance Appraisal)", "Proses Pengunduran Diri (Resignation)"], answer: "Offering (Penawaran kerja) dan Penandatanganan Kontrak Kerja"},
-            {q: "Hal utama yang dipertimbangkan HRD saat melakukan skrining awal CV pelamar adalah...", options: ["Kesesuaian pengalaman, pendidikan, dan skill pelamar dengan Job Specification (kualifikasi minimum)", "Seberapa bagus desain visual dari CV tersebut terlepas dari isinya", "Hobi pelamar di luar jam kerja", "Agama dan status pernikahan pelamar"], answer: "Kesesuaian pengalaman, pendidikan, dan skill pelamar dengan Job Specification (kualifikasi minimum)"},
-            {q: "Model wawancara di mana satu orang pelamar (interviewee) diwawancarai secara bersamaan oleh beberapa pewawancara (interviewer) disebut...", options: ["Panel Interview", "Group Interview", "Unstructured Interview", "Exit Interview"], answer: "Panel Interview"},
-            {q: "Jika beberapa orang pelamar/calon pekerja dikumpulkan dan diwawancarai secara bersama-sama dalam satu ruangan/waktu, ini disebut...", options: ["Group Interview", "Panel Interview", "Behavioral Event Interview", "Situational Interview"], answer: "Group Interview"},
-            {q: "Perbedaan utama antara Pelatihan (Training) dan Pengembangan (Development) adalah...", options: ["Pelatihan fokus pada peningkatan skill untuk pekerjaan saat ini (jangka pendek), pengembangan fokus pada penyiapan karyawan untuk peran/tanggung jawab di masa depan (jangka panjang)", "Pelatihan hanya untuk manajer, pengembangan untuk staf", "Pelatihan dilakukan di luar kantor, pengembangan di dalam kantor", "Keduanya tidak ada bedanya sama sekali"], answer: "Pelatihan fokus pada peningkatan skill untuk pekerjaan saat ini (jangka pendek), pengembangan fokus pada penyiapan karyawan untuk peran/tanggung jawab di masa depan (jangka panjang)"},
-            {q: "Langkah-langkah dalam Analisis Kebutuhan Pelatihan (Training Needs Analysis/TNA) meliputi 3 level analisis pokok, yaitu...", options: ["Analisis Organisasi, Analisis Tugas/Pekerjaan (Task), dan Analisis Individu (Person)", "Analisis Biaya, Analisis Pasar, dan Analisis Produk", "Analisis Psikologis, Analisis Fisik, dan Analisis Lingkungan", "Analisis Internal, Analisis Eksternal, dan Analisis Pesaing"], answer: "Analisis Organisasi, Analisis Tugas/Pekerjaan (Task), dan Analisis Individu (Person)"},
-            {q: "Perbedaan antara On-The-Job Training (OJT) dan Off-The-Job Training adalah...", options: ["OJT dilakukan sambil bekerja langsung di tempat kerja sesungguhnya, Off-The-Job dilakukan di luar lingkungan kerja riil (misal: kelas, seminar, simulasi)", "OJT dilakukan di luar negeri, Off-The-Job di dalam negeri", "OJT selalu berbayar, Off-The-Job gratis", "OJT fokus pada teori, Off-The-Job fokus pada praktik murni"], answer: "OJT dilakukan sambil bekerja langsung di tempat kerja sesungguhnya, Off-The-Job dilakukan di luar lingkungan kerja riil (misal: kelas, seminar, simulasi)"},
-            {q: "Cara yang efektif untuk memotivasi karyawan agar bersedia menghadiri dan serius dalam program pelatihan adalah...", options: ["Menjelaskan relevansi pelatihan dengan jenjang karir mereka dan memberikan insentif/sertifikasi yang berharga", "Memotong gaji jika tidak hadir tanpa memberikan alasan manfaat pelatihannya", "Mengancam akan langsung memecat jika tidak dapat nilai A", "Memaksa karyawan ikut pelatihan di hari libur mereka"], answer: "Menjelaskan relevansi pelatihan dengan jenjang karir mereka dan memberikan insentif/sertifikasi yang berharga"},
-            {q: "Bergosip menyebarkan rumor buruk di kantor termasuk ke dalam kategori perilaku...", options: ["Counterproductive Work Behavior (CWB) / Perilaku Kontraproduktif", "Organizational Citizenship Behavior (OCB)", "Perilaku Asertif", "Prosocial Behavior"], answer: "Counterproductive Work Behavior (CWB) / Perilaku Kontraproduktif"},
-            {q: "'Tim cabang A berhasil menjual 200 unit motor bulan ini sesuai target.' Penilaian kinerja ini merupakan contoh pengukuran berbasis...", options: ["Results / Objective (Berdasarkan hasil/output yang terukur)", "Traits (Berdasarkan sifat kepribadian)", "Behavior (Berdasarkan observasi perilaku)", "Subjective Rating (Penilaian subjektif atasan)"], answer: "Results / Objective (Berdasarkan hasil/output yang terukur)"},
-            {q: "Sistem penilaian kinerja di mana karyawan dipaksa masuk ke dalam kategori persentase tertentu (misal: 20% nilai A, 70% B, 10% C) disebut metode...", options: ["Forced Distribution Method (Distribusi Paksa)", "360-Degree Feedback", "Graphic Rating Scale", "Critical Incident Technique"], answer: "Forced Distribution Method (Distribusi Paksa)"},
-            {q: "Evaluasi kinerja karyawan yang sumber penilaiannya didapatkan dari atasan, rekan kerja sejawat, bawahan, klien, hingga diri sendiri disebut...", options: ["360-Degree Feedback", "Top-Down Appraisal", "Peer Review", "Self-Assessment"], answer: "360-Degree Feedback"},
-            {q: "Komponen pembentuk Job Attitude (Sikap Kerja) umumnya diukur melalui tiga aspek utama. Aspek apa sajakah itu?", options: ["Kognitif (Kepercayaan), Afektif (Perasaan), dan Perilaku (Intensi bertindak)", "Ekstrovert, Introvert, Ambivert", "Umur, Gender, Pendidikan", "Gaji, Tunjangan, Fasilitas"], answer: "Kognitif (Kepercayaan), Afektif (Perasaan), dan Perilaku (Intensi bertindak)"},
-            {q: "Teori kepuasan kerja yang menyatakan bahwa kepuasan adalah hasil dari perbandingan antara apa yang diharapkan (harapan) dengan apa yang sebenarnya didapatkan (kenyataan) disebut...", options: ["Value-Percept Theory / Discrepancy Theory", "Two-Factor Theory (Herzberg)", "Maslow Hierarchy of Needs", "Job Characteristics Model"], answer: "Value-Percept Theory / Discrepancy Theory"},
-            {q: "Organizational Citizenship Behavior (OCB) merujuk pada...", options: ["Perilaku sukarela karyawan di luar deskripsi kerjanya yang berkontribusi positif bagi organisasi (contoh: membantu rekan kerja yang kewalahan)", "Perilaku mencari muka kepada atasan agar cepat naik gaji", "Kewajiban lembur yang tertulis di kontrak kerja", "Tuntutan karyawan untuk mendapatkan hak fasilitas lebih"], answer: "Perilaku sukarela karyawan di luar deskripsi kerjanya yang berkontribusi positif bagi organisasi (contoh: membantu rekan kerja yang kewalahan)"},
-            {q: "Salah satu faktor utama yang paling kuat mempengaruhi tingginya OCB (Organizational Citizenship Behavior) pada karyawan adalah...", options: ["Kepuasan kerja (Job Satisfaction) dan Komitmen Organisasi (Organizational Commitment) yang tinggi", "Besarnya ancaman pemecatan dari atasan", "Karakteristik karyawan yang pemalas", "Jarak rumah karyawan yang dekat dengan kantor"], answer: "Kepuasan kerja (Job Satisfaction) dan Komitmen Organisasi (Organizational Commitment) yang tinggi"},
-            {q: "Menggunakan fasilitas atau barang milik kantor (seperti printer, alat tulis, atau kendaraan) untuk kepentingan pribadi tanpa izin termasuk ke dalam perilaku...", options: ["Counterproductive Work Behavior (CWB) spesifiknya Property Deviance", "Organizational Citizenship Behavior (OCB)", "Job Crafting", "Work-Life Integration"], answer: "Counterproductive Work Behavior (CWB) spesifiknya Property Deviance"},
-            {q: "Manakah di bawah ini yang merupakan macam-macam metode Performance Appraisal (Penilaian Kinerja)?", options: ["Graphic Rating Scales, BARS (Behaviorally Anchored Rating Scales), dan Management by Objectives (MBO)", "Job Analysis, Job Evaluation, dan Job Design", "OJT, Off-The-Job, dan Mentoring", "Big Five Personality, MBTI, dan DISC"], answer: "Graphic Rating Scales, BARS (Behaviorally Anchored Rating Scales), dan Management by Objectives (MBO)"}
+            // SELIGMAN
+            {q: "Apa konsep Seligman mengenai kondisi pasif saat individu merasa tindakannya tidak bisa mengubah situasi buruk karena pengalaman kegagalan masa lalu?", options: ["Learned Helplessness", "Learned Optimism", "Disputation", "Pervasiveness"], answer: "Learned Helplessness"},
+            {q: "Gaya penjelasan (Explanatory Style) menurut Seligman terdiri dari 3 dimensi krusial. Manakah di bawah ini yang BUKAN merupakan dimensinya?", options: ["Perfectionism", "Permanence", "Pervasiveness", "Personalization"], answer: "Perfectionism"},
+            {q: "Individu yang memandang penyebab kegagalannya sebagai sesuatu yang sementara, spesifik, dan eksternal disebut sebagai individu yang memiliki gaya...", options: ["Optimis", "Pesimis", "Neurotik", "Psikotik"], answer: "Optimis"},
+            {q: "Dalam teknik intervensi kognitif (Model ABCDE), tahap di mana individu membantah pikiran negatifnya sendiri secara logis disebut...", options: ["Disputation", "Distraction", "Reattribution", "Energization"], answer: "Disputation"},
+            {q: "Menggunakan optimisme saat memotivasi diri pada situasi yang bisa diubah, namun tetap menggunakan pesimisme realistis saat menghadapi risiko fatal/berbahaya disebut...", options: ["Flexible Optimism", "Learned Optimism", "Blind Optimism", "Delusional Optimism"], answer: "Flexible Optimism"},
+            
+            // MASLOW
+            {q: "Kebutuhan yang berorientasi pada pencarian nilai-nilai luhur dan pemenuhannya tidak didasarkan pada kekurangan, melainkan untuk merealisasikan potensi disebut...", options: ["B-Needs (Being Needs)", "D-Needs (Deficit Needs)", "Safety Needs", "Esteem Needs"], answer: "B-Needs (Being Needs)"},
+            {q: "Prinsip Maslow yang menyatakan bahwa kebutuhan tingkat bawah harus dipenuhi sebagian besar terlebih dahulu sebelum kebutuhan di atasnya bisa memotivasi perilaku disebut...", options: ["Aturan Prepotensi", "Functional Autonomy", "Determinisme Triadik", "Organismic Valuing Process"], answer: "Aturan Prepotensi"},
+            {q: "Dalam hierarki kebutuhan Maslow, kebutuhan apa yang paling dasar dan menjadi satu-satunya kebutuhan yang bisa dipenuhi secara berlebihan (over-satisfied)?", options: ["Kebutuhan Fisiologis", "Kebutuhan Rasa Aman", "Kebutuhan Penghargaan", "Kebutuhan Cinta dan Keberadaan"], answer: "Kebutuhan Fisiologis"},
+            {q: "Kebutuhan yang bersifat patologis, tidak produktif, dan muncul sebagai bentuk kompensasi ekstrem karena kegagalan pemenuhan kebutuhan dasar di masa lalu disebut...", options: ["Kebutuhan Neurotik", "Kebutuhan Estetika", "Kebutuhan Kognitif", "Kebutuhan Fisiologis"], answer: "Kebutuhan Neurotik"},
+            {q: "Ketakutan seseorang akan kebesaran dirinya sendiri, sehingga ia merasa cemas memikul tanggung jawab besar dan menghindari potensi maksimalnya disebut...", options: ["Jonah Complex", "Inferiority Complex", "Oedipus Complex", "God Complex"], answer: "Jonah Complex"},
+            
+            // ALLPORT
+            {q: "Allport sangat kritis terhadap generalisasi. Ia lebih menekankan pendekatan yang mempelajari keunikan individu secara mendalam (misal lewat buku harian/dokumen pribadi). Pendekatan ini disebut...", options: ["Idiografis", "Nomotetis", "Behavioristik", "Psikometrik"], answer: "Idiografis"},
+            {q: "Sifat yang sangat kuat, mendominasi hampir seluruh perilaku individu sepanjang hidupnya, dan sangat jarang dimiliki oleh semua orang (seperti narsisme ekstrem) disebut...", options: ["Cardinal Traits", "Central Traits", "Secondary Traits", "Source Traits"], answer: "Cardinal Traits"},
+            {q: "Karakteristik inti (biasanya berjumlah 5 hingga 10 sifat) yang sering digunakan untuk mendeskripsikan kepribadian dasar seseorang dalam keseharian disebut...", options: ["Central Traits", "Secondary Traits", "Cardinal Traits", "Surface Traits"], answer: "Central Traits"},
+            {q: "Konsep revolusioner Allport yang menyatakan bahwa motivasi manusia dewasa dapat berjalan mandiri (otonom) dan terlepas sepenuhnya dari akar historis masa kanak-kanaknya adalah...", options: ["Functional Autonomy", "Learned Optimism", "Triadic Determinism", "Constructive Alternativism"], answer: "Functional Autonomy"},
+            {q: "Istilah khusus dari Gordon Allport untuk menyebut 'Ego' atau inti diri yang menuntun kesadaran diri matang melewati tujuh tahapan perkembangan adalah...", options: ["Proprium", "Superego", "Ideal Self", "Basic Tendencies"], answer: "Proprium"},
+            
+            // EYSENCK
+            {q: "Menurut Eysenck, dimensi kepribadian harus memiliki bukti genetik/biologis. Berapa persentase variansi dimensi kepribadian yang ia perkirakan dijelaskan oleh faktor hereditas?", options: ["Sekitar 75%", "Sekitar 10%", "Sekitar 25%", "Sekitar 100%"], answer: "Sekitar 75%"},
+            {q: "Urutan tingkatan hierarki organisasi perilaku menurut Eysenck dari tingkat terendah ke tingkat tertinggi adalah...", options: ["Tindakan Spesifik -> Tindakan Kebiasaan -> Sifat -> Tipe/Superfaktor", "Sifat -> Tipe -> Tindakan Kebiasaan -> Tindakan Spesifik", "Tipe -> Sifat -> Tindakan Spesifik -> Tindakan Kebiasaan", "Tindakan Kebiasaan -> Tindakan Spesifik -> Tipe -> Sifat"], answer: "Tindakan Spesifik -> Tindakan Kebiasaan -> Sifat -> Tipe/Superfaktor"},
+            {q: "Penyebab utama biologis berbedanya dimensi Extraversion dan Introversion menurut Eysenck adalah tingkat rangsangan kortikal bawaan pada area...", options: ["ARAS (Ascending Reticular Activating System)", "Sistem Limbik (Amigdala)", "Hormon Testosteron", "Cerebellum"], answer: "ARAS (Ascending Reticular Activating System)"},
+            {q: "Sistem anatomi apa yang mendasari tingginya reaktivitas emosional pada individu dengan skor Neuroticism (N) tinggi menurut Eysenck?", options: ["Sistem Limbik (seperti Amigdala dan Hipotalamus)", "ARAS", "Sistem Saraf Somatik", "Korteks Prefrontal"], answer: "Sistem Limbik (seperti Amigdala dan Hipotalamus)"},
+            {q: "Menurut Eysenck, individu dengan skor Psychoticism (P) yang tinggi ditandai dengan sifat-sifat berikut, KECUALI...", options: ["Sangat empatik dan altruistik", "Egosentris dan impulsif", "Agresif dan antisosial", "Dingin dan bermusuhan"], answer: "Sangat empatik dan altruistik"},
+            {q: "Secara kimiawi/biologis, dimensi Psychoticism (P) menurut Eysenck sangat dipengaruhi oleh tingkat...", options: ["Hormon Testosteron dan enzim MAO", "Kadar gula darah (Glukosa)", "Produksi Melatonin", "Kadar Oksigen kortikal"], answer: "Hormon Testosteron dan enzim MAO"},
+            
+            // ROTTER
+            {q: "Menurut Rotter, potensi suatu perilaku spesifik (BP) merupakan fungsi dari dua variabel utama, yaitu...", options: ["Expectancy (Harapan) dan Reinforcement Value (Nilai Penguatan)", "Situation dan Personality", "Genetik dan Lingkungan", "D-Needs dan B-Needs"], answer: "Expectancy (Harapan) dan Reinforcement Value (Nilai Penguatan)"},
+            {q: "Keyakinan subjektif individu bahwa penguatan (reinforcement) tertentu akan benar-benar terjadi menyusul perilaku yang ia lakukan disebut sebagai...", options: ["Expectancy", "Behavior Potential", "Locus of Control", "Reinforcement Value"], answer: "Expectancy"},
+            {q: "Dalam rumus prediksi perilaku umum Rotter (NP = f(FM + NV)), variabel FM (Freedom of Movement) merujuk pada...", options: ["Rata-rata ekspektasi sukses atau kebebasan bergerak untuk mencapai tujuan", "Tingkat fleksibilitas otot fisik", "Kekuatan genetik seseorang", "Nilai intrinsik dari sebuah kebutuhan"], answer: "Rata-rata ekspektasi sukses atau kebebasan bergerak untuk mencapai tujuan"},
+            {q: "Rotter membagi kebutuhan dasar yang mengarahkan perilaku umum menjadi enam kategori. Manakah yang BUKAN termasuk di antaranya?", options: ["Aktualisasi Diri Mutlak", "Pengakuan dan Status", "Perlindungan dan Ketergantungan", "Kenyamanan Fisik"], answer: "Aktualisasi Diri Mutlak"},
+            {q: "Individu yang selalu menyalahkan dosen, soal yang terlalu sulit, atau kesialan saat mendapat nilai ujian yang jelek memiliki tendensi kuat pada...", options: ["External Locus of Control", "Internal Locus of Control", "High Self-Efficacy", "Flexible Optimism"], answer: "External Locus of Control"},
+            {q: "Keyakinan ekspektasi umum bahwa hasil kehidupan bergantung pada usaha, keuletan, dan kecerdasan diri sendiri disebut...", options: ["Internal Locus of Control", "External Locus of Control", "Learned Helplessness", "Vicarious Experience"], answer: "Internal Locus of Control"},
+            
+            // KELLY
+            {q: "Kelly memandang manusia sebagai makhluk aktif yang mengamati, membuat hipotesis, dan mengujinya melalui pengalaman untuk mengantisipasi masa depan. Konsep ini disebut...", options: ["Man-the-Scientist", "Fully Functioning Person", "Rational Animal", "Triadic Human"], answer: "Man-the-Scientist"},
+            {q: "Cara unik, pola kognitif, atau 'kacamata' yang dibangun oleh seseorang untuk menafsirkan dan memaknai dunianya disebut...", options: ["Konstruk Pribadi (Personal Construct)", "Proprium", "Ideal Self", "Basic Tendencies"], answer: "Konstruk Pribadi (Personal Construct)"},
+            {q: "Menurut Dichotomy Corollary dari George Kelly, sistem konstruk pribadi seseorang selalu bersifat...", options: ["Bipolar / Dikotomis (Misal: Baik vs Buruk)", "Satu arah secara absolut", "Berdasarkan masa lalu murni", "Identik dengan orang lain"], answer: "Bipolar / Dikotomis (Misal: Baik vs Buruk)"},
+            {q: "Dalil Kelly yang menyatakan bahwa setiap individu berbeda satu sama lain dalam mengonstruksi atau menafsirkan peristiwa yang sama persis disebut...", options: ["Individuality Corollary", "Choice Corollary", "Sociality Corollary", "Organization Corollary"], answer: "Individuality Corollary"},
+            {q: "Kemampuan kognitif seseorang untuk melihat berbagai dimensi perbedaan dan sudut pandang secara fleksibel saat menilai orang lain disebut...", options: ["Kompleksitas Kognitif", "Kompleksitas Atribusi", "Congruence", "Functional Autonomy"], answer: "Kompleksitas Kognitif"},
+            {q: "Alat uji (tes) spesifik yang diciptakan George Kelly untuk mengungkap peta konstruk tersembunyi seseorang dengan membandingkan tiga orang penting dalam hidupnya disebut...", options: ["Role Construct Repertory Test (Rep Test)", "Thematic Apperception Test (TAT)", "NEO-PI-R", "Skala I-E Rotter"], answer: "Role Construct Repertory Test (Rep Test)"},
+            
+            // BANDURA
+            {q: "Konsep kunci Bandura yang menjelaskan bahwa perilaku manusia digerakkan oleh interaksi timbal balik antara kognisi/pribadi (Person), tindakan (Behavior), dan Lingkungan (Environment) disebut...", options: ["Determinisme Resiprokal Triadik", "Constructive Alternativism", "Hierarchy of Needs", "Locus of Control"], answer: "Determinisme Resiprokal Triadik"},
+            {q: "Kapasitas sadar manusia untuk mengontrol dan menentukan perilakunya sendiri (meliputi Intentionality, Forethought, Self-reactiveness, Self-reflectiveness) disebut...", options: ["Human Agency", "Self-Actualization", "Otonomi Fungsional", "Proprium"], answer: "Human Agency"},
+            {q: "Empat tahapan proses kognitif dalam pembelajaran observasional (modeling) secara berurutan adalah...", options: ["Perhatian -> Retensi -> Reproduksi -> Motivasi", "Motivasi -> Retensi -> Perhatian -> Reproduksi", "Retensi -> Reproduksi -> Motivasi -> Perhatian", "Perhatian -> Reproduksi -> Retensi -> Motivasi"], answer: "Perhatian -> Retensi -> Reproduksi -> Motivasi"},
+            {q: "Keyakinan subjektif individu terhadap kemampuannya dalam mengorganisasi dan melaksanakan tindakan demi mencapai target performa/tugas tertentu disebut...", options: ["Self-Efficacy", "Self-Esteem", "Self-Regard", "Self-Concept"], answer: "Self-Efficacy"},
+            {q: "Manakah di bawah ini yang merupakan sumber PALING KUAT dalam membentuk tingginya Self-Efficacy seseorang?", options: ["Mastery Experiences (Pengalaman keberhasilan masa lalu secara langsung)", "Vicarious Experiences (Melihat teman sebayanya sukses)", "Social Persuasion (Disemangati oleh orang lain)", "Physical/Emotional States (Kondisi tubuh yang tenang)"], answer: "Mastery Experiences (Pengalaman keberhasilan masa lalu secara langsung)"},
+            {q: "Saat seseorang merasa yakin bisa lulus ujian karena ia melihat sahabat dekatnya yang memiliki kecerdasan setara berhasil lulus, ia sedang membentuk efikasi diri dari sumber...", options: ["Vicarious Experiences (Social Modeling)", "Mastery Experiences", "Social Persuasion", "Emotional States"], answer: "Vicarious Experiences (Social Modeling)"},
+            
+            // ROGERS
+            {q: "Dorongan biologis tunggal bawaan organisme untuk bergerak maju memelihara, menyempurnakan, dan memenuhi seluruh potensi dirinya disebut...", options: ["Actualizing Tendency", "Formative Tendency", "Propriate Striving", "Condition of Worth"], answer: "Actualizing Tendency"},
+            {q: "Menurut Rogers, struktur diri (Self) terbagi menjadi dua wilayah kesadaran, yaitu...", options: ["Self-Concept dan Ideal Self", "Id dan Superego", "Conscious dan Unconscious", "Real Self dan Fake Self"], answer: "Self-Concept dan Ideal Self"},
+            {q: "Kesenjangan yang lebar antara Konsep Diri riil yang diyakini secara sadar dengan Pengalaman Organismik nyata yang memicu kecemasan neurotik disebut...", options: ["Inkongruensi (Incongruence)", "Kongruensi (Congruence)", "Jonah Complex", "Learned Helplessness"], answer: "Inkongruensi (Incongruence)"},
+            {q: "Mekanisme pertahanan defensif ego di mana individu memutarbalikkan makna pengalaman nyata agar tetap cocok dengan konsep dirinya (misal: dipuji pintar tapi menganggap itu ejekan) disebut...", options: ["Distorsi (Distortion)", "Penyangkalan (Denial)", "Sublimasi", "Proyeksi"], answer: "Distorsi (Distortion)"},
+            {q: "Carl Rogers merumuskan 3 kondisi utama agar konseling/terapi berpusat pada klien berhasil. Manakah yang BUKAN termasuk ketiga kondisi tersebut?", options: ["Interpretation of Dreams (Interpretasi Mimpi)", "Congruence (Keaslian/Kejujuran Terapis)", "Unconditional Positive Regard (Penghargaan Tanpa Syarat)", "Empathic Understanding (Pemahaman Empatik)"], answer: "Interpretation of Dreams (Interpretasi Mimpi)"},
+            {q: "Sikap terapis yang menerima klien sepenuhnya tanpa memberikan syarat 'jika', hangat, dan tanpa menghakimi moral atas cerita buruk klien disebut...", options: ["Unconditional Positive Regard", "Empathic Understanding", "Congruence", "Condition of Worth"], answer: "Unconditional Positive Regard"},
+            
+            // MCCRAE & COSTA
+            {q: "Taksonomi kepribadian Big Five (OCEAN) dari McCrae & Costa diringkas dan diekstraksi melalui analisis faktor berdasarkan pendekatan...", options: ["Tradisi Leksikal (bahasa sehari-hari) dan data empiris", "Observasi murni di laboratorium", "Analisis mimpi pasien", "Uji coba obat-obatan klinis"], answer: "Tradisi Leksikal (bahasa sehari-hari) dan data empiris"},
+            {q: "Dimensi Big Five yang mengukur tingkat kedisiplinan, keteraturan organisasi, rasa tanggung jawab, dan orientasi pencapaian tugas adalah...", options: ["Conscientiousness (C)", "Agreeableness (A)", "Openness to Experience (O)", "Extraversion (E)"], answer: "Conscientiousness (C)"},
+            {q: "Individu yang rentan terhadap distres psikologis, cemas, mudah depresi, dan merespons stres secara maladaptif akan mendapatkan skor yang tinggi pada dimensi...", options: ["Neuroticism (N)", "Agreeableness (A)", "Extraversion (E)", "Openness (O)"], answer: "Neuroticism (N)"},
+            {q: "Dalam sistem dinamika kepribadian Teori Lima Faktor, kelima sifat genetik bawaan (OCEAN) yang universal dan stabil di usia dewasa bertindak sebagai komponen inti yang dinamakan...", options: ["Basic Tendencies (Kecenderungan Dasar)", "Characteristic Adaptations", "Objective Biography", "Self-Concept"], answer: "Basic Tendencies (Kecenderungan Dasar)"},
+            {q: "Struktur kepribadian yang terbentuk akibat hasil interaksi dari faktor genetik bawaan dengan pengaruh lingkungan eksternal (contoh: keterampilan teknis, nilai, peran pekerjaan) dinamakan...", options: ["Characteristic Adaptations (Adaptasi Karakteristik)", "Biological Bases", "Basic Tendencies", "External Influences"], answer: "Characteristic Adaptations (Adaptasi Karakteristik)"}
         ];
 
         let questions = [];
@@ -438,10 +471,11 @@
             const msg = getElement('result-message');
             const percentage = score / database.length;
             
-            if (percentage === 1) msg.innerText = "ok";
-            else if (percentage >= 0.75) msg.innerText = "y";
-            else if (percentage >= 0.5) msg.innerText = "BALIK TK NGENTODDD";
-            else msg.innerText = "semester depan cuti aj";
+            if (percentage === 1) msg.innerText = "Wow, nilai sempurna! Teori kepribadian sudah khatam di luar kepala.";
+            else if (percentage >= 0.8) msg.innerText = "Luar biasa! Pemahamanmu soal ahli teori kepribadian ini udah sangat solid.";
+            else if (percentage >= 0.6) msg.innerText = "Bagus! Tinggal pertajam lagi hafalan konsep-konsep kunci yang suka mengecoh.";
+            else if (percentage >= 0.4) msg.innerText = "Lumayan, tapi kayaknya butuh waktu ekstra buat review catatan master doc tadi ya?";
+            else msg.innerText = "Waduh, mending buka catatannya lagi dan pahamin bedanya teori Allport, Rotter, Kelly, dll.";
             
             const animatedElements = resultScreen.querySelectorAll('.animate-slide-up');
             animatedElements.forEach(el => {
