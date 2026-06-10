@@ -5,149 +5,121 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NovaSTREAM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #07090e;
   --card: #111520;
-  --card-hover: #171c2b;
   --border: #1c2233;
   --accent: #d4f53c;
   --red: #ff3b3b;
   --mu-red: #da291c;
   --text: #dde0eb;
-  --muted: #8b95ab;
+  --muted: #4a5268;
+  --sidebar: 360px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow-x: hidden; }
-body { 
-  background: var(--bg); color: var(--text); 
-  font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; 
-}
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; }
 
-/* HEADER & NAVBAR */
 header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 24px; border-bottom: 1px solid var(--border);
-  background: rgba(7,9,14,0.97); backdrop-filter: blur(16px); flex-shrink: 0; z-index: 50; position: sticky; top: 0;
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+  background: rgba(7,9,14,0.97); backdrop-filter: blur(16px); flex-shrink: 0; z-index: 50;
 }
-.logo { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:3px; color:var(--accent); }
+.logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; color:var(--accent); }
 .logo span { color: var(--text); }
-.live-badge { display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:2px; color:var(--red); text-transform:uppercase; }
-.live-dot { width:8px; height:8px; background:var(--red); border-radius:50%; animation:pulse 1.4s ease-in-out infinite; }
+.live-badge { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:600; letter-spacing:2px; color:var(--red); text-transform:uppercase; }
+.live-dot { width:6px; height:6px; background:var(--red); border-radius:50%; animation:pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
 
-/* COMPACT TABS (SEGMENTED CONTROL) */
-.cat-bar { 
-  display: flex; justify-content: center; padding: 20px 24px 10px; background: var(--bg);
-}
-.cat-tabs {
-  display: inline-flex; background: var(--card); padding: 5px; 
-  border-radius: 40px; border: 1px solid var(--border);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-.cat-btn { 
-  padding: 8px 24px; border-radius: 30px; border: none; 
-  background: transparent; color: var(--muted); font-family:'DM Sans',sans-serif; 
-  font-size: 14px; font-weight: 600; cursor: pointer; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); 
-}
-.cat-btn:hover:not(.active) { color: var(--text); }
-.cat-btn.active { 
-  background: var(--accent); color: #000; 
-  box-shadow: 0 2px 8px rgba(212, 245, 60, 0.2); 
-}
+.cat-bar { display:flex; align-items:center; gap:8px; padding:9px 16px; border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
+.cat-bar::-webkit-scrollbar { display:none; }
+.cat-btn { padding:5px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--muted); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .15s; flex-shrink:0; }
+.cat-btn:hover { border-color:var(--accent); color:var(--accent); }
+.cat-btn.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
 
-/* MAIN CONTAINER */
-.main { flex:1; position: relative; display: flex; flex-direction: column; }
+.main { display:grid; grid-template-columns:1fr var(--sidebar); flex:1; overflow:hidden; }
 
-/* VIEWS */
-.view { display: none; flex: 1; flex-direction: column; width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px; animation: fadeIn 0.3s ease; }
-.view.active { display: flex; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.player-side { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); }
+.stream-area { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+.placeholder { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:40px; text-align:center; }
+.play-ring { width:72px; height:72px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--muted); }
+.placeholder h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; color:var(--muted); }
+.placeholder p { font-size:12px; color:var(--muted); opacity:.6; max-width:200px; line-height:1.7; }
 
-/* LIST VIEW COMPONENTS */
-.list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
-.list-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; }
-.search-wrap { position:relative; min-width: 280px; }
-.search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px; pointer-events:none; }
-.search-input { 
-  width:100%; background:var(--card); border:1px solid var(--border); border-radius:12px; 
-  padding:12px 16px 12px 40px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; 
-  outline:none; transition:border-color .2s; 
-}
-.search-input:focus { border-color:var(--accent); }
-
-/* LEAGUE GROUPING */
-.league-group { margin-bottom: 32px; }
-.league-header { 
-  display: flex; align-items: center; gap: 12px; margin-bottom: 16px; 
-  padding-bottom: 8px; border-bottom: 1px solid var(--border);
-}
-.league-header h3 { font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text); }
-.league-count { font-size: 12px; color: var(--muted); background: var(--card); padding: 2px 8px; border-radius: 12px; }
-
-/* MATCH GRID & CARDS */
-.match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-.match-card { 
-  background: var(--card); border: 1px solid var(--border); border-radius: 12px; 
-  padding: 16px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
-}
-.match-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-.match-card.mu-pin { background: linear-gradient(145deg, rgba(218,41,28,.08) 0%, var(--card) 100%); border-color: rgba(218,41,28,.3); }
-.match-card.mu-pin:hover { border-color: var(--mu-red); }
-.match-card.mu-pin::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--mu-red); }
-
-.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.match-time { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; background: var(--bg); padding: 4px 10px; border-radius: 20px; }
-.match-time.live { color: #fff; background: var(--red); animation: pulse 2s infinite; }
-.pinned-tag { font-size: 10px; font-weight: 700; color: #ff6b6b; letter-spacing: 1px; text-transform: uppercase; }
-
-.team-row { display:flex; align-items:center; gap:12px; margin-bottom: 10px; }
-.team-row:last-child { margin-bottom: 0; }
-.team-badge { width:24px; height:24px; object-fit:contain; flex-shrink:0; }
-.team-badge-ph { width:24px; height:24px; background:var(--bg); border-radius:4px; flex-shrink:0; display:inline-block; }
-.team-name { font-size:15px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.mu-pin .team-name.mu { color:#ff8077; font-weight:700; }
-
-/* PLAYER VIEW COMPONENTS */
-.back-btn { 
-  display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; margin-bottom: 20px;
-  background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text);
-  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; width: max-content;
-}
-.back-btn:hover { background: var(--border); color: var(--accent); }
-
-#playerBox { display:flex; flex-direction:column; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-.video-wrap { position:relative; width:100%; padding-bottom:56.25%; background:#000; flex-shrink:0; }
+#playerBox { display:none; flex-direction:column; }
+.video-wrap { position:relative; width:100%; padding-bottom:56.25%; background:#000; flex-shrink:0; overflow:hidden; }
 .video-wrap > * { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; border:none !important; }
 .video-wrap iframe { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; border:none !important; max-width:none !important; }
 
-.match-bar { display:flex; align-items:center; justify-content:space-between; padding:20px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap: 16px; background: var(--card); }
-.match-bar-teams { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-.mbt { display:flex; align-items:center; gap:10px; }
-.mbt img { width:32px; height:32px; object-fit:contain; }
-.mbt-name { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:1px; }
-.vs-sep { font-size:14px; color:var(--muted); font-weight:700; background: var(--bg); padding: 4px 10px; border-radius: 8px; }
-.match-bar-meta { font-size:14px; font-weight: 600; color:var(--muted); }
+.match-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-bottom:1px solid var(--border); gap:12px; flex-wrap:wrap; }
+.match-bar-teams { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.mbt { display:flex; align-items:center; gap:7px; }
+.mbt img { width:24px; height:24px; object-fit:contain; }
+.mbt-name { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1px; }
+.vs-sep { font-size:11px; color:var(--muted); font-weight:600; }
+.match-bar-meta { font-size:11px; color:var(--muted); }
 
-.stream-switcher { display:none; gap:10px; padding:16px 20px; flex-wrap:wrap; background: var(--bg); }
-.stream-btn { padding:8px 16px; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:8px; cursor:pointer; font-size:13px; font-weight: 500; font-family:'DM Sans',sans-serif; transition:all .2s; }
-.stream-btn.active, .stream-btn:hover { border-color:var(--accent); color:#000; background: var(--accent); }
+.stream-switcher { display:none; gap:8px; padding:10px 14px; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+.stream-btn { padding:5px 13px; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:5px; cursor:pointer; font-size:11px; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.stream-btn.active, .stream-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-/* UTILS */
-.loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 20px; gap:16px; color:var(--muted); grid-column: 1 / -1; }
-.spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+.sidebar { display:flex; flex-direction:column; overflow:hidden; }
+.sidebar-header { padding:11px 14px 9px; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; color:var(--muted); border-bottom:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:space-between; }
+.match-count { font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; color:var(--muted); letter-spacing:0; }
+.search-wrap { padding:10px 12px; border-bottom:1px solid var(--border); flex-shrink:0; position:relative; }
+.search-icon { position:absolute; left:21px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:12px; pointer-events:none; }
+.search-input { width:100%; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:7px 10px 7px 30px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:12px; outline:none; transition:border-color .15s; }
+.search-input:focus { border-color:var(--accent); }
+.search-input::placeholder { color:var(--muted); }
+
+.match-list { overflow-y:auto; flex:1; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+
+.pinned-banner {
+  display:flex; align-items:center; gap:8px; padding:7px 14px;
+  background:linear-gradient(90deg, rgba(218,41,28,.18) 0%, rgba(218,41,28,.06) 100%);
+  border-bottom:1px solid rgba(218,41,28,.25); border-left:3px solid var(--mu-red);
+}
+.pinned-crest { font-size:14px; flex-shrink:0; }
+.pinned-text { font-size:10px; font-weight:700; letter-spacing:1.8px; text-transform:uppercase; color:#e8776f; }
+.pinned-sub { font-size:9px; color:rgba(232,119,111,.55); letter-spacing:.5px; margin-left:auto; }
+
+.match-item { display:flex; align-items:center; gap:9px; padding:10px 12px; border-bottom:1px solid var(--border); cursor:pointer; transition:background .12s; position:relative; }
+.match-item:hover { background:var(--card); }
+.match-item.selected { background:var(--card); }
+.match-item.selected::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); border-radius:0 2px 2px 0; }
+.match-item.mu-pin { background:rgba(218,41,28,.04); }
+.match-item.mu-pin:hover { background:rgba(218,41,28,.09); }
+.match-item.mu-pin.selected { background:rgba(218,41,28,.09); }
+.match-item.mu-pin.selected::before { background:var(--mu-red); }
+.match-item.mu-pin .team-name.mu { color:#ff8077; font-weight:600; }
+
+.match-time { font-size:10px; font-weight:600; color:var(--muted); min-width:42px; text-align:center; letter-spacing:.5px; flex-shrink:0; }
+.match-time.live { color:var(--red); }
+.match-teams-col { flex:1; min-width:0; }
+.team-row { display:flex; align-items:center; gap:6px; }
+.team-row+.team-row { margin-top:5px; }
+.team-badge { width:15px; height:15px; object-fit:contain; flex-shrink:0; }
+.team-badge-ph { width:15px; height:15px; background:var(--border); border-radius:2px; flex-shrink:0; display:inline-block; }
+.team-name { font-size:12px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.play-btn { color:var(--muted); font-size:12px; flex-shrink:0; transition:color .12s; }
+.match-item:hover .play-btn { color:var(--accent); }
+.match-item.mu-pin:hover .play-btn { color:#ff8077; }
+
+.loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 20px; gap:14px; color:var(--muted); }
+.spinner { width:26px; height:26px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
-.loader-text { font-size:12px; letter-spacing:3px; text-transform:uppercase; font-weight: 600; }
-.error-box { padding:16px; background:rgba(255,59,59,.1); border:1px solid rgba(255,59,59,.3); border-radius:8px; font-size:14px; color:#ff7070; text-align: center; grid-column: 1 / -1; }
-.empty { padding:60px 20px; text-align:center; color:var(--muted); font-size:15px; grid-column: 1 / -1; }
+.loader-text { font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+.error-box { margin:14px; padding:12px 14px; background:rgba(255,59,59,.07); border:1px solid rgba(255,59,59,.2); border-radius:8px; font-size:12px; color:#ff7070; line-height:1.7; }
+.empty { padding:32px 16px; text-align:center; color:var(--muted); font-size:12px; line-height:1.7; }
 
 @media (max-width:768px) {
-  .view { padding: 16px; }
-  .list-header { flex-direction: column; align-items: flex-start; }
-  .search-wrap { width: 100%; }
-  .match-grid { grid-template-columns: 1fr; }
-  .mbt-name { font-size: 18px; }
+  html,body { overflow:auto; }
+  .main { grid-template-columns:1fr; overflow:visible; }
+  .player-side { border-right:none; border-bottom:1px solid var(--border); overflow:visible; }
+  .stream-area { overflow:visible; }
+  .sidebar { height:65vh; }
 }
 </style>
 </head>
@@ -155,40 +127,46 @@ header {
 
 <header>
   <div class="logo">Nova<span>STREAM</span></div>
-  <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  <div class="live-badge"><div class="live-dot"></div>LIVE STREAMING</div>
 </header>
 
 <div class="cat-bar" id="catBar">
-  <div class="cat-tabs">
-    <button class="cat-btn active" data-cat="football">Club Football</button>
-    <button class="cat-btn" data-cat="worldcup">World Cup</button>
-  </div>
+  <button class="cat-btn active" data-cat="football">Football</button>
 </div>
 
 <div class="main">
 
-  <div class="view active" id="viewList">
-    <div class="list-header">
-      <div class="list-title" id="listTitle">Club Football</div>
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" id="searchInput" type="text" placeholder="Cari tim atau negara..." autocomplete="off">
+  <!-- PLAYER SIDE -->
+  <div class="player-side">
+    <div class="stream-area" id="tabStream">
+      <div class="placeholder" id="placeholder">
+        <div class="play-ring">▶</div>
+        <h3>Pilih Pertandingan</h3>
+        <p>Klik pertandingan di panel kanan untuk menonton livestream</p>
       </div>
-    </div>
-    <div id="matchListWrap">
-      <div class="loader"><div class="spinner"></div><div class="loader-text">Memuat Jadwal...</div></div>
+      <div id="playerBox">
+        <div class="video-wrap"><div id="embedArea"></div></div>
+        <div class="match-bar">
+          <div class="match-bar-teams" id="matchBarTeams"></div>
+          <div class="match-bar-meta" id="matchBarMeta"></div>
+        </div>
+        <div class="stream-switcher" id="streamSwitcher"></div>
+      </div>
     </div>
   </div>
 
-  <div class="view" id="viewPlayer">
-    <button class="back-btn" id="btnBack">← Kembali ke Jadwal</button>
-    <div id="playerBox">
-      <div class="video-wrap"><div id="embedArea"></div></div>
-      <div class="match-bar">
-        <div class="match-bar-teams" id="matchBarTeams"></div>
-        <div class="match-bar-meta" id="matchBarMeta"></div>
-      </div>
-      <div class="stream-switcher" id="streamSwitcher"></div>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span>JADWAL</span>
+      <span class="match-count" id="matchCount"></span>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="text" placeholder="Cari tim..." autocomplete="off">
+    </div>
+    <div class="match-list" id="matchList">
+      <div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>
     </div>
   </div>
 
@@ -199,33 +177,8 @@ const API = '/.netlify/functions/sportsrc-proxy';
 let currentCategory = 'football';
 let allMatches = [];
 
-// DOM Elements
-const viewList = document.getElementById('viewList');
-const viewPlayer = document.getElementById('viewPlayer');
-const matchListWrap = document.getElementById('matchListWrap');
-const searchInput = document.getElementById('searchInput');
-
-// CATEGORY SWITCHER
-document.querySelectorAll('.cat-btn').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    e.target.classList.add('active');
-    currentCategory = e.target.getAttribute('data-cat');
-    document.getElementById('listTitle').textContent = e.target.textContent;
-    searchInput.value = '';
-    loadMatches(currentCategory);
-  });
-});
-
-// BACK BUTTON
-document.getElementById('btnBack').addEventListener('click', () => {
-  viewPlayer.classList.remove('active');
-  viewList.classList.add('active');
-  document.getElementById('embedArea').innerHTML = ''; // Stop video playback
-});
-
 // SEARCH
-searchInput.addEventListener('input', e => {
+document.getElementById('searchInput').addEventListener('input', e => {
   const q = e.target.value.trim().toLowerCase();
   renderList(q ? allMatches.filter(m => matchLabel(m).toLowerCase().includes(q)) : allMatches);
 });
@@ -242,163 +195,103 @@ function getHome(m) { return m.teams?.home?.name || m.title?.split(' vs ')[0] ||
 function getAway(m) { return m.teams?.away?.name || (m.title?.split(' vs ')[1] || '?'); }
 function matchLabel(m) { return getHome(m) + ' ' + getAway(m); }
 function isMU(m) { return matchLabel(m).toLowerCase().includes('manchester united'); }
-function formatTime(ms) { return new Date(ms).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' }) + ' WIB'; }
+function formatTime(ms) {
+  return new Date(ms).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' }) + ' WIB';
+}
 function badgeImg(url, alt, size) {
-  const s = size || 24;
+  const s = size || 15;
   if (!url) return `<span class="team-badge-ph" style="width:${s}px;height:${s}px"></span>`;
   return `<img class="team-badge" src="${url}" alt="${alt}" width="${s}" height="${s}" onerror="this.style.display='none'">`;
 }
 
 async function loadMatches(cat) {
-  matchListWrap.innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat Jadwal...</div></div>';
-  
-  // Selalu panggil 'football' karena API aslinya tidak punya filter world cup
-  const res = await apiFetch({ data: 'matches', category: 'football' });
-  
+  document.getElementById('matchList').innerHTML =
+    '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat...</div></div>';
+  const res = await apiFetch({ data: 'matches', category: cat });
   if (res.error || !res.success) {
-    matchListWrap.innerHTML = '<div class="error-box">Gagal memuat data: ' + (res.error||'Unknown Error') + '</div>';
+    document.getElementById('matchList').innerHTML = '<div class="error-box">Gagal: ' + (res.error||'') + '</div>';
     return;
   }
-  
-  let data = res.data || [];
-  
-  // FILTERING LOGIC: Cek nama turnamen, kompetisi, dan judul pertandingan
-  const nationalKeywords = [
-    'world cup', 'piala dunia', 'fifa', 'international', 'nation', 
-    'euro', 'copa', 'qualif', 'kualifikasi', 'friendly', 
-    'conmebol', 'uefa', 'afc', 'caf', 'concacaf'
-  ];
-  
-  if (cat === 'worldcup') {
-     data = data.filter(m => {
-        const textToSearch = (m.tournament || m.league?.name || m.competition?.name || m.title || '').toLowerCase();
-        return nationalKeywords.some(kw => textToSearch.includes(kw));
-     });
-  } else if (cat === 'football') {
-     data = data.filter(m => {
-        const textToSearch = (m.tournament || m.league?.name || m.competition?.name || m.title || '').toLowerCase();
-        return !nationalKeywords.some(kw => textToSearch.includes(kw));
-     });
-  }
-
-  allMatches = data;
+  allMatches = res.data || [];
+  document.getElementById('matchCount').textContent = allMatches.length + ' match';
   renderList(allMatches);
 }
 
 function renderList(matches) {
-  if (!matches.length) { 
-    matchListWrap.innerHTML = '<div class="empty">Tidak ada pertandingan tersedia untuk kategori ini saat ini.</div>'; 
-    return; 
-  }
+  const list = document.getElementById('matchList');
+  if (!matches.length) { list.innerHTML = '<div class="empty">Tidak ada pertandingan.</div>'; return; }
 
-  // Group Matches by League / Tournament
-  const grouped = {};
-  matches.forEach(m => {
-    let league = m.tournament || m.league?.name || m.competition?.name;
-    if (!league) league = currentCategory === 'worldcup' ? 'World Cup / International' : 'Lainnya';
-    
-    if (!grouped[league]) grouped[league] = [];
-    grouped[league].push(m);
-  });
-
-  matchListWrap.innerHTML = '';
-
-  // Render Pinned MU Matches (hanya di Club Football)
   const pinned = matches.filter(isMU);
-  if (pinned.length && currentCategory === 'football') {
-    const pinGroup = document.createElement('div');
-    pinGroup.className = 'league-group';
-    pinGroup.innerHTML = `
-      <div class="league-header">
-        <h3 style="color: var(--mu-red);">🔴 Manchester United</h3>
-      </div>
-      <div class="match-grid" id="grid-pinned"></div>
-    `;
-    matchListWrap.appendChild(pinGroup);
-    const grid = pinGroup.querySelector('#grid-pinned');
-    pinned.forEach(m => grid.appendChild(makeCard(m, true)));
+  const rest   = matches.filter(m => !isMU(m));
+  list.innerHTML = '';
+
+  if (pinned.length) {
+    const banner = document.createElement('div');
+    banner.className = 'pinned-banner';
+    banner.innerHTML =
+      `<span class="pinned-crest">🔴</span>` +
+      `<span class="pinned-text">Pinned by The Reds</span>` +
+      `<span class="pinned-sub">${pinned.length} match</span>`;
+    list.appendChild(banner);
+    pinned.forEach(m => list.appendChild(makeItem(m, true)));
   }
 
-  // Render Groups
-  for (const [league, leagueMatches] of Object.entries(grouped)) {
-    const renderableMatches = currentCategory === 'football' ? leagueMatches.filter(m => !isMU(m)) : leagueMatches;
-    
-    if (renderableMatches.length === 0) continue;
-
-    const groupEl = document.createElement('div');
-    groupEl.className = 'league-group';
-    groupEl.innerHTML = `
-      <div class="league-header">
-        <h3>${league}</h3>
-        <span class="league-count">${renderableMatches.length} Match</span>
-      </div>
-      <div class="match-grid" id="grid-${league.replace(/[^a-zA-Z0-9]/g, '')}"></div>
-    `;
-    matchListWrap.appendChild(groupEl);
-    
-    const grid = groupEl.querySelector('.match-grid');
-    renderableMatches.forEach(m => grid.appendChild(makeCard(m, false)));
-  }
+  rest.forEach(m => list.appendChild(makeItem(m, false)));
 }
 
-function makeCard(m, isPinned) {
+function makeItem(m, pin) {
   const el = document.createElement('div');
-  el.className = 'match-card' + (isPinned ? ' mu-pin' : '');
+  el.className = 'match-item' + (pin ? ' mu-pin' : '');
   const home = getHome(m), away = getAway(m);
   const isLive = m.live === true;
-  const timeStr = isLive ? 'LIVE NOW' : (m.date ? formatTime(m.date) : 'TBD');
+  const timeStr = isLive ? 'LIVE' : (m.date ? formatTime(m.date) : 'TBD');
   const homeMU = home.toLowerCase().includes('manchester united');
   const awayMU = away.toLowerCase().includes('manchester united');
 
-  el.innerHTML = `
-    <div class="card-top">
-      <div class="match-time${isLive?' live':''}">${timeStr}</div>
-      ${isPinned ? `<div class="pinned-tag">Pinned</div>` : ''}
-    </div>
-    <div class="card-teams">
-      <div class="team-row">${badgeImg(m.teams?.home?.badge,home)}<span class="team-name${homeMU&&isPinned?' mu':''}">${home}</span></div>
-      <div class="team-row">${badgeImg(m.teams?.away?.badge,away)}<span class="team-name${awayMU&&isPinned?' mu':''}">${away}</span></div>
-    </div>
-  `;
+  el.innerHTML =
+    `<div class="match-time${isLive?' live':''}">${timeStr}</div>` +
+    `<div class="match-teams-col">` +
+      `<div class="team-row">${badgeImg(m.teams?.home?.badge,home)}<span class="team-name${homeMU&&pin?' mu':''}">${home}</span></div>` +
+      `<div class="team-row">${badgeImg(m.teams?.away?.badge,away)}<span class="team-name${awayMU&&pin?' mu':''}">${away}</span></div>` +
+    `</div>` +
+    `<div class="play-btn">▶</div>`;
 
   el.addEventListener('click', () => {
-    viewList.classList.remove('active');
-    viewPlayer.classList.add('active');
-    window.scrollTo(0,0);
-    // Selalu lempar parameter 'football' saat nembak API embed URL
-    loadStream('football', m.id, m);
+    document.querySelectorAll('.match-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    loadStream(m.category || currentCategory, m.id, m);
   });
   return el;
 }
 
 async function loadStream(cat, id, m) {
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('playerBox').style.display = 'flex';
+
   const home = getHome(m), away = getAway(m);
   document.getElementById('matchBarTeams').innerHTML =
-    `<div class="mbt">${badgeImg(m.teams?.home?.badge,home,32)}<span class="mbt-name">${home}</span></div>` +
+    `<div class="mbt">${badgeImg(m.teams?.home?.badge,home,22)}<span class="mbt-name">${home}</span></div>` +
     `<span class="vs-sep">VS</span>` +
-    `<div class="mbt"><span class="mbt-name">${away}</span>${badgeImg(m.teams?.away?.badge,away,32)}</div>`;
-  document.getElementById('matchBarMeta').textContent = m.live ? '🔴 LIVE STREAMING' : (m.date ? formatTime(m.date) : '');
+    `<div class="mbt"><span class="mbt-name">${away}</span>${badgeImg(m.teams?.away?.badge,away,22)}</div>`;
+  document.getElementById('matchBarMeta').textContent = m.live ? '🔴 LIVE' : (m.date ? formatTime(m.date) : '');
 
   const ea = document.getElementById('embedArea');
   ea.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div class="spinner"></div></div>';
   const sw = document.getElementById('streamSwitcher');
   sw.style.display = 'none'; sw.innerHTML = '';
 
-  // Logic Hitung Mundur
+  // Cek waktu — blok jika > 10 menit sebelum kickoff
   if (m.date && !m.live) {
     const diff = m.date - Date.now();
     if (diff > 10 * 60 * 1000) {
+      // Render countdown
       const countdownId = 'cd_' + Date.now();
-      ea.innerHTML = `
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center">
-          <div style="font-size:42px">⏳</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--accent)">BELUM WAKTUNYA</div>
-          <div style="font-size:14px;color:var(--muted);line-height:1.6;max-width:320px">Streaming akan terbuka otomatis 10 menit sebelum pertandingan dimulai.</div>
-          <div style="margin-top:8px; background: rgba(255,255,255,0.05); padding: 12px 24px; border-radius: 8px;">
-            <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Dimulai dalam</div>
-            <div id="${countdownId}" style="color:var(--text);font-weight:700;font-size:18px;font-family:'DM Sans',sans-serif;letter-spacing:1px"></div>
-          </div>
-        </div>`;
+      ea.innerHTML = `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center">
+        <div style="font-size:36px">⏱️</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent)">BELUM WAKTUNYA</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7;max-width:280px">Kamu baru bisa mengakses streaming 10 menit sebelum pertandingan dimulai!</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Mulai dalam <span id="${countdownId}" style="color:var(--accent);font-weight:700;font-size:13px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px"></span></div>
+      </div>`;
 
       function fmtCountdown() {
         const rem = m.date - Date.now();
@@ -407,8 +300,8 @@ async function loadStream(cat, id, m) {
         const h = Math.floor(totalSec / 3600);
         const min = Math.floor((totalSec % 3600) / 60);
         const sec = totalSec % 60;
-        if (h > 0) return `${h}j ${min}m ${String(sec).padStart(2,'0')}d`;
-        return `${min}m ${String(sec).padStart(2,'0')}d`;
+        if (h > 0) return `${h} jam ${min} menit ${String(sec).padStart(2,'0')} detik`;
+        return `${min} menit ${String(sec).padStart(2,'0')} detik`;
       }
 
       const el = document.getElementById(countdownId);
@@ -418,7 +311,7 @@ async function loadStream(cat, id, m) {
         const el = document.getElementById(countdownId);
         if (!el) { clearInterval(timer); return; }
         const val = fmtCountdown();
-        if (!val) { clearInterval(timer); el.textContent = 'Memuat stream...'; return; }
+        if (!val) { clearInterval(timer); el.textContent = 'sekarang!'; return; }
         el.textContent = val;
       }, 1000);
 
@@ -426,10 +319,10 @@ async function loadStream(cat, id, m) {
     }
   }
 
-  // Fetch Stream URL
+
   const res = await apiFetch({ data: 'detail', category: cat, id });
   if (res.error || !res.success) {
-    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px;display:flex;align-items:center;justify-content:center;">Gagal memuat stream: ${res.error||'Stream belum tersedia.'}</div>`;
+    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px">Gagal: ${res.error||''}</div>`;
     return;
   }
 
@@ -438,7 +331,7 @@ async function loadStream(cat, id, m) {
   function applyEmbed(src) {
     const url = src.embedUrl || src.embed || src.url || '';
     if (!url) return false;
-    ea.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture" referrerpolicy="no-referrer" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:block;background:#000;"></iframe>`;
+    ea.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture" referrerpolicy="no-referrer" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:block"></iframe>`;
     return true;
   }
 
@@ -449,7 +342,7 @@ async function loadStream(cat, id, m) {
       sources.forEach((s, i) => {
         const btn = document.createElement('button');
         btn.className = 'stream-btn' + (i === 0 ? ' active' : '');
-        btn.textContent = (s.name || 'Server ' + (s.streamNo || i+1)) + (s.hd ? ' · HD' : '');
+        btn.textContent = (s.name || 'Stream ' + (s.streamNo || i+1)) + (s.hd ? ' · HD' : '');
         btn.addEventListener('click', () => {
           sw.querySelectorAll('.stream-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
@@ -459,11 +352,10 @@ async function loadStream(cat, id, m) {
       });
     }
   } else {
-    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px;display:flex;align-items:center;justify-content:center;">Stream belum tersedia untuk pertandingan ini.</div>`;
+    ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px">Stream belum tersedia untuk pertandingan ini.</div>`;
   }
 }
 
-// Init
 loadMatches(currentCategory);
 </script>
 </body>
