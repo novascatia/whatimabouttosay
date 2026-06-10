@@ -37,18 +37,25 @@ header {
 .live-dot { width:8px; height:8px; background:var(--red); border-radius:50%; animation:pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
 
+/* COMPACT TABS (SEGMENTED CONTROL) */
 .cat-bar { 
-  display:flex; align-items:center; gap:10px; padding:12px 24px; 
-  border-bottom:1px solid var(--border); overflow-x:auto; scrollbar-width:none; background: var(--bg);
+  display: flex; justify-content: center; padding: 20px 24px 10px; background: var(--bg);
 }
-.cat-bar::-webkit-scrollbar { display:none; }
+.cat-tabs {
+  display: inline-flex; background: var(--card); padding: 5px; 
+  border-radius: 40px; border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
 .cat-btn { 
-  padding:8px 18px; border-radius:30px; border:1px solid var(--border); 
-  background:var(--card); color:var(--text); font-family:'DM Sans',sans-serif; 
-  font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .2s; 
+  padding: 8px 24px; border-radius: 30px; border: none; 
+  background: transparent; color: var(--muted); font-family:'DM Sans',sans-serif; 
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); 
 }
-.cat-btn:hover { border-color:var(--accent); color:var(--accent); }
-.cat-btn.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:700; }
+.cat-btn:hover:not(.active) { color: var(--text); }
+.cat-btn.active { 
+  background: var(--accent); color: #000; 
+  box-shadow: 0 2px 8px rgba(212, 245, 60, 0.2); 
+}
 
 /* MAIN CONTAINER */
 .main { flex:1; position: relative; display: flex; flex-direction: column; }
@@ -152,15 +159,17 @@ header {
 </header>
 
 <div class="cat-bar" id="catBar">
-  <button class="cat-btn active" data-cat="football">Club Football</button>
-  <button class="cat-btn" data-cat="worldcup">World Cup / National</button>
+  <div class="cat-tabs">
+    <button class="cat-btn active" data-cat="football">Club Football</button>
+    <button class="cat-btn" data-cat="worldcup">World Cup</button>
+  </div>
 </div>
 
 <div class="main">
 
   <div class="view active" id="viewList">
     <div class="list-header">
-      <div class="list-title" id="listTitle">Daftar Pertandingan</div>
+      <div class="list-title" id="listTitle">Club Football</div>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input class="search-input" id="searchInput" type="text" placeholder="Cari tim atau negara..." autocomplete="off">
@@ -244,7 +253,7 @@ async function loadMatches(cat) {
   matchListWrap.innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat Jadwal...</div></div>';
   
   // Custom logic: if API handles 'worldcup' category, send it. If not, map to a generic sport category based on your backend
-  const apiCat = cat === 'worldcup' ? 'football' : cat; // Adjust if your backend explicitly accepts 'worldcup'
+  const apiCat = cat === 'worldcup' ? 'football' : cat; 
   
   const res = await apiFetch({ data: 'matches', category: apiCat });
   if (res.error || !res.success) {
@@ -256,7 +265,7 @@ async function loadMatches(cat) {
   
   // Mock Filter for World Cup if the API doesn't filter naturally
   if(cat === 'worldcup') {
-     // Optional: You can filter here by known national teams or tournament name if the API mixes them
+     // Optional: You can uncomment this if your API mixes club and national matches
      // data = data.filter(m => m.tournament?.toLowerCase().includes('world cup') || m.tournament?.toLowerCase().includes('international'));
   }
 
@@ -273,9 +282,8 @@ function renderList(matches) {
   // 1. Group Matches by League / Tournament
   const grouped = {};
   matches.forEach(m => {
-    // Try to find league name, fallback to generic
     let league = m.tournament || m.league?.name || m.competition?.name;
-    if (!league) league = currentCategory === 'worldcup' ? 'International Matches' : 'Lainnya';
+    if (!league) league = currentCategory === 'worldcup' ? 'World Cup Matches' : 'Lainnya';
     
     if (!grouped[league]) grouped[league] = [];
     grouped[league].push(m);
@@ -301,7 +309,6 @@ function renderList(matches) {
 
   // 3. Render Groups
   for (const [league, leagueMatches] of Object.entries(grouped)) {
-    // Filter out pinned matches so they don't duplicate (Optional, adjust as needed)
     const renderableMatches = currentCategory === 'football' ? leagueMatches.filter(m => !isMU(m)) : leagueMatches;
     
     if (renderableMatches.length === 0) continue;
@@ -365,7 +372,7 @@ async function loadStream(cat, id, m) {
   const sw = document.getElementById('streamSwitcher');
   sw.style.display = 'none'; sw.innerHTML = '';
 
-  // Logic Hitung Mundur (Blok jika > 10 menit sebelum kickoff)
+  // Logic Hitung Mundur
   if (m.date && !m.live) {
     const diff = m.date - Date.now();
     if (diff > 10 * 60 * 1000) {
@@ -408,7 +415,7 @@ async function loadStream(cat, id, m) {
   }
 
   // Fetch Stream URL
-  const apiCat = cat === 'worldcup' ? 'football' : cat; // Fallback jika backend tidak membedakan parameter API-nya
+  const apiCat = cat === 'worldcup' ? 'football' : cat; 
   const res = await apiFetch({ data: 'detail', category: apiCat, id });
   if (res.error || !res.success) {
     ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px;display:flex;align-items:center;justify-content:center;">Gagal memuat stream: ${res.error||'Stream belum tersedia.'}</div>`;
