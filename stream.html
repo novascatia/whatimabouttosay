@@ -252,10 +252,9 @@ function badgeImg(url, alt, size) {
 async function loadMatches(cat) {
   matchListWrap.innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat Jadwal...</div></div>';
   
-  // Custom logic: if API handles 'worldcup' category, send it. If not, map to a generic sport category based on your backend
-  const apiCat = cat === 'worldcup' ? 'football' : cat; 
+  // Tetap panggil endpoint 'football' dari API karena mencakup semua laga sepak bola
+  const res = await apiFetch({ data: 'matches', category: 'football' });
   
-  const res = await apiFetch({ data: 'matches', category: apiCat });
   if (res.error || !res.success) {
     matchListWrap.innerHTML = '<div class="error-box">Gagal memuat data: ' + (res.error||'Unknown Error') + '</div>';
     return;
@@ -263,10 +262,22 @@ async function loadMatches(cat) {
   
   let data = res.data || [];
   
-  // Mock Filter for World Cup if the API doesn't filter naturally
-  if(cat === 'worldcup') {
-     // Optional: You can uncomment this if your API mixes club and national matches
-     // data = data.filter(m => m.tournament?.toLowerCase().includes('world cup') || m.tournament?.toLowerCase().includes('international'));
+  // FILTERING LOGIC: Memisahkan Klub dan Negara (World Cup)
+  // Ini mendeteksi berdasarkan nama turnamen / liga
+  const nationalKeywords = ['world cup', 'international', 'nation', 'euro ', 'copa ', 'qualif', 'kualifikasi', 'friendly'];
+  
+  if (cat === 'worldcup') {
+     // Hanya ambil pertandingan timnas / world cup
+     data = data.filter(m => {
+        const league = (m.tournament || m.league?.name || m.competition?.name || '').toLowerCase();
+        return nationalKeywords.some(kw => league.includes(kw));
+     });
+  } else if (cat === 'football') {
+     // Ambil HANYA laga klub (buang laga timnas)
+     data = data.filter(m => {
+        const league = (m.tournament || m.league?.name || m.competition?.name || '').toLowerCase();
+        return !nationalKeywords.some(kw => league.includes(kw));
+     });
   }
 
   allMatches = data;
@@ -275,15 +286,14 @@ async function loadMatches(cat) {
 
 function renderList(matches) {
   if (!matches.length) { 
-    matchListWrap.innerHTML = '<div class="empty">Tidak ada pertandingan tersedia saat ini.</div>'; 
+    matchListWrap.innerHTML = '<div class="empty">Tidak ada pertandingan tersedia untuk kategori ini saat ini.</div>'; 
     return; 
   }
 
-  // 1. Group Matches by League / Tournament
   const grouped = {};
   matches.forEach(m => {
     let league = m.tournament || m.league?.name || m.competition?.name;
-    if (!league) league = currentCategory === 'worldcup' ? 'World Cup Matches' : 'Lainnya';
+    if (!league) league = currentCategory === 'worldcup' ? 'International Matches' : 'Lainnya';
     
     if (!grouped[league]) grouped[league] = [];
     grouped[league].push(m);
@@ -291,7 +301,6 @@ function renderList(matches) {
 
   matchListWrap.innerHTML = '';
 
-  // 2. Render Pinned MU Matches (If in Club Football mode)
   const pinned = matches.filter(isMU);
   if (pinned.length && currentCategory === 'football') {
     const pinGroup = document.createElement('div');
@@ -307,7 +316,6 @@ function renderList(matches) {
     pinned.forEach(m => grid.appendChild(makeCard(m, true)));
   }
 
-  // 3. Render Groups
   for (const [league, leagueMatches] of Object.entries(grouped)) {
     const renderableMatches = currentCategory === 'football' ? leagueMatches.filter(m => !isMU(m)) : leagueMatches;
     
@@ -350,11 +358,10 @@ function makeCard(m, isPinned) {
   `;
 
   el.addEventListener('click', () => {
-    // Switch View
     viewList.classList.remove('active');
     viewPlayer.classList.add('active');
     window.scrollTo(0,0);
-    loadStream(m.category || currentCategory, m.id, m);
+    loadStream('football', m.id, m); // Selalu pakai parameter 'football' ke API stream agar tidak error
   });
   return el;
 }
@@ -372,7 +379,6 @@ async function loadStream(cat, id, m) {
   const sw = document.getElementById('streamSwitcher');
   sw.style.display = 'none'; sw.innerHTML = '';
 
-  // Logic Hitung Mundur
   if (m.date && !m.live) {
     const diff = m.date - Date.now();
     if (diff > 10 * 60 * 1000) {
@@ -414,9 +420,7 @@ async function loadStream(cat, id, m) {
     }
   }
 
-  // Fetch Stream URL
-  const apiCat = cat === 'worldcup' ? 'football' : cat; 
-  const res = await apiFetch({ data: 'detail', category: apiCat, id });
+  const res = await apiFetch({ data: 'detail', category: 'football', id });
   if (res.error || !res.success) {
     ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px;display:flex;align-items:center;justify-content:center;">Gagal memuat stream: ${res.error||'Stream belum tersedia.'}</div>`;
     return;
