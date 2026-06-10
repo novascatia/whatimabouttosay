@@ -252,7 +252,7 @@ function badgeImg(url, alt, size) {
 async function loadMatches(cat) {
   matchListWrap.innerHTML = '<div class="loader"><div class="spinner"></div><div class="loader-text">Memuat Jadwal...</div></div>';
   
-  // Tetap panggil endpoint 'football' dari API karena mencakup semua laga sepak bola
+  // Selalu panggil 'football' karena API aslinya tidak punya filter world cup
   const res = await apiFetch({ data: 'matches', category: 'football' });
   
   if (res.error || !res.success) {
@@ -262,21 +262,22 @@ async function loadMatches(cat) {
   
   let data = res.data || [];
   
-  // FILTERING LOGIC: Memisahkan Klub dan Negara (World Cup)
-  // Ini mendeteksi berdasarkan nama turnamen / liga
-  const nationalKeywords = ['world cup', 'international', 'nation', 'euro ', 'copa ', 'qualif', 'kualifikasi', 'friendly'];
+  // FILTERING LOGIC: Cek nama turnamen, kompetisi, dan judul pertandingan
+  const nationalKeywords = [
+    'world cup', 'piala dunia', 'fifa', 'international', 'nation', 
+    'euro', 'copa', 'qualif', 'kualifikasi', 'friendly', 
+    'conmebol', 'uefa', 'afc', 'caf', 'concacaf'
+  ];
   
   if (cat === 'worldcup') {
-     // Hanya ambil pertandingan timnas / world cup
      data = data.filter(m => {
-        const league = (m.tournament || m.league?.name || m.competition?.name || '').toLowerCase();
-        return nationalKeywords.some(kw => league.includes(kw));
+        const textToSearch = (m.tournament || m.league?.name || m.competition?.name || m.title || '').toLowerCase();
+        return nationalKeywords.some(kw => textToSearch.includes(kw));
      });
   } else if (cat === 'football') {
-     // Ambil HANYA laga klub (buang laga timnas)
      data = data.filter(m => {
-        const league = (m.tournament || m.league?.name || m.competition?.name || '').toLowerCase();
-        return !nationalKeywords.some(kw => league.includes(kw));
+        const textToSearch = (m.tournament || m.league?.name || m.competition?.name || m.title || '').toLowerCase();
+        return !nationalKeywords.some(kw => textToSearch.includes(kw));
      });
   }
 
@@ -290,10 +291,11 @@ function renderList(matches) {
     return; 
   }
 
+  // Group Matches by League / Tournament
   const grouped = {};
   matches.forEach(m => {
     let league = m.tournament || m.league?.name || m.competition?.name;
-    if (!league) league = currentCategory === 'worldcup' ? 'International Matches' : 'Lainnya';
+    if (!league) league = currentCategory === 'worldcup' ? 'World Cup / International' : 'Lainnya';
     
     if (!grouped[league]) grouped[league] = [];
     grouped[league].push(m);
@@ -301,6 +303,7 @@ function renderList(matches) {
 
   matchListWrap.innerHTML = '';
 
+  // Render Pinned MU Matches (hanya di Club Football)
   const pinned = matches.filter(isMU);
   if (pinned.length && currentCategory === 'football') {
     const pinGroup = document.createElement('div');
@@ -316,6 +319,7 @@ function renderList(matches) {
     pinned.forEach(m => grid.appendChild(makeCard(m, true)));
   }
 
+  // Render Groups
   for (const [league, leagueMatches] of Object.entries(grouped)) {
     const renderableMatches = currentCategory === 'football' ? leagueMatches.filter(m => !isMU(m)) : leagueMatches;
     
@@ -361,7 +365,8 @@ function makeCard(m, isPinned) {
     viewList.classList.remove('active');
     viewPlayer.classList.add('active');
     window.scrollTo(0,0);
-    loadStream('football', m.id, m); // Selalu pakai parameter 'football' ke API stream agar tidak error
+    // Selalu lempar parameter 'football' saat nembak API embed URL
+    loadStream('football', m.id, m);
   });
   return el;
 }
@@ -379,6 +384,7 @@ async function loadStream(cat, id, m) {
   const sw = document.getElementById('streamSwitcher');
   sw.style.display = 'none'; sw.innerHTML = '';
 
+  // Logic Hitung Mundur
   if (m.date && !m.live) {
     const diff = m.date - Date.now();
     if (diff > 10 * 60 * 1000) {
@@ -420,7 +426,8 @@ async function loadStream(cat, id, m) {
     }
   }
 
-  const res = await apiFetch({ data: 'detail', category: 'football', id });
+  // Fetch Stream URL
+  const res = await apiFetch({ data: 'detail', category: cat, id });
   if (res.error || !res.success) {
     ea.innerHTML = `<div class="error-box" style="position:absolute;inset:0;margin:20px;display:flex;align-items:center;justify-content:center;">Gagal memuat stream: ${res.error||'Stream belum tersedia.'}</div>`;
     return;
