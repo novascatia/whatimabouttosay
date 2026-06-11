@@ -2,7 +2,6 @@ const API = '/.netlify/functions/sportsrc-proxy';
 let currentCategory = 'football';
 let allMatches = [];
 
-// Daftar kode negara ISO untuk memanggil bendera secara akurat
 const countryCodes = {
   "indonesia": "id", "mexico": "mx", "england": "gb-eng", "spain": "es",
   "italy": "it", "germany": "de", "france": "fr", "brazil": "br",
@@ -20,10 +19,8 @@ const countryCodes = {
   "bahrain": "bh", "oman": "om", "jordan": "jo", "syria": "sy", "lebanon": "lb", "palestine": "ps"
 };
 
-// Fungsi untuk mengecek negara dan mengambil bendera
 function getFallbackIcon(name) {
   if (!name) return 'notfound.jpeg';
-  // Bersihkan teks (hapus tulisan spt U-23, U-20, Women, dll agar match dgn dictionary)
   let cleanName = name.toLowerCase()
     .replace(/u-?\d+/g, '')
     .replace(/\b(women|men|fc|timnas)\b/g, '')
@@ -35,15 +32,12 @@ function getFallbackIcon(name) {
   return 'notfound.jpeg';
 }
 
-// Jadikan fungsi global agar bisa dipakai oleh inline HTML 'onerror'
 window.getFallbackIcon = getFallbackIcon;
 
-// MODAL LOGIC
 document.getElementById('closePopup').addEventListener('click', () => {
   document.getElementById('welcomePopup').style.display = 'none';
 });
 
-// SEARCH LOGIC
 document.getElementById('searchInput').addEventListener('input', e => {
   const q = e.target.value.trim().toLowerCase();
   renderList(q ? allMatches.filter(m => matchLabel(m).toLowerCase().includes(q)) : allMatches);
@@ -82,15 +76,19 @@ function formatTime(ms) {
   return new Date(ms).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' }) + ' WIB';
 }
 
+function formatDateShort(ms) {
+  return new Date(ms).toLocaleDateString('id-ID', { day:'numeric', month:'short', timeZone:'Asia/Jakarta' });
+}
+
+function formatDateTimeFull(ms) {
+  return new Date(ms).toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' }) + ' WIB';
+}
+
 function badgeImg(url, alt) {
   const fallbackUrl = getFallbackIcon(alt);
-  
-  // Jika URL asli dari API tidak ada sama sekali
   if (!url) {
     return `<img class="team-badge" src="${fallbackUrl}" alt="${alt}" onerror="this.onerror=null;this.src='notfound.jpeg';">`;
   }
-  
-  // Jika URL asli ada, coba di-load. Jika error, fallback ke bendera. Jika bendera error juga, pakai notfound.jpeg
   return `<img class="team-badge" src="${url}" alt="${alt}" onerror="if(this.src!=='${fallbackUrl}') { this.src='${fallbackUrl}'; } else { this.onerror=null; this.src='notfound.jpeg'; }">`;
 }
 
@@ -141,21 +139,23 @@ function makeItem(m, pinType) {
   
   const home = getHome(m);
   const away = getAway(m);
-  // Logika mendeteksi single event (tdk ada lawan)
   const isSingle = !away || away === '?';
 
   const isLive = m.live === true;
-  const timeStr = isLive ? 'LIVE' : (m.date ? formatTime(m.date) : 'TBD');
+  let timeDisplay = 'TBD';
+  if (isLive) {
+    timeDisplay = '<span style="color:var(--accent); font-weight:700;">LIVE</span>';
+  } else if (m.date) {
+    timeDisplay = `<span style="font-size:10px; display:block; margin-bottom:3px; opacity:0.7;">${formatDateShort(m.date)}</span><span>${formatTime(m.date).replace(' WIB', '')}</span>`;
+  }
   
   const homeHighlight = (pinType === 'MU' && home.toLowerCase().includes('manchester united')) || (pinType === 'INDO' && home.toLowerCase().includes('indonesia'));
   const hClass = homeHighlight ? (pinType === 'MU' ? ' mu-highlight' : ' indo-highlight') : '';
 
   let teamsHtml = '';
   if (isSingle) {
-    // Tampilan acara tunggal (satu baris saja, font membesar)
     teamsHtml = `<div class="team-row">${badgeImg(m.teams?.home?.badge,home)}<span class="team-name single-event-title ${hClass}">${home}</span></div>`;
   } else {
-    // Tampilan pertandingan normal (dua baris)
     const awayHighlight = (pinType === 'MU' && away.toLowerCase().includes('manchester united')) || (pinType === 'INDO' && away.toLowerCase().includes('indonesia'));
     const aClass = awayHighlight ? (pinType === 'MU' ? ' mu-highlight' : ' indo-highlight') : '';
     teamsHtml = 
@@ -164,7 +164,7 @@ function makeItem(m, pinType) {
   }
 
   el.innerHTML =
-    `<div class="match-time${isLive?' live':''}">${timeStr}</div>` +
+    `<div class="match-time" style="width:50px;">${timeDisplay}</div>` +
     `<div class="match-teams-col">` + teamsHtml + `</div>` +
     `<div class="play-btn">▶</div>`;
 
@@ -172,10 +172,8 @@ function makeItem(m, pinType) {
     document.querySelectorAll('.match-item').forEach(i => i.classList.remove('selected'));
     el.classList.add('selected');
     
-    // Membuka player video di samping saat item di-click
     document.getElementById('mainLayout').classList.add('active-player');
     
-    // Auto-scroll ke atas saat dibuka di HP
     if (window.innerWidth <= 900) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -201,14 +199,13 @@ async function loadStream(cat, id, m) {
   }
 
   document.getElementById('matchBarTeams').innerHTML = matchBarTeamsHtml;
-  document.getElementById('matchBarMeta').textContent = m.live ? '🔴 LIVE STREAM' : (m.date ? formatTime(m.date) : 'Upcoming');
+  document.getElementById('matchBarMeta').textContent = m.live ? '🔴 LIVE STREAM' : (m.date ? formatDateTimeFull(m.date) : 'Upcoming');
 
   const ea = document.getElementById('embedArea');
   ea.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div class="spinner"></div></div>';
   const sw = document.getElementById('streamSwitcher');
   sw.style.display = 'none'; sw.innerHTML = '';
 
-  // Sistem Countdown 10 menit sebelum mulai
   if (m.date && !m.live) {
     const diff = m.date - Date.now();
     if (diff > 10 * 60 * 1000) {
