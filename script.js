@@ -19,9 +19,19 @@ async function apiFetch(params) {
   } catch(e) { return { error: e.message }; }
 }
 
-function getHome(m) { return m.teams?.home?.name || m.title?.split(' vs ')[0] || '?'; }
-function getAway(m) { return m.teams?.away?.name || (m.title?.split(' vs ')[1] || '?'); }
-function matchLabel(m) { return getHome(m) + ' ' + getAway(m); }
+function getHome(m) { return m.teams?.home?.name || m.title?.split(' vs ')[0] || m.title || '?'; }
+
+function getAway(m) { 
+  if (m.teams?.away?.name) return m.teams.away.name;
+  if (m.title?.includes(' vs ')) return m.title.split(' vs ')[1];
+  return null;
+}
+
+function matchLabel(m) { 
+  const h = getHome(m);
+  const a = getAway(m);
+  return a ? h + ' ' + a : h;
+}
 
 function getPinType(m) {
   const label = matchLabel(m).toLowerCase();
@@ -84,22 +94,30 @@ function makeItem(m, pinType) {
   const el = document.createElement('div');
   el.className = 'match-item';
   
-  const home = getHome(m), away = getAway(m);
+  const home = getHome(m);
+  const away = getAway(m);
+  const isSingle = !away || away === '?';
+
   const isLive = m.live === true;
   const timeStr = isLive ? 'LIVE' : (m.date ? formatTime(m.date) : 'TBD');
   
   const homeHighlight = (pinType === 'MU' && home.toLowerCase().includes('manchester united')) || (pinType === 'INDO' && home.toLowerCase().includes('indonesia'));
-  const awayHighlight = (pinType === 'MU' && away.toLowerCase().includes('manchester united')) || (pinType === 'INDO' && away.toLowerCase().includes('indonesia'));
-  
   const hClass = homeHighlight ? (pinType === 'MU' ? ' mu-highlight' : ' indo-highlight') : '';
-  const aClass = awayHighlight ? (pinType === 'MU' ? ' mu-highlight' : ' indo-highlight') : '';
+
+  let teamsHtml = '';
+  if (isSingle) {
+    teamsHtml = `<div class="team-row">${badgeImg(m.teams?.home?.badge,home)}<span class="team-name single-event-title ${hClass}">${home}</span></div>`;
+  } else {
+    const awayHighlight = (pinType === 'MU' && away.toLowerCase().includes('manchester united')) || (pinType === 'INDO' && away.toLowerCase().includes('indonesia'));
+    const aClass = awayHighlight ? (pinType === 'MU' ? ' mu-highlight' : ' indo-highlight') : '';
+    teamsHtml = 
+      `<div class="team-row">${badgeImg(m.teams?.home?.badge,home)}<span class="team-name${hClass}">${home}</span></div>` +
+      `<div class="team-row">${badgeImg(m.teams?.away?.badge,away)}<span class="team-name${aClass}">${away}</span></div>`;
+  }
 
   el.innerHTML =
     `<div class="match-time${isLive?' live':''}">${timeStr}</div>` +
-    `<div class="match-teams-col">` +
-      `<div class="team-row">${badgeImg(m.teams?.home?.badge,home)}<span class="team-name${hClass}">${home}</span></div>` +
-      `<div class="team-row">${badgeImg(m.teams?.away?.badge,away)}<span class="team-name${aClass}">${away}</span></div>` +
-    `</div>` +
+    `<div class="match-teams-col">` + teamsHtml + `</div>` +
     `<div class="play-btn">▶</div>`;
 
   el.addEventListener('click', () => {
@@ -118,12 +136,21 @@ function makeItem(m, pinType) {
 }
 
 async function loadStream(cat, id, m) {
-  const home = getHome(m), away = getAway(m);
-  document.getElementById('matchBarTeams').innerHTML =
-    `<div class="mbt">${badgeImg(m.teams?.home?.badge,home)}<span>${home}</span></div>` +
-    `<span class="vs-sep">VS</span>` +
-    `<div class="mbt"><span>${away}</span>${badgeImg(m.teams?.away?.badge,away)}</div>`;
-    
+  const home = getHome(m);
+  const away = getAway(m);
+  const isSingle = !away || away === '?';
+
+  let matchBarTeamsHtml = '';
+  if (isSingle) {
+    matchBarTeamsHtml = `<div class="mbt">${badgeImg(m.teams?.home?.badge,home)}<span>${home}</span></div>`;
+  } else {
+    matchBarTeamsHtml = 
+      `<div class="mbt">${badgeImg(m.teams?.home?.badge,home)}<span>${home}</span></div>` +
+      `<span class="vs-sep">VS</span>` +
+      `<div class="mbt"><span>${away}</span>${badgeImg(m.teams?.away?.badge,away)}</div>`;
+  }
+
+  document.getElementById('matchBarTeams').innerHTML = matchBarTeamsHtml;
   document.getElementById('matchBarMeta').textContent = m.live ? '🔴 LIVE STREAM' : (m.date ? formatTime(m.date) : 'Upcoming');
 
   const ea = document.getElementById('embedArea');
