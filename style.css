@@ -133,6 +133,8 @@ header {
 .team-badge-ph { width:18px; height:18px; background:var(--border); border-radius:50%; flex-shrink:0; }
 .team-name { font-size:14px; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
+.team-name.single-event-title { font-size:15px; font-weight:500; white-space:normal; overflow:visible; line-height:1.4; }
+
 .team-name.mu-highlight { color: #ff6b6b; font-weight: 700; }
 .team-name.indo-highlight { color: #ff6b6b; font-weight: 700; }
 
