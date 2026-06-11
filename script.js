@@ -45,8 +45,8 @@ function formatTime(ms) {
 }
 
 function badgeImg(url, alt) {
-  if (!url) return `<img class="team-badge" src="logo.png" alt="${alt}" onerror="this.onerror=null;this.src='logo.png';">`;
-  return `<img class="team-badge" src="${url}" alt="${alt}" onerror="this.onerror=null;this.src='logo.png';">`;
+  if (!url) return `<img class="team-badge" src="notfound.jpeg" alt="${alt}" onerror="this.onerror=null;this.src='notfound.jpeg';">`;
+  return `<img class="team-badge" src="${url}" alt="${alt}" onerror="this.onerror=null;this.src='notfound.jpeg';">`;
 }
 
 async function loadMatches(cat) {
