@@ -16,88 +16,38 @@ body {
     background: #0f172a;
     color: #f8fafc;
     min-height: 100vh;
-    padding: 2rem;
+    padding: 2rem 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.controls {
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 1.5rem;
-    width: 100%;
-    max-width: 900px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-}
-button {
-    background: #38bdf8;
-    color: #0f172a;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    font-family: inherit;
-}
-button:hover {
-    background: #0ea5e9;
-}
-.btn-danger { background: #f43f5e; color: white; }
-.btn-danger:hover { background: #e11d48; }
-.btn-success { background: #10b981; color: white; }
-.btn-success:hover { background: #059669; }
-.sig-panel {
-    width: 100%;
-    display: flex;
-    gap: 1.5rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    padding-top: 1rem;
-    margin-top: 1rem;
-    align-items: center;
-}
-.sig-tools {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-.canvas-wrapper {
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    display: inline-block;
-    border: 2px solid #cbd5e1;
-}
-#sigCanvas {
-    cursor: crosshair;
-    display: block;
-}
 .paper-container {
     width: 100%;
     overflow-x: auto;
     display: flex;
-    justify-content: center;
-    padding-bottom: 2rem;
+    justify-content: flex-start;
+    padding-bottom: 1rem;
+}
+@media (min-width: 768px) {
+    .paper-container {
+        justify-content: center;
+    }
 }
 .paper {
     background: #ffffff;
     color: #000000;
     width: 210mm;
+    min-width: 210mm;
     min-height: 297mm;
     padding: 20mm;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     position: relative;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
+    display: flex;
+    flex-direction: column;
 }
 .editable {
     outline: none;
@@ -143,7 +93,6 @@ button:hover {
     color: white;
     font-weight: bold;
     font-size: 18px;
-    cursor: pointer;
     overflow: hidden;
     position: relative;
 }
@@ -245,11 +194,10 @@ button:hover {
     min-height: 120px;
 }
 .sig-display {
-    width: 250px;
-    height: 125px;
-    border-bottom: 1px solid transparent;
+    width: 200px;
+    height: 100px;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
     position: relative;
 }
@@ -282,41 +230,163 @@ button:hover {
     font-size: 11px;
     margin-bottom: 5px;
 }
+.controls {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.controls-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+.controls-uploader {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.25rem;
+}
+button {
+    background: #38bdf8;
+    color: #0f172a;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: inherit;
+}
+button:hover {
+    background: #0ea5e9;
+}
+.btn-danger { background: #f43f5e; color: white; }
+.btn-danger:hover { background: #e11d48; }
+.btn-success { background: #10b981; color: white; }
+.btn-success:hover { background: #059669; }
+.btn-secondary { background: #64748b; color: white; }
+.btn-secondary:hover { background: #475569; }
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+.modal-content {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 0.75rem;
+}
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #f8fafc;
+}
+.modal-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+}
+.modal-close:hover {
+    color: #f8fafc;
+}
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: #0f172a;
+    padding: 0.25rem;
+    border-radius: 8px;
+}
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    color: #94a3b8;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+}
+.tab-btn.active {
+    background: #38bdf8;
+    color: #0f172a;
+}
+.tab-panel {
+    display: none;
+}
+.tab-panel.active {
+    display: block;
+}
+.canvas-container {
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #cbd5e1;
+}
+#sigCanvas {
+    cursor: crosshair;
+    display: block;
+}
+.upload-box {
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(15, 23, 42, 0.4);
+}
+.upload-box:hover {
+    border-color: #38bdf8;
+}
+.modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 0.75rem;
+}
 @media print {
     body { background: none; padding: 0; }
-    .controls, .remove-row-btn { display: none !important; }
+    .controls, .remove-row-btn, .modal-overlay { display: none !important; }
     .paper { box-shadow: none; margin: 0; }
 }
 </style>
 </head>
 <body>
-
-<div class="controls data-html2canvas-ignore">
-    <button type="button" id="btnAddRow">+ Tambah Baris</button>
-    <button type="button" class="btn-danger" id="btnClear">Reset Form</button>
-    <button type="button" class="btn-success" id="btnPng">Save PNG</button>
-    <button type="button" class="btn-success" id="btnPdf">Save PDF</button>
-
-    <div class="sig-panel">
-        <div class="sig-tools">
-            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
-                <span>Gambar Tanda Tangan:</span>
-                <div>
-                    <button type="button" id="btnClearSig" style="padding: 4px 10px; font-size: 12px; margin-right: 5px;">Clear</button>
-                    <button type="button" id="btnApplySig" class="btn-success" style="padding: 4px 10px; font-size: 12px;">Terapkan</button>
-                </div>
-            </div>
-            <div class="canvas-wrapper">
-                <canvas id="sigCanvas" width="300" height="150"></canvas>
-            </div>
-        </div>
-        <div class="sig-tools" style="flex: 0.5;">
-            <input type="file" id="logoUpload" accept="image/*" style="display: none;">
-            <button type="button" onclick="document.getElementById('logoUpload').click()" style="margin-bottom: 10px;">Upload Logo</button>
-            <button type="button" id="btnRemoveLogo" class="btn-danger" style="display:none;">Hapus Logo</button>
-        </div>
-    </div>
-</div>
 
 <div class="paper-container">
     <div class="paper" id="invoicePaper">
@@ -325,11 +395,11 @@ button:hover {
                 <div class="invoice-title">INVOICE</div>
                 <div class="company-details">
                     <div class="editable" data-id="c_name" data-placeholder="Nama Travel" contenteditable="true" style="font-weight:bold; margin-bottom: 5px;">Barokah Travel</div><br>
-                    <div class="editable" data-id="c_addr1" data-placeholder="Alamat Kantor 1" contenteditable="true">Nama Jalan</div><br>
+                    <div class="editable" data-id="c_addr1" data-placeholder="Alamat Kantor 1" contenteditable="true">Jl. Mana kek</div><br>
                     <div class="editable" data-id="c_addr2" data-placeholder="Alamat Kantor 2" contenteditable="true">Jakarta Pusat, Indonesia</div>
                 </div>
             </div>
-            <div class="logo-area" id="logoContainer" onclick="document.getElementById('logoUpload').click()">
+            <div class="logo-area" id="logoContainer">
                 <span id="logoText">LOGO</span>
                 <img id="logoImg" class="logo-img">
             </div>
@@ -338,15 +408,15 @@ button:hover {
         <div class="invoice-meta">
             <div class="meta-col">
                 <div class="meta-title">BILL TO</div>
-                <div class="editable" data-id="b_name" data-placeholder="Nama Pemesan" contenteditable="true">Ahmad Subari</div>
-                <div class="editable" data-id="b_addr1" data-placeholder="Alamat" contenteditable="true">Jl. Anggrek No. 12</div>
-                <div class="editable" data-id="b_addr2" data-placeholder="Kota / No. HP" contenteditable="true">Kota - No Telp</div>
+                <div class="editable" data-id="b_name" data-placeholder="Nama Pemesan" contenteditable="true">Rama ganteng</div>
+                <div class="editable" data-id="b_addr1" data-placeholder="Alamat" contenteditable="true">Jl. jalan</div>
+                <div class="editable" data-id="b_addr2" data-placeholder="Kota / No. HP" contenteditable="true">Bekasi - 085781440485</div>
             </div>
             <div class="meta-col">
                 <div class="meta-title">TOUR DETAILS</div>
-                <div class="editable" data-id="s_name" data-placeholder="Paket Perjalanan" contenteditable="true">Paket Umroh Reguler</div>
+                <div class="editable" data-id="s_name" data-placeholder="Paket Perjalanan" contenteditable="true">Jakarta - Lampung PP</div>
                 <div class="editable" data-id="s_addr1" data-placeholder="Tanggal Keberangkatan" contenteditable="true">12 Oktober 2026</div>
-                <div class="editable" data-id="s_addr2" data-placeholder="Maskapai / Hotel" contenteditable="true">Saudi Airlines / Standard Hotel</div>
+                <div class="editable" data-id="s_addr2" data-placeholder="Maskapai / Hotel" contenteditable="true">HiAce</div>
             </div>
             <div class="meta-col">
                 <div class="meta-row">
@@ -409,12 +479,77 @@ button:hover {
     </div>
 </div>
 
+<div class="controls data-html2canvas-ignore">
+    <div class="controls-buttons">
+        <button type="button" id="btnAddRow">+ Tambah Baris</button>
+        <button type="button" id="btnOpenSigModal" class="btn-secondary">Kelola Tanda Tangan</button>
+        <button type="button" class="btn-danger" id="btnClear">Reset Form</button>
+        <button type="button" class="btn-success" id="btnPng">Save PNG</button>
+        <button type="button" class="btn-success" id="btnPdf">Save PDF</button>
+    </div>
+    
+    <div class="controls-uploader">
+        <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+        <button type="button" onclick="document.getElementById('logoUpload').click()">Upload Logo</button>
+        <button type="button" id="btnRemoveLogo" class="btn-danger" style="display:none;">Hapus Logo</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="sigModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Pengaturan Tanda Tangan</div>
+            <button type="button" class="modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        
+        <div class="tabs">
+            <button type="button" class="tab-btn active" id="tabDrawBtn">Gambar</button>
+            <button type="button" class="tab-btn" id="tabUploadBtn">Upload Foto</button>
+        </div>
+        
+        <div class="tab-panel active" id="panelDraw">
+            <div class="canvas-container">
+                <canvas id="sigCanvas" width="400" height="200"></canvas>
+            </div>
+            <div style="margin-top: 0.5rem; text-align: right;">
+                <button type="button" id="btnClearSig" class="btn-danger" style="padding: 0.5rem 1rem; font-size: 12px;">Clear Canvas</button>
+            </div>
+        </div>
+        
+        <div class="tab-panel" id="panelUpload">
+            <input type="file" id="sigImageInput" accept="image/*" style="display: none;">
+            <div class="upload-box" onclick="document.getElementById('sigImageInput').click()">
+                <span id="uploadBoxText">Klik untuk pilih foto tanda tangan</span>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="btnCancelModal" style="padding: 0.5rem 1rem;">Batal</button>
+            <button type="button" class="btn-success" id="btnApplySig" style="padding: 0.5rem 1rem;">Terapkan</button>
+        </div>
+    </div>
+</div>
+
 <script>
 const ls = window.localStorage;
 const tableBody = document.getElementById('tableBody');
 const sigCanvas = document.getElementById('sigCanvas');
 const ctx = sigCanvas.getContext('2d');
 let drawing = false;
+
+const sigModal = document.getElementById('sigModal');
+const btnOpenSigModal = document.getElementById('btnOpenSigModal');
+const btnCloseModal = document.getElementById('btnCloseModal');
+const btnCancelModal = document.getElementById('btnCancelModal');
+const tabDrawBtn = document.getElementById('tabDrawBtn');
+const tabUploadBtn = document.getElementById('tabUploadBtn');
+const panelDraw = document.getElementById('panelDraw');
+const panelUpload = document.getElementById('panelUpload');
+const sigImageInput = document.getElementById('sigImageInput');
+const uploadBoxText = document.getElementById('uploadBoxText');
+
+let activeTab = 'draw';
+let tempSigData = null;
 
 ctx.fillStyle = "#ffffff";
 ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
@@ -514,17 +649,62 @@ sigCanvas.addEventListener('touchend', endDraw);
 document.getElementById('btnClearSig').addEventListener('click', () => {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
-    document.getElementById('finalSignature').style.display = 'none';
-    document.getElementById('finalSignature').src = '';
-    ls.removeItem('invoice_travel_sig');
+});
+
+btnOpenSigModal.addEventListener('click', () => {
+    sigModal.style.display = 'flex';
+});
+
+function closeModal() {
+    sigModal.style.display = 'none';
+}
+
+btnCloseModal.addEventListener('click', closeModal);
+btnCancelModal.addEventListener('click', closeModal);
+
+tabDrawBtn.addEventListener('click', () => {
+    activeTab = 'draw';
+    tabDrawBtn.classList.add('active');
+    tabUploadBtn.classList.remove('active');
+    panelDraw.classList.add('active');
+    panelUpload.classList.remove('active');
+});
+
+tabUploadBtn.addEventListener('click', () => {
+    activeTab = 'upload';
+    tabUploadBtn.classList.add('active');
+    tabDrawBtn.classList.remove('active');
+    panelUpload.classList.add('active');
+    panelDraw.classList.remove('active');
+});
+
+sigImageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            tempSigData = ev.target.result;
+            uploadBoxText.innerText = "Foto dipilih: " + file.name;
+        };
+        reader.readAsDataURL(file);
+    }
 });
 
 document.getElementById('btnApplySig').addEventListener('click', () => {
-    const dataUrl = sigCanvas.toDataURL('image/png');
-    const finalImg = document.getElementById('finalSignature');
-    finalImg.src = dataUrl;
-    finalImg.style.display = 'block';
-    ls.setItem('invoice_travel_sig', dataUrl);
+    let finalDataUrl = null;
+    if (activeTab === 'draw') {
+        finalDataUrl = sigCanvas.toDataURL('image/png');
+    } else {
+        finalDataUrl = tempSigData;
+    }
+
+    if (finalDataUrl) {
+        const finalImg = document.getElementById('finalSignature');
+        finalImg.src = finalDataUrl;
+        finalImg.style.display = 'block';
+        ls.setItem('invoice_travel_sig', finalDataUrl);
+    }
+    closeModal();
 });
 
 document.getElementById('logoUpload').addEventListener('change', (e) => {
