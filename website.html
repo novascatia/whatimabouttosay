@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Faktur Barokah Travel</title>
+<title>Invoice Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -11,7 +11,6 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Times New Roman', Times, serif;
 }
 body {
     background: #0f172a;
@@ -47,7 +46,7 @@ button {
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: inherit;
 }
 button:hover {
     background: #0ea5e9;
@@ -59,10 +58,11 @@ button:hover {
 .sig-panel {
     width: 100%;
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     border-top: 1px solid rgba(255,255,255,0.1);
     padding-top: 1rem;
     margin-top: 1rem;
+    align-items: center;
 }
 .sig-tools {
     flex: 1;
@@ -74,12 +74,12 @@ button:hover {
     background: #fff;
     border-radius: 8px;
     overflow: hidden;
-    height: 120px;
+    display: inline-block;
+    border: 2px solid #cbd5e1;
 }
 #sigCanvas {
-    width: 100%;
-    height: 100%;
     cursor: crosshair;
+    display: block;
 }
 .paper-container {
     width: 100%;
@@ -89,24 +89,15 @@ button:hover {
     padding-bottom: 2rem;
 }
 .paper {
-    background: #f8f9fa;
-    color: #000;
+    background: #ffffff;
+    color: #000000;
     width: 210mm;
     min-height: 297mm;
-    padding: 15mm;
+    padding: 20mm;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     position: relative;
-    font-size: 14px;
-}
-.paper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 20px;
-    background: #e2e8f0;
-    border-bottom: 1px solid #cbd5e1;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
 }
 .editable {
     outline: none;
@@ -119,166 +110,177 @@ button:hover {
     pointer-events: none;
 }
 .editable:focus {
-    background: rgba(56, 189, 248, 0.1);
+    background: rgba(56, 189, 248, 0.15);
 }
-.header h1 {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    letter-spacing: 1px;
-}
-.header-info {
-    line-height: 1.4;
-    margin-bottom: 15px;
-}
-.divider {
-    border-top: 2px solid #000;
-    margin: 15px 0;
-}
-.menerima {
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border: 1px solid #000;
-    border-bottom: none;
-}
-.info-row {
+.invoice-header {
     display: flex;
-    border-bottom: 1px solid #000;
+    justify-content: space-between;
+    margin-bottom: 40px;
 }
-.info-label {
-    padding: 5px 10px;
+.invoice-title-area {
+    display: flex;
+    flex-direction: column;
+}
+.invoice-title {
+    font-size: 36px;
+    font-weight: 900;
+    color: #1a237e;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+.company-details {
+    line-height: 1.5;
+    color: #333;
+}
+.logo-area {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #a1a1aa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
     font-weight: bold;
-    width: 150px;
-    flex-shrink: 0;
+    font-size: 18px;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
 }
-.info-value {
-    padding: 5px 10px;
-    flex-grow: 1;
-    border-left: 1px dotted #000;
+.logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
-.info-grid > div:nth-child(even) .info-row {
-    border-left: 1px solid #000;
+.invoice-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    font-size: 11px;
 }
-table.faktur-table {
+.meta-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 30%;
+}
+.meta-title {
+    font-weight: bold;
+    color: #1a237e;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+}
+.meta-row span:first-child {
+    font-weight: bold;
+    color: #1a237e;
+}
+.invoice-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 0;
-    border: 1px solid #000;
+    margin-bottom: 20px;
 }
-table.faktur-table th, table.faktur-table td {
-    border: 1px solid #000;
-    padding: 6px 10px;
-    vertical-align: top;
-}
-table.faktur-table th {
+.invoice-table th {
+    color: #1a237e;
     font-weight: bold;
-    text-align: center;
+    padding: 10px 5px;
+    border-top: 2px solid #ef4444;
+    border-bottom: 2px solid #ef4444;
 }
-.col-no { width: 40px; text-align: center; }
-.col-ket { width: auto; }
-.col-harga { width: 140px; text-align: right; }
-.col-qty { width: 60px; text-align: center; }
-.col-jumlah { width: 150px; text-align: right; }
+.invoice-table td {
+    padding: 10px 5px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.col-qty { width: 10%; text-align: center; }
+.col-desc { width: 50%; text-align: left; }
+.col-price { width: 20%; text-align: right; }
+.col-amount { width: 20%; text-align: right; }
 .remove-row-btn {
     position: absolute;
-    left: -30px;
+    left: -25px;
     background: #f43f5e;
     color: white;
     border: none;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: Arial;
     font-weight: bold;
+    font-size: 12px;
+    padding: 0;
 }
-.totals-section {
+.totals-area {
     display: flex;
-    border: 1px solid #000;
-    border-top: none;
+    justify-content: flex-end;
+    margin-bottom: 40px;
 }
-.nb-box {
-    flex: 1;
-    padding: 10px;
-    border-right: 1px solid #000;
-}
-.totals-calc {
-    width: 400px;
-}
-.total-row {
-    display: flex;
-    border-bottom: 1px solid #000;
-}
-.total-row:last-child {
-    border-bottom: none;
-}
-.total-label {
-    flex: 1;
-    padding: 6px 10px;
+.totals-grid {
+    display: grid;
+    grid-template-columns: 150px 100px;
+    gap: 10px;
     text-align: right;
-    font-weight: bold;
-    border-right: 1px solid #000;
 }
-.total-val {
-    width: 150px;
-    padding: 6px 10px;
-    text-align: right;
-    font-weight: bold;
+.totals-grid div {
+    padding: 5px 0;
 }
-.footer-section {
+.total-final {
+    font-weight: bold;
+    color: #1a237e;
+    font-size: 14px;
+}
+.signature-area {
     display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
+    justify-content: flex-end;
+    margin-bottom: 40px;
+    min-height: 120px;
+}
+.sig-display {
+    width: 250px;
+    height: 125px;
+    border-bottom: 1px solid transparent;
+    display: flex;
     align-items: flex-end;
-}
-.terima-kasih {
-    font-size: 20px;
-    font-weight: bold;
-    font-family: serif;
-    letter-spacing: 0.5px;
-}
-.signatures {
-    display: flex;
-    border: 1px solid #000;
-}
-.sig-box {
-    width: 140px;
-    height: 110px;
-    border-right: 1px solid #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
     position: relative;
 }
-.sig-box:last-child {
-    border-right: none;
-}
-.sig-title {
-    font-size: 11px;
-    font-weight: bold;
-    width: 100%;
-    text-align: center;
-    border-bottom: 1px solid #000;
-    padding: 4px 0;
-    background: #f8f9fa;
-    z-index: 2;
-}
-.sig-img {
-    position: absolute;
-    top: 25px;
-    left: 0;
-    width: 100%;
-    height: 80px;
+.sig-display img {
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
-    padding: 5px;
     display: none;
+}
+.invoice-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto;
+}
+.thank-you {
+    font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+    font-size: 42px;
+    color: #1a237e;
+}
+.terms {
+    border-left: 2px solid #ef4444;
+    padding-left: 15px;
+    font-size: 10px;
+    line-height: 1.6;
+}
+.terms-title {
+    color: #ef4444;
+    font-weight: bold;
+    font-size: 11px;
+    margin-bottom: 5px;
 }
 @media print {
     body { background: none; padding: 0; }
@@ -292,126 +294,119 @@ table.faktur-table th {
 <div class="controls data-html2canvas-ignore">
     <button type="button" id="btnAddRow">+ Tambah Baris</button>
     <button type="button" class="btn-danger" id="btnClear">Reset Form</button>
-    <button type="button" class="btn-success" id="btnPng">Save as PNG</button>
-    <button type="button" class="btn-success" id="btnPdf">Save as PDF</button>
+    <button type="button" class="btn-success" id="btnPng">Save PNG</button>
+    <button type="button" class="btn-success" id="btnPdf">Save PDF</button>
 
     <div class="sig-panel">
         <div class="sig-tools">
-            <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                <span>Gambar Tanda Tangan / Stempel:</span>
-                <button type="button" id="btnClearSig" style="padding: 2px 8px; font-size: 12px;">Clear</button>
+            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                <span>Gambar Tanda Tangan:</span>
+                <div>
+                    <button type="button" id="btnClearSig" style="padding: 4px 10px; font-size: 12px; margin-right: 5px;">Clear</button>
+                    <button type="button" id="btnApplySig" class="btn-success" style="padding: 4px 10px; font-size: 12px;">Terapkan</button>
+                </div>
             </div>
             <div class="canvas-wrapper">
-                <canvas id="sigCanvas"></canvas>
+                <canvas id="sigCanvas" width="300" height="150"></canvas>
             </div>
         </div>
-        <div class="sig-tools" style="justify-content: center;">
-            <input type="file" id="sigUpload" accept="image/*" style="display: none;">
-            <button type="button" onclick="document.getElementById('sigUpload').click()">Upload Gambar</button>
-            <div style="display: flex; gap: 5px;">
-                <button type="button" id="btnApplyBengkel" style="flex:1; font-size:12px; padding:5px;">Set Tour Leader</button>
-                <button type="button" id="btnApplyKasir" style="flex:1; font-size:12px; padding:5px;">Set Kasir</button>
-                <button type="button" id="btnApplySetuju" style="flex:1; font-size:12px; padding:5px;">Set Pelanggan</button>
-            </div>
+        <div class="sig-tools" style="flex: 0.5;">
+            <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+            <button type="button" onclick="document.getElementById('logoUpload').click()" style="margin-bottom: 10px;">Upload Logo</button>
+            <button type="button" id="btnRemoveLogo" class="btn-danger" style="display:none;">Hapus Logo</button>
         </div>
     </div>
 </div>
 
 <div class="paper-container">
-    <div class="paper" id="fakturPaper">
-        <div class="header">
-            <h1 class="editable" data-id="h_title" data-placeholder="NAMA TRAVEL" contenteditable="true">BAROKAH TRAVEL</h1>
-            <div class="header-info">
-                <div class="editable" data-id="h_addr" data-placeholder="Alamat Kantor Travel" contenteditable="true">Jl. Raya Keberangkatan No. 88, Jakarta Pusat</div><br>
-                <div style="display:flex; gap:5px;">Telp / WA. <span class="editable" data-id="h_telp" data-placeholder="Nomor Telepon Kantor" contenteditable="true">081234567890</span></div>
-            </div>
-            <div class="divider"></div>
-            <div class="menerima">
-                Layanan : <span class="editable" data-id="h_menerima" data-placeholder="Jenis Layanan (Umroh / Haji / Tour)" contenteditable="true">Paket Umroh Reguler / Tour Travel</span>
-            </div>
-        </div>
-
-        <div class="info-grid">
-            <div>
-                <div class="info-row">
-                    <div class="info-label">Tanggal Faktur :</div>
-                    <div class="info-value editable" data-id="i_tgl" contenteditable="true"></div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Paket / Tiket :</div>
-                    <div class="info-value editable" data-id="i_mobil" contenteditable="true"></div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Tgl Keberangkatan :</div>
-                    <div class="info-value editable" data-id="i_nopol" contenteditable="true"></div>
+    <div class="paper" id="invoicePaper">
+        <div class="invoice-header">
+            <div class="invoice-title-area">
+                <div class="invoice-title">INVOICE</div>
+                <div class="company-details">
+                    <div class="editable" data-id="c_name" data-placeholder="Nama Perusahaan" contenteditable="true" style="font-weight:bold; margin-bottom: 5px;">East Repair Inc.</div><br>
+                    <div class="editable" data-id="c_addr1" data-placeholder="Alamat Baris 1" contenteditable="true">1912 Harvest Lane</div><br>
+                    <div class="editable" data-id="c_addr2" data-placeholder="Alamat Baris 2" contenteditable="true">New York, NY 12210</div>
                 </div>
             </div>
-            <div>
-                <div class="info-row">
-                    <div class="info-label">Nama Jemaah / Penerima :</div>
-                    <div class="info-value editable" data-id="i_nama" contenteditable="true"></div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">No. Paspor / KTP :</div>
-                    <div class="info-value editable" data-id="i_alamat" contenteditable="true"></div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">No. HP Aktif :</div>
-                    <div class="info-value editable" data-id="i_hp" contenteditable="true"></div>
-                </div>
+            <div class="logo-area" id="logoContainer" onclick="document.getElementById('logoUpload').click()">
+                <span id="logoText">LOGO</span>
+                <img id="logoImg" class="logo-img">
             </div>
         </div>
 
-        <table class="faktur-table" id="itemTable">
+        <div class="invoice-meta">
+            <div class="meta-col">
+                <div class="meta-title">BILL TO</div>
+                <div class="editable" data-id="b_name" data-placeholder="Nama Pelanggan" contenteditable="true">John Smith</div>
+                <div class="editable" data-id="b_addr1" data-placeholder="Alamat Pelanggan 1" contenteditable="true">2 Court Square</div>
+                <div class="editable" data-id="b_addr2" data-placeholder="Alamat Pelanggan 2" contenteditable="true">New York, NY 12210</div>
+            </div>
+            <div class="meta-col">
+                <div class="meta-title">SHIP TO</div>
+                <div class="editable" data-id="s_name" data-placeholder="Nama Penerima" contenteditable="true">John Smith</div>
+                <div class="editable" data-id="s_addr1" data-placeholder="Alamat Pengiriman 1" contenteditable="true">3787 Pineview Drive</div>
+                <div class="editable" data-id="s_addr2" data-placeholder="Alamat Pengiriman 2" contenteditable="true">Cambridge, MA 12210</div>
+            </div>
+            <div class="meta-col">
+                <div class="meta-row">
+                    <span>INVOICE #</span>
+                    <span class="editable" data-id="m_inv" data-placeholder="US-001" contenteditable="true" style="text-align: right; min-width: 50px;">US-001</span>
+                </div>
+                <div class="meta-row">
+                    <span>INVOICE DATE</span>
+                    <span class="editable" data-id="m_date" data-placeholder="11/02/2019" contenteditable="true" style="text-align: right; min-width: 50px;">11/02/2019</span>
+                </div>
+                <div class="meta-row">
+                    <span>P.O.#</span>
+                    <span class="editable" data-id="m_po" data-placeholder="2312/2019" contenteditable="true" style="text-align: right; min-width: 50px;">2312/2019</span>
+                </div>
+                <div class="meta-row">
+                    <span>DUE DATE</span>
+                    <span class="editable" data-id="m_due" data-placeholder="26/02/2019" contenteditable="true" style="text-align: right; min-width: 50px;">26/02/2019</span>
+                </div>
+            </div>
+        </div>
+
+        <table class="invoice-table">
             <thead>
                 <tr>
-                    <th class="col-no">No.</th>
-                    <th class="col-ket">Deskripsi Perjalanan / Fasilitas</th>
-                    <th class="col-harga">Harga Satuan</th>
-                    <th class="col-qty">Qty</th>
-                    <th class="col-jumlah">Jumlah</th>
+                    <th class="col-qty">QTY</th>
+                    <th class="col-desc">DESCRIPTION</th>
+                    <th class="col-price">UNIT PRICE</th>
+                    <th class="col-amount">AMOUNT</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
             </tbody>
         </table>
 
-        <div class="totals-section">
-            <div class="nb-box">
-                <span style="font-weight:bold;">Keterangan / NB : </span>
-                <span class="editable" data-id="t_nb" style="width:90%; min-height:60px;" contenteditable="true"></span>
-            </div>
-            <div class="totals-calc">
-                <div class="total-row">
-                    <div class="total-label">Sub Total</div>
-                    <div class="total-val editable" data-id="t_sub" id="valSubTotal" contenteditable="true">0</div>
-                </div>
-                <div class="total-row">
-                    <div class="total-label">Biaya Dokumen / Tambahan</div>
-                    <div class="total-val editable" data-id="t_svc" id="valService" contenteditable="true">0</div>
-                </div>
-                <div class="total-row">
-                    <div class="total-label">TOTAL BIAYA KESELURUHAN</div>
-                    <div class="total-val editable" data-id="t_grand" id="valGrand" contenteditable="true">0</div>
-                </div>
+        <div class="totals-area">
+            <div class="totals-grid">
+                <div>Subtotal</div>
+                <div class="editable" data-id="t_sub" id="valSubTotal" contenteditable="true">0.00</div>
+                
+                <div>Sales Tax <span class="editable" data-id="t_tax_pct" contenteditable="true">6.25%</span></div>
+                <div class="editable" data-id="t_tax" id="valTax" contenteditable="true">0.00</div>
+                
+                <div class="total-final">TOTAL</div>
+                <div class="total-final editable" data-id="t_grand" id="valGrand" contenteditable="true">$0.00</div>
             </div>
         </div>
 
-        <div class="footer-section">
-            <div class="terima-kasih">TERIMA KASIH & SELAMAT MENIKMATI PERJALANAN</div>
-            <div class="signatures">
-                <div class="sig-box">
-                    <div class="sig-title">Tour Leader / Agent</div>
-                    <img id="img_bengkel" class="sig-img">
-                </div>
-                <div class="sig-box">
-                    <div class="sig-title">Kasir</div>
-                    <img id="img_kasir" class="sig-img">
-                </div>
-                <div class="sig-box">
-                    <div class="sig-title">Disetujui Jemaah</div>
-                    <img id="img_setuju" class="sig-img">
-                </div>
+        <div class="signature-area">
+            <div class="sig-display">
+                <img id="finalSignature">
+            </div>
+        </div>
+
+        <div class="invoice-footer">
+            <div class="thank-you">Thank you</div>
+            <div class="terms">
+                <div class="terms-title">TERMS & CONDITIONS</div>
+                <div class="editable" data-id="terms_1" data-placeholder="Payment terms" contenteditable="true">Payment is due within 15 days</div>
+                <br>
+                <div class="editable" data-id="terms_2" data-placeholder="Payment instruction" contenteditable="true">Please make checks payable to: East Repair Inc.</div>
             </div>
         </div>
     </div>
@@ -424,79 +419,74 @@ const sigCanvas = document.getElementById('sigCanvas');
 const ctx = sigCanvas.getContext('2d');
 let drawing = false;
 
-function resizeCanvas() {
-    sigCanvas.width = sigCanvas.parentElement.clientWidth;
-    sigCanvas.height = sigCanvas.parentElement.clientHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+ctx.fillStyle = "#ffffff";
+ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
 
 function parseNumber(str) {
     if (!str) return 0;
-    return parseFloat(str.replace(/[^0-9,-]+/g, '')) || 0;
+    return parseFloat(str.replace(/[^0-9.-]+/g, '')) || 0;
 }
 
 function formatNumber(num) {
-    if (num === 0) return '';
-    return num.toLocaleString('id-ID');
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function calculateRows() {
     let subTotal = 0;
     const rows = tableBody.querySelectorAll('tr');
-    rows.forEach((row, index) => {
-        row.querySelector('.td-no').innerText = index + 1 + '.';
-        const harga = parseNumber(row.querySelector('.td-harga').innerText);
+    rows.forEach(row => {
         const qty = parseNumber(row.querySelector('.td-qty').innerText);
-        const jumlah = harga * qty;
+        const price = parseNumber(row.querySelector('.td-price').innerText);
+        const amount = qty * price;
         
-        if (jumlah > 0) {
-            row.querySelector('.td-jumlah').innerText = formatNumber(jumlah);
+        if (amount > 0 || qty > 0 || price > 0) {
+            row.querySelector('.td-amount').innerText = formatNumber(amount);
+            subTotal += amount;
         } else {
-            row.querySelector('.td-jumlah').innerText = '';
+            row.querySelector('.td-amount').innerText = '';
         }
-        subTotal += jumlah;
     });
 
     document.getElementById('valSubTotal').innerText = formatNumber(subTotal);
-    const svc = parseNumber(document.getElementById('valService').innerText);
-    document.getElementById('valGrand').innerText = formatNumber(subTotal + svc);
+    
+    const taxEl = document.getElementById('valTax');
+    const tax = parseNumber(taxEl.innerText);
+    
+    document.getElementById('valGrand').innerText = '$' + formatNumber(subTotal + tax);
     saveData();
 }
 
-function createRow(data = { ket: '', harga: '', qty: '', jumlah: '' }) {
+function createRow(data = { qty: '', desc: '', price: '', amount: '' }) {
     const tr = document.createElement('tr');
     tr.style.position = 'relative';
     tr.innerHTML = `
-        <td class="col-no td-no text-center"></td>
-        <td class="col-ket"><span class="editable td-ket" contenteditable="true" style="width:100%">${data.ket}</span></td>
-        <td class="col-harga"><span class="editable td-harga" contenteditable="true" style="width:100%; text-align:right;">${data.harga}</span></td>
         <td class="col-qty"><span class="editable td-qty" contenteditable="true" style="width:100%; text-align:center;">${data.qty}</span></td>
-        <td class="col-jumlah"><span class="editable td-jumlah" contenteditable="true" style="width:100%; text-align:right;">${data.jumlah}</span>
+        <td class="col-desc"><span class="editable td-desc" contenteditable="true" style="width:100%">${data.desc}</span></td>
+        <td class="col-price"><span class="editable td-price" contenteditable="true" style="width:100%; text-align:right;">${data.price}</span></td>
+        <td class="col-amount"><span class="editable td-amount" contenteditable="true" style="width:100%; text-align:right;">${data.amount}</span>
         <button class="remove-row-btn data-html2canvas-ignore" onclick="this.parentElement.parentElement.remove(); calculateRows();" contenteditable="false">X</button></td>
     `;
     
     tr.querySelectorAll('.editable').forEach(el => {
         el.addEventListener('input', calculateRows);
-        el.addEventListener('blur', () => {
-            if (el.classList.contains('td-harga') || el.classList.contains('td-qty')) {
-                const val = parseNumber(el.innerText);
-                if (val > 0) el.innerText = formatNumber(val);
-            }
-        });
     });
     tableBody.appendChild(tr);
     calculateRows();
 }
 
 document.getElementById('btnAddRow').addEventListener('click', () => createRow());
-document.getElementById('valService').addEventListener('input', calculateRows);
+document.getElementById('valTax').addEventListener('input', calculateRows);
 
 function getCanvasPos(evt) {
     const rect = sigCanvas.getBoundingClientRect();
+    const scaleX = sigCanvas.width / rect.width;
+    const scaleY = sigCanvas.height / rect.height;
     const x = evt.clientX || (evt.touches && evt.touches[0].clientX);
     const y = evt.clientY || (evt.touches && evt.touches[0].clientY);
-    return { x: x - rect.left, y: y - rect.top };
+    return { 
+        x: (x - rect.left) * scaleX, 
+        y: (y - rect.top) * scaleY 
+    };
 }
 
 function startDraw(e) {
@@ -511,9 +501,10 @@ function draw(e) {
     if (!drawing) return;
     const pos = getCanvasPos(e);
     ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 3;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.stroke();
     e.preventDefault();
 }
@@ -529,48 +520,44 @@ sigCanvas.addEventListener('touchmove', draw, {passive: false});
 sigCanvas.addEventListener('touchend', endDraw);
 
 document.getElementById('btnClearSig').addEventListener('click', () => {
-    ctx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+    document.getElementById('finalSignature').style.display = 'none';
+    document.getElementById('finalSignature').src = '';
+    ls.removeItem('invoice_sig');
 });
 
-let currentSigData = null;
+document.getElementById('btnApplySig').addEventListener('click', () => {
+    const dataUrl = sigCanvas.toDataURL('image/png');
+    const finalImg = document.getElementById('finalSignature');
+    finalImg.src = dataUrl;
+    finalImg.style.display = 'block';
+    ls.setItem('invoice_sig', dataUrl);
+});
 
-function updateCurrentSigFromCanvas() {
-    currentSigData = sigCanvas.toDataURL('image/png');
-}
-
-sigCanvas.addEventListener('mouseup', updateCurrentSigFromCanvas);
-sigCanvas.addEventListener('touchend', updateCurrentSigFromCanvas);
-
-document.getElementById('sigUpload').addEventListener('change', (e) => {
+document.getElementById('logoUpload').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (ev) => {
-            currentSigData = ev.target.result;
-            const img = new Image();
-            img.onload = () => {
-                ctx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
-                ctx.drawImage(img, 0, 0, sigCanvas.width, sigCanvas.height);
-            };
-            img.src = currentSigData;
+            const data = ev.target.result;
+            document.getElementById('logoImg').src = data;
+            document.getElementById('logoImg').style.display = 'block';
+            document.getElementById('logoText').style.display = 'none';
+            document.getElementById('btnRemoveLogo').style.display = 'inline-block';
+            ls.setItem('invoice_logo', data);
         };
         reader.readAsDataURL(file);
     }
 });
 
-function applySignature(targetId, storageKey) {
-    if (!currentSigData) {
-        updateCurrentSigFromCanvas();
-    }
-    const imgEl = document.getElementById(targetId);
-    imgEl.src = currentSigData;
-    imgEl.style.display = 'block';
-    ls.setItem(storageKey, currentSigData);
-}
-
-document.getElementById('btnApplyBengkel').addEventListener('click', () => applySignature('img_bengkel', 'sig_bengkel'));
-document.getElementById('btnApplyKasir').addEventListener('click', () => applySignature('img_kasir', 'sig_kasir'));
-document.getElementById('btnApplySetuju').addEventListener('click', () => applySignature('img_setuju', 'sig_setuju'));
+document.getElementById('btnRemoveLogo').addEventListener('click', () => {
+    document.getElementById('logoImg').src = '';
+    document.getElementById('logoImg').style.display = 'none';
+    document.getElementById('logoText').style.display = 'block';
+    document.getElementById('btnRemoveLogo').style.display = 'none';
+    ls.removeItem('invoice_logo');
+});
 
 function saveData() {
     const data = {};
@@ -581,14 +568,14 @@ function saveData() {
     const rows = [];
     tableBody.querySelectorAll('tr').forEach(row => {
         rows.push({
-            ket: row.querySelector('.td-ket').innerText,
-            harga: row.querySelector('.td-harga').innerText,
             qty: row.querySelector('.td-qty').innerText,
-            jumlah: row.querySelector('.td-jumlah').innerText
+            desc: row.querySelector('.td-desc').innerText,
+            price: row.querySelector('.td-price').innerText,
+            amount: row.querySelector('.td-amount').innerText
         });
     });
     data.rows = rows;
-    ls.setItem('fakturDataTravel', JSON.stringify(data));
+    ls.setItem('invoiceData', JSON.stringify(data));
 }
 
 document.querySelectorAll('.editable[data-id]').forEach(el => {
@@ -596,7 +583,7 @@ document.querySelectorAll('.editable[data-id]').forEach(el => {
 });
 
 function loadData() {
-    const rawData = ls.getItem('fakturDataTravel');
+    const rawData = ls.getItem('invoiceData');
     if (rawData) {
         try {
             const data = JSON.parse(rawData);
@@ -607,35 +594,49 @@ function loadData() {
             if (data.rows && data.rows.length > 0) {
                 data.rows.forEach(r => createRow(r));
             } else {
-                for(let i=0; i<6; i++) createRow();
+                for(let i=0; i<3; i++) createRow();
             }
         } catch (e) {
-            for(let i=0; i<6; i++) createRow();
+            for(let i=0; i<3; i++) createRow();
         }
     } else {
-        for(let i=0; i<6; i++) createRow();
+        createRow({qty: '1', desc: 'Front and rear brake cables', price: '100.00', amount: '100.00'});
+        createRow({qty: '2', desc: 'New set of pedal arms', price: '15.00', amount: '30.00'});
+        createRow({qty: '3', desc: 'Labor 3hrs', price: '5.00', amount: '15.00'});
     }
 
-    ['sig_bengkel', 'sig_kasir', 'sig_setuju'].forEach(key => {
-        const val = ls.getItem(key);
-        if (val) {
-            const img = document.getElementById(key.replace('sig_', 'img_'));
-            img.src = val;
-            img.style.display = 'block';
-        }
-    });
+    const savedSig = ls.getItem('invoice_sig');
+    if (savedSig) {
+        const finalImg = document.getElementById('finalSignature');
+        finalImg.src = savedSig;
+        finalImg.style.display = 'block';
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = savedSig;
+    }
+
+    const savedLogo = ls.getItem('invoice_logo');
+    if (savedLogo) {
+        document.getElementById('logoImg').src = savedLogo;
+        document.getElementById('logoImg').style.display = 'block';
+        document.getElementById('logoText').style.display = 'none';
+        document.getElementById('btnRemoveLogo').style.display = 'inline-block';
+    }
+
     calculateRows();
 }
 
 document.getElementById('btnClear').addEventListener('click', () => {
-    if(confirm('Hapus semua data faktur travel?')) {
+    if(confirm('Reset semua data?')) {
         ls.clear();
         location.reload();
     }
 });
 
-async function exportFaktur(type) {
-    const paper = document.getElementById('fakturPaper');
+async function exportInvoice(type) {
+    const paper = document.getElementById('invoicePaper');
     const removeBtns = document.querySelectorAll('.remove-row-btn');
     removeBtns.forEach(btn => btn.style.display = 'none');
 
@@ -649,7 +650,7 @@ async function exportFaktur(type) {
 
         if (type === 'png') {
             const link = document.createElement('a');
-            link.download = 'Faktur_Barokah_Travel.png';
+            link.download = 'Invoice.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         } else if (type === 'pdf') {
@@ -658,15 +659,15 @@ async function exportFaktur(type) {
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('Faktur_Barokah_Travel.pdf');
+            pdf.save('Invoice.pdf');
         }
     } finally {
         removeBtns.forEach(btn => btn.style.display = 'flex');
     }
 }
 
-document.getElementById('btnPng').addEventListener('click', () => exportFaktur('png'));
-document.getElementById('btnPdf').addEventListener('click', () => exportFaktur('pdf'));
+document.getElementById('btnPng').addEventListener('click', () => exportInvoice('png'));
+document.getElementById('btnPdf').addEventListener('click', () => exportInvoice('pdf'));
 
 window.onload = loadData;
 </script>
