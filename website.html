@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Faktur Digital</title>
+<title>Faktur Barokah Travel</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -125,6 +125,7 @@ button:hover {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 5px;
+    letter-spacing: 1px;
 }
 .header-info {
     line-height: 1.4;
@@ -151,7 +152,7 @@ button:hover {
 .info-label {
     padding: 5px 10px;
     font-weight: bold;
-    width: 120px;
+    width: 150px;
     flex-shrink: 0;
 }
 .info-value {
@@ -179,9 +180,9 @@ table.faktur-table th {
 }
 .col-no { width: 40px; text-align: center; }
 .col-ket { width: auto; }
-.col-harga { width: 120px; text-align: right; }
+.col-harga { width: 140px; text-align: right; }
 .col-qty { width: 60px; text-align: center; }
-.col-jumlah { width: 140px; text-align: right; }
+.col-jumlah { width: 150px; text-align: right; }
 .remove-row-btn {
     position: absolute;
     left: -30px;
@@ -209,7 +210,7 @@ table.faktur-table th {
     border-right: 1px solid #000;
 }
 .totals-calc {
-    width: 380px;
+    width: 400px;
 }
 .total-row {
     display: flex;
@@ -226,7 +227,7 @@ table.faktur-table th {
     border-right: 1px solid #000;
 }
 .total-val {
-    width: 140px;
+    width: 150px;
     padding: 6px 10px;
     text-align: right;
     font-weight: bold;
@@ -234,21 +235,22 @@ table.faktur-table th {
 .footer-section {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
+    margin-top: 30px;
     align-items: flex-end;
 }
 .terima-kasih {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     font-family: serif;
+    letter-spacing: 0.5px;
 }
 .signatures {
     display: flex;
     border: 1px solid #000;
 }
 .sig-box {
-    width: 120px;
-    height: 100px;
+    width: 140px;
+    height: 110px;
     border-right: 1px solid #000;
     display: flex;
     flex-direction: column;
@@ -264,13 +266,13 @@ table.faktur-table th {
     width: 100%;
     text-align: center;
     border-bottom: 1px solid #000;
-    padding: 2px 0;
+    padding: 4px 0;
     background: #f8f9fa;
     z-index: 2;
 }
 .sig-img {
     position: absolute;
-    top: 20px;
+    top: 25px;
     left: 0;
     width: 100%;
     height: 80px;
@@ -296,7 +298,7 @@ table.faktur-table th {
     <div class="sig-panel">
         <div class="sig-tools">
             <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                <span>Gambar Tanda Tangan:</span>
+                <span>Gambar Tanda Tangan / Stempel:</span>
                 <button type="button" id="btnClearSig" style="padding: 2px 8px; font-size: 12px;">Clear</button>
             </div>
             <div class="canvas-wrapper">
@@ -307,9 +309,9 @@ table.faktur-table th {
             <input type="file" id="sigUpload" accept="image/*" style="display: none;">
             <button type="button" onclick="document.getElementById('sigUpload').click()">Upload Gambar</button>
             <div style="display: flex; gap: 5px;">
-                <button type="button" id="btnApplyBengkel" style="flex:1; font-size:12px; padding:5px;">Set Kepala</button>
+                <button type="button" id="btnApplyBengkel" style="flex:1; font-size:12px; padding:5px;">Set Tour Leader</button>
                 <button type="button" id="btnApplyKasir" style="flex:1; font-size:12px; padding:5px;">Set Kasir</button>
-                <button type="button" id="btnApplySetuju" style="flex:1; font-size:12px; padding:5px;">Set Setuju</button>
+                <button type="button" id="btnApplySetuju" style="flex:1; font-size:12px; padding:5px;">Set Pelanggan</button>
             </div>
         </div>
     </div>
@@ -318,14 +320,14 @@ table.faktur-table th {
 <div class="paper-container">
     <div class="paper" id="fakturPaper">
         <div class="header">
-            <h1 class="editable" data-id="h_title" data-placeholder="NAMA PERUSAHAAN" contenteditable="true">BURING TEKNIK</h1>
+            <h1 class="editable" data-id="h_title" data-placeholder="NAMA TRAVEL" contenteditable="true">BAROKAH TRAVEL</h1>
             <div class="header-info">
-                <div class="editable" data-id="h_addr" data-placeholder="Alamat Perusahaan" contenteditable="true">Jl. Mayjen Sungkono No. 7 Malang</div><br>
-                <div style="display:flex; gap:5px;">Telp. <span class="editable" data-id="h_telp" data-placeholder="Nomor Telepon" contenteditable="true">083848457899</span></div>
+                <div class="editable" data-id="h_addr" data-placeholder="Alamat Kantor Travel" contenteditable="true">Jl. Raya Keberangkatan No. 88, Jakarta Pusat</div><br>
+                <div style="display:flex; gap:5px;">Telp / WA. <span class="editable" data-id="h_telp" data-placeholder="Nomor Telepon Kantor" contenteditable="true">081234567890</span></div>
             </div>
             <div class="divider"></div>
             <div class="menerima">
-                Menerima : <span class="editable" data-id="h_menerima" data-placeholder="Jenis Servis" contenteditable="true">Servis AC Mobil</span>
+                Layanan : <span class="editable" data-id="h_menerima" data-placeholder="Jenis Layanan (Umroh / Haji / Tour)" contenteditable="true">Paket Umroh Reguler / Tour Travel</span>
             </div>
         </div>
 
@@ -336,25 +338,25 @@ table.faktur-table th {
                     <div class="info-value editable" data-id="i_tgl" contenteditable="true"></div>
                 </div>
                 <div class="info-row">
-                    <div class="info-label">Mobil :</div>
+                    <div class="info-label">Paket / Tiket :</div>
                     <div class="info-value editable" data-id="i_mobil" contenteditable="true"></div>
                 </div>
                 <div class="info-row">
-                    <div class="info-label">No. Polisi :</div>
+                    <div class="info-label">Tgl Keberangkatan :</div>
                     <div class="info-value editable" data-id="i_nopol" contenteditable="true"></div>
                 </div>
             </div>
             <div>
                 <div class="info-row">
-                    <div class="info-label">Nama Pemilik :</div>
+                    <div class="info-label">Nama Jemaah / Penerima :</div>
                     <div class="info-value editable" data-id="i_nama" contenteditable="true"></div>
                 </div>
                 <div class="info-row">
-                    <div class="info-label">Alamat :</div>
+                    <div class="info-label">No. Paspor / KTP :</div>
                     <div class="info-value editable" data-id="i_alamat" contenteditable="true"></div>
                 </div>
                 <div class="info-row">
-                    <div class="info-label">Telp / Hp. :</div>
+                    <div class="info-label">No. HP Aktif :</div>
                     <div class="info-value editable" data-id="i_hp" contenteditable="true"></div>
                 </div>
             </div>
@@ -364,8 +366,8 @@ table.faktur-table th {
             <thead>
                 <tr>
                     <th class="col-no">No.</th>
-                    <th class="col-ket">Keterangan</th>
-                    <th class="col-harga">Satuan Harga</th>
+                    <th class="col-ket">Deskripsi Perjalanan / Fasilitas</th>
+                    <th class="col-harga">Harga Satuan</th>
                     <th class="col-qty">Qty</th>
                     <th class="col-jumlah">Jumlah</th>
                 </tr>
@@ -376,7 +378,7 @@ table.faktur-table th {
 
         <div class="totals-section">
             <div class="nb-box">
-                <span style="font-weight:bold;">NB : </span>
+                <span style="font-weight:bold;">Keterangan / NB : </span>
                 <span class="editable" data-id="t_nb" style="width:90%; min-height:60px;" contenteditable="true"></span>
             </div>
             <div class="totals-calc">
@@ -385,7 +387,7 @@ table.faktur-table th {
                     <div class="total-val editable" data-id="t_sub" id="valSubTotal" contenteditable="true">0</div>
                 </div>
                 <div class="total-row">
-                    <div class="total-label">Biaya Service / Perbaikan</div>
+                    <div class="total-label">Biaya Dokumen / Tambahan</div>
                     <div class="total-val editable" data-id="t_svc" id="valService" contenteditable="true">0</div>
                 </div>
                 <div class="total-row">
@@ -396,10 +398,10 @@ table.faktur-table th {
         </div>
 
         <div class="footer-section">
-            <div class="terima-kasih">TERIMA KASIH</div>
+            <div class="terima-kasih">TERIMA KASIH & SELAMAT MENIKMATI PERJALANAN</div>
             <div class="signatures">
                 <div class="sig-box">
-                    <div class="sig-title">Kepala Bengkel</div>
+                    <div class="sig-title">Tour Leader / Agent</div>
                     <img id="img_bengkel" class="sig-img">
                 </div>
                 <div class="sig-box">
@@ -407,7 +409,7 @@ table.faktur-table th {
                     <img id="img_kasir" class="sig-img">
                 </div>
                 <div class="sig-box">
-                    <div class="sig-title">Disetujui</div>
+                    <div class="sig-title">Disetujui Jemaah</div>
                     <img id="img_setuju" class="sig-img">
                 </div>
             </div>
@@ -586,7 +588,7 @@ function saveData() {
         });
     });
     data.rows = rows;
-    ls.setItem('fakturData', JSON.stringify(data));
+    ls.setItem('fakturDataTravel', JSON.stringify(data));
 }
 
 document.querySelectorAll('.editable[data-id]').forEach(el => {
@@ -594,7 +596,7 @@ document.querySelectorAll('.editable[data-id]').forEach(el => {
 });
 
 function loadData() {
-    const rawData = ls.getItem('fakturData');
+    const rawData = ls.getItem('fakturDataTravel');
     if (rawData) {
         try {
             const data = JSON.parse(rawData);
@@ -605,13 +607,13 @@ function loadData() {
             if (data.rows && data.rows.length > 0) {
                 data.rows.forEach(r => createRow(r));
             } else {
-                for(let i=0; i<8; i++) createRow();
+                for(let i=0; i<6; i++) createRow();
             }
         } catch (e) {
-            for(let i=0; i<8; i++) createRow();
+            for(let i=0; i<6; i++) createRow();
         }
     } else {
-        for(let i=0; i<8; i++) createRow();
+        for(let i=0; i<6; i++) createRow();
     }
 
     ['sig_bengkel', 'sig_kasir', 'sig_setuju'].forEach(key => {
@@ -626,7 +628,7 @@ function loadData() {
 }
 
 document.getElementById('btnClear').addEventListener('click', () => {
-    if(confirm('Hapus semua data faktur?')) {
+    if(confirm('Hapus semua data faktur travel?')) {
         ls.clear();
         location.reload();
     }
@@ -647,7 +649,7 @@ async function exportFaktur(type) {
 
         if (type === 'png') {
             const link = document.createElement('a');
-            link.download = 'Faktur.png';
+            link.download = 'Faktur_Barokah_Travel.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         } else if (type === 'pdf') {
@@ -656,7 +658,7 @@ async function exportFaktur(type) {
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('Faktur.pdf');
+            pdf.save('Faktur_Barokah_Travel.pdf');
         }
     } finally {
         removeBtns.forEach(btn => btn.style.display = 'flex');
