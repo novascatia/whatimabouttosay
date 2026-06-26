@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoice Generator</title>
+<title>Invoice Travel Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -124,7 +124,7 @@ button:hover {
 .invoice-title {
     font-size: 36px;
     font-weight: 900;
-    color: #1a237e;
+    color: #1e3a8a;
     letter-spacing: 2px;
     margin-bottom: 15px;
 }
@@ -166,11 +166,11 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    width: 30%;
+    width: 32%;
 }
 .meta-title {
     font-weight: bold;
-    color: #1a237e;
+    color: #1e3a8a;
     margin-bottom: 5px;
     font-size: 12px;
 }
@@ -180,7 +180,7 @@ button:hover {
 }
 .meta-row span:first-child {
     font-weight: bold;
-    color: #1a237e;
+    color: #1e3a8a;
 }
 .invoice-table {
     width: 100%;
@@ -188,11 +188,11 @@ button:hover {
     margin-bottom: 20px;
 }
 .invoice-table th {
-    color: #1a237e;
+    color: #1e3a8a;
     font-weight: bold;
     padding: 10px 5px;
-    border-top: 2px solid #ef4444;
-    border-bottom: 2px solid #ef4444;
+    border-top: 2px solid #0284c7;
+    border-bottom: 2px solid #0284c7;
 }
 .invoice-table td {
     padding: 10px 5px;
@@ -226,7 +226,7 @@ button:hover {
 }
 .totals-grid {
     display: grid;
-    grid-template-columns: 150px 100px;
+    grid-template-columns: 150px 120px;
     gap: 10px;
     text-align: right;
 }
@@ -235,7 +235,7 @@ button:hover {
 }
 .total-final {
     font-weight: bold;
-    color: #1a237e;
+    color: #1e3a8a;
     font-size: 14px;
 }
 .signature-area {
@@ -268,16 +268,16 @@ button:hover {
 .thank-you {
     font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
     font-size: 42px;
-    color: #1a237e;
+    color: #1e3a8a;
 }
 .terms {
-    border-left: 2px solid #ef4444;
+    border-left: 2px solid #0284c7;
     padding-left: 15px;
     font-size: 10px;
     line-height: 1.6;
 }
 .terms-title {
-    color: #ef4444;
+    color: #0284c7;
     font-weight: bold;
     font-size: 11px;
     margin-bottom: 5px;
@@ -324,9 +324,9 @@ button:hover {
             <div class="invoice-title-area">
                 <div class="invoice-title">INVOICE</div>
                 <div class="company-details">
-                    <div class="editable" data-id="c_name" data-placeholder="Nama Perusahaan" contenteditable="true" style="font-weight:bold; margin-bottom: 5px;">East Repair Inc.</div><br>
-                    <div class="editable" data-id="c_addr1" data-placeholder="Alamat Baris 1" contenteditable="true">1912 Harvest Lane</div><br>
-                    <div class="editable" data-id="c_addr2" data-placeholder="Alamat Baris 2" contenteditable="true">New York, NY 12210</div>
+                    <div class="editable" data-id="c_name" data-placeholder="Nama Travel" contenteditable="true" style="font-weight:bold; margin-bottom: 5px;">Barokah Travel</div><br>
+                    <div class="editable" data-id="c_addr1" data-placeholder="Alamat Kantor 1" contenteditable="true">Jl. Raya Keberangkatan No. 88</div><br>
+                    <div class="editable" data-id="c_addr2" data-placeholder="Alamat Kantor 2" contenteditable="true">Jakarta Pusat, Indonesia</div>
                 </div>
             </div>
             <div class="logo-area" id="logoContainer" onclick="document.getElementById('logoUpload').click()">
@@ -338,32 +338,32 @@ button:hover {
         <div class="invoice-meta">
             <div class="meta-col">
                 <div class="meta-title">BILL TO</div>
-                <div class="editable" data-id="b_name" data-placeholder="Nama Pelanggan" contenteditable="true">John Smith</div>
-                <div class="editable" data-id="b_addr1" data-placeholder="Alamat Pelanggan 1" contenteditable="true">2 Court Square</div>
-                <div class="editable" data-id="b_addr2" data-placeholder="Alamat Pelanggan 2" contenteditable="true">New York, NY 12210</div>
+                <div class="editable" data-id="b_name" data-placeholder="Nama Pemesan" contenteditable="true">Ahmad Subari</div>
+                <div class="editable" data-id="b_addr1" data-placeholder="Alamat" contenteditable="true">Jl. Anggrek No. 12</div>
+                <div class="editable" data-id="b_addr2" data-placeholder="Kota / No. HP" contenteditable="true">Surabaya - 08123456789</div>
             </div>
             <div class="meta-col">
-                <div class="meta-title">SHIP TO</div>
-                <div class="editable" data-id="s_name" data-placeholder="Nama Penerima" contenteditable="true">John Smith</div>
-                <div class="editable" data-id="s_addr1" data-placeholder="Alamat Pengiriman 1" contenteditable="true">3787 Pineview Drive</div>
-                <div class="editable" data-id="s_addr2" data-placeholder="Alamat Pengiriman 2" contenteditable="true">Cambridge, MA 12210</div>
+                <div class="meta-title">TOUR DETAILS</div>
+                <div class="editable" data-id="s_name" data-placeholder="Paket Perjalanan" contenteditable="true">Paket Umroh Reguler</div>
+                <div class="editable" data-id="s_addr1" data-placeholder="Tanggal Keberangkatan" contenteditable="true">12 Oktober 2026</div>
+                <div class="editable" data-id="s_addr2" data-placeholder="Maskapai / Hotel" contenteditable="true">Saudi Airlines / Standard Hotel</div>
             </div>
             <div class="meta-col">
                 <div class="meta-row">
                     <span>INVOICE #</span>
-                    <span class="editable" data-id="m_inv" data-placeholder="US-001" contenteditable="true" style="text-align: right; min-width: 50px;">US-001</span>
+                    <span class="editable" data-id="m_inv" data-placeholder="INV-2026-001" contenteditable="true" style="text-align: right; min-width: 50px;">INV-2026-001</span>
                 </div>
                 <div class="meta-row">
-                    <span>INVOICE DATE</span>
-                    <span class="editable" data-id="m_date" data-placeholder="11/02/2019" contenteditable="true" style="text-align: right; min-width: 50px;">11/02/2019</span>
+                    <span>DATE</span>
+                    <span class="editable" data-id="m_date" data-placeholder="26/06/2026" contenteditable="true" style="text-align: right; min-width: 50px;">26/06/2026</span>
                 </div>
                 <div class="meta-row">
                     <span>P.O.#</span>
-                    <span class="editable" data-id="m_po" data-placeholder="2312/2019" contenteditable="true" style="text-align: right; min-width: 50px;">2312/2019</span>
+                    <span class="editable" data-id="m_po" data-placeholder="PO-8821" contenteditable="true" style="text-align: right; min-width: 50px;">PO-8821</span>
                 </div>
                 <div class="meta-row">
                     <span>DUE DATE</span>
-                    <span class="editable" data-id="m_due" data-placeholder="26/02/2019" contenteditable="true" style="text-align: right; min-width: 50px;">26/02/2019</span>
+                    <span class="editable" data-id="m_due" data-placeholder="10/07/2026" contenteditable="true" style="text-align: right; min-width: 50px;">10/07/2026</span>
                 </div>
             </div>
         </div>
@@ -384,13 +384,10 @@ button:hover {
         <div class="totals-area">
             <div class="totals-grid">
                 <div>Subtotal</div>
-                <div class="editable" data-id="t_sub" id="valSubTotal" contenteditable="true">0.00</div>
-                
-                <div>Sales Tax <span class="editable" data-id="t_tax_pct" contenteditable="true">6.25%</span></div>
-                <div class="editable" data-id="t_tax" id="valTax" contenteditable="true">0.00</div>
+                <div id="valSubTotal">0</div>
                 
                 <div class="total-final">TOTAL</div>
-                <div class="total-final editable" data-id="t_grand" id="valGrand" contenteditable="true">$0.00</div>
+                <div class="total-final" id="valGrand">Rp 0</div>
             </div>
         </div>
 
@@ -404,9 +401,9 @@ button:hover {
             <div class="thank-you">Thank you</div>
             <div class="terms">
                 <div class="terms-title">TERMS & CONDITIONS</div>
-                <div class="editable" data-id="terms_1" data-placeholder="Payment terms" contenteditable="true">Payment is due within 15 days</div>
+                <div class="editable" data-id="terms_1" data-placeholder="Syarat Ketentuan 1" contenteditable="true">Pembayaran wajib dilunasi sesuai batas jatuh tempo.</div>
                 <br>
-                <div class="editable" data-id="terms_2" data-placeholder="Payment instruction" contenteditable="true">Please make checks payable to: East Repair Inc.</div>
+                <div class="editable" data-id="terms_2" data-placeholder="Syarat Ketentuan 2" contenteditable="true">Transfer ke rekening resmi Travel: Bank Mandiri 123-4567-890.</div>
             </div>
         </div>
     </div>
@@ -424,11 +421,11 @@ ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
 
 function parseNumber(str) {
     if (!str) return 0;
-    return parseFloat(str.replace(/[^0-9.-]+/g, '')) || 0;
+    return parseFloat(str.replace(/[^0-9,-]+/g, '')) || 0;
 }
 
 function formatNumber(num) {
-    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function calculateRows() {
@@ -448,11 +445,7 @@ function calculateRows() {
     });
 
     document.getElementById('valSubTotal').innerText = formatNumber(subTotal);
-    
-    const taxEl = document.getElementById('valTax');
-    const tax = parseNumber(taxEl.innerText);
-    
-    document.getElementById('valGrand').innerText = '$' + formatNumber(subTotal + tax);
+    document.getElementById('valGrand').innerText = 'Rp ' + formatNumber(subTotal);
     saveData();
 }
 
@@ -475,7 +468,6 @@ function createRow(data = { qty: '', desc: '', price: '', amount: '' }) {
 }
 
 document.getElementById('btnAddRow').addEventListener('click', () => createRow());
-document.getElementById('valTax').addEventListener('input', calculateRows);
 
 function getCanvasPos(evt) {
     const rect = sigCanvas.getBoundingClientRect();
@@ -524,7 +516,7 @@ document.getElementById('btnClearSig').addEventListener('click', () => {
     ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
     document.getElementById('finalSignature').style.display = 'none';
     document.getElementById('finalSignature').src = '';
-    ls.removeItem('invoice_sig');
+    ls.removeItem('invoice_travel_sig');
 });
 
 document.getElementById('btnApplySig').addEventListener('click', () => {
@@ -532,7 +524,7 @@ document.getElementById('btnApplySig').addEventListener('click', () => {
     const finalImg = document.getElementById('finalSignature');
     finalImg.src = dataUrl;
     finalImg.style.display = 'block';
-    ls.setItem('invoice_sig', dataUrl);
+    ls.setItem('invoice_travel_sig', dataUrl);
 });
 
 document.getElementById('logoUpload').addEventListener('change', (e) => {
@@ -545,7 +537,7 @@ document.getElementById('logoUpload').addEventListener('change', (e) => {
             document.getElementById('logoImg').style.display = 'block';
             document.getElementById('logoText').style.display = 'none';
             document.getElementById('btnRemoveLogo').style.display = 'inline-block';
-            ls.setItem('invoice_logo', data);
+            ls.setItem('invoice_travel_logo', data);
         };
         reader.readAsDataURL(file);
     }
@@ -556,7 +548,7 @@ document.getElementById('btnRemoveLogo').addEventListener('click', () => {
     document.getElementById('logoImg').style.display = 'none';
     document.getElementById('logoText').style.display = 'block';
     document.getElementById('btnRemoveLogo').style.display = 'none';
-    ls.removeItem('invoice_logo');
+    ls.removeItem('invoice_travel_logo');
 });
 
 function saveData() {
@@ -575,7 +567,7 @@ function saveData() {
         });
     });
     data.rows = rows;
-    ls.setItem('invoiceData', JSON.stringify(data));
+    ls.setItem('invoiceTravelData', JSON.stringify(data));
 }
 
 document.querySelectorAll('.editable[data-id]').forEach(el => {
@@ -583,7 +575,7 @@ document.querySelectorAll('.editable[data-id]').forEach(el => {
 });
 
 function loadData() {
-    const rawData = ls.getItem('invoiceData');
+    const rawData = ls.getItem('invoiceTravelData');
     if (rawData) {
         try {
             const data = JSON.parse(rawData);
@@ -600,12 +592,10 @@ function loadData() {
             for(let i=0; i<3; i++) createRow();
         }
     } else {
-        createRow({qty: '1', desc: 'Front and rear brake cables', price: '100.00', amount: '100.00'});
-        createRow({qty: '2', desc: 'New set of pedal arms', price: '15.00', amount: '30.00'});
-        createRow({qty: '3', desc: 'Labor 3hrs', price: '5.00', amount: '15.00'});
+        for(let i=0; i<3; i++) createRow();
     }
 
-    const savedSig = ls.getItem('invoice_sig');
+    const savedSig = ls.getItem('invoice_travel_sig');
     if (savedSig) {
         const finalImg = document.getElementById('finalSignature');
         finalImg.src = savedSig;
@@ -617,7 +607,7 @@ function loadData() {
         img.src = savedSig;
     }
 
-    const savedLogo = ls.getItem('invoice_logo');
+    const savedLogo = ls.getItem('invoice_travel_logo');
     if (savedLogo) {
         document.getElementById('logoImg').src = savedLogo;
         document.getElementById('logoImg').style.display = 'block';
@@ -650,7 +640,7 @@ async function exportInvoice(type) {
 
         if (type === 'png') {
             const link = document.createElement('a');
-            link.download = 'Invoice.png';
+            link.download = 'Invoice_Travel.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         } else if (type === 'pdf') {
@@ -659,7 +649,7 @@ async function exportInvoice(type) {
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('Invoice.pdf');
+            pdf.save('Invoice_Travel.pdf');
         }
     } finally {
         removeBtns.forEach(btn => btn.style.display = 'flex');
