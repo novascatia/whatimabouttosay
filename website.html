@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice / Struk Generator</title>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+    background: #0f172a;
+    color: #f8fafc;
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+.glass-panel {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+input, textarea, select {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+}
+input:focus, textarea:focus {
+    border-color: #38bdf8;
+}
+button {
+    background: #38bdf8;
+    color: #0f172a;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+button:hover {
+    background: #0ea5e9;
+}
+.btn-danger {
+    background: #f43f5e;
+    color: white;
+}
+.btn-danger:hover {
+    background: #e11d48;
+}
+.header-section {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+.logo-upload {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+}
+.logo-preview {
+    max-width: 100%;
+    max-height: 120px;
+    display: none;
+    object-fit: contain;
+}
+.company-details {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+th, td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+th {
+    color: #94a3b8;
+    font-weight: 500;
+}
+.footer-section {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 3rem;
+}
+.signature-box {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+.sig-tabs {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+.sig-tabs button {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    background: rgba(255,255,255,0.1);
+    color: #f8fafc;
+}
+.sig-tabs button.active {
+    background: #38bdf8;
+    color: #0f172a;
+}
+.canvas-container {
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    width: 100%;
+    height: 150px;
+    position: relative;
+}
+canvas {
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+.upload-container {
+    width: 100%;
+    height: 150px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    position: relative;
+}
+.upload-preview {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: none;
+}
+.clear-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    z-index: 10;
+}
+.hidden {
+    display: none !important;
+}
+.total-row {
+    font-weight: bold;
+    font-size: 1.25rem;
+    text-align: right;
+    margin-top: 1rem;
+}
+</style>
+</head>
+<body>
+
+<div class="glass-panel">
+    <div class="header-section">
+        <div class="logo-upload">
+            <input type="file" id="logoInput" accept="image/*" style="display: none;">
+            <button type="button" id="logoBtn">Upload Logo</button>
+            <img id="logoPreview" class="logo-preview">
+            <button type="button" id="clearLogoBtn" class="clear-btn hidden">Clear</button>
+        </div>
+        <div class="company-details">
+            <input type="text" id="companyName" placeholder="Nama Perusahaan">
+            <textarea id="companyAddress" placeholder="Alamat Perusahaan" rows="3"></textarea>
+        </div>
+    </div>
+
+    <div class="items-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th style="width: 100px;">Qty</th>
+                    <th style="width: 150px;">Harga</th>
+                    <th style="width: 150px;">Total</th>
+                    <th style="width: 80px;"></th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+            </tbody>
+        </table>
+        <button type="button" id="addItemBtn">+ Tambah Item</button>
+        <div class="total-row">Grand Total: Rp <span id="grandTotal">0</span></div>
+    </div>
+
+    <div class="footer-section">
+        <div class="signature-box">
+            <div class="sig-tabs">
+                <button type="button" class="active" id="tabDraw">Gambar</button>
+                <button type="button" id="tabUpload">Upload</button>
+            </div>
+            
+            <div id="drawContainer" class="canvas-container">
+                <canvas id="sigCanvas"></canvas>
+                <button type="button" id="clearSigBtn" class="clear-btn">Clear</button>
+            </div>
+
+            <div id="uploadContainer" class="upload-container">
+                <input type="file" id="sigInput" accept="image/*" style="display: none;">
+                <button type="button" id="sigUploadBtn">Upload Tanda Tangan</button>
+                <img id="sigPreview" class="upload-preview">
+                <button type="button" id="clearSigUploadBtn" class="clear-btn hidden">Clear</button>
+            </div>
+
+            <input type="text" id="signerName" placeholder="Nama Terang" style="text-align: center;">
+        </div>
+    </div>
+</div>
+
+<script>
+const ls = window.localStorage;
+
+const companyNameInput = document.getElementById('companyName');
+const companyAddressInput = document.getElementById('companyAddress');
+const signerNameInput = document.getElementById('signerName');
+
+const logoInput = document.getElementById('logoInput');
+const logoBtn = document.getElementById('logoBtn');
+const logoPreview = document.getElementById('logoPreview');
+const clearLogoBtn = document.getElementById('clearLogoBtn');
+
+const itemsBody = document.getElementById('itemsBody');
+const addItemBtn = document.getElementById('addItemBtn');
+const grandTotalEl = document.getElementById('grandTotal');
+
+const tabDraw = document.getElementById('tabDraw');
+const tabUpload = document.getElementById('tabUpload');
+const drawContainer = document.getElementById('drawContainer');
+const uploadContainer = document.getElementById('uploadContainer');
+const sigCanvas = document.getElementById('sigCanvas');
+const clearSigBtn = document.getElementById('clearSigBtn');
+const sigInput = document.getElementById('sigInput');
+const sigUploadBtn = document.getElementById('sigUploadBtn');
+const sigPreview = document.getElementById('sigPreview');
+const clearSigUploadBtn = document.getElementById('clearSigUploadBtn');
+
+const ctx = sigCanvas.getContext('2d');
+let drawing = false;
+
+function resizeCanvas() {
+    const rect = drawContainer.getBoundingClientRect();
+    sigCanvas.width = rect.width;
+    sigCanvas.height = rect.height;
+    loadSignature();
+}
+window.addEventListener('resize', resizeCanvas);
+
+function saveTextInputs() {
+    ls.setItem('companyName', companyNameInput.value);
+    ls.setItem('companyAddress', companyAddressInput.value);
+    ls.setItem('signerName', signerNameInput.value);
+}
+
+function loadTextInputs() {
+    companyNameInput.value = ls.getItem('companyName') || '';
+    companyAddressInput.value = ls.getItem('companyAddress') || '';
+    signerNameInput.value = ls.getItem('signerName') || '';
+}
+
+companyNameInput.addEventListener('input', saveTextInputs);
+companyAddressInput.addEventListener('input', saveTextInputs);
+signerNameInput.addEventListener('input', saveTextInputs);
+
+logoBtn.addEventListener('click', () => logoInput.click());
+logoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = e.target.result;
+            ls.setItem('logoData', data);
+            showLogo(data);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+clearLogoBtn.addEventListener('click', () => {
+    ls.removeItem('logoData');
+    logoPreview.style.display = 'none';
+    logoPreview.src = '';
+    logoBtn.style.display = 'block';
+    clearLogoBtn.classList.add('hidden');
+});
+
+function showLogo(data) {
+    logoPreview.src = data;
+    logoPreview.style.display = 'block';
+    logoBtn.style.display = 'none';
+    clearLogoBtn.classList.remove('hidden');
+}
+
+function getPos(canvas, evt) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: (evt.clientX || evt.touches?.[0].clientX) - rect.left,
+        y: (evt.clientY || evt.touches?.[0].clientY) - rect.top
+    };
+}
+
+function startDraw(e) {
+    drawing = true;
+    const pos = getPos(sigCanvas, e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    e.preventDefault();
+}
+
+function draw(e) {
+    if (!drawing) return;
+    const pos = getPos(sigCanvas, e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = '#f8fafc';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    e.preventDefault();
+}
+
+function endDraw() {
+    if (drawing) {
+        drawing = false;
+        ls.setItem('sigDrawData', sigCanvas.toDataURL());
+    }
+}
+
+sigCanvas.addEventListener('mousedown', startDraw);
+sigCanvas.addEventListener('mousemove', draw);
+sigCanvas.addEventListener('mouseup', endDraw);
+sigCanvas.addEventListener('mouseout', endDraw);
+sigCanvas.addEventListener('touchstart', startDraw);
+sigCanvas.addEventListener('touchmove', draw);
+sigCanvas.addEventListener('touchend', endDraw);
+
+clearSigBtn.addEventListener('click', () => {
+    ctx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+    ls.removeItem('sigDrawData');
+});
+
+tabDraw.addEventListener('click', () => {
+    tabDraw.classList.add('active');
+    tabUpload.classList.remove('active');
+    drawContainer.style.display = 'block';
+    uploadContainer.style.display = 'none';
+    ls.setItem('sigMode', 'draw');
+    resizeCanvas();
+});
+
+tabUpload.addEventListener('click', () => {
+    tabUpload.classList.add('active');
+    tabDraw.classList.remove('active');
+    uploadContainer.style.display = 'flex';
+    drawContainer.style.display = 'none';
+    ls.setItem('sigMode', 'upload');
+});
+
+sigUploadBtn.addEventListener('click', () => sigInput.click());
+sigInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = e.target.result;
+            ls.setItem('sigUploadData', data);
+            showSigUpload(data);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+clearSigUploadBtn.addEventListener('click', () => {
+    ls.removeItem('sigUploadData');
+    sigPreview.style.display = 'none';
+    sigPreview.src = '';
+    sigUploadBtn.style.display = 'block';
+    clearSigUploadBtn.classList.add('hidden');
+});
+
+function showSigUpload(data) {
+    sigPreview.src = data;
+    sigPreview.style.display = 'block';
+    sigUploadBtn.style.display = 'none';
+    clearSigUploadBtn.classList.remove('hidden');
+}
+
+function loadSignature() {
+    const drawData = ls.getItem('sigDrawData');
+    if (drawData) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = drawData;
+    }
+    const uploadData = ls.getItem('sigUploadData');
+    if (uploadData) showSigUpload(uploadData);
+    
+    const mode = ls.getItem('sigMode');
+    if (mode === 'upload') tabUpload.click();
+}
+
+function calculateTotal() {
+    let grand = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const qty = parseFloat(row.querySelector('.qty').value) || 0;
+        const price = parseFloat(row.querySelector('.price').value) || 0;
+        const total = qty * price;
+        row.querySelector('.total').innerText = total.toLocaleString('id-ID');
+        grand += total;
+    });
+    grandTotalEl.innerText = grand.toLocaleString('id-ID');
+}
+
+function createItemRow() {
+    const tr = document.createElement('tr');
+    tr.className = 'item-row';
+    tr.innerHTML = `
+        <td><input type="text" class="item-name" placeholder="Nama Item"></td>
+        <td><input type="number" class="qty" placeholder="0" min="0"></td>
+        <td><input type="number" class="price" placeholder="0" min="0"></td>
+        <td class="total">0</td>
+        <td><button type="button" class="btn-danger rm-btn">X</button></td>
+    `;
+    
+    tr.querySelector('.qty').addEventListener('input', calculateTotal);
+    tr.querySelector('.price').addEventListener('input', calculateTotal);
+    tr.querySelector('.rm-btn').addEventListener('click', () => {
+        tr.remove();
+        calculateTotal();
+    });
+    
+    itemsBody.appendChild(tr);
+}
+
+addItemBtn.addEventListener('click', createItemRow);
+
+window.onload = () => {
+    loadTextInputs();
+    const logoData = ls.getItem('logoData');
+    if (logoData) showLogo(logoData);
+    
+    setTimeout(() => {
+        resizeCanvas();
+        createItemRow();
+    }, 100);
+};
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice / Struk Generator</title>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+    background: #0f172a;
+    color: #f8fafc;
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+.glass-panel {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+input, textarea, select {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+}
+input:focus, textarea:focus {
+    border-color: #38bdf8;
+}
+button {
+    background: #38bdf8;
+    color: #0f172a;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+button:hover {
+    background: #0ea5e9;
+}
+.btn-danger {
+    background: #f43f5e;
+    color: white;
+}
+.btn-danger:hover {
+    background: #e11d48;
+}
+.header-section {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+.logo-upload {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+}
+.logo-preview {
+    max-width: 100%;
+    max-height: 120px;
+    display: none;
+    object-fit: contain;
+}
+.company-details {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+th, td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+th {
+    color: #94a3b8;
+    font-weight: 500;
+}
+.footer-section {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 3rem;
+}
+.signature-box {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+.sig-tabs {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+.sig-tabs button {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    background: rgba(255,255,255,0.1);
+    color: #f8fafc;
+}
+.sig-tabs button.active {
+    background: #38bdf8;
+    color: #0f172a;
+}
+.canvas-container {
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    width: 100%;
+    height: 150px;
+    position: relative;
+}
+canvas {
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+.upload-container {
+    width: 100%;
+    height: 150px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    position: relative;
+}
+.upload-preview {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: none;
+}
+.clear-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    z-index: 10;
+}
+.hidden {
+    display: none !important;
+}
+.total-row {
+    font-weight: bold;
+    font-size: 1.25rem;
+    text-align: right;
+    margin-top: 1rem;
+}
+</style>
+</head>
+<body>
+
+<div class="glass-panel">
+    <div class="header-section">
+        <div class="logo-upload">
+            <input type="file" id="logoInput" accept="image/*" style="display: none;">
+            <button type="button" id="logoBtn">Upload Logo</button>
+            <img id="logoPreview" class="logo-preview">
+            <button type="button" id="clearLogoBtn" class="clear-btn hidden">Clear</button>
+        </div>
+        <div class="company-details">
+            <input type="text" id="companyName" placeholder="Nama Perusahaan">
+            <textarea id="companyAddress" placeholder="Alamat Perusahaan" rows="3"></textarea>
+        </div>
+    </div>
+
+    <div class="items-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th style="width: 100px;">Qty</th>
+                    <th style="width: 150px;">Harga</th>
+                    <th style="width: 150px;">Total</th>
+                    <th style="width: 80px;"></th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+            </tbody>
+        </table>
+        <button type="button" id="addItemBtn">+ Tambah Item</button>
+        <div class="total-row">Grand Total: Rp <span id="grandTotal">0</span></div>
+    </div>
+
+    <div class="footer-section">
+        <div class="signature-box">
+            <div class="sig-tabs">
+                <button type="button" class="active" id="tabDraw">Gambar</button>
+                <button type="button" id="tabUpload">Upload</button>
+            </div>
+            
+            <div id="drawContainer" class="canvas-container">
+                <canvas id="sigCanvas"></canvas>
+                <button type="button" id="clearSigBtn" class="clear-btn">Clear</button>
+            </div>
+
+            <div id="uploadContainer" class="upload-container">
+                <input type="file" id="sigInput" accept="image/*" style="display: none;">
+                <button type="button" id="sigUploadBtn">Upload Tanda Tangan</button>
+                <img id="sigPreview" class="upload-preview">
+                <button type="button" id="clearSigUploadBtn" class="clear-btn hidden">Clear</button>
+            </div>
+
+            <input type="text" id="signerName" placeholder="Nama Terang" style="text-align: center;">
+        </div>
+    </div>
+</div>
+
+<script>
+const ls = window.localStorage;
+
+const companyNameInput = document.getElementById('companyName');
+const companyAddressInput = document.getElementById('companyAddress');
+const signerNameInput = document.getElementById('signerName');
+
+const logoInput = document.getElementById('logoInput');
+const logoBtn = document.getElementById('logoBtn');
+const logoPreview = document.getElementById('logoPreview');
+const clearLogoBtn = document.getElementById('clearLogoBtn');
+
+const itemsBody = document.getElementById('itemsBody');
+const addItemBtn = document.getElementById('addItemBtn');
+const grandTotalEl = document.getElementById('grandTotal');
+
+const tabDraw = document.getElementById('tabDraw');
+const tabUpload = document.getElementById('tabUpload');
+const drawContainer = document.getElementById('drawContainer');
+const uploadContainer = document.getElementById('uploadContainer');
+const sigCanvas = document.getElementById('sigCanvas');
+const clearSigBtn = document.getElementById('clearSigBtn');
+const sigInput = document.getElementById('sigInput');
+const sigUploadBtn = document.getElementById('sigUploadBtn');
+const sigPreview = document.getElementById('sigPreview');
+const clearSigUploadBtn = document.getElementById('clearSigUploadBtn');
+
+const ctx = sigCanvas.getContext('2d');
+let drawing = false;
+
+function resizeCanvas() {
+    const rect = drawContainer.getBoundingClientRect();
+    sigCanvas.width = rect.width;
+    sigCanvas.height = rect.height;
+    loadSignature();
+}
+window.addEventListener('resize', resizeCanvas);
+
+function saveTextInputs() {
+    ls.setItem('companyName', companyNameInput.value);
+    ls.setItem('companyAddress', companyAddressInput.value);
+    ls.setItem('signerName', signerNameInput.value);
+}
+
+function loadTextInputs() {
+    companyNameInput.value = ls.getItem('companyName') || '';
+    companyAddressInput.value = ls.getItem('companyAddress') || '';
+    signerNameInput.value = ls.getItem('signerName') || '';
+}
+
+companyNameInput.addEventListener('input', saveTextInputs);
+companyAddressInput.addEventListener('input', saveTextInputs);
+signerNameInput.addEventListener('input', saveTextInputs);
+
+logoBtn.addEventListener('click', () => logoInput.click());
+logoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = e.target.result;
+            ls.setItem('logoData', data);
+            showLogo(data);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+clearLogoBtn.addEventListener('click', () => {
+    ls.removeItem('logoData');
+    logoPreview.style.display = 'none';
+    logoPreview.src = '';
+    logoBtn.style.display = 'block';
+    clearLogoBtn.classList.add('hidden');
+});
+
+function showLogo(data) {
+    logoPreview.src = data;
+    logoPreview.style.display = 'block';
+    logoBtn.style.display = 'none';
+    clearLogoBtn.classList.remove('hidden');
+}
+
+function getPos(canvas, evt) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: (evt.clientX || evt.touches?.[0].clientX) - rect.left,
+        y: (evt.clientY || evt.touches?.[0].clientY) - rect.top
+    };
+}
+
+function startDraw(e) {
+    drawing = true;
+    const pos = getPos(sigCanvas, e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    e.preventDefault();
+}
+
+function draw(e) {
+    if (!drawing) return;
+    const pos = getPos(sigCanvas, e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = '#f8fafc';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    e.preventDefault();
+}
+
+function endDraw() {
+    if (drawing) {
+        drawing = false;
+        ls.setItem('sigDrawData', sigCanvas.toDataURL());
+    }
+}
+
+sigCanvas.addEventListener('mousedown', startDraw);
+sigCanvas.addEventListener('mousemove', draw);
+sigCanvas.addEventListener('mouseup', endDraw);
+sigCanvas.addEventListener('mouseout', endDraw);
+sigCanvas.addEventListener('touchstart', startDraw);
+sigCanvas.addEventListener('touchmove', draw);
+sigCanvas.addEventListener('touchend', endDraw);
+
+clearSigBtn.addEventListener('click', () => {
+    ctx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+    ls.removeItem('sigDrawData');
+});
+
+tabDraw.addEventListener('click', () => {
+    tabDraw.classList.add('active');
+    tabUpload.classList.remove('active');
+    drawContainer.style.display = 'block';
+    uploadContainer.style.display = 'none';
+    ls.setItem('sigMode', 'draw');
+    resizeCanvas();
+});
+
+tabUpload.addEventListener('click', () => {
+    tabUpload.classList.add('active');
+    tabDraw.classList.remove('active');
+    uploadContainer.style.display = 'flex';
+    drawContainer.style.display = 'none';
+    ls.setItem('sigMode', 'upload');
+});
+
+sigUploadBtn.addEventListener('click', () => sigInput.click());
+sigInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = e.target.result;
+            ls.setItem('sigUploadData', data);
+            showSigUpload(data);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+clearSigUploadBtn.addEventListener('click', () => {
+    ls.removeItem('sigUploadData');
+    sigPreview.style.display = 'none';
+    sigPreview.src = '';
+    sigUploadBtn.style.display = 'block';
+    clearSigUploadBtn.classList.add('hidden');
+});
+
+function showSigUpload(data) {
+    sigPreview.src = data;
+    sigPreview.style.display = 'block';
+    sigUploadBtn.style.display = 'none';
+    clearSigUploadBtn.classList.remove('hidden');
+}
+
+function loadSignature() {
+    const drawData = ls.getItem('sigDrawData');
+    if (drawData) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = drawData;
+    }
+    const uploadData = ls.getItem('sigUploadData');
+    if (uploadData) showSigUpload(uploadData);
+    
+    const mode = ls.getItem('sigMode');
+    if (mode === 'upload') tabUpload.click();
+}
+
+function calculateTotal() {
+    let grand = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const qty = parseFloat(row.querySelector('.qty').value) || 0;
+        const price = parseFloat(row.querySelector('.price').value) || 0;
+        const total = qty * price;
+        row.querySelector('.total').innerText = total.toLocaleString('id-ID');
+        grand += total;
+    });
+    grandTotalEl.innerText = grand.toLocaleString('id-ID');
+}
+
+function createItemRow() {
+    const tr = document.createElement('tr');
+    tr.className = 'item-row';
+    tr.innerHTML = `
+        <td><input type="text" class="item-name" placeholder="Nama Item"></td>
+        <td><input type="number" class="qty" placeholder="0" min="0"></td>
+        <td><input type="number" class="price" placeholder="0" min="0"></td>
+        <td class="total">0</td>
+        <td><button type="button" class="btn-danger rm-btn">X</button></td>
+    `;
+    
+    tr.querySelector('.qty').addEventListener('input', calculateTotal);
+    tr.querySelector('.price').addEventListener('input', calculateTotal);
+    tr.querySelector('.rm-btn').addEventListener('click', () => {
+        tr.remove();
+        calculateTotal();
+    });
+    
+    itemsBody.appendChild(tr);
+}
+
+addItemBtn.addEventListener('click', createItemRow);
+
+window.onload = () => {
+    loadTextInputs();
+    const logoData = ls.getItem('logoData');
+    if (logoData) showLogo(logoData);
+    
+    setTimeout(() => {
+        resizeCanvas();
+        createItemRow();
+    }, 100);
+};
+</script>
+</body>
+</html>
