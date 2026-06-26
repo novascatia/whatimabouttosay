@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoice / Struk Generator</title>
+<title>Faktur Digital</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Times New Roman', Times, serif;
 }
 body {
     background: #0f172a;
@@ -17,30 +19,24 @@ body {
     min-height: 100vh;
     padding: 2rem;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.glass-panel {
+.controls {
     background: rgba(30, 41, 59, 0.7);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
-    padding: 2rem;
+    padding: 1.5rem;
     width: 100%;
-    max-width: 800px;
+    max-width: 900px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-}
-input, textarea, select {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #f8fafc;
-    padding: 0.75rem;
-    border-radius: 8px;
-    width: 100%;
-    outline: none;
-    transition: border-color 0.2s;
-}
-input:focus, textarea:focus {
-    border-color: #38bdf8;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
 }
 button {
     background: #38bdf8;
@@ -51,778 +47,459 @@ button {
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
-}
-button:hover {
-    background: #0ea5e9;
-}
-.btn-danger {
-    background: #f43f5e;
-    color: white;
-}
-.btn-danger:hover {
-    background: #e11d48;
-}
-.header-section {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-.logo-upload {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed rgba(255,255,255,0.2);
-    border-radius: 8px;
-    padding: 1rem;
-    position: relative;
-}
-.logo-preview {
-    max-width: 100%;
-    max-height: 120px;
-    display: none;
-    object-fit: contain;
-}
-.company-details {
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
-}
-th, td {
-    text-align: left;
-    padding: 0.75rem;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-th {
-    color: #94a3b8;
-    font-weight: 500;
-}
-.footer-section {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 3rem;
-}
-.signature-box {
-    width: 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-}
-.sig-tabs {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-}
-.sig-tabs button {
-    flex: 1;
-    padding: 0.5rem;
-    font-size: 0.875rem;
-    background: rgba(255,255,255,0.1);
-    color: #f8fafc;
-}
-.sig-tabs button.active {
-    background: #38bdf8;
-    color: #0f172a;
-}
-.canvas-container {
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.05);
-    width: 100%;
-    height: 150px;
-    position: relative;
-}
-canvas {
-    width: 100%;
-    height: 100%;
-    cursor: crosshair;
-}
-.upload-container {
-    width: 100%;
-    height: 150px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    position: relative;
-}
-.upload-preview {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: none;
-}
-.clear-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0,0,0,0.5);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    cursor: pointer;
-    z-index: 10;
-}
-.hidden {
-    display: none !important;
-}
-.total-row {
-    font-weight: bold;
-    font-size: 1.25rem;
-    text-align: right;
-    margin-top: 1rem;
-}
-</style>
-</head>
-<body>
-
-<div class="glass-panel">
-    <div class="header-section">
-        <div class="logo-upload">
-            <input type="file" id="logoInput" accept="image/*" style="display: none;">
-            <button type="button" id="logoBtn">Upload Logo</button>
-            <img id="logoPreview" class="logo-preview">
-            <button type="button" id="clearLogoBtn" class="clear-btn hidden">Clear</button>
-        </div>
-        <div class="company-details">
-            <input type="text" id="companyName" placeholder="Nama Perusahaan">
-            <textarea id="companyAddress" placeholder="Alamat Perusahaan" rows="3"></textarea>
-        </div>
-    </div>
-
-    <div class="items-section">
-        <table>
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th style="width: 100px;">Qty</th>
-                    <th style="width: 150px;">Harga</th>
-                    <th style="width: 150px;">Total</th>
-                    <th style="width: 80px;"></th>
-                </tr>
-            </thead>
-            <tbody id="itemsBody">
-            </tbody>
-        </table>
-        <button type="button" id="addItemBtn">+ Tambah Item</button>
-        <div class="total-row">Grand Total: Rp <span id="grandTotal">0</span></div>
-    </div>
-
-    <div class="footer-section">
-        <div class="signature-box">
-            <div class="sig-tabs">
-                <button type="button" class="active" id="tabDraw">Gambar</button>
-                <button type="button" id="tabUpload">Upload</button>
-            </div>
-            
-            <div id="drawContainer" class="canvas-container">
-                <canvas id="sigCanvas"></canvas>
-                <button type="button" id="clearSigBtn" class="clear-btn">Clear</button>
-            </div>
-
-            <div id="uploadContainer" class="upload-container">
-                <input type="file" id="sigInput" accept="image/*" style="display: none;">
-                <button type="button" id="sigUploadBtn">Upload Tanda Tangan</button>
-                <img id="sigPreview" class="upload-preview">
-                <button type="button" id="clearSigUploadBtn" class="clear-btn hidden">Clear</button>
-            </div>
-
-            <input type="text" id="signerName" placeholder="Nama Terang" style="text-align: center;">
-        </div>
-    </div>
-</div>
-
-<script>
-const ls = window.localStorage;
-
-const companyNameInput = document.getElementById('companyName');
-const companyAddressInput = document.getElementById('companyAddress');
-const signerNameInput = document.getElementById('signerName');
-
-const logoInput = document.getElementById('logoInput');
-const logoBtn = document.getElementById('logoBtn');
-const logoPreview = document.getElementById('logoPreview');
-const clearLogoBtn = document.getElementById('clearLogoBtn');
-
-const itemsBody = document.getElementById('itemsBody');
-const addItemBtn = document.getElementById('addItemBtn');
-const grandTotalEl = document.getElementById('grandTotal');
-
-const tabDraw = document.getElementById('tabDraw');
-const tabUpload = document.getElementById('tabUpload');
-const drawContainer = document.getElementById('drawContainer');
-const uploadContainer = document.getElementById('uploadContainer');
-const sigCanvas = document.getElementById('sigCanvas');
-const clearSigBtn = document.getElementById('clearSigBtn');
-const sigInput = document.getElementById('sigInput');
-const sigUploadBtn = document.getElementById('sigUploadBtn');
-const sigPreview = document.getElementById('sigPreview');
-const clearSigUploadBtn = document.getElementById('clearSigUploadBtn');
-
-const ctx = sigCanvas.getContext('2d');
-let drawing = false;
-
-function resizeCanvas() {
-    const rect = drawContainer.getBoundingClientRect();
-    sigCanvas.width = rect.width;
-    sigCanvas.height = rect.height;
-    loadSignature();
-}
-window.addEventListener('resize', resizeCanvas);
-
-function saveTextInputs() {
-    ls.setItem('companyName', companyNameInput.value);
-    ls.setItem('companyAddress', companyAddressInput.value);
-    ls.setItem('signerName', signerNameInput.value);
-}
-
-function loadTextInputs() {
-    companyNameInput.value = ls.getItem('companyName') || '';
-    companyAddressInput.value = ls.getItem('companyAddress') || '';
-    signerNameInput.value = ls.getItem('signerName') || '';
-}
-
-companyNameInput.addEventListener('input', saveTextInputs);
-companyAddressInput.addEventListener('input', saveTextInputs);
-signerNameInput.addEventListener('input', saveTextInputs);
-
-logoBtn.addEventListener('click', () => logoInput.click());
-logoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = e.target.result;
-            ls.setItem('logoData', data);
-            showLogo(data);
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-clearLogoBtn.addEventListener('click', () => {
-    ls.removeItem('logoData');
-    logoPreview.style.display = 'none';
-    logoPreview.src = '';
-    logoBtn.style.display = 'block';
-    clearLogoBtn.classList.add('hidden');
-});
-
-function showLogo(data) {
-    logoPreview.src = data;
-    logoPreview.style.display = 'block';
-    logoBtn.style.display = 'none';
-    clearLogoBtn.classList.remove('hidden');
-}
-
-function getPos(canvas, evt) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-        x: (evt.clientX || evt.touches?.[0].clientX) - rect.left,
-        y: (evt.clientY || evt.touches?.[0].clientY) - rect.top
-    };
-}
-
-function startDraw(e) {
-    drawing = true;
-    const pos = getPos(sigCanvas, e);
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    e.preventDefault();
-}
-
-function draw(e) {
-    if (!drawing) return;
-    const pos = getPos(sigCanvas, e);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = '#f8fafc';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    e.preventDefault();
-}
-
-function endDraw() {
-    if (drawing) {
-        drawing = false;
-        ls.setItem('sigDrawData', sigCanvas.toDataURL());
-    }
-}
-
-sigCanvas.addEventListener('mousedown', startDraw);
-sigCanvas.addEventListener('mousemove', draw);
-sigCanvas.addEventListener('mouseup', endDraw);
-sigCanvas.addEventListener('mouseout', endDraw);
-sigCanvas.addEventListener('touchstart', startDraw);
-sigCanvas.addEventListener('touchmove', draw);
-sigCanvas.addEventListener('touchend', endDraw);
-
-clearSigBtn.addEventListener('click', () => {
-    ctx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
-    ls.removeItem('sigDrawData');
-});
-
-tabDraw.addEventListener('click', () => {
-    tabDraw.classList.add('active');
-    tabUpload.classList.remove('active');
-    drawContainer.style.display = 'block';
-    uploadContainer.style.display = 'none';
-    ls.setItem('sigMode', 'draw');
-    resizeCanvas();
-});
-
-tabUpload.addEventListener('click', () => {
-    tabUpload.classList.add('active');
-    tabDraw.classList.remove('active');
-    uploadContainer.style.display = 'flex';
-    drawContainer.style.display = 'none';
-    ls.setItem('sigMode', 'upload');
-});
-
-sigUploadBtn.addEventListener('click', () => sigInput.click());
-sigInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = e.target.result;
-            ls.setItem('sigUploadData', data);
-            showSigUpload(data);
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-clearSigUploadBtn.addEventListener('click', () => {
-    ls.removeItem('sigUploadData');
-    sigPreview.style.display = 'none';
-    sigPreview.src = '';
-    sigUploadBtn.style.display = 'block';
-    clearSigUploadBtn.classList.add('hidden');
-});
-
-function showSigUpload(data) {
-    sigPreview.src = data;
-    sigPreview.style.display = 'block';
-    sigUploadBtn.style.display = 'none';
-    clearSigUploadBtn.classList.remove('hidden');
-}
-
-function loadSignature() {
-    const drawData = ls.getItem('sigDrawData');
-    if (drawData) {
-        const img = new Image();
-        img.onload = () => ctx.drawImage(img, 0, 0);
-        img.src = drawData;
-    }
-    const uploadData = ls.getItem('sigUploadData');
-    if (uploadData) showSigUpload(uploadData);
-    
-    const mode = ls.getItem('sigMode');
-    if (mode === 'upload') tabUpload.click();
-}
-
-function calculateTotal() {
-    let grand = 0;
-    document.querySelectorAll('.item-row').forEach(row => {
-        const qty = parseFloat(row.querySelector('.qty').value) || 0;
-        const price = parseFloat(row.querySelector('.price').value) || 0;
-        const total = qty * price;
-        row.querySelector('.total').innerText = total.toLocaleString('id-ID');
-        grand += total;
-    });
-    grandTotalEl.innerText = grand.toLocaleString('id-ID');
-}
-
-function createItemRow() {
-    const tr = document.createElement('tr');
-    tr.className = 'item-row';
-    tr.innerHTML = `
-        <td><input type="text" class="item-name" placeholder="Nama Item"></td>
-        <td><input type="number" class="qty" placeholder="0" min="0"></td>
-        <td><input type="number" class="price" placeholder="0" min="0"></td>
-        <td class="total">0</td>
-        <td><button type="button" class="btn-danger rm-btn">X</button></td>
-    `;
-    
-    tr.querySelector('.qty').addEventListener('input', calculateTotal);
-    tr.querySelector('.price').addEventListener('input', calculateTotal);
-    tr.querySelector('.rm-btn').addEventListener('click', () => {
-        tr.remove();
-        calculateTotal();
-    });
-    
-    itemsBody.appendChild(tr);
-}
-
-addItemBtn.addEventListener('click', createItemRow);
-
-window.onload = () => {
-    loadTextInputs();
-    const logoData = ls.getItem('logoData');
-    if (logoData) showLogo(logoData);
-    
-    setTimeout(() => {
-        resizeCanvas();
-        createItemRow();
-    }, 100);
-};
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoice / Struk Generator</title>
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-body {
-    background: #0f172a;
-    color: #f8fafc;
-    min-height: 100vh;
-    padding: 2rem;
-    display: flex;
-    justify-content: center;
-}
-.glass-panel {
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 2rem;
-    width: 100%;
-    max-width: 800px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-}
-input, textarea, select {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #f8fafc;
-    padding: 0.75rem;
-    border-radius: 8px;
-    width: 100%;
-    outline: none;
-    transition: border-color 0.2s;
-}
-input:focus, textarea:focus {
-    border-color: #38bdf8;
-}
-button {
-    background: #38bdf8;
-    color: #0f172a;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
 button:hover {
     background: #0ea5e9;
 }
-.btn-danger {
-    background: #f43f5e;
-    color: white;
-}
-.btn-danger:hover {
-    background: #e11d48;
-}
-.header-section {
+.btn-danger { background: #f43f5e; color: white; }
+.btn-danger:hover { background: #e11d48; }
+.btn-success { background: #10b981; color: white; }
+.btn-success:hover { background: #059669; }
+.sig-panel {
+    width: 100%;
     display: flex;
-    gap: 2rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 1rem;
+    margin-top: 1rem;
 }
-.logo-upload {
+.sig-tools {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed rgba(255,255,255,0.2);
-    border-radius: 8px;
-    padding: 1rem;
-    position: relative;
-}
-.logo-preview {
-    max-width: 100%;
-    max-height: 120px;
-    display: none;
-    object-fit: contain;
-}
-.company-details {
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
-}
-th, td {
-    text-align: left;
-    padding: 0.75rem;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-th {
-    color: #94a3b8;
-    font-weight: 500;
-}
-.footer-section {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 3rem;
-}
-.signature-box {
-    width: 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-}
-.sig-tabs {
-    display: flex;
     gap: 0.5rem;
-    width: 100%;
 }
-.sig-tabs button {
-    flex: 1;
-    padding: 0.5rem;
-    font-size: 0.875rem;
-    background: rgba(255,255,255,0.1);
-    color: #f8fafc;
-}
-.sig-tabs button.active {
-    background: #38bdf8;
-    color: #0f172a;
-}
-.canvas-container {
-    border: 1px solid rgba(255,255,255,0.2);
+.canvas-wrapper {
+    background: #fff;
     border-radius: 8px;
-    background: rgba(255,255,255,0.05);
-    width: 100%;
-    height: 150px;
-    position: relative;
+    overflow: hidden;
+    height: 120px;
 }
-canvas {
+#sigCanvas {
     width: 100%;
     height: 100%;
     cursor: crosshair;
 }
-.upload-container {
+.paper-container {
     width: 100%;
-    height: 150px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    display: none;
-    align-items: center;
+    overflow-x: auto;
+    display: flex;
     justify-content: center;
-    padding: 1rem;
+    padding-bottom: 2rem;
+}
+.paper {
+    background: #f8f9fa;
+    color: #000;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 15mm;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     position: relative;
+    font-size: 14px;
 }
-.upload-preview {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: none;
-}
-.clear-btn {
+.paper::before {
+    content: '';
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0,0,0,0.5);
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: #e2e8f0;
+    border-bottom: 1px solid #cbd5e1;
+}
+.editable {
+    outline: none;
+    min-width: 20px;
+    display: inline-block;
+}
+.editable:empty::before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    pointer-events: none;
+}
+.editable:focus {
+    background: rgba(56, 189, 248, 0.1);
+}
+.header h1 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.header-info {
+    line-height: 1.4;
+    margin-bottom: 15px;
+}
+.divider {
+    border-top: 2px solid #000;
+    margin: 15px 0;
+}
+.menerima {
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid #000;
+    border-bottom: none;
+}
+.info-row {
+    display: flex;
+    border-bottom: 1px solid #000;
+}
+.info-label {
+    padding: 5px 10px;
+    font-weight: bold;
+    width: 120px;
+    flex-shrink: 0;
+}
+.info-value {
+    padding: 5px 10px;
+    flex-grow: 1;
+    border-left: 1px dotted #000;
+}
+.info-grid > div:nth-child(even) .info-row {
+    border-left: 1px solid #000;
+}
+table.faktur-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+    border: 1px solid #000;
+}
+table.faktur-table th, table.faktur-table td {
+    border: 1px solid #000;
+    padding: 6px 10px;
+    vertical-align: top;
+}
+table.faktur-table th {
+    font-weight: bold;
+    text-align: center;
+}
+.col-no { width: 40px; text-align: center; }
+.col-ket { width: auto; }
+.col-harga { width: 120px; text-align: right; }
+.col-qty { width: 60px; text-align: center; }
+.col-jumlah { width: 140px; text-align: right; }
+.remove-row-btn {
+    position: absolute;
+    left: -30px;
+    background: #f43f5e;
     color: white;
     border: none;
-    border-radius: 4px;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
     cursor: pointer;
-    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial;
+    font-weight: bold;
 }
-.hidden {
-    display: none !important;
+.totals-section {
+    display: flex;
+    border: 1px solid #000;
+    border-top: none;
+}
+.nb-box {
+    flex: 1;
+    padding: 10px;
+    border-right: 1px solid #000;
+}
+.totals-calc {
+    width: 380px;
 }
 .total-row {
-    font-weight: bold;
-    font-size: 1.25rem;
+    display: flex;
+    border-bottom: 1px solid #000;
+}
+.total-row:last-child {
+    border-bottom: none;
+}
+.total-label {
+    flex: 1;
+    padding: 6px 10px;
     text-align: right;
-    margin-top: 1rem;
+    font-weight: bold;
+    border-right: 1px solid #000;
+}
+.total-val {
+    width: 140px;
+    padding: 6px 10px;
+    text-align: right;
+    font-weight: bold;
+}
+.footer-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    align-items: flex-end;
+}
+.terima-kasih {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: serif;
+}
+.signatures {
+    display: flex;
+    border: 1px solid #000;
+}
+.sig-box {
+    width: 120px;
+    height: 100px;
+    border-right: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+.sig-box:last-child {
+    border-right: none;
+}
+.sig-title {
+    font-size: 11px;
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid #000;
+    padding: 2px 0;
+    background: #f8f9fa;
+    z-index: 2;
+}
+.sig-img {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    object-fit: contain;
+    padding: 5px;
+    display: none;
+}
+@media print {
+    body { background: none; padding: 0; }
+    .controls, .remove-row-btn { display: none !important; }
+    .paper { box-shadow: none; margin: 0; }
 }
 </style>
 </head>
 <body>
 
-<div class="glass-panel">
-    <div class="header-section">
-        <div class="logo-upload">
-            <input type="file" id="logoInput" accept="image/*" style="display: none;">
-            <button type="button" id="logoBtn">Upload Logo</button>
-            <img id="logoPreview" class="logo-preview">
-            <button type="button" id="clearLogoBtn" class="clear-btn hidden">Clear</button>
+<div class="controls data-html2canvas-ignore">
+    <button type="button" id="btnAddRow">+ Tambah Baris</button>
+    <button type="button" class="btn-danger" id="btnClear">Reset Form</button>
+    <button type="button" class="btn-success" id="btnPng">Save as PNG</button>
+    <button type="button" class="btn-success" id="btnPdf">Save as PDF</button>
+
+    <div class="sig-panel">
+        <div class="sig-tools">
+            <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                <span>Gambar Tanda Tangan:</span>
+                <button type="button" id="btnClearSig" style="padding: 2px 8px; font-size: 12px;">Clear</button>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas id="sigCanvas"></canvas>
+            </div>
         </div>
-        <div class="company-details">
-            <input type="text" id="companyName" placeholder="Nama Perusahaan">
-            <textarea id="companyAddress" placeholder="Alamat Perusahaan" rows="3"></textarea>
+        <div class="sig-tools" style="justify-content: center;">
+            <input type="file" id="sigUpload" accept="image/*" style="display: none;">
+            <button type="button" onclick="document.getElementById('sigUpload').click()">Upload Gambar</button>
+            <div style="display: flex; gap: 5px;">
+                <button type="button" id="btnApplyBengkel" style="flex:1; font-size:12px; padding:5px;">Set Kepala</button>
+                <button type="button" id="btnApplyKasir" style="flex:1; font-size:12px; padding:5px;">Set Kasir</button>
+                <button type="button" id="btnApplySetuju" style="flex:1; font-size:12px; padding:5px;">Set Setuju</button>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="items-section">
-        <table>
+<div class="paper-container">
+    <div class="paper" id="fakturPaper">
+        <div class="header">
+            <h1 class="editable" data-id="h_title" data-placeholder="NAMA PERUSAHAAN" contenteditable="true">BURING TEKNIK</h1>
+            <div class="header-info">
+                <div class="editable" data-id="h_addr" data-placeholder="Alamat Perusahaan" contenteditable="true">Jl. Mayjen Sungkono No. 7 Malang</div><br>
+                <div style="display:flex; gap:5px;">Telp. <span class="editable" data-id="h_telp" data-placeholder="Nomor Telepon" contenteditable="true">083848457899</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="menerima">
+                Menerima : <span class="editable" data-id="h_menerima" data-placeholder="Jenis Servis" contenteditable="true">Servis AC Mobil</span>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div>
+                <div class="info-row">
+                    <div class="info-label">Tanggal Faktur :</div>
+                    <div class="info-value editable" data-id="i_tgl" contenteditable="true"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Mobil :</div>
+                    <div class="info-value editable" data-id="i_mobil" contenteditable="true"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">No. Polisi :</div>
+                    <div class="info-value editable" data-id="i_nopol" contenteditable="true"></div>
+                </div>
+            </div>
+            <div>
+                <div class="info-row">
+                    <div class="info-label">Nama Pemilik :</div>
+                    <div class="info-value editable" data-id="i_nama" contenteditable="true"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Alamat :</div>
+                    <div class="info-value editable" data-id="i_alamat" contenteditable="true"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Telp / Hp. :</div>
+                    <div class="info-value editable" data-id="i_hp" contenteditable="true"></div>
+                </div>
+            </div>
+        </div>
+
+        <table class="faktur-table" id="itemTable">
             <thead>
                 <tr>
-                    <th>Item</th>
-                    <th style="width: 100px;">Qty</th>
-                    <th style="width: 150px;">Harga</th>
-                    <th style="width: 150px;">Total</th>
-                    <th style="width: 80px;"></th>
+                    <th class="col-no">No.</th>
+                    <th class="col-ket">Keterangan</th>
+                    <th class="col-harga">Satuan Harga</th>
+                    <th class="col-qty">Qty</th>
+                    <th class="col-jumlah">Jumlah</th>
                 </tr>
             </thead>
-            <tbody id="itemsBody">
+            <tbody id="tableBody">
             </tbody>
         </table>
-        <button type="button" id="addItemBtn">+ Tambah Item</button>
-        <div class="total-row">Grand Total: Rp <span id="grandTotal">0</span></div>
-    </div>
 
-    <div class="footer-section">
-        <div class="signature-box">
-            <div class="sig-tabs">
-                <button type="button" class="active" id="tabDraw">Gambar</button>
-                <button type="button" id="tabUpload">Upload</button>
+        <div class="totals-section">
+            <div class="nb-box">
+                <span style="font-weight:bold;">NB : </span>
+                <span class="editable" data-id="t_nb" style="width:90%; min-height:60px;" contenteditable="true"></span>
             </div>
-            
-            <div id="drawContainer" class="canvas-container">
-                <canvas id="sigCanvas"></canvas>
-                <button type="button" id="clearSigBtn" class="clear-btn">Clear</button>
+            <div class="totals-calc">
+                <div class="total-row">
+                    <div class="total-label">Sub Total</div>
+                    <div class="total-val editable" data-id="t_sub" id="valSubTotal" contenteditable="true">0</div>
+                </div>
+                <div class="total-row">
+                    <div class="total-label">Biaya Service / Perbaikan</div>
+                    <div class="total-val editable" data-id="t_svc" id="valService" contenteditable="true">0</div>
+                </div>
+                <div class="total-row">
+                    <div class="total-label">TOTAL BIAYA KESELURUHAN</div>
+                    <div class="total-val editable" data-id="t_grand" id="valGrand" contenteditable="true">0</div>
+                </div>
             </div>
+        </div>
 
-            <div id="uploadContainer" class="upload-container">
-                <input type="file" id="sigInput" accept="image/*" style="display: none;">
-                <button type="button" id="sigUploadBtn">Upload Tanda Tangan</button>
-                <img id="sigPreview" class="upload-preview">
-                <button type="button" id="clearSigUploadBtn" class="clear-btn hidden">Clear</button>
+        <div class="footer-section">
+            <div class="terima-kasih">TERIMA KASIH</div>
+            <div class="signatures">
+                <div class="sig-box">
+                    <div class="sig-title">Kepala Bengkel</div>
+                    <img id="img_bengkel" class="sig-img">
+                </div>
+                <div class="sig-box">
+                    <div class="sig-title">Kasir</div>
+                    <img id="img_kasir" class="sig-img">
+                </div>
+                <div class="sig-box">
+                    <div class="sig-title">Disetujui</div>
+                    <img id="img_setuju" class="sig-img">
+                </div>
             </div>
-
-            <input type="text" id="signerName" placeholder="Nama Terang" style="text-align: center;">
         </div>
     </div>
 </div>
 
 <script>
 const ls = window.localStorage;
-
-const companyNameInput = document.getElementById('companyName');
-const companyAddressInput = document.getElementById('companyAddress');
-const signerNameInput = document.getElementById('signerName');
-
-const logoInput = document.getElementById('logoInput');
-const logoBtn = document.getElementById('logoBtn');
-const logoPreview = document.getElementById('logoPreview');
-const clearLogoBtn = document.getElementById('clearLogoBtn');
-
-const itemsBody = document.getElementById('itemsBody');
-const addItemBtn = document.getElementById('addItemBtn');
-const grandTotalEl = document.getElementById('grandTotal');
-
-const tabDraw = document.getElementById('tabDraw');
-const tabUpload = document.getElementById('tabUpload');
-const drawContainer = document.getElementById('drawContainer');
-const uploadContainer = document.getElementById('uploadContainer');
+const tableBody = document.getElementById('tableBody');
 const sigCanvas = document.getElementById('sigCanvas');
-const clearSigBtn = document.getElementById('clearSigBtn');
-const sigInput = document.getElementById('sigInput');
-const sigUploadBtn = document.getElementById('sigUploadBtn');
-const sigPreview = document.getElementById('sigPreview');
-const clearSigUploadBtn = document.getElementById('clearSigUploadBtn');
-
 const ctx = sigCanvas.getContext('2d');
 let drawing = false;
 
 function resizeCanvas() {
-    const rect = drawContainer.getBoundingClientRect();
-    sigCanvas.width = rect.width;
-    sigCanvas.height = rect.height;
-    loadSignature();
+    sigCanvas.width = sigCanvas.parentElement.clientWidth;
+    sigCanvas.height = sigCanvas.parentElement.clientHeight;
 }
 window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
-function saveTextInputs() {
-    ls.setItem('companyName', companyNameInput.value);
-    ls.setItem('companyAddress', companyAddressInput.value);
-    ls.setItem('signerName', signerNameInput.value);
+function parseNumber(str) {
+    if (!str) return 0;
+    return parseFloat(str.replace(/[^0-9,-]+/g, '')) || 0;
 }
 
-function loadTextInputs() {
-    companyNameInput.value = ls.getItem('companyName') || '';
-    companyAddressInput.value = ls.getItem('companyAddress') || '';
-    signerNameInput.value = ls.getItem('signerName') || '';
+function formatNumber(num) {
+    if (num === 0) return '';
+    return num.toLocaleString('id-ID');
 }
 
-companyNameInput.addEventListener('input', saveTextInputs);
-companyAddressInput.addEventListener('input', saveTextInputs);
-signerNameInput.addEventListener('input', saveTextInputs);
+function calculateRows() {
+    let subTotal = 0;
+    const rows = tableBody.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+        row.querySelector('.td-no').innerText = index + 1 + '.';
+        const harga = parseNumber(row.querySelector('.td-harga').innerText);
+        const qty = parseNumber(row.querySelector('.td-qty').innerText);
+        const jumlah = harga * qty;
+        
+        if (jumlah > 0) {
+            row.querySelector('.td-jumlah').innerText = formatNumber(jumlah);
+        } else {
+            row.querySelector('.td-jumlah').innerText = '';
+        }
+        subTotal += jumlah;
+    });
 
-logoBtn.addEventListener('click', () => logoInput.click());
-logoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = e.target.result;
-            ls.setItem('logoData', data);
-            showLogo(data);
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-clearLogoBtn.addEventListener('click', () => {
-    ls.removeItem('logoData');
-    logoPreview.style.display = 'none';
-    logoPreview.src = '';
-    logoBtn.style.display = 'block';
-    clearLogoBtn.classList.add('hidden');
-});
-
-function showLogo(data) {
-    logoPreview.src = data;
-    logoPreview.style.display = 'block';
-    logoBtn.style.display = 'none';
-    clearLogoBtn.classList.remove('hidden');
+    document.getElementById('valSubTotal').innerText = formatNumber(subTotal);
+    const svc = parseNumber(document.getElementById('valService').innerText);
+    document.getElementById('valGrand').innerText = formatNumber(subTotal + svc);
+    saveData();
 }
 
-function getPos(canvas, evt) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-        x: (evt.clientX || evt.touches?.[0].clientX) - rect.left,
-        y: (evt.clientY || evt.touches?.[0].clientY) - rect.top
-    };
+function createRow(data = { ket: '', harga: '', qty: '', jumlah: '' }) {
+    const tr = document.createElement('tr');
+    tr.style.position = 'relative';
+    tr.innerHTML = `
+        <td class="col-no td-no text-center"></td>
+        <td class="col-ket"><span class="editable td-ket" contenteditable="true" style="width:100%">${data.ket}</span></td>
+        <td class="col-harga"><span class="editable td-harga" contenteditable="true" style="width:100%; text-align:right;">${data.harga}</span></td>
+        <td class="col-qty"><span class="editable td-qty" contenteditable="true" style="width:100%; text-align:center;">${data.qty}</span></td>
+        <td class="col-jumlah"><span class="editable td-jumlah" contenteditable="true" style="width:100%; text-align:right;">${data.jumlah}</span>
+        <button class="remove-row-btn data-html2canvas-ignore" onclick="this.parentElement.parentElement.remove(); calculateRows();" contenteditable="false">X</button></td>
+    `;
+    
+    tr.querySelectorAll('.editable').forEach(el => {
+        el.addEventListener('input', calculateRows);
+        el.addEventListener('blur', () => {
+            if (el.classList.contains('td-harga') || el.classList.contains('td-qty')) {
+                const val = parseNumber(el.innerText);
+                if (val > 0) el.innerText = formatNumber(val);
+            }
+        });
+    });
+    tableBody.appendChild(tr);
+    calculateRows();
+}
+
+document.getElementById('btnAddRow').addEventListener('click', () => createRow());
+document.getElementById('valService').addEventListener('input', calculateRows);
+
+function getCanvasPos(evt) {
+    const rect = sigCanvas.getBoundingClientRect();
+    const x = evt.clientX || (evt.touches && evt.touches[0].clientX);
+    const y = evt.clientY || (evt.touches && evt.touches[0].clientY);
+    return { x: x - rect.left, y: y - rect.top };
 }
 
 function startDraw(e) {
     drawing = true;
-    const pos = getPos(sigCanvas, e);
+    const pos = getCanvasPos(e);
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
     e.preventDefault();
@@ -830,140 +507,166 @@ function startDraw(e) {
 
 function draw(e) {
     if (!drawing) return;
-    const pos = getPos(sigCanvas, e);
+    const pos = getCanvasPos(e);
     ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = '#f8fafc';
+    ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.stroke();
     e.preventDefault();
 }
 
-function endDraw() {
-    if (drawing) {
-        drawing = false;
-        ls.setItem('sigDrawData', sigCanvas.toDataURL());
-    }
-}
+function endDraw() { drawing = false; }
 
 sigCanvas.addEventListener('mousedown', startDraw);
 sigCanvas.addEventListener('mousemove', draw);
 sigCanvas.addEventListener('mouseup', endDraw);
 sigCanvas.addEventListener('mouseout', endDraw);
-sigCanvas.addEventListener('touchstart', startDraw);
-sigCanvas.addEventListener('touchmove', draw);
+sigCanvas.addEventListener('touchstart', startDraw, {passive: false});
+sigCanvas.addEventListener('touchmove', draw, {passive: false});
 sigCanvas.addEventListener('touchend', endDraw);
 
-clearSigBtn.addEventListener('click', () => {
+document.getElementById('btnClearSig').addEventListener('click', () => {
     ctx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
-    ls.removeItem('sigDrawData');
 });
 
-tabDraw.addEventListener('click', () => {
-    tabDraw.classList.add('active');
-    tabUpload.classList.remove('active');
-    drawContainer.style.display = 'block';
-    uploadContainer.style.display = 'none';
-    ls.setItem('sigMode', 'draw');
-    resizeCanvas();
-});
+let currentSigData = null;
 
-tabUpload.addEventListener('click', () => {
-    tabUpload.classList.add('active');
-    tabDraw.classList.remove('active');
-    uploadContainer.style.display = 'flex';
-    drawContainer.style.display = 'none';
-    ls.setItem('sigMode', 'upload');
-});
+function updateCurrentSigFromCanvas() {
+    currentSigData = sigCanvas.toDataURL('image/png');
+}
 
-sigUploadBtn.addEventListener('click', () => sigInput.click());
-sigInput.addEventListener('change', (e) => {
+sigCanvas.addEventListener('mouseup', updateCurrentSigFromCanvas);
+sigCanvas.addEventListener('touchend', updateCurrentSigFromCanvas);
+
+document.getElementById('sigUpload').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = e.target.result;
-            ls.setItem('sigUploadData', data);
-            showSigUpload(data);
+        reader.onload = (ev) => {
+            currentSigData = ev.target.result;
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+                ctx.drawImage(img, 0, 0, sigCanvas.width, sigCanvas.height);
+            };
+            img.src = currentSigData;
         };
         reader.readAsDataURL(file);
     }
 });
 
-clearSigUploadBtn.addEventListener('click', () => {
-    ls.removeItem('sigUploadData');
-    sigPreview.style.display = 'none';
-    sigPreview.src = '';
-    sigUploadBtn.style.display = 'block';
-    clearSigUploadBtn.classList.add('hidden');
+function applySignature(targetId, storageKey) {
+    if (!currentSigData) {
+        updateCurrentSigFromCanvas();
+    }
+    const imgEl = document.getElementById(targetId);
+    imgEl.src = currentSigData;
+    imgEl.style.display = 'block';
+    ls.setItem(storageKey, currentSigData);
+}
+
+document.getElementById('btnApplyBengkel').addEventListener('click', () => applySignature('img_bengkel', 'sig_bengkel'));
+document.getElementById('btnApplyKasir').addEventListener('click', () => applySignature('img_kasir', 'sig_kasir'));
+document.getElementById('btnApplySetuju').addEventListener('click', () => applySignature('img_setuju', 'sig_setuju'));
+
+function saveData() {
+    const data = {};
+    document.querySelectorAll('.editable[data-id]').forEach(el => {
+        data[el.getAttribute('data-id')] = el.innerText;
+    });
+    
+    const rows = [];
+    tableBody.querySelectorAll('tr').forEach(row => {
+        rows.push({
+            ket: row.querySelector('.td-ket').innerText,
+            harga: row.querySelector('.td-harga').innerText,
+            qty: row.querySelector('.td-qty').innerText,
+            jumlah: row.querySelector('.td-jumlah').innerText
+        });
+    });
+    data.rows = rows;
+    ls.setItem('fakturData', JSON.stringify(data));
+}
+
+document.querySelectorAll('.editable[data-id]').forEach(el => {
+    el.addEventListener('input', saveData);
 });
 
-function showSigUpload(data) {
-    sigPreview.src = data;
-    sigPreview.style.display = 'block';
-    sigUploadBtn.style.display = 'none';
-    clearSigUploadBtn.classList.remove('hidden');
-}
-
-function loadSignature() {
-    const drawData = ls.getItem('sigDrawData');
-    if (drawData) {
-        const img = new Image();
-        img.onload = () => ctx.drawImage(img, 0, 0);
-        img.src = drawData;
+function loadData() {
+    const rawData = ls.getItem('fakturData');
+    if (rawData) {
+        try {
+            const data = JSON.parse(rawData);
+            document.querySelectorAll('.editable[data-id]').forEach(el => {
+                const id = el.getAttribute('data-id');
+                if (data[id] !== undefined) el.innerText = data[id];
+            });
+            if (data.rows && data.rows.length > 0) {
+                data.rows.forEach(r => createRow(r));
+            } else {
+                for(let i=0; i<8; i++) createRow();
+            }
+        } catch (e) {
+            for(let i=0; i<8; i++) createRow();
+        }
+    } else {
+        for(let i=0; i<8; i++) createRow();
     }
-    const uploadData = ls.getItem('sigUploadData');
-    if (uploadData) showSigUpload(uploadData);
-    
-    const mode = ls.getItem('sigMode');
-    if (mode === 'upload') tabUpload.click();
-}
 
-function calculateTotal() {
-    let grand = 0;
-    document.querySelectorAll('.item-row').forEach(row => {
-        const qty = parseFloat(row.querySelector('.qty').value) || 0;
-        const price = parseFloat(row.querySelector('.price').value) || 0;
-        const total = qty * price;
-        row.querySelector('.total').innerText = total.toLocaleString('id-ID');
-        grand += total;
+    ['sig_bengkel', 'sig_kasir', 'sig_setuju'].forEach(key => {
+        const val = ls.getItem(key);
+        if (val) {
+            const img = document.getElementById(key.replace('sig_', 'img_'));
+            img.src = val;
+            img.style.display = 'block';
+        }
     });
-    grandTotalEl.innerText = grand.toLocaleString('id-ID');
+    calculateRows();
 }
 
-function createItemRow() {
-    const tr = document.createElement('tr');
-    tr.className = 'item-row';
-    tr.innerHTML = `
-        <td><input type="text" class="item-name" placeholder="Nama Item"></td>
-        <td><input type="number" class="qty" placeholder="0" min="0"></td>
-        <td><input type="number" class="price" placeholder="0" min="0"></td>
-        <td class="total">0</td>
-        <td><button type="button" class="btn-danger rm-btn">X</button></td>
-    `;
-    
-    tr.querySelector('.qty').addEventListener('input', calculateTotal);
-    tr.querySelector('.price').addEventListener('input', calculateTotal);
-    tr.querySelector('.rm-btn').addEventListener('click', () => {
-        tr.remove();
-        calculateTotal();
-    });
-    
-    itemsBody.appendChild(tr);
+document.getElementById('btnClear').addEventListener('click', () => {
+    if(confirm('Hapus semua data faktur?')) {
+        ls.clear();
+        location.reload();
+    }
+});
+
+async function exportFaktur(type) {
+    const paper = document.getElementById('fakturPaper');
+    const removeBtns = document.querySelectorAll('.remove-row-btn');
+    removeBtns.forEach(btn => btn.style.display = 'none');
+
+    try {
+        const canvas = await html2canvas(paper, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+        });
+
+        if (type === 'png') {
+            const link = document.createElement('a');
+            link.download = 'Faktur.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } else if (type === 'pdf') {
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('Faktur.pdf');
+        }
+    } finally {
+        removeBtns.forEach(btn => btn.style.display = 'flex');
+    }
 }
 
-addItemBtn.addEventListener('click', createItemRow);
+document.getElementById('btnPng').addEventListener('click', () => exportFaktur('png'));
+document.getElementById('btnPdf').addEventListener('click', () => exportFaktur('pdf'));
 
-window.onload = () => {
-    loadTextInputs();
-    const logoData = ls.getItem('logoData');
-    if (logoData) showLogo(logoData);
-    
-    setTimeout(() => {
-        resizeCanvas();
-        createItemRow();
-    }, 100);
-};
+window.onload = loadData;
 </script>
 </body>
 </html>
