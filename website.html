@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoice Travel Barokah</title>
+<title>Invoice Travel Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -469,7 +469,7 @@ button:hover {
                 <div class="invoice-title">INVOICE</div>
                 <div class="company-details">
                     <div class="editable" data-id="c_name" data-placeholder="Nama Travel" contenteditable="true" style="font-weight:bold; margin-bottom: 5px;">Barokah Travel</div><br>
-                    <div class="editable" data-id="c_addr1" data-placeholder="Alamat Kantor 1" contenteditable="true">Jl. Nama</div><br>
+                    <div class="editable" data-id="c_addr1" data-placeholder="Alamat Kantor 1" contenteditable="true">Jl. Raya Keberangkatan No. 88</div><br>
                     <div class="editable" data-id="c_addr2" data-placeholder="Alamat Kantor 2" contenteditable="true">Jakarta Pusat, Indonesia</div>
                 </div>
             </div>
@@ -482,15 +482,15 @@ button:hover {
         <div class="invoice-meta">
             <div class="meta-col">
                 <div class="meta-title">BILL TO</div>
-                <div class="editable" data-id="b_name" data-placeholder="Nama Pemesan" contenteditable="true">Ra,a</div>
-                <div class="editable" data-id="b_addr1" data-placeholder="Alamat" contenteditable="true">Jl. Wahana</div>
-                <div class="editable" data-id="b_addr2" data-placeholder="Kota / No. HP" contenteditable="true">Bekasi - 08123456789</div>
+                <div class="editable" data-id="b_name" data-placeholder="Nama Pemesan" contenteditable="true">Ahmad Subari</div>
+                <div class="editable" data-id="b_addr1" data-placeholder="Alamat" contenteditable="true">Jl. Anggrek No. 12</div>
+                <div class="editable" data-id="b_addr2" data-placeholder="Kota / No. HP" contenteditable="true">Surabaya - 08123456789</div>
             </div>
             <div class="meta-col">
                 <div class="meta-title">TOUR DETAILS</div>
-                <div class="editable" data-id="s_name" data-placeholder="Paket Perjalanan" contenteditable="true">Barokah Rent Car</div>
-                <div class="editable" data-id="s_addr1" data-placeholder="Tanggal Keberangkatan" contenteditable="true">26 Juli 2026</div>
-                <div class="editable" data-id="s_addr2" data-placeholder="Maskapai / Hotel" contenteditable="true">HIACE / INNOVA / AVANZA</div>
+                <div class="editable" data-id="s_name" data-placeholder="Paket Perjalanan" contenteditable="true">Paket Umroh Reguler</div>
+                <div class="editable" data-id="s_addr1" data-placeholder="Tanggal Keberangkatan" contenteditable="true">12 Oktober 2026</div>
+                <div class="editable" data-id="s_addr2" data-placeholder="Maskapai / Hotel" contenteditable="true">Saudi Airlines / Standard Hotel</div>
             </div>
             <div class="meta-col">
                 <div class="meta-row">
@@ -612,9 +612,22 @@ button:hover {
 </div>
 
 <script>
-const SUPABASE_URL = 'https://fuhobsopkwzwejamwyqz.supabase.coU';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttbnBmcXVvcGNxc3hrbGFncWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MTc5MDcsImV4cCI6MjA3NTk5MzkwN30.c3twIk2ddUiLpjFdCT-PlMP2XcMsLJEtshfDcQR0Ric';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// KONFIGURASI SUPABASE (Ganti dengan kredensial aslimu)
+const SUPABASE_URL = 'https://kmnpfquopcqsxklagqhu.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttbnBmcXVvcGNxc3hrbGFncWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MTc5MDcsImV4cCI6MjA3NTk5MzkwN30.c3twIk2ddUiLpjFdCT-PlMP2XcMsLJEtshfDcQR0Ric'; 
+
+let supabase = null;
+let useSupabase = false;
+
+// Blok Try-Catch agar tidak error jika URL belum diganti
+try {
+    if (SUPABASE_URL.startsWith('http')) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        useSupabase = true;
+    }
+} catch (e) {
+    console.error("Gagal memuat Supabase, mode lokal aktif.", e);
+}
 
 const ls = window.localStorage;
 const tableBody = document.getElementById('tableBody');
@@ -643,17 +656,23 @@ ctx.fillStyle = "#ffffff";
 ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
 
 async function getNextCounter() {
-    const { data, error } = await supabase
-        .from('invoices')
-        .select('invoice_number')
-        .order('id', { ascending: false })
-        .limit(1);
-        
-    if (data && data.length > 0) {
-        const lastNum = data[0].invoice_number.split('-').pop();
-        return parseInt(lastNum, 10) + 1;
+    if (useSupabase) {
+        try {
+            const { data, error } = await supabase
+                .from('invoices')
+                .select('invoice_number')
+                .order('id', { ascending: false })
+                .limit(1);
+            if (data && data.length > 0) {
+                const lastNum = data[0].invoice_number.split('-').pop();
+                return parseInt(lastNum, 10) + 1;
+            }
+        } catch(e) {}
     }
-    return 1;
+    
+    // Fallback Local Storage
+    let counter = ls.getItem('invoice_counter');
+    return counter ? parseInt(counter) : 1;
 }
 
 function formatInvoiceNumber(counter) {
@@ -876,9 +895,30 @@ document.getElementById('btnSaveHistory').addEventListener('click', async () => 
         });
     });
 
-    const { error } = await supabase
-        .from('invoices')
-        .insert([{
+    if (useSupabase) {
+        const { error } = await supabase
+            .from('invoices')
+            .insert([{
+                invoice_number: currentInvoiceNum,
+                invoice_name: invoiceName,
+                date: new Date().toLocaleDateString('id-ID'),
+                meta: metaData,
+                rows: rowsData,
+                grand_total: document.getElementById('valGrand').innerText,
+                sig: ls.getItem('invoice_travel_sig'),
+                logo: ls.getItem('invoice_travel_logo')
+            }]);
+
+        if (error) {
+            alert('Gagal menyimpan ke Supabase: ' + error.message);
+            return;
+        }
+    } else {
+        // Fallback Local Storage
+        let history = ls.getItem('invoice_travel_history');
+        history = history ? JSON.parse(history) : [];
+        history.push({
+            id: Date.now(),
             invoice_number: currentInvoiceNum,
             invoice_name: invoiceName,
             date: new Date().toLocaleDateString('id-ID'),
@@ -887,11 +927,9 @@ document.getElementById('btnSaveHistory').addEventListener('click', async () => 
             grand_total: document.getElementById('valGrand').innerText,
             sig: ls.getItem('invoice_travel_sig'),
             logo: ls.getItem('invoice_travel_logo')
-        }]);
-
-    if (error) {
-        alert('Gagal menyimpan: ' + error.message);
-        return;
+        });
+        ls.setItem('invoice_travel_history', JSON.stringify(history));
+        ls.setItem('invoice_counter', currentCounter + 1);
     }
     
     alert("Invoice " + currentInvoiceNum + " berhasil disimpan ke riwayat.");
@@ -905,17 +943,21 @@ document.getElementById('btnSaveHistory').addEventListener('click', async () => 
 async function renderHistory(query = '') {
     historyList.innerHTML = '<div style="text-align:center; padding:1rem; color:#94a3b8;">Memuat riwayat...</div>';
     
-    const { data: history, error } = await supabase
-        .from('invoices')
-        .select('*')
-        .order('created_at', { ascending: false });
+    if (useSupabase) {
+        const { data: history, error } = await supabase
+            .from('invoices')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-    if (error) {
-        historyList.innerHTML = '<div style="text-align:center; color:#ff6b6b; padding:1rem;">Gagal memuat riwayat</div>';
-        return;
+        if (error) {
+            historyList.innerHTML = '<div style="text-align:center; color:#ff6b6b; padding:1rem;">Gagal memuat riwayat</div>';
+            return;
+        }
+        window.tempHistory = history || [];
+    } else {
+        const raw = ls.getItem('invoice_travel_history');
+        window.tempHistory = raw ? JSON.parse(raw) : [];
     }
-
-    window.tempHistory = history || [];
 
     const filtered = window.tempHistory.filter(item => {
         const searchStr = (item.invoice_number + ' ' + item.invoice_name).toLowerCase();
@@ -929,7 +971,10 @@ async function renderHistory(query = '') {
         return;
     }
 
-    filtered.forEach(item => {
+    // Jika pakai LocalStorage yang tersusun lama ke baru, kita balik urutannya agar yg terbaru di atas
+    const displayList = useSupabase ? filtered : filtered.slice().reverse();
+
+    displayList.forEach(item => {
         const div = document.createElement('div');
         div.className = 'history-item';
         div.innerHTML = `
@@ -938,16 +983,17 @@ async function renderHistory(query = '') {
                 <div class="history-meta">${item.date} | Total: ${item.grand_total}</div>
             </div>
             <div class="history-actions">
-                <button type="button" class="btn-success btn-sm" onclick="loadHistoryItem(${item.id})">Buka</button>
-                <button type="button" class="btn-danger btn-sm" onclick="deleteHistoryItem(${item.id})">Hapus</button>
+                <button type="button" class="btn-success btn-sm" onclick="loadHistoryItem('${item.id}')">Buka</button>
+                <button type="button" class="btn-danger btn-sm" onclick="deleteHistoryItem('${item.id}')">Hapus</button>
             </div>
         `;
         historyList.appendChild(div);
     });
 }
 
-function loadHistoryItem(id) {
-    const item = window.tempHistory.find(x => x.id === id);
+function loadHistoryItem(idStr) {
+    // Karena Supabase mengembalikan BigInt sebagai number, sedangkan Date.now() dari lokal juga number
+    const item = window.tempHistory.find(x => String(x.id) === String(idStr));
     if (!item) return;
 
     invoiceNumberDisplay.innerText = item.invoice_number;
@@ -994,17 +1040,25 @@ function loadHistoryItem(id) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-async function deleteHistoryItem(id) {
+async function deleteHistoryItem(idStr) {
     if (!confirm("Hapus item riwayat ini?")) return;
-    const { error } = await supabase.from('invoices').delete().eq('id', id);
     
-    if (error) {
-        alert("Gagal menghapus: " + error.message);
-    } else {
-        await renderHistory(historySearch.value);
-        if(invoiceNumberDisplay.innerText !== 'BRKH-INV-0001') {
-            await updateInvoiceNumberView();
+    if (useSupabase) {
+        const { error } = await supabase.from('invoices').delete().eq('id', idStr);
+        if (error) {
+            alert("Gagal menghapus: " + error.message);
+            return;
         }
+    } else {
+        let history = window.tempHistory.filter(x => String(x.id) !== String(idStr));
+        ls.setItem('invoice_travel_history', JSON.stringify(history));
+    }
+
+    await renderHistory(historySearch.value);
+    
+    // Jika sedang membuka invoice yang baru dihapus, reset nomornya
+    if(invoiceNumberDisplay.innerText !== 'BRKH-INV-0001') {
+        await updateInvoiceNumberView();
     }
 }
 
