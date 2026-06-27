@@ -7,308 +7,314 @@
 <style>
     body {
         margin: 0;
-        background: #0f172a;
-        background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
-        color: white;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #181818;
+        color: #e5e5e5;
+        font-family: Arial, Helvetica, sans-serif;
         height: 100vh;
         overflow: hidden;
         display: flex;
         flex-direction: column;
     }
-    .glass-nav {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 15px 20px;
+    .top-bar {
+        background: #202020;
+        border-bottom: 1px solid #303030;
+        padding: 12px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.5);
         z-index: 10;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     }
-    .glass-nav h1 {
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 18px;
+        font-weight: normal;
         margin: 0;
-        font-size: 1.2rem;
-        font-weight: 600;
-        letter-spacing: 1px;
+    }
+    .yt-logo {
+        background: #cc0000;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 14px;
+        letter-spacing: -0.5px;
     }
     button {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 6px;
+        background: #303030;
+        border: 1px solid #303030;
+        color: #aaaaaa;
+        padding: 7px 14px;
+        border-radius: 2px;
         cursor: pointer;
-        transition: all 0.2s;
-        font-weight: 500;
+        font-size: 12px;
+        font-weight: bold;
+        transition: background 0.1s;
     }
     button:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: #404040;
+        color: #ffffff;
+        border-color: #505050;
+    }
+    .btn-red {
+        background: #cc0000;
+        color: #ffffff;
+        border: 1px solid #cc0000;
+    }
+    .btn-red:hover {
+        background: #e60000;
+        border-color: #e60000;
     }
     #grid-container {
         flex: 1;
         display: grid;
-        gap: 15px;
-        padding: 15px;
+        gap: 12px;
+        padding: 12px;
         box-sizing: border-box;
         overflow-y: auto;
-        transition: all 0.3s ease;
+        background: #111111;
     }
     .player-instance {
-        background: rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
+        background: #181818;
+        border: 1px solid #303030;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-        cursor: grab;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .player-instance:active {
-        cursor: grabbing;
-    }
-    .player-instance.dragging {
-        opacity: 0.5;
-        transform: scale(0.98);
-    }
-    .player-instance.drag-over {
-        border: 2px dashed rgba(255, 255, 255, 0.5);
-        background: rgba(255, 255, 255, 0.05);
+        position: relative;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
     .player-header {
         display: flex;
-        padding: 10px;
-        gap: 10px;
-        background: rgba(255, 255, 255, 0.03);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        cursor: move;
+        padding: 8px;
+        gap: 8px;
+        background: #202020;
+        border-bottom: 1px solid #303030;
+        cursor: grab;
+    }
+    .player-header:active {
+        cursor: grabbing;
+    }
+    .player-instance.drag-over {
+        border-color: #cc0000;
     }
     .input-wrapper {
-        position: relative;
         flex: 1;
         display: flex;
     }
     .url-input {
         flex: 1;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 6px;
+        background: #121212;
+        border: 1px solid #303030;
+        color: #ffffff;
+        padding: 6px 10px;
+        font-size: 13px;
         outline: none;
-        transition: border 0.2s;
     }
     .url-input:focus {
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-    .search-results {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
-        margin-top: 8px;
-        max-height: 350px;
-        overflow-y: auto;
-        display: none;
-        z-index: 20;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    }
-    .search-results::-webkit-scrollbar {
-        width: 8px;
-    }
-    .search-results::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.2);
-    }
-    .search-results::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 4px;
-    }
-    .result-item {
-        display: flex;
-        padding: 12px;
-        gap: 12px;
-        cursor: pointer;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        transition: background 0.2s;
-    }
-    .result-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-    .result-thumb {
-        width: 120px;
-        height: 68px;
-        object-fit: cover;
-        border-radius: 6px;
-        background: rgba(0,0,0,0.5);
-    }
-    .result-info {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        flex: 1;
-    }
-    .result-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-bottom: 6px;
-        line-height: 1.3;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .result-author {
-        font-size: 0.8rem;
-        color: #94a3b8;
-    }
-    .loading-text {
-        padding: 15px;
-        text-align: center;
-        color: #94a3b8;
-        font-size: 0.9rem;
-    }
-    .close-btn {
-        background: rgba(239, 68, 68, 0.2);
-        border-color: rgba(239, 68, 68, 0.4);
-        color: #fca5a5;
-    }
-    .close-btn:hover {
-        background: rgba(239, 68, 68, 0.4);
+        border-color: #1c62b9;
     }
     .media-container {
         display: flex;
         flex: 1;
-        height: 100%;
-        min-height: 300px;
+        min-height: 320px;
+        position: relative;
     }
     .video-wrapper {
         flex: 1;
-        height: 100%;
-        pointer-events: auto;
+        position: relative;
+        background: #000000;
     }
     .chat-wrapper {
-        width: 320px;
-        min-width: 200px;
-        max-width: 60%;
+        width: 300px;
+        min-width: 250px;
+        max-width: 50%;
+        display: none;
+        flex-direction: column;
+        border-left: 1px solid #303030;
+        background: #181818;
         resize: horizontal;
         overflow: hidden;
-        display: none;
         direction: rtl;
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
-        background: #0f172a;
-        position: relative;
     }
-    .chat-wrapper iframe {
+    .chat-header {
+        background: #202020;
+        padding: 6px 10px;
+        border-bottom: 1px solid #303030;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         direction: ltr;
-        width: 100%;
-        height: 100%;
+    }
+    .chat-header span {
+        font-size: 12px;
+        color: #aaaaaa;
+        font-weight: bold;
+    }
+    .chat-content {
+        flex: 1;
+        direction: ltr;
     }
     iframe {
         width: 100%;
         height: 100%;
         border: none;
     }
+    .search-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #181818;
+        z-index: 10;
+        padding: 15px;
+        overflow-y: auto;
+        display: none;
+    }
+    .search-overlay::-webkit-scrollbar {
+        width: 8px;
+    }
+    .search-overlay::-webkit-scrollbar-thumb {
+        background: #404040;
+    }
+    .search-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 15px;
+    }
+    .search-item {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+    }
+    .search-item:hover .search-thumb-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255,255,255,0.1);
+    }
+    .search-thumb-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        margin-bottom: 8px;
+    }
+    .search-thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .search-title {
+        font-size: 13px;
+        color: #ffffff;
+        margin-bottom: 4px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .search-author {
+        font-size: 12px;
+        color: #aaaaaa;
+    }
+    .loading-msg {
+        text-align: center;
+        padding: 30px;
+        color: #aaaaaa;
+        font-size: 14px;
+    }
 </style>
 </head>
 <body>
 
-<div class="glass-nav">
-    <h1>YT Multi-View</h1>
-    <button id="add-instance-btn">+ Add Player</button>
+<div class="top-bar">
+    <div class="brand"><span class="yt-logo">YT</span> Multi-View</div>
+    <button id="add-btn" class="btn-red">+ Add Player</button>
 </div>
 
 <div id="grid-container"></div>
 
 <script>
     const gridContainer = document.getElementById('grid-container');
-    const addBtn = document.getElementById('add-instance-btn');
+    const addBtn = document.getElementById('add-btn');
     let draggedInstance = null;
 
-    function updateGridLayout() {
+    function updateGrid() {
         const count = gridContainer.children.length;
-        if (count === 0) {
+        if (count === 0 || count === 1) {
             gridContainer.style.gridTemplateColumns = '1fr';
-        } else if (count === 1) {
-            gridContainer.style.gridTemplateColumns = '1fr';
-        } else if (count === 2) {
+        } else if (count === 2 || count === 3 || count === 4) {
             gridContainer.style.gridTemplateColumns = '1fr 1fr';
-        } else if (count === 3 || count === 4) {
-            gridContainer.style.gridTemplateColumns = '1fr 1fr';
-            gridContainer.style.gridTemplateRows = '1fr 1fr';
         } else {
             gridContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(450px, 1fr))';
         }
     }
 
-    function extractYTId(url) {
+    function extractId(url) {
         const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/))([^?&/]{11})/);
         if (match) return match[1];
         if (url.trim().length === 11 && !url.includes(' ')) return url.trim();
         return null;
     }
 
-    function loadVideo(vidId, vidFrame, chatFrame) {
-        vidFrame.src = `https://www.youtube.com/embed/${vidId}?autoplay=1`;
-        let domain = window.location.hostname;
-        if (!domain) domain = 'localhost';
-        chatFrame.src = `https://www.youtube.com/live_chat?v=${vidId}&embed_domain=${domain}&dark_theme=1`;
-    }
-
-    async function searchYouTube(query, resultsContainer, input, vidFrame, chatFrame) {
-        resultsContainer.innerHTML = '<div class="loading-text">Searching...</div>';
-        resultsContainer.style.display = 'block';
+    async function fetchSearch(query, overlay, grid, input, vidFrame, chatFrame, instanceData) {
+        overlay.style.display = 'block';
+        grid.innerHTML = '<div class="loading-msg">Searching YouTube...</div>';
 
         try {
             const res = await fetch(`https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(query)}`);
             const data = await res.json();
             
-            resultsContainer.innerHTML = '';
-            const videos = data.filter(item => item.type === 'video').slice(0, 10);
+            grid.innerHTML = '';
+            const videos = data.filter(item => item.type === 'video').slice(0, 12);
             
             if (videos.length === 0) {
-                resultsContainer.innerHTML = '<div class="loading-text">No results found.</div>';
+                grid.innerHTML = '<div class="loading-msg">No results found.</div>';
                 return;
             }
 
             videos.forEach(video => {
                 const item = document.createElement('div');
-                item.className = 'result-item';
-                
+                item.className = 'search-item';
                 const thumbUrl = video.videoThumbnails.find(t => t.quality === 'medium')?.url || video.videoThumbnails[0]?.url || '';
                 
                 item.innerHTML = `
-                    <img src="${thumbUrl}" class="result-thumb" loading="lazy">
-                    <div class="result-info">
-                        <div class="result-title">${video.title}</div>
-                        <div class="result-author">${video.author}</div>
+                    <div class="search-thumb-wrapper">
+                        <img src="${thumbUrl}" class="search-thumb">
                     </div>
+                    <div class="search-title">${video.title}</div>
+                    <div class="search-author">${video.author}</div>
                 `;
                 
                 item.addEventListener('click', () => {
                     input.value = `https://youtube.com/watch?v=${video.videoId}`;
-                    resultsContainer.style.display = 'none';
-                    loadVideo(video.videoId, vidFrame, chatFrame);
+                    overlay.style.display = 'none';
+                    instanceData.currentVidId = video.videoId;
+                    loadMedia(video.videoId, vidFrame, chatFrame);
                 });
                 
-                resultsContainer.appendChild(item);
+                grid.appendChild(item);
             });
         } catch (e) {
-            resultsContainer.innerHTML = '<div class="loading-text">Search failed. Try a direct link.</div>';
+            grid.innerHTML = '<div class="loading-msg">Search API Error. Please use direct URL.</div>';
         }
     }
 
-    function createInstance() {
+    function loadMedia(vidId, vidFrame, chatFrame) {
+        vidFrame.src = `https://www.youtube.com/embed/${vidId}?autoplay=1&vq=hd1080&hd=1`;
+        let domain = window.location.hostname || 'localhost';
+        chatFrame.src = `https://www.youtube.com/live_chat?v=${vidId}&embed_domain=${domain}&dark_theme=1`;
+    }
+
+    function createPlayer() {
         const instance = document.createElement('div');
         instance.className = 'player-instance';
         instance.draggable = true;
+        
+        const instanceData = { currentVidId: null };
 
         const header = document.createElement('div');
         header.className = 'player-header';
@@ -319,27 +325,22 @@
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'url-input';
-        input.placeholder = 'Search video, or paste link/ID...';
-
-        const searchResults = document.createElement('div');
-        searchResults.className = 'search-results';
+        input.placeholder = 'Search keyword or paste YouTube link...';
 
         inputWrapper.appendChild(input);
-        inputWrapper.appendChild(searchResults);
 
-        const loadBtn = document.createElement('button');
-        loadBtn.textContent = 'Load / Search';
+        const searchBtn = document.createElement('button');
+        searchBtn.textContent = 'Search';
 
-        const chatToggleBtn = document.createElement('button');
-        chatToggleBtn.textContent = 'Chat';
+        const chatBtn = document.createElement('button');
+        chatBtn.textContent = 'Chat';
 
         const closeBtn = document.createElement('button');
-        closeBtn.className = 'close-btn';
         closeBtn.textContent = 'X';
 
         header.appendChild(inputWrapper);
-        header.appendChild(loadBtn);
-        header.appendChild(chatToggleBtn);
+        header.appendChild(searchBtn);
+        header.appendChild(chatBtn);
         header.appendChild(closeBtn);
 
         const media = document.createElement('div');
@@ -348,33 +349,62 @@
         const vidWrapper = document.createElement('div');
         vidWrapper.className = 'video-wrapper';
 
+        const searchOverlay = document.createElement('div');
+        searchOverlay.className = 'search-overlay';
+        const searchGrid = document.createElement('div');
+        searchGrid.className = 'search-grid';
+        searchOverlay.appendChild(searchGrid);
+
         const chatWrapper = document.createElement('div');
         chatWrapper.className = 'chat-wrapper';
+
+        const chatHeader = document.createElement('div');
+        chatHeader.className = 'chat-header';
+        
+        const chatTitle = document.createElement('span');
+        chatTitle.textContent = 'Live Chat';
+        
+        const popoutBtn = document.createElement('button');
+        popoutBtn.textContent = 'Popout Chat (Login Fix)';
+        
+        chatHeader.appendChild(chatTitle);
+        chatHeader.appendChild(popoutBtn);
+
+        const chatContent = document.createElement('div');
+        chatContent.className = 'chat-content';
 
         const vidFrame = document.createElement('iframe');
         vidFrame.allowFullscreen = true;
         vidFrame.allow = "autoplay; encrypted-media; picture-in-picture";
 
         const chatFrame = document.createElement('iframe');
-        chatFrame.allow = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share";
+        chatFrame.allow = "autoplay; clipboard-write; encrypted-media; picture-in-picture";
 
         vidWrapper.appendChild(vidFrame);
-        chatWrapper.appendChild(chatFrame);
+        vidWrapper.appendChild(searchOverlay);
+        
+        chatContent.appendChild(chatFrame);
+        chatWrapper.appendChild(chatHeader);
+        chatWrapper.appendChild(chatContent);
+        
         media.appendChild(vidWrapper);
         media.appendChild(chatWrapper);
+        
         instance.appendChild(header);
         instance.appendChild(media);
         gridContainer.appendChild(instance);
 
-        updateGridLayout();
+        updateGrid();
 
         instance.addEventListener('dragstart', (e) => {
+            if (e.target.tagName.toLowerCase() === 'input') {
+                e.preventDefault();
+                return;
+            }
             draggedInstance = instance;
-            setTimeout(() => instance.classList.add('dragging'), 0);
         });
 
         instance.addEventListener('dragend', () => {
-            instance.classList.remove('dragging');
             draggedInstance = null;
             document.querySelectorAll('.player-instance').forEach(el => el.classList.remove('drag-over'));
         });
@@ -393,11 +423,11 @@
             e.preventDefault();
             instance.classList.remove('drag-over');
             if (draggedInstance && draggedInstance !== instance) {
-                const allInstances = [...gridContainer.querySelectorAll('.player-instance')];
-                const draggedIndex = allInstances.indexOf(draggedInstance);
-                const targetIndex = allInstances.indexOf(instance);
+                const all = [...gridContainer.querySelectorAll('.player-instance')];
+                const draggedIdx = all.indexOf(draggedInstance);
+                const targetIdx = all.indexOf(instance);
                 
-                if (draggedIndex < targetIndex) {
+                if (draggedIdx < targetIdx) {
                     instance.after(draggedInstance);
                 } else {
                     instance.before(draggedInstance);
@@ -405,43 +435,44 @@
             }
         });
 
-        const processInput = () => {
+        const executeSearch = () => {
             const val = input.value;
             if (!val.trim()) return;
             
-            const vidId = extractYTId(val);
+            const vidId = extractId(val);
             if (vidId) {
-                searchResults.style.display = 'none';
-                loadVideo(vidId, vidFrame, chatFrame);
+                searchOverlay.style.display = 'none';
+                instanceData.currentVidId = vidId;
+                loadMedia(vidId, vidFrame, chatFrame);
             } else {
-                searchYouTube(val, searchResults, input, vidFrame, chatFrame);
+                fetchSearch(val, searchOverlay, searchGrid, input, vidFrame, chatFrame, instanceData);
             }
         };
 
-        loadBtn.addEventListener('click', processInput);
+        searchBtn.addEventListener('click', executeSearch);
 
         input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') processInput();
+            if (e.key === 'Enter') executeSearch();
         });
 
-        document.addEventListener('click', (e) => {
-            if (!inputWrapper.contains(e.target)) {
-                searchResults.style.display = 'none';
+        chatBtn.addEventListener('click', () => {
+            chatWrapper.style.display = chatWrapper.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        popoutBtn.addEventListener('click', () => {
+            if (instanceData.currentVidId) {
+                window.open(`https://www.youtube.com/live_chat?v=${instanceData.currentVidId}&dark_theme=1`, '_blank', 'width=400,height=600');
             }
-        });
-
-        chatToggleBtn.addEventListener('click', () => {
-            chatWrapper.style.display = chatWrapper.style.display === 'block' ? 'none' : 'block';
         });
 
         closeBtn.addEventListener('click', () => {
             instance.remove();
-            updateGridLayout();
+            updateGrid();
         });
     }
 
-    addBtn.addEventListener('click', createInstance);
-    createInstance();
+    addBtn.addEventListener('click', createPlayer);
+    createPlayer();
 </script>
 </body>
 </html>
