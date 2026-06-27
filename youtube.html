@@ -265,11 +265,11 @@
         grid.innerHTML = '<div class="loading-msg">Searching YouTube...</div>';
 
         try {
-            const res = await fetch(`https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(query)}`);
+            const res = await fetch(`https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=all`);
             const data = await res.json();
             
             grid.innerHTML = '';
-            const videos = data.filter(item => item.type === 'video').slice(0, 12);
+            const videos = (data.items || []).filter(item => item.type === 'stream').slice(0, 12);
             
             if (videos.length === 0) {
                 grid.innerHTML = '<div class="loading-msg">No results found.</div>';
@@ -279,21 +279,21 @@
             videos.forEach(video => {
                 const item = document.createElement('div');
                 item.className = 'search-item';
-                const thumbUrl = video.videoThumbnails.find(t => t.quality === 'medium')?.url || video.videoThumbnails[0]?.url || '';
+                const videoId = video.url.split('v=')[1] || video.url.split('/').pop();
                 
                 item.innerHTML = `
                     <div class="search-thumb-wrapper">
-                        <img src="${thumbUrl}" class="search-thumb">
+                        <img src="${video.thumbnail}" class="search-thumb">
                     </div>
                     <div class="search-title">${video.title}</div>
-                    <div class="search-author">${video.author}</div>
+                    <div class="search-author">${video.uploaderName}</div>
                 `;
                 
                 item.addEventListener('click', () => {
-                    input.value = `https://youtube.com/watch?v=${video.videoId}`;
+                    input.value = `https://youtube.com/watch?v=${videoId}`;
                     overlay.style.display = 'none';
-                    instanceData.currentVidId = video.videoId;
-                    loadMedia(video.videoId, vidFrame, chatFrame);
+                    instanceData.currentVidId = videoId;
+                    loadMedia(videoId, vidFrame, chatFrame);
                 });
                 
                 grid.appendChild(item);
