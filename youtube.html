@@ -64,6 +64,19 @@
         flex-direction: column;
         overflow: hidden;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        cursor: grab;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .player-instance:active {
+        cursor: grabbing;
+    }
+    .player-instance.dragging {
+        opacity: 0.5;
+        transform: scale(0.98);
+    }
+    .player-instance.drag-over {
+        border: 2px dashed rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.05);
     }
     .player-header {
         display: flex;
@@ -71,6 +84,7 @@
         gap: 10px;
         background: rgba(255, 255, 255, 0.03);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        cursor: move;
     }
     .input-wrapper {
         position: relative;
@@ -178,6 +192,7 @@
     .video-wrapper {
         flex: 1;
         height: 100%;
+        pointer-events: auto;
     }
     .chat-wrapper {
         width: 320px;
@@ -189,6 +204,7 @@
         direction: rtl;
         border-left: 1px solid rgba(255, 255, 255, 0.1);
         background: #0f172a;
+        position: relative;
     }
     .chat-wrapper iframe {
         direction: ltr;
@@ -214,6 +230,7 @@
 <script>
     const gridContainer = document.getElementById('grid-container');
     const addBtn = document.getElementById('add-instance-btn');
+    let draggedInstance = null;
 
     function updateGridLayout() {
         const count = gridContainer.children.length;
@@ -242,7 +259,7 @@
         vidFrame.src = `https://www.youtube.com/embed/${vidId}?autoplay=1`;
         let domain = window.location.hostname;
         if (!domain) domain = 'localhost';
-        chatFrame.src = `https://www.youtube.com/live_chat?v=${vidId}&embed_domain=${domain}`;
+        chatFrame.src = `https://www.youtube.com/live_chat?v=${vidId}&embed_domain=${domain}&dark_theme=1`;
     }
 
     async function searchYouTube(query, resultsContainer, input, vidFrame, chatFrame) {
@@ -291,6 +308,7 @@
     function createInstance() {
         const instance = document.createElement('div');
         instance.className = 'player-instance';
+        instance.draggable = true;
 
         const header = document.createElement('div');
         header.className = 'player-header';
@@ -335,8 +353,10 @@
 
         const vidFrame = document.createElement('iframe');
         vidFrame.allowFullscreen = true;
+        vidFrame.allow = "autoplay; encrypted-media; picture-in-picture";
 
         const chatFrame = document.createElement('iframe');
+        chatFrame.allow = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share";
 
         vidWrapper.appendChild(vidFrame);
         chatWrapper.appendChild(chatFrame);
@@ -347,6 +367,43 @@
         gridContainer.appendChild(instance);
 
         updateGridLayout();
+
+        instance.addEventListener('dragstart', (e) => {
+            draggedInstance = instance;
+            setTimeout(() => instance.classList.add('dragging'), 0);
+        });
+
+        instance.addEventListener('dragend', () => {
+            instance.classList.remove('dragging');
+            draggedInstance = null;
+            document.querySelectorAll('.player-instance').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        instance.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (draggedInstance === instance) return;
+            instance.classList.add('drag-over');
+        });
+
+        instance.addEventListener('dragleave', () => {
+            instance.classList.remove('drag-over');
+        });
+
+        instance.addEventListener('drop', (e) => {
+            e.preventDefault();
+            instance.classList.remove('drag-over');
+            if (draggedInstance && draggedInstance !== instance) {
+                const allInstances = [...gridContainer.querySelectorAll('.player-instance')];
+                const draggedIndex = allInstances.indexOf(draggedInstance);
+                const targetIndex = allInstances.indexOf(instance);
+                
+                if (draggedIndex < targetIndex) {
+                    instance.after(draggedInstance);
+                } else {
+                    instance.before(draggedInstance);
+                }
+            }
+        });
 
         const processInput = () => {
             const val = input.value;
