@@ -2,212 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Nova</title>
-  <link rel="icon" type="image/png" href="/logo.png" />
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>novascatia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      background: #09090b;
-      color: #e4e4e7;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: #aaa;
       font-family: 'Inter', sans-serif;
-      scroll-behavior: smooth;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 60px 24px;
+      max-width: 520px;
+      margin: 0 auto;
     }
 
-    .scroll-reveal {
-      opacity: 0;
-      transform: translateY(20px);
-      will-change: transform, opacity;
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #eee;
+      margin-bottom: 6px;
     }
 
-    /* Dark Skill Card Layout */
-    .skill-card {
-      background: #141416;
-      border: 1px solid #202024;
-      border-radius: 12px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 140px;
-      transition: border-color 0.2s ease, background 0.2s ease;
+    .url {
+      font-size: .8rem;
+      color: #444;
+      margin-bottom: 40px;
     }
 
-    .skill-card:hover {
-      border-color: #3f3f46;
-      background: #18181c;
+    p { margin-bottom: 28px; }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid #2a2a2a;
+      color: #555;
+      font-size: .75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin: 3px 3px 3px 0;
     }
 
-    .skill-title {
-      color: #ffffff;
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
+    .tags { margin-top: -10px; margin-bottom: 32px; }
+
+    hr {
+      border: none;
+      border-top: 1px solid #1e1e1e;
+      margin: 36px 0;
     }
 
-    .skill-summary {
-      color: #a1a1aa;
-      font-size: 0.85rem;
-      font-weight: 400;
-      line-height: 1.5;
-      margin-top: 0.75rem;
-    }
+    a { color: #777; text-decoration: none; }
+    a:hover { color: #eee; }
 
-    .dots-menu {
-      color: #52525b;
-    }
-
-    .btn {
-      transition: all 0.2s ease;
-    }
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-    .btn:active {
-      transform: translateY(1px);
+    footer {
+      margin-top: 60px;
+      font-size: .78rem;
+      color: #333;
     }
   </style>
 </head>
+<body>
 
-<body class="py-12 md:py-20">
+  <h1>novascatia</h1>
+  <div class="url">novascatia.my.id</div>
 
-  <div class="w-full max-w-3xl mx-auto px-6">
-    
-    <nav class="scroll-reveal flex items-center justify-between mb-24">
-      <a href="/" class="text-base font-bold text-white tracking-tight">novascatia</a>
-      <div class="flex items-center gap-6 text-sm text-zinc-400">
-        <a href="mailto:novascatia01@gmail.com" class="hover:text-white transition">Email</a>
-        <a href="http://www.fiverr.com/s/Ke2vxll" target="_blank" class="hover:text-white transition">Fiverr</a>
-      </div>
-    </nav>
+  <p>psychology student. i think too much about why people do what they do, including myself. still figuring it out.</p>
 
-    <header class="mb-24">
-      <h1 class="scroll-reveal text-3xl md:text-4xl font-bold tracking-tight text-white mb-6">
-        Hi, I'm Nova.
-      </h1>
-      
-      <p class="scroll-reveal text-zinc-400 text-base md:text-lg leading-relaxed max-w-2xl mb-8">
-        I create bots, basic web interfaces, and automation programs. I like to write clear and simple code to tackle daily activities or enable processes to operate automatically without complications.
-      </p>
+  <p>i play guitar every day. no particular reason, just feels wrong not to. still learning, probably always will be.</p>
 
-      <div class="scroll-reveal flex flex-wrap gap-3 text-sm">
-        <a href="mailto:novascatia01@gmail.com" class="btn px-5 py-2.5 rounded-lg bg-zinc-100 text-zinc-900 font-medium hover:bg-white">
-          Hire Me via Email
-        </a>
-        <a href="http://www.fiverr.com/s/Ke2vxll" target="_blank" class="btn px-5 py-2.5 rounded-lg border border-zinc-800 text-zinc-300 font-medium hover:bg-zinc-900">
-          Order on Fiverr
-        </a>
-      </div>
-    </header>
+  <p>you can find me on the motionime discord server. mostly lurking, sometimes talking.</p>
 
-    <section class="mb-24">
-      <h2 class="scroll-reveal text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-6">Capabilities & Stack</h2>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        
-        <div class="scroll-reveal skill-card">
-          <div class="flex justify-between items-start w-full">
-            <span class="skill-title">Python</span>
-            <i class="fa-solid fa-ellipsis dots-menu"></i>
-          </div>
-          <p class="skill-summary">Writing backends, asynchronous data processing, and handling internal logic operations.</p>
-        </div>
+  <p>also looking for a girlfriend, if that's you :p.</p>
 
-        <div class="scroll-reveal skill-card">
-          <div class="flex justify-between items-start w-full">
-            <span class="skill-title">JavaScript</span>
-            <i class="fa-solid fa-ellipsis dots-menu"></i>
-          </div>
-          <p class="skill-summary">Building lightweight full-stack scripts, dynamic interactions, and fast API tools.</p>
-        </div>
+  <hr />
 
-        <div class="scroll-reveal skill-card">
-          <div class="flex justify-between items-start w-full">
-            <span class="skill-title">HTML</span>
-            <i class="fa-solid fa-ellipsis dots-menu"></i>
-          </div>
-          <p class="skill-summary">Structuring clean, compliant, and semantic elements for web tools and dashboard applications.</p>
-        </div>
+  <footer>novascatia.my.id</footer>
 
-        <div class="scroll-reveal skill-card">
-          <div class="flex justify-between items-start w-full">
-            <span class="skill-title">CSS</span>
-            <i class="fa-solid fa-ellipsis dots-menu"></i>
-          </div>
-          <p class="skill-summary">Designing responsive, fast-loading layouts with modern utilities and clean styling tokens.</p>
-        </div>
-
-        <div class="scroll-reveal skill-card">
-          <div class="flex justify-between items-start w-full">
-            <span class="skill-title">Discord Bot Dev</span>
-            <i class="fa-solid fa-ellipsis dots-menu"></i>
-          </div>
-          <p class="skill-summary">Creating automation setups, management utility panels, and integrated internal webhooks.</p>
-        </div>
-
-        <div class="scroll-reveal skill-card">
-          <div class="flex justify-between items-start w-full">
-            <span class="skill-title">Telegram Bots</span>
-            <i class="fa-solid fa-ellipsis dots-menu"></i>
-          </div>
-          <p class="skill-summary">Developing asynchronous file systems, and custom instant-response messaging commands.</p>
-        </div>
-
-        <div class="scroll-reveal skill-card">
-          <div class="flex justify-between items-start w-full">
-            <span class="skill-title">Web Development</span>
-            <i class="fa-solid fa-ellipsis dots-menu"></i>
-          </div>
-          <p class="skill-summary">Constructing minimal, direct, and distraction-free user interfaces built purely for functional control.</p>
-        </div>
-
-      </div>
-    </section>
-
-    <footer class="scroll-reveal pt-8 border-t border-zinc-900 flex items-center justify-between text-xs text-zinc-500">
-      <p>&copy; 2026 Novascatia</p>
-      <div class="flex gap-5 text-zinc-400">
-        <a href="mailto:novascatia01@gmail.com" class="hover:text-white transition">Email</a>
-        <a href="http://www.fiverr.com/s/Ke2vxll" target="_blank" class="hover:text-white transition">Fiverr</a>
-      </div>
-    </footer>
-
-  </div>
-
-  <script>
-    gsap.registerPlugin(ScrollTrigger);
-
-    window.onload = () => {
-      gsap.utils.toArray('.scroll-reveal').forEach((element) => {
-        gsap.fromTo(element, 
-          { 
-            opacity: 0, 
-            y: 20 
-          },
-          {
-            scrollTrigger: {
-              trigger: element,
-              start: "top 92%",
-              end: "bottom 8%",
-              toggleActions: "play reverse play reverse"
-            },
-            opacity: 1,
-            y: 0,
-            duration: 0.4,
-            ease: "power2.out"
-          }
-        );
-      });
-    };
-  </script>
 </body>
 </html>
