@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multi-View v.1.0.3</title>
+<title>Multi-View v.1.0.4</title>
 <style>
     body {
         margin: 0;
@@ -185,79 +185,13 @@
         height: 100%;
         border: none;
     }
-    .search-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: #181818;
-        z-index: 10;
-        padding: 10px;
-        overflow-y: auto;
-        display: none;
-    }
-    .search-overlay::-webkit-scrollbar {
-        width: 6px;
-    }
-    .search-overlay::-webkit-scrollbar-thumb {
-        background: #404040;
-    }
-    .search-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 10px;
-    }
-    .search-item {
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-    }
-    .search-item:hover .search-thumb-wrapper::after {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(255,255,255,0.1);
-    }
-    .search-thumb-wrapper {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        background: #000;
-        margin-bottom: 4px;
-    }
-    .search-thumb {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .search-title {
-        font-size: 11px;
-        color: #ffffff;
-        margin-bottom: 2px;
-        line-height: 1.3;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .search-author {
-        font-size: 10px;
-        color: #aaaaaa;
-    }
-    .loading-msg {
-        text-align: center;
-        padding: 20px;
-        color: #aaaaaa;
-        font-size: 12px;
-    }
 </style>
 </head>
 <body>
 
 <div class="top-bar">
     <div class="brand">
-        <span class="yt-logo">YT</span> Multi-View <span class="version-text">v.1.0.3</span>
+        <span class="yt-logo">YT</span> Multi-View <span class="version-text">v.1.0.4</span>
     </div>
     <div>
         <button id="add-btn" class="btn-red">+ Add Player</button>
@@ -294,89 +228,6 @@
         return null;
     }
 
-    async function fetchSearch(query, overlay, grid, input, vidFrame, chatFrame, instanceData) {
-        overlay.style.display = 'block';
-        grid.innerHTML = '<div class="loading-msg">Mencari di server...</div>';
-
-        const endpoints = [
-            { url: 'https://invidious.nerdvpn.de/api/v1/search?q=', type: 'inv' },
-            { url: 'https://iv.melmac.space/api/v1/search?q=', type: 'inv' },
-            { url: 'https://invidious.privacydev.net/api/v1/search?q=', type: 'inv' },
-            { url: 'https://pipedapi.kavin.rocks/search?filter=all&q=', type: 'piped' },
-            { url: 'https://piped-api.lunar.icu/search?filter=all&q=', type: 'piped' }
-        ];
-
-        let data = null;
-        let apiType = '';
-
-        for (let ep of endpoints) {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3500);
-                const res = await fetch(ep.url + encodeURIComponent(query), { signal: controller.signal });
-                clearTimeout(timeoutId);
-                
-                if (res.ok) {
-                    data = await res.json();
-                    apiType = ep.type;
-                    break;
-                }
-            } catch (e) {
-                continue;
-            }
-        }
-
-        if (!data) {
-            grid.innerHTML = '<div class="loading-msg">Semua public API sedang down. Silakan gunakan link YouTube secara langsung.</div>';
-            return;
-        }
-
-        grid.innerHTML = '';
-        let videos = [];
-        
-        if (apiType === 'piped') {
-            videos = (data.items || []).filter(item => item.type === 'stream' || item.type === 'video').slice(0, 12).map(v => ({
-                id: v.url.split('v=')[1] || v.url.split('/').pop(),
-                title: v.title,
-                thumb: v.thumbnail,
-                author: v.uploaderName
-            }));
-        } else if (apiType === 'inv') {
-            videos = data.filter(item => item.type === 'video').slice(0, 12).map(v => ({
-                id: v.videoId,
-                title: v.title,
-                thumb: v.videoThumbnails.find(t => t.quality === 'medium')?.url || v.videoThumbnails[0]?.url || '',
-                author: v.author
-            }));
-        }
-        
-        if (videos.length === 0) {
-            grid.innerHTML = '<div class="loading-msg">No results found.</div>';
-            return;
-        }
-
-        videos.forEach(v => {
-            const item = document.createElement('div');
-            item.className = 'search-item';
-            item.innerHTML = `
-                <div class="search-thumb-wrapper">
-                    <img src="${v.thumb}" class="search-thumb">
-                </div>
-                <div class="search-title">${v.title}</div>
-                <div class="search-author">${v.author}</div>
-            `;
-            
-            item.addEventListener('click', () => {
-                input.value = `https://youtube.com/watch?v=${v.id}`;
-                overlay.style.display = 'none';
-                instanceData.currentVidId = v.id;
-                loadMedia(v.id, vidFrame, chatFrame);
-            });
-            
-            grid.appendChild(item);
-        });
-    }
-
     function loadMedia(vidId, vidFrame, chatFrame) {
         vidFrame.src = `https://www.youtube.com/embed/${vidId}?autoplay=1&vq=hd1080&hd=1`;
         let domain = window.location.hostname || 'localhost';
@@ -399,12 +250,12 @@
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'url-input';
-        input.placeholder = 'Search keyword or link...';
+        input.placeholder = 'Paste link / ketik keyword untuk tab baru...';
 
         inputWrapper.appendChild(input);
 
         const searchBtn = document.createElement('button');
-        searchBtn.textContent = 'Search';
+        searchBtn.textContent = 'Load / Search';
 
         const fsBtn = document.createElement('button');
         fsBtn.textContent = '[ ]';
@@ -427,12 +278,6 @@
 
         const vidWrapper = document.createElement('div');
         vidWrapper.className = 'video-wrapper';
-
-        const searchOverlay = document.createElement('div');
-        searchOverlay.className = 'search-overlay';
-        const searchGrid = document.createElement('div');
-        searchGrid.className = 'search-grid';
-        searchOverlay.appendChild(searchGrid);
 
         const chatWrapper = document.createElement('div');
         chatWrapper.className = 'chat-wrapper';
@@ -460,7 +305,6 @@
         chatFrame.allow = "autoplay; clipboard-write; encrypted-media; picture-in-picture";
 
         vidWrapper.appendChild(vidFrame);
-        vidWrapper.appendChild(searchOverlay);
         
         chatContent.appendChild(chatFrame);
         chatWrapper.appendChild(chatHeader);
@@ -520,11 +364,12 @@
             
             const vidId = extractId(val);
             if (vidId) {
-                searchOverlay.style.display = 'none';
                 instanceData.currentVidId = vidId;
                 loadMedia(vidId, vidFrame, chatFrame);
             } else {
-                fetchSearch(val, searchOverlay, searchGrid, input, vidFrame, chatFrame, instanceData);
+                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank');
+                input.value = '';
+                input.placeholder = 'Paste link video ke sini...';
             }
         };
 
