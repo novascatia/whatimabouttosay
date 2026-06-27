@@ -15,40 +15,16 @@
       line-height: 1.7;
       min-height: 100vh;
     }
-
-    /* mobile: single column, centered */
     .container {
       padding: 60px 24px;
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto;
     }
-
-    .photo { display: none; }
-
-    /* desktop: side by side, left-aligned */
     @media (min-width: 768px) {
-      body {
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-        padding: 0 10vw;
-      }
       .container {
-        padding: 60px 60px 60px 0;
-        margin: 0;
-        max-width: 420px;
-        flex-shrink: 0;
-      }
-      .photo {
-        display: block;
-        margin-top: 60px;
-        width: 260px;
-        height: 260px;
-        flex-shrink: 0;
-        object-fit: cover;
+        padding: 80px 0;
       }
     }
-
     h1 {
       font-size: 1.5rem;
       font-weight: 500;
@@ -92,7 +68,5 @@
       <a href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=18db406e0da34ca5" target="_blank">my spotify</a>
     </div>
   </div>
-
-  <img class="photo" src="photo.jpg" alt="novascatia" />
 </body>
 </html>
