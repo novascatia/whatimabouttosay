@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multi-View v.1.0.2</title>
+<title>Multi-View v.1.0.3</title>
 <style>
     body {
         margin: 0;
@@ -90,6 +90,15 @@
         position: relative;
         min-height: 0;
         min-width: 0;
+    }
+    .player-instance.fullscreen-mode {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        border: none;
     }
     .player-header {
         display: flex;
@@ -248,10 +257,9 @@
 
 <div class="top-bar">
     <div class="brand">
-        <span class="yt-logo">YT</span> Multi-View <span class="version-text">v.1.0.2</span>
+        <span class="yt-logo">YT</span> Multi-View <span class="version-text">v.1.0.3</span>
     </div>
     <div>
-        <button id="auth-btn" style="margin-right: 8px;">Force Login Sync</button>
         <button id="add-btn" class="btn-red">+ Add Player</button>
     </div>
 </div>
@@ -261,7 +269,6 @@
 <script>
     const gridContainer = document.getElementById('grid-container');
     const addBtn = document.getElementById('add-btn');
-    const authBtn = document.getElementById('auth-btn');
     let draggedInstance = null;
 
     function updateGrid() {
@@ -289,39 +296,58 @@
 
     async function fetchSearch(query, overlay, grid, input, vidFrame, chatFrame, instanceData) {
         overlay.style.display = 'block';
-        grid.innerHTML = '<div class="loading-msg">Searching...</div>';
+        grid.innerHTML = '<div class="loading-msg">Mencari di server...</div>';
 
-        const apis = [
-            `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=all`,
-            `https://pipedapi.smnz.de/search?q=${encodeURIComponent(query)}&filter=all`,
-            `https://pipedapi.tokhmi.xyz/search?q=${encodeURIComponent(query)}&filter=all`,
-            `https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(query)}`
+        const endpoints = [
+            { url: 'https://invidious.nerdvpn.de/api/v1/search?q=', type: 'inv' },
+            { url: 'https://iv.melmac.space/api/v1/search?q=', type: 'inv' },
+            { url: 'https://invidious.privacydev.net/api/v1/search?q=', type: 'inv' },
+            { url: 'https://pipedapi.kavin.rocks/search?filter=all&q=', type: 'piped' },
+            { url: 'https://piped-api.lunar.icu/search?filter=all&q=', type: 'piped' }
         ];
 
         let data = null;
+        let apiType = '';
 
-        for (let i = 0; i < apis.length; i++) {
+        for (let ep of endpoints) {
             try {
-                const res = await fetch(apis[i]);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3500);
+                const res = await fetch(ep.url + encodeURIComponent(query), { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
                 if (res.ok) {
                     data = await res.json();
+                    apiType = ep.type;
                     break;
                 }
-            } catch (e) {}
+            } catch (e) {
+                continue;
+            }
         }
 
         if (!data) {
-            grid.innerHTML = '<div class="loading-msg">Search APIs Error. Please use direct URL.</div>';
+            grid.innerHTML = '<div class="loading-msg">Semua public API sedang down. Silakan gunakan link YouTube secara langsung.</div>';
             return;
         }
 
         grid.innerHTML = '';
         let videos = [];
         
-        if (data.items) {
-            videos = data.items.filter(item => item.type === 'stream' || item.type === 'video').slice(0, 12);
-        } else if (Array.isArray(data)) {
-            videos = data.filter(item => item.type === 'video').slice(0, 12);
+        if (apiType === 'piped') {
+            videos = (data.items || []).filter(item => item.type === 'stream' || item.type === 'video').slice(0, 12).map(v => ({
+                id: v.url.split('v=')[1] || v.url.split('/').pop(),
+                title: v.title,
+                thumb: v.thumbnail,
+                author: v.uploaderName
+            }));
+        } else if (apiType === 'inv') {
+            videos = data.filter(item => item.type === 'video').slice(0, 12).map(v => ({
+                id: v.videoId,
+                title: v.title,
+                thumb: v.videoThumbnails.find(t => t.quality === 'medium')?.url || v.videoThumbnails[0]?.url || '',
+                author: v.author
+            }));
         }
         
         if (videos.length === 0) {
@@ -329,35 +355,22 @@
             return;
         }
 
-        videos.forEach(video => {
+        videos.forEach(v => {
             const item = document.createElement('div');
             item.className = 'search-item';
-            
-            let videoId = video.videoId;
-            if (!videoId && video.url) {
-                videoId = video.url.split('v=')[1] || video.url.split('/').pop();
-            }
-
-            let thumbUrl = video.thumbnail;
-            if (!thumbUrl && video.videoThumbnails) {
-                thumbUrl = video.videoThumbnails.find(t => t.quality === 'medium')?.url || video.videoThumbnails[0]?.url || '';
-            }
-            
-            let authorName = video.uploaderName || video.author || 'Unknown';
-            
             item.innerHTML = `
                 <div class="search-thumb-wrapper">
-                    <img src="${thumbUrl}" class="search-thumb">
+                    <img src="${v.thumb}" class="search-thumb">
                 </div>
-                <div class="search-title">${video.title}</div>
-                <div class="search-author">${authorName}</div>
+                <div class="search-title">${v.title}</div>
+                <div class="search-author">${v.author}</div>
             `;
             
             item.addEventListener('click', () => {
-                input.value = `https://youtube.com/watch?v=${videoId}`;
+                input.value = `https://youtube.com/watch?v=${v.id}`;
                 overlay.style.display = 'none';
-                instanceData.currentVidId = videoId;
-                loadMedia(videoId, vidFrame, chatFrame);
+                instanceData.currentVidId = v.id;
+                loadMedia(v.id, vidFrame, chatFrame);
             });
             
             grid.appendChild(item);
@@ -393,6 +406,10 @@
         const searchBtn = document.createElement('button');
         searchBtn.textContent = 'Search';
 
+        const fsBtn = document.createElement('button');
+        fsBtn.textContent = '[ ]';
+        fsBtn.title = 'Toggle Fullscreen Player';
+
         const chatBtn = document.createElement('button');
         chatBtn.textContent = 'Chat';
 
@@ -401,6 +418,7 @@
 
         header.appendChild(inputWrapper);
         header.appendChild(searchBtn);
+        header.appendChild(fsBtn);
         header.appendChild(chatBtn);
         header.appendChild(closeBtn);
 
@@ -423,10 +441,10 @@
         chatHeader.className = 'chat-header';
         
         const chatTitle = document.createElement('span');
-        chatTitle.textContent = 'Live Chat';
+        chatTitle.textContent = 'Live Chat (Read Only)';
         
         const popoutBtn = document.createElement('button');
-        popoutBtn.textContent = 'Popout';
+        popoutBtn.textContent = 'Popout (For Typing)';
         
         chatHeader.appendChild(chatTitle);
         chatHeader.appendChild(popoutBtn);
@@ -516,6 +534,10 @@
             if (e.key === 'Enter') executeSearch();
         });
 
+        fsBtn.addEventListener('click', () => {
+            instance.classList.toggle('fullscreen-mode');
+        });
+
         chatBtn.addEventListener('click', () => {
             chatWrapper.style.display = chatWrapper.style.display === 'flex' ? 'none' : 'flex';
         });
@@ -533,13 +555,7 @@
     }
 
     addBtn.addEventListener('click', createPlayer);
-    
-    authBtn.addEventListener('click', () => {
-        window.open('https://www.youtube.com', '_blank', 'width=800,height=600');
-    });
-
     createPlayer();
-    
     window.addEventListener('resize', updateGrid);
 </script>
 </body>
