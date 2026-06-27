@@ -14,6 +14,10 @@
       font-family: 'Inter', sans-serif;
       font-size: 15px;
       line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .container {
       padding: 60px 24px;
       max-width: 520px;
       margin: 0 auto;
@@ -34,17 +38,8 @@
 
     p { margin-bottom: 28px; }
 
-    .tag {
-      display: inline-block;
-      border: 1px solid #2a2a2a;
-      color: #555;
-      font-size: .75rem;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin: 3px 3px 3px 0;
-    }
-
-    .tags { margin-top: -10px; margin-bottom: 32px; }
+    a { color: #777; text-decoration: none; }
+    a:hover { color: #eee; }
 
     hr {
       border: none;
@@ -52,32 +47,46 @@
       margin: 36px 0;
     }
 
-    a { color: #777; text-decoration: none; }
-    a:hover { color: #eee; }
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: .85rem;
+      color: #444;
+    }
 
-    footer {
-      margin-top: 60px;
-      font-size: .78rem;
-      color: #333;
+    .links a { color: #555; }
+    .links a:hover { color: #eee; }
+
+    /* desktop: left-align with padding */
+    @media (min-width: 768px) {
+      .container {
+        margin: 0 0 0 10vw;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="container">
 
-  <h1>novascatia</h1>
-  <div class="url">novascatia.my.id</div>
+    <h1>novascatia</h1>
+    <div class="url">novascatia.my.id</div>
 
-  <p>psychology student. i think too much about why people do what they do, including myself. still figuring it out.</p>
+    <p>psychology student. i think too much about why people do what they do, including myself. still figuring it out.</p>
 
-  <p>i play guitar every day. no particular reason, just feels wrong not to. still learning, probably always will be.</p>
+    <p>i play guitar every day. no particular reason, just feels wrong not to. still learning, probably always will be.</p>
 
-  <p>you can find me on the motionime discord server. mostly lurking, sometimes talking.</p>
+    <p>you can find me on the <a href="https://discord.gg/motionime" target="_blank">motionime discord</a> server. mostly lurking, sometimes talking.</p>
 
-  <p>also looking for a girlfriend, if that's you :p.</p>
+    <p>also looking for a girlfriend, if that's you.</p>
 
-  <hr />
+    <hr />
 
-  <footer>novascatia.my.id</footer>
+    <div class="links">
+      <a href="https://instagram.com/dkramaaaa" target="_blank">my instagram</a>
+      <a href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=18db406e0da34ca5" target="_blank">my spotify</a>
+    </div>
 
+  </div>
 </body>
 </html>
