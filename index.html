@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: #111;
       color: #aaa;
@@ -17,10 +16,37 @@
       min-height: 100vh;
     }
 
+    /* mobile: single column, centered */
     .container {
       padding: 60px 24px;
       max-width: 520px;
       margin: 0 auto;
+    }
+
+    .photo { display: none; }
+
+    /* desktop: side by side, left-aligned */
+    @media (min-width: 768px) {
+      body {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 0 10vw;
+      }
+      .container {
+        padding: 60px 60px 60px 0;
+        margin: 0;
+        max-width: 420px;
+        flex-shrink: 0;
+      }
+      .photo {
+        display: block;
+        margin-top: 60px;
+        width: 260px;
+        height: 260px;
+        flex-shrink: 0;
+        object-fit: cover;
+      }
     }
 
     h1 {
@@ -29,64 +55,44 @@
       color: #eee;
       margin-bottom: 6px;
     }
-
     .url {
       font-size: .8rem;
       color: #444;
       margin-bottom: 40px;
     }
-
     p { margin-bottom: 28px; }
-
     a { color: #777; text-decoration: none; }
     a:hover { color: #eee; }
-
     hr {
       border: none;
       border-top: 1px solid #1e1e1e;
       margin: 36px 0;
     }
-
     .links {
       display: flex;
       flex-direction: column;
       gap: 8px;
       font-size: .85rem;
-      color: #444;
     }
-
     .links a { color: #555; }
     .links a:hover { color: #eee; }
-
-    /* desktop: left-align with padding */
-    @media (min-width: 768px) {
-      .container {
-        margin: 0 0 0 10vw;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="container">
-
     <h1>novascatia</h1>
     <div class="url">novascatia.my.id</div>
-
     <p>psychology student. i think too much about why people do what they do, including myself. still figuring it out.</p>
-
     <p>i play guitar every day. no particular reason, just feels wrong not to. still learning, probably always will be.</p>
-
     <p>you can find me on the <a href="https://discord.gg/motionime" target="_blank">motionime discord</a> server. mostly lurking, sometimes talking.</p>
-
     <p>also looking for a girlfriend, if that's you.</p>
-
     <hr />
-
     <div class="links">
       <a href="https://instagram.com/dkramaaaa" target="_blank">my instagram</a>
       <a href="https://open.spotify.com/user/312em4jgpxct27qoj7vfu3z2xqei?si=18db406e0da34ca5" target="_blank">my spotify</a>
     </div>
-
   </div>
+
+  <img class="photo" src="photo.jpg" alt="novascatia" />
 </body>
 </html>
